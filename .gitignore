@@ -1,0 +1,16 @@
+/build/
+/liss
+/website/
+
+*.dot
+*.log
+
+_custom.kdev4
+
+callgrind.*
+
+.kdev4
+
+*.output/
+
+*.start.c

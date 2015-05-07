@@ -1,0 +1,1 @@
+add_library(abstraction symbol.cpp identifier_store.cpp concurrent_state.cpp concurrent_automaton.cpp)

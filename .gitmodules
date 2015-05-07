@@ -1,0 +1,6 @@
+[submodule "libs/z3"]
+	path = libs/z3
+	url = https://github.com/Z3Prover/z3.git
+[submodule "libs/Limi"]
+	path = libs/Limi
+	url = https://github.com/thorstent/Limi
