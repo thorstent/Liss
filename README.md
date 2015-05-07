@@ -62,7 +62,7 @@ Command Line
 
 To do a simple language inclusion test between the non-preemptive and the preemptive semantics one can use
 
-  ./liss -inclusion -v 2 input.c --
+	./liss -inclusion -v 2 input.c --
 
 It is important to keep the `--` in the end of the command line. The option `-v` sets the verbosity level. Level 2 offers some debug information.
 
