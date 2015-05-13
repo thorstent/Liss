@@ -35,6 +35,7 @@ void program::add_thread(abstract_cfg* thread)
   abstract_cfg* new_thread = new abstract_cfg(*thread);
   threads_.push_back(thread);
   new_thread->minimise();
+  new_thread->compact();
   //new_thread->add_tags();
   minimised_threads_.push_back(new_thread);
 }

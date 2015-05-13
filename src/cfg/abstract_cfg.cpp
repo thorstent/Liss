@@ -66,7 +66,6 @@ abstract_cfg::abstract_cfg(const clang::FunctionDecl* fd)
 : declaration(fd)
 {
   add_state("No state");
-  initial_states_.insert(1);
   clang::DeclarationName dn = declaration->getNameInfo().getName();
   name = dn.getAsString();
 }
@@ -135,15 +134,13 @@ void abstract_cfg::minimise()
   
   // add the current set of initial states to the frontier
   std::deque<pair<state_id,vector<state_id>>> frontier2;
-  for (const state_id s : initial_states_) {
-    frontier2.push_back(make_pair(s,vector<state_id>()));
-  }
+  frontier2.push_back(make_pair(1,vector<state_id>()));
   
   // check if the successor of every state is good, otherwise replace with successor of successor
   while (!frontier2.empty()) {
     pair<state_id,vector<state_id>> nextp = frontier2.front();
     state_id next = nextp.first;
-    assert(states[next].action || states[next].final || initial_states_.find(next) != initial_states_.end());
+    assert(states[next].action || states[next].final || next == 1);
     vector<state_id> parents = nextp.second;
     frontier2.pop_front();
     if (seen.find(next) == seen.end()) {
@@ -182,7 +179,7 @@ void abstract_cfg::minimise()
     }
   }
   
-  calc_distance(*initial_states_.begin());
+  calc_distance(1);
 }
 
 unsigned int abstract_cfg::calc_distance(state_id state)
@@ -204,3 +201,67 @@ unsigned int abstract_cfg::calc_distance(state_id state)
   states[state].distance = min+1;
   return min+1;
 }
+
+void abstract_cfg::compact()
+{
+  vector<bool> active(states.size(), false);
+  // get a list of active states
+  std::deque<state_id> frontier;
+  frontier.push_back(1);
+  
+  while (!frontier.empty()) {
+    state_id next = frontier.front();
+    frontier.pop_front();
+    active[next] = true;
+    for (edge& e : edges[next]) {
+      if (!e.back_edge) {
+        frontier.push_back(e.to);
+      }
+    }
+  }
+  
+  vector<state_id> mapping(states.size(), no_state);
+ 
+  //filter out the ones not active
+  state_id last_active = 0;
+  for (unsigned i = 1; i < states.size(); ++i) {
+    if (!active[i]) {
+      // find next one and move it ahead
+      unsigned j = i;
+      for (; j < states.size(); ++j) {
+        if (active[j]) {
+          // move this
+          states[i] = states[j];
+          edges[i] = edges[j];
+          active[j] = false;
+          mapping[j] = i;
+          states[i].id = i;
+          break;
+        }
+      }
+      if (j == states.size()) break;
+    }
+    last_active = i;
+  }
+  
+  // truncate the vectors
+  states.erase(states.begin()+last_active+1, states.end());
+  edges.erase(edges.begin()+last_active+1, edges.end());
+  
+  // now update the mappings
+  for (unsigned i = 1; i < states.size(); ++i) {
+    for (edge& e : edges[i]) {
+      if (mapping[e.to]!=no_state) e.to = mapping[e.to];
+    }
+  }
+}
+
+const unordered_set< state_id > abstract_cfg::get_forward_successors(state_id from) const
+{
+  unordered_set< state_id > res;
+  for (const edge& e : edges[from]) {
+    if (!e.back_edge) res.insert(e.to);
+  }
+  return res;
+}
+

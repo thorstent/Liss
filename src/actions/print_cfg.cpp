@@ -21,6 +21,8 @@
 #include "cfg/dot_printer.h"
 #include "options.h"
 
+#include "placement/place_locks.h"
+
 using namespace actions;
 
 void print_cfg::run(const cfg::program& program, clang::CompilerInstance& compiler)
@@ -28,7 +30,17 @@ void print_cfg::run(const cfg::program& program, clang::CompilerInstance& compil
   for (const cfg::abstract_cfg* thread : program.threads()) {
     cfg::print_dot(*thread, debug_folder + thread->name + "_cfg.dot");
   }
+  unsigned t = 0;
   for (const cfg::abstract_cfg* thread : program.minimised_threads()) {
-    cfg::print_dot(*thread, debug_folder + thread->name + "_min_cfg.dot");
+    cfg::print_dot(*thread, debug_folder + thread->name + "_min_cfg(" + std::to_string(t) + ").dot");
+    ++t;
+  }
+  
+  placement::place_locks plocks(program.minimised_threads());
+  try {
+  //placement::place_locks plocks(program.threads());
+  }
+  catch (z3::exception ex) {
+    std::cerr << ex.msg() << std::endl;
   }
 }

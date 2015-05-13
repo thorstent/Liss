@@ -89,12 +89,17 @@ public:
    */
   void minimise();
   
-  
+  /**
+   * @brief Ensures that the arrays are tightly packed
+   */
+  void compact();
   
   std::string name;
   
   inline const std::unordered_set<state_id> initial_states() const {
-    return initial_states_;
+    std::unordered_set<state_id> ret;
+    ret.insert(1); // default initial state
+    return ret;
   }
   inline const state& get_state(state_id id) const { 
     return states[id];
@@ -107,12 +112,13 @@ public:
   inline const std::vector<edge> get_successors(state_id from) const {
     return edges[from];
   }
+  const std::unordered_set<state_id> get_forward_successors(state_id from) const;
+  inline unsigned no_states() const { return states.size()-1; }
 
 private:
   typedef std::unordered_set<std::unordered_multiset<const abstraction::symbol*>> set_of_set;
   std::vector<state> states;
   std::vector<std::vector<edge>> edges;
-  std::unordered_set<state_id> initial_states_;
   void tag_edge(state_id state, uint8_t edge);
   unsigned calc_distance(state_id state);
 };

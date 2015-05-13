@@ -27,7 +27,7 @@ set(CLANG_LIBS clangTooling clangFrontend clangDriver clangSerialization clangPa
 
 #z3
 include_directories("${PROJECT_SOURCE_DIR}/../libs/z3/src/api" "${PROJECT_SOURCE_DIR}/../libs")
-link_directories("${PROJECT_SOURCE_DIR}/../libs/z3/build")
+link_directories("${PROJECT_SOURCE_DIR}/../libs/z3/buildd")
 
 #Limi
 include_directories("../libs/Limi")
@@ -52,13 +52,14 @@ add_subdirectory(clang_interf)
 add_subdirectory(actions)
 add_subdirectory(synthesis)
 add_subdirectory(cfg)
+add_subdirectory(placement)
 
 add_executable(liss options.cpp main.cpp "${CMAKE_CURRENT_BINARY_DIR}/GIT.cpp") 
 
 #add_precompiled_header(langinc pch.h
 #       FORCEINCLUDE)
 
-target_link_libraries(liss actions synthesis z3 clang_interf cfg abstraction ${Boost_LIBRARIES} -fopenmp ${CLANG_LIBS} ${LLVM_LIBRARIES} ${LLVM_LDFLAGS})
+target_link_libraries(liss actions synthesis z3 clang_interf placement cfg abstraction ${Boost_LIBRARIES} -fopenmp ${CLANG_LIBS} ${LLVM_LIBRARIES} ${LLVM_LDFLAGS})
 
 #add_executable(test_antichain tests/antichain.cpp)
 
