@@ -37,7 +37,7 @@ z3::expr synthesis::make_constraint(z3::context& ctx, dnf d) {
   return result;
 }
 
-void print_constraint(const conj& c, const Limi::printer< abstraction::pcsymbol >& symbol_printer, std::ostream& out, std::string seperator)
+void print_constraint(const conj& c, const Limi::printer< abstraction::psymbol >& symbol_printer, std::ostream& out, std::string seperator)
 {
   if (c.size()==0)
     out << "true";
@@ -50,17 +50,17 @@ void print_constraint(const conj& c, const Limi::printer< abstraction::pcsymbol 
   }
 }
 
-void synthesis::print_constraint(const conj& c, const Limi::printer< abstraction::pcsymbol >& symbol_printer, std::ostream& out)
+void synthesis::print_constraint(const conj& c, const Limi::printer< abstraction::psymbol >& symbol_printer, std::ostream& out)
 {
   ::print_constraint(c, symbol_printer, out, "/\\");
 }
 
-void synthesis::print_constraint_cnf(const disj& d, const Limi::printer< abstraction::pcsymbol >& symbol_printer, std::ostream& out)
+void synthesis::print_constraint_cnf(const disj& d, const Limi::printer< abstraction::psymbol >& symbol_printer, std::ostream& out)
 {
   ::print_constraint(d, symbol_printer, out, "\\/");
 }
 
-void synthesis::print_constraint(const dnf& d, const Limi::printer< abstraction::pcsymbol >& symbol_printer, std::ostream& out)
+void synthesis::print_constraint(const dnf& d, const Limi::printer< abstraction::psymbol >& symbol_printer, std::ostream& out)
 {
   if (d.size()==0)
     out << "false";

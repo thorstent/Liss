@@ -29,10 +29,10 @@
 using namespace actions;
 using namespace std;
 
-struct short_symbol_printer : public Limi::printer_base<abstraction::pcsymbol> {
-  virtual void print(const abstraction::pcsymbol& symbol, std::ostream& out) const {
-    out << std::to_string(symbol.thread_id);
-    out << symbol.symbol->operation << symbol.symbol->variable << symbol.symbol->cstack.back().second;
+struct short_symbol_printer : public Limi::printer_base<abstraction::psymbol> {
+  virtual void print(const abstraction::psymbol& symbol, std::ostream& out) const {
+    out << std::to_string(symbol->thread_id);
+    out << symbol->operation << symbol->variable << symbol->cstack.back().second;
   }
 };
 
@@ -54,7 +54,7 @@ void actions::print_program(const cfg::program& program, bool timbuk, bool only_
     
     if (!only_threads) {
       abstraction::concurrent_automaton automaton(program, true);
-      Limi::dot_printer<abstraction::pcstate, abstraction::pcsymbol, abstraction::concurrent_automaton> pr;
+      Limi::dot_printer<abstraction::pcstate, abstraction::psymbol, abstraction::concurrent_automaton> pr;
       pr.print_dot(automaton, debug_folder + prefix + "program_con.dot");
       abstraction::concurrent_automaton automaton2(program, false);
       pr.print_dot(automaton2, debug_folder + prefix + "program_seq.dot");
@@ -64,8 +64,8 @@ void actions::print_program(const cfg::program& program, bool timbuk, bool only_
       pr.print_dot(automaton2_ef, debug_folder + prefix + "program_seq_ef.dot");
     }
   } else {
-    Limi::timbuk_printer<abstraction::pcstate, abstraction::pcsymbol, abstraction::concurrent_automaton, Limi::no_independence<abstraction::pcsymbol>> pr_noind;
-    Limi::timbuk_printer<abstraction::pcstate, abstraction::pcsymbol, abstraction::concurrent_automaton> pr;
+    Limi::timbuk_printer<abstraction::pcstate, abstraction::psymbol, abstraction::concurrent_automaton, Limi::no_independence<abstraction::psymbol>> pr_noind;
+    Limi::timbuk_printer<abstraction::pcstate, abstraction::psymbol, abstraction::concurrent_automaton> pr;
     abstraction::concurrent_automaton concurrent(program, true, true);
     pr_noind.print_timbuk(concurrent, debug_folder + prefix + "program_con.timbuk", symbol_printer, "C");
     abstraction::concurrent_automaton sequential(program, false, true);

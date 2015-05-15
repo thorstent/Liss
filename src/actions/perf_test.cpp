@@ -31,7 +31,7 @@ using namespace actions;
 double perf_test::run_time(const cfg::program& program, bool concurrent, bool epsilon_removal)
 {
   abstraction::concurrent_automaton automaton(program, concurrent, epsilon_removal);
-  automata::perf_test<abstraction::pcstate,abstraction::pcsymbol,abstraction::concurrent_automaton> algo(automaton);
+  automata::perf_test<abstraction::pcstate,abstraction::psymbol,abstraction::concurrent_automaton> algo(automaton);
   steady_clock::time_point t1 = steady_clock::now();
   algo.run();
   steady_clock::time_point t2 = steady_clock::now();
@@ -42,7 +42,7 @@ double perf_test::run_time(const cfg::program& program, bool concurrent, bool ep
 double perf_test::run_time_old(const cfg::program& program, bool concurrent, bool epsilon_removal)
 {
   abstraction::concurrent_automaton automaton(program, concurrent, epsilon_removal);
-  automata::perf_test_old<abstraction::pcstate,abstraction::pcsymbol,abstraction::concurrent_automaton> algo(automaton);
+  automata::perf_test_old<abstraction::pcstate,abstraction::psymbol,abstraction::concurrent_automaton> algo(automaton);
   steady_clock::time_point t1 = steady_clock::now();
   algo.run();
   steady_clock::time_point t2 = steady_clock::now();

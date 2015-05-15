@@ -50,7 +50,7 @@ bool thread_visitor::TraverseFunctionDecl(FunctionDecl* fd)
     std::string name = dn.getAsString();
     
     if (cfg::program::is_thread_name(name)) {
-      cfg::abstract_cfg* thread = new cfg::abstract_cfg(fd);
+      cfg::abstract_cfg* thread = new cfg::abstract_cfg(fd, program.no_threads());
       parse_thread(*thread, program.identifiers(), context);
       
       program.add_thread(thread);

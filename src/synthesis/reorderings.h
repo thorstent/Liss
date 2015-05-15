@@ -21,7 +21,7 @@
 #define SYNTHESIS_REORDERINGS_H
 
 #include <list>
-#include "abstraction/csymbol.h"
+#include "abstraction/symbol.h"
 #include <z3++.h>
 #include <vector>
 #include "location.h"
@@ -76,7 +76,7 @@ private:
   conj find_order(const seperated_trace& strace, const z3::model& model);
   void print_trace(const seperated_trace& strace, const z3::model& model, std::ostream& out);
   z3::context& ctx;
-  const Limi::printer<abstraction::pcsymbol> symbol_printer;
+  const Limi::printer<abstraction::psymbol> symbol_printer;
   std::bitset<max_locks> get_lockset(const abstraction::pcstate& state);
   void prepare_trace(const synthesis::concurrent_trace& trace, synthesis::reorderings::seperated_trace& strace);
   conj wait_notify_order(const seperated_trace& strace, const z3::model& model);

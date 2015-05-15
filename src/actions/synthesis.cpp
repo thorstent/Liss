@@ -61,7 +61,7 @@ void actions::synthesis::run(const cfg::program& program, clang::CompilerInstanc
   if (success) {
     print_code(program, output_file_code);
   } else {
-    Limi::printer<abstraction::pcsymbol> symbol_printer;
+    Limi::printer<abstraction::psymbol> symbol_printer;
     ofstream file_out(output_file_log);
     result.print_long(file_out, symbol_printer);
     file_out.close();
@@ -131,7 +131,7 @@ bool actions::synthesis::synth_loop(const cfg::program& original_program, cfg::p
 {
   z3::context ctx;
 
-  Limi::printer<abstraction::pcsymbol> symbol_printer;
+  Limi::printer<abstraction::psymbol> symbol_printer;
   abstraction::concurrent_automaton sequential(original_program, false, true);
   
   unsigned counter = 0;
@@ -200,18 +200,18 @@ bool actions::synthesis::synth_loop(const cfg::program& original_program, cfg::p
     }
     program.clear_threads();
     for (const clang::FunctionDecl* f : functions) {
-      cfg::abstract_cfg* cfg = new cfg::abstract_cfg(f);
+      cfg::abstract_cfg* cfg = new cfg::abstract_cfg(f,0);
       clang_interf::parse_thread(*cfg, program.identifiers(), program.ast_context);
       program.add_thread(cfg);
     }
     
     /*abstraction::concurrent_automaton sequential_new(program, false, true);
-    Limi::antichain_algo<abstraction::pcstate,abstraction::pcstate,abstraction::pcsymbol,abstraction::concurrent_automaton,abstraction::concurrent_automaton> algo2(sequential_new, sequential);
-    Limi::inclusion_result<abstraction::pcsymbol> result2 = algo2.run();
+    Limi::antichain_algo<abstraction::pcstate,abstraction::pcstate,abstraction::psymbol,abstraction::concurrent_automaton,abstraction::concurrent_automaton> algo2(sequential_new, sequential);
+    Limi::inclusion_result<abstraction::psymbol> result2 = algo2.run();
     result2.print_long(debug, sequential_new.symbol_printer());
     
-    Limi::antichain_algo<abstraction::pcstate,abstraction::pcstate,abstraction::pcsymbol,abstraction::concurrent_automaton,abstraction::concurrent_automaton> algo3(sequential, sequential_new);
-    Limi::inclusion_result<abstraction::pcsymbol> result3 = algo3.run();
+    Limi::antichain_algo<abstraction::pcstate,abstraction::pcstate,abstraction::psymbol,abstraction::concurrent_automaton,abstraction::concurrent_automaton> algo3(sequential, sequential_new);
+    Limi::inclusion_result<abstraction::psymbol> result3 = algo3.run();
     result3.print_long(debug, sequential.symbol_printer());*/
   }
 }

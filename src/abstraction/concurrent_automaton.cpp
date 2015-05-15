@@ -29,7 +29,7 @@ using namespace std;
 using namespace abstraction;
 
 concurrent_automaton::concurrent_automaton(const cfg::program& program, bool concurrent, bool collapse_epsilon) : 
-Limi::automaton<pcstate,pcsymbol,concurrent_automaton>(collapse_epsilon),
+Limi::automaton<pcstate,psymbol,concurrent_automaton>(collapse_epsilon),
 identifier_store_(program.identifiers()),
 concurrent_(concurrent)
 {
@@ -93,11 +93,11 @@ void concurrent_automaton::int_next_symbols(const pcstate& state, concurrent_aut
   }
 }
 
-void concurrent_automaton::int_successors(const pcstate& state, const pcsymbol& sigma, concurrent_automaton::State_set& successors) const
+void concurrent_automaton::int_successors(const pcstate& state, const psymbol& sigma, concurrent_automaton::State_set& successors) const
 {
-  thread_id_type thread = sigma.thread_id;
+  thread_id_type thread = sigma->thread_id;
   if (state->current != unassigned && state->current != static_cast<int>(thread)) return;
-  cfg::reward_symbol rs(0,sigma.symbol);
+  cfg::reward_symbol rs(0,sigma);
   const cfg::automaton::State_set succs = threads[thread].successors(state->threads[thread], rs); // cost is not relevant here
   assert(!succs.empty());
   bool progress;
@@ -123,13 +123,13 @@ void concurrent_automaton::int_successors(const pcstate& state, const pcsymbol& 
   }
 }
 
-pcstate concurrent_automaton::apply_symbol(const pcstate& original_state, const pcsymbol& sigma, bool& progress) const
+pcstate concurrent_automaton::apply_symbol(const pcstate& original_state, const psymbol& sigma, bool& progress) const
 {
   progress = true;
 
-  if (!concurrent_ && sigma.symbol->synthesised) {
+  if (!concurrent_ && sigma->synthesised) {
     // test if locking is ok
-    switch (sigma.symbol->operation) {
+    switch (sigma->operation) {
       case abstraction::op_class::read:
       case abstraction::op_class::write:
       case abstraction::op_class::epsilon:
@@ -140,68 +140,68 @@ pcstate concurrent_automaton::apply_symbol(const pcstate& original_state, const 
         break;
       case abstraction::op_class::wait_reset:
       case abstraction::op_class::wait:
-        if (!original_state->conditionals.test(sigma.symbol->variable)) {
+        if (!original_state->conditionals.test(sigma->variable)) {
           // no context switching on synthesised symbols
-          if (original_state->current == unassigned || (sigma.symbol->assume&&!assumes_allow_switch)) return nullptr;
+          if (original_state->current == unassigned || (sigma->assume&&!assumes_allow_switch)) return nullptr;
         }
         break;
       case abstraction::op_class::wait_not:
-        if (original_state->conditionals.test(sigma.symbol->variable)) {
-          if (original_state->current == unassigned || (sigma.symbol->assume&&!assumes_allow_switch)) return nullptr;
+        if (original_state->conditionals.test(sigma->variable)) {
+          if (original_state->current == unassigned || (sigma->assume&&!assumes_allow_switch)) return nullptr;
         }
         break;
       case abstraction::op_class::lock:
-        if (original_state->locks.test(sigma.symbol->variable)) {
-          if (original_state->current == unassigned || (sigma.symbol->assume&&!assumes_allow_switch)) return nullptr;
+        if (original_state->locks.test(sigma->variable)) {
+          if (original_state->current == unassigned || (sigma->assume&&!assumes_allow_switch)) return nullptr;
         }
         break;
     }
   }
   
   pcstate cloned_state = make_shared<concurrent_state>(*original_state);
-  cloned_state->current = sigma.thread_id;
-  if (!concurrent_ && sigma.symbol->synthesised) {
+  cloned_state->current = sigma->thread_id;
+  if (!concurrent_ && sigma->synthesised) {
     return cloned_state;
   }
   // apply changes
-  switch (sigma.symbol->operation) {
+  switch (sigma->operation) {
     case abstraction::op_class::read:
     case abstraction::op_class::write:
     case abstraction::op_class::epsilon:
       break;
     case abstraction::op_class::lock:
-      if (original_state->locks.test(sigma.symbol->variable)) {
+      if (original_state->locks.test(sigma->variable)) {
         cloned_state->current = unassigned;
         progress = false;
       } else {
-        cloned_state->locks.set(sigma.symbol->variable);
+        cloned_state->locks.set(sigma->variable);
       }
       break;
     case abstraction::op_class::unlock:
-        cloned_state->locks.reset(sigma.symbol->variable);
+        cloned_state->locks.reset(sigma->variable);
       break;
     case abstraction::op_class::notify:
-      cloned_state->conditionals.set(sigma.symbol->variable);
+      cloned_state->conditionals.set(sigma->variable);
       break;
     case abstraction::op_class::reset:
-      cloned_state->conditionals.reset(sigma.symbol->variable);
+      cloned_state->conditionals.reset(sigma->variable);
       break;
     case abstraction::op_class::wait_reset:
-      if (!cloned_state->conditionals.test(sigma.symbol->variable)) {
+      if (!cloned_state->conditionals.test(sigma->variable)) {
         cloned_state->current = unassigned;
         progress = false;
       } else {
-        cloned_state->conditionals.reset(sigma.symbol->variable);
+        cloned_state->conditionals.reset(sigma->variable);
       }
       break;
     case abstraction::op_class::wait:
-      if (!cloned_state->conditionals.test(sigma.symbol->variable)) {
+      if (!cloned_state->conditionals.test(sigma->variable)) {
         cloned_state->current = unassigned;
         progress = false;
       }
       break;
     case abstraction::op_class::wait_not:
-      if (cloned_state->conditionals.test(sigma.symbol->variable)) {
+      if (cloned_state->conditionals.test(sigma->variable)) {
         cloned_state->current = unassigned;
         progress = false;
       }
@@ -217,15 +217,9 @@ pcstate concurrent_automaton::apply_symbol(const pcstate& original_state, const 
 inline void concurrent_automaton::next_single(const pcstate& state, concurrent_automaton::Symbol_set& symbols, unsigned int thread) const
 {
   for (const cfg::reward_symbol& s : threads[thread].next_symbols((*state)[thread])) {
-    pcsymbol sym = csymbol(s.symbol, thread);
-    if (successor_filter.empty() || s.symbol->is_epsilon() || successor_filter.find(sym)!=successor_filter.end())
-    symbols.insert(sym);
+    if (successor_filter.empty() || s.symbol->is_epsilon() || successor_filter.find(s.symbol)!=successor_filter.end())
+    symbols.insert(s.symbol);
   }
 }
 
-
-inline pcsymbol concurrent_automaton::make_pair(psymbol symbol, unsigned int thread) const
-{
-  return csymbol(symbol, thread);
-}
 

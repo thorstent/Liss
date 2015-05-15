@@ -75,8 +75,11 @@ struct symbol
   const clang::FileEntry* fileentry = nullptr;
   unsigned line_no = 0;
   
-  state_id tag_state = no_state;
-  uint8_t tag_branch = 0;
+  // to be able to find this later again in the CFG
+  state_id state = no_state;
+  thread_id_type thread_id = no_thread;
+  int8_t tag_branch = -1;
+  
   
   mutable uint16_t origin;
   /**
@@ -103,12 +106,13 @@ struct symbol
   symbol(const symbol& sym) = default;
   
   bool operator==(const symbol &other) const {
-    if (tag_state == no_state) {
-      if (other.tag_state!=no_state) return false;
+    if (thread_id != other.thread_id) return false;
+    if (tag_branch == -1) {
+      if (other.tag_branch!=-1) return false;
       return (operation == other.operation && variable == other.variable && instr_id() == other.instr_id());
     } else {
-      if (other.tag_state==no_state) return false;
-      return (tag_state == other.tag_state) && (tag_branch == other.tag_branch);
+      if (other.tag_branch==-1) return false;
+      return (state == other.state) && (tag_branch == other.tag_branch);
     }
   }
   
@@ -133,13 +137,13 @@ namespace std {
   };
   template<> struct hash<abstraction::symbol> {
     size_t operator()(const abstraction::symbol& val) const {
-      std::size_t seed = 0;
-      if (val.tag_state == no_state) {
+      std::size_t seed = val.thread_id;
+      if (val.tag_branch == -1) {
         Limi::internal::hash_combine(seed, val.operation);
         Limi::internal::hash_combine(seed, val.variable);
         Limi::internal::hash_combine(seed, val.instr_id());
       } else {
-        Limi::internal::hash_combine(seed, val.tag_state);
+        Limi::internal::hash_combine(seed, val.state);
         Limi::internal::hash_combine(seed, val.tag_branch);
       }
       return seed;
@@ -163,6 +167,24 @@ namespace Limi {
   template<> struct printer<abstraction::psymbol> : public printer_base<abstraction::psymbol> {
     inline virtual void print(const abstraction::psymbol& symbol, std::ostream& out) const {
       out << symbol;
+    }
+  };
+  
+  template<> struct independence<abstraction::symbol> {
+    inline bool operator()(const abstraction::symbol& a, const abstraction::symbol& b) const {
+      return a.thread_id!=b.thread_id && 
+      (
+        a.variable != b.variable ||
+        a.operation==abstraction::op_class::read && b.operation==abstraction::op_class::read ||
+        a.is_epsilon() || b.is_epsilon() ||
+        a.operation==abstraction::op_class::tag || b.operation==abstraction::op_class::tag
+      );
+    }
+  };
+  
+  template<> struct independence<abstraction::psymbol> {
+    inline bool operator()(const abstraction::psymbol& a, const abstraction::psymbol& b) const {
+      return independence< abstraction::symbol >()(*a,*b);
     }
   };
 }

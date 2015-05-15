@@ -64,7 +64,7 @@ std::ostream& operator<<(std::ostream& os, const edge& e);
 class abstract_cfg
 {
 public:
-  abstract_cfg(const clang::FunctionDecl* fd);
+  abstract_cfg(const clang::FunctionDecl* fd, thread_id_type thread_id);
   abstract_cfg(const abstract_cfg& other) = default;
   const clang::FunctionDecl* declaration; // just to have this around
   
@@ -114,6 +114,8 @@ public:
   }
   const std::unordered_set<state_id> get_forward_successors(state_id from) const;
   inline unsigned no_states() const { return states.size()-1; }
+  
+  const thread_id_type thread_id;
 
 private:
   typedef std::unordered_set<std::unordered_multiset<const abstraction::symbol*>> set_of_set;

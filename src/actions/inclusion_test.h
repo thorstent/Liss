@@ -22,12 +22,12 @@
 
 #include "action_base.h"
 #include <Limi/results.h>
-#include "abstraction/csymbol.h"
+#include "abstraction/symbol.h"
 #include "abstraction/concurrent_automaton.h"
 
 namespace actions {
 
-typedef Limi::inclusion_result< abstraction::pcsymbol > inclusion_result;
+typedef Limi::inclusion_result< abstraction::psymbol > inclusion_result;
 bool test_inclusion(const cfg::program& program, inclusion_result& result);
 bool test_inclusion(const cfg::program& sequential_program, const cfg::program& concurrent_program, inclusion_result& result);
 /**

@@ -24,7 +24,7 @@
 using namespace synthesis;
 using namespace std;
 
-void synthesis::print_lock(const lock& lock, const Limi::printer< abstraction::pcsymbol >& symbol_printer, std::ostream& out) {
+void synthesis::print_lock(const lock& lock, const Limi::printer< abstraction::psymbol >& symbol_printer, std::ostream& out) {
   out << lock.name << " (";
   for(auto l = lock.locations.begin(); l!=lock.locations.end(); ) {
     print_location(l->start, symbol_printer, out);

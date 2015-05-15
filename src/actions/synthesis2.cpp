@@ -63,7 +63,7 @@ void actions::synthesis2::run(const cfg::program& program, clang::CompilerInstan
   if (success) {
     print_code(program, output_file_code);
   } else {
-    Limi::printer<abstraction::pcsymbol> symbol_printer;
+    Limi::printer<abstraction::psymbol> symbol_printer;
     ofstream file_out(output_file_log);
     result.print_long(file_out, symbol_printer);
     file_out.close();
@@ -128,7 +128,7 @@ void actions::synthesis2::print_summary(const cfg::program& original_program) {
   debug << "| " << original_program.no_threads() << " | " << iteration << " | " << this->max_bound <<  " | " << (double)langinc.count()/1000 << "s | "  << (double)synthesis_time.count()/1000 << "s | " << (double)verification.count()/1000 << "s |";
 }
 
-vector<vector<placement::location>> locks_to_locations(list<::synthesis::lock> locks, const list<abstraction::pcsymbol>& trace, const cfg::program& program) {
+vector<vector<placement::location>> locks_to_locations(list<::synthesis::lock> locks, const list<abstraction::psymbol>& trace, const cfg::program& program) {
   vector<vector<placement::location>> result;
   for (::synthesis::lock l : locks) {
     result.push_back(vector<placement::location>());
@@ -143,7 +143,7 @@ bool actions::synthesis2::synth_loop(const cfg::program& original_program, cfg::
 {
   z3::context ctx;
 
-  Limi::printer<abstraction::pcsymbol> symbol_printer;
+  Limi::printer<abstraction::psymbol> symbol_printer;
   abstraction::concurrent_automaton sequential(original_program, false, true);
   
   placement::place_locks plocks(original_program.minimised_threads());
@@ -195,12 +195,6 @@ bool actions::synthesis2::synth_loop(const cfg::program& original_program, cfg::
     std::list<const clang::FunctionDecl*> functions;
     for (const cfg::abstract_cfg* t : program.threads()) {
       functions.push_back(t->declaration);
-    }
-    program.clear_threads();
-    for (const clang::FunctionDecl* f : functions) {
-      cfg::abstract_cfg* cfg = new cfg::abstract_cfg(f);
-      clang_interf::parse_thread(*cfg, program.identifiers(), program.ast_context);
-      program.add_thread(cfg);
     }
 
   }

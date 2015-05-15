@@ -32,7 +32,7 @@ using namespace clang;
 using namespace std;
 
 insertion::insertion(cfg::program& program):
-program(program), symbol_printer(Limi::printer<abstraction::pcsymbol>())
+program(program), symbol_printer(Limi::printer<abstraction::psymbol>())
 {
   
 }
@@ -65,8 +65,8 @@ void insertion::add_locks(std::list< lock >& locks)
       
       lp.inserted_start = insert_call("int_lock", l.declaration, lp.parent, false, lp.starts);
       lp.inserted_end =  insert_call("int_unlock", l.declaration, lp.parent, true, lp.ends);
-      lp.start.symbol.symbol = nullptr; // these pointers are invalid later on
-      lp.end.symbol.symbol = nullptr;
+      lp.start.symbol = nullptr; // these pointers are invalid later on
+      lp.end.symbol = nullptr;
     }
   }
 }
@@ -207,8 +207,8 @@ bool insertion::find_parent(lock_location& lp)
   std::unordered_set<Stmt*> locs;
   Stmt* start; Stmt* end;
   CompoundStmt* common_parent;
-  call_stack stack1 = lp.start.symbol.symbol->cstack;
-  call_stack stack2 = lp.end.symbol.symbol->cstack;
+  call_stack stack1 = lp.start.symbol->cstack;
+  call_stack stack2 = lp.end.symbol->cstack;
   if (!find_parent(stack1, stack2, locs, common_parent, start, end))
     return false;
   lp.ends = end;

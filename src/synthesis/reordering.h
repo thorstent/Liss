@@ -34,7 +34,7 @@ struct reordering
 };
 
 
-void print_reordering(const reordering& reordering, const Limi::printer< abstraction::pcsymbol >& symbol_printer, std::ostream& out);
+void print_reordering(const reordering& reordering, const Limi::printer< abstraction::psymbol >& symbol_printer, std::ostream& out);
 }
 
 #endif // SYNTHESIS_REORDERING_H

@@ -22,7 +22,7 @@
 
 #include "action_base.h"
 #include <Limi/results.h>
-#include "abstraction/csymbol.h"
+#include "abstraction/symbol.h"
 
 namespace clang {
   class Rewriter;
@@ -41,7 +41,7 @@ private:
   void print_code(const cfg::program& program, std::string directory, std::string filename);
   void print_code(const cfg::program& program, std::string filename);
   bool is_local(clang::Decl* d, clang::ASTContext& ast_context);
-  Limi::inclusion_result<abstraction::pcsymbol> result; // so we can access this if synthesis goes wrong
+  Limi::inclusion_result<abstraction::psymbol> result; // so we can access this if synthesis goes wrong
   unsigned max_bound; // maximum bound during the verification run
   void print_summary(const cfg::program& original_program);
 };

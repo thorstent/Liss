@@ -38,5 +38,6 @@ typedef uint8_t conditional_type;
 
 typedef int8_t thread_id_type;
 const unsigned max_threads = INT8_MAX;
+const thread_id_type no_thread = -1;
 
 #endif 

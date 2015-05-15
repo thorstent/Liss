@@ -26,7 +26,7 @@ using namespace synthesis;
 using namespace std;
 
 synchronisation::synchronisation(const cfg::program& program, const concurrent_trace& trace):
- symbol_printer(Limi::printer<abstraction::pcsymbol>()), trace(trace) {
+ symbol_printer(Limi::printer<abstraction::psymbol>()), trace(trace) {
   
 }
 
@@ -73,17 +73,17 @@ bool synchronisation::find_reordering(const disj& disjunct, list< reordering >& 
     auto it = find(trace.threads[after.thread_id()].rbegin(), trace.threads[after.thread_id()].rend(), after);
     assert(it!=trace.threads[after.thread_id()].rend());
     for (; it!=trace.threads[after.thread_id()].rend(); ++it) {
-      if (it->symbol.symbol->operation == abstraction::op_class::wait || it->symbol.symbol->operation == abstraction::op_class::wait_reset)
+      if (it->symbol->operation == abstraction::op_class::wait || it->symbol->operation == abstraction::op_class::wait_reset)
         waits.push_back(&*it);
     }
     // is there a corresponding notify in the before thread
     it = find(trace.threads[before.thread_id()].rbegin(), trace.threads[before.thread_id()].rend(), before);
     assert(it!=trace.threads[before.thread_id()].rend());
     for (; it!=trace.threads[before.thread_id()].rend(); ++it) {
-      if (it->symbol.symbol->operation == abstraction::op_class::notify) {
+      if (it->symbol->operation == abstraction::op_class::notify) {
         // is there a corresponding wait
-        lock_type var = it->symbol.symbol->variable;
-        auto itw = find_if(waits.begin(), waits.end(), [var](const location* l) {return l->symbol.symbol->variable==var;});
+        lock_type var = it->symbol->variable;
+        auto itw = find_if(waits.begin(), waits.end(), [var](const location* l) {return l->symbol->variable==var;});
         if (itw != waits.end()) {
           found = true;
           lock_location rr(*it,before);

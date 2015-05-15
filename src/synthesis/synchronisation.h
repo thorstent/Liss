@@ -37,7 +37,7 @@ public:
   void generate_sync(const synthesis::cnf& cnf, std::list< synthesis::lock >& locks, std::list< synthesis::reordering >& reorderings, bool prefer_reorder);
 private:
   //const abstraction::program& program;
-  const Limi::printer<abstraction::pcsymbol> symbol_printer;
+  const Limi::printer<abstraction::psymbol> symbol_printer;
   const concurrent_trace& trace;
   bool find_lock(const disj& disjunct, std::list<lock>& locks);
   bool find_reordering(const synthesis::disj& disjunct, std::list< synthesis::reordering >& reorderings);

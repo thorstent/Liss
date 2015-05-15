@@ -33,7 +33,7 @@ using namespace synthesis;
 using namespace std;
 
 reorderings::reorderings(z3::context& ctx, const cfg::program& program) :
-program(program), ctx(ctx), symbol_printer(Limi::printer<abstraction::pcsymbol>()) {
+program(program), ctx(ctx), symbol_printer(Limi::printer<abstraction::psymbol>()) {
   
 }
 
@@ -80,8 +80,8 @@ void reorderings::prepare_trace(const concurrent_trace& trace, reorderings::sepe
   int counter = 0;
   for (const auto& th : trace.threads)
   for (const location loc : th) {
-    unsigned thread_id = loc.symbol.thread_id;
-    variable_type var = loc.symbol.symbol->variable;
+    unsigned thread_id = loc.symbol->thread_id;
+    variable_type var = loc.symbol->variable;
     
     string name = loc.name_str;
     strace.trace.push_back(loc);
@@ -90,9 +90,9 @@ void reorderings::prepare_trace(const concurrent_trace& trace, reorderings::sepe
     z3::expr seq_condition = ctx.bool_val(true); // condition that the sequential constraint has to hold
         
     // deal with other operations
-    switch(loc.symbol.symbol->operation) {
+    switch(loc.symbol->operation) {
       case abstraction::op_class::lock: {
-        if (!loc.symbol.symbol->synthesised) {
+        if (!loc.symbol->synthesised) {
           location loc_between(ctx.fresh_constant((name+"_pre").c_str(), ctx.int_sort()), name+"_pre", loc.symbol, counter++);
           loc_between.pre_location = true;
           if (thread_endpoints[thread_id]) {
@@ -119,7 +119,7 @@ void reorderings::prepare_trace(const concurrent_trace& trace, reorderings::sepe
         resets[var].push_back(loc_ptr);
       case abstraction::op_class::wait:
       case abstraction::op_class::wait_not: {
-        if ((!loc.symbol.symbol->assume||assumes_allow_switch) && !loc.symbol.symbol->synthesised) {
+        if ((!loc.symbol->assume||assumes_allow_switch) && !loc.symbol->synthesised) {
           location loc_between(ctx.fresh_constant((name+"_pre").c_str(), ctx.int_sort()), name+"_pre", loc.symbol, counter++);
           loc_between.pre_location = true;
           if (thread_endpoints[thread_id]) {
@@ -195,7 +195,7 @@ void reorderings::prepare_trace(const concurrent_trace& trace, reorderings::sepe
   // conditions for conditionals
   for (unsigned i = 0; i < waits.size(); ++i) {
     for (auto it = waits[i].begin(); it != waits[i].end(); ++it) {
-      bool is_wait = it->actual->symbol.symbol->operation!=abstraction::op_class::wait_not;
+      bool is_wait = it->actual->symbol->operation!=abstraction::op_class::wait_not;
       if (is_wait) {
         z3::expr conditional_notify = ctx.bool_val(false); // it is not notified to begin with
         z3::expr conditional_notify_pre = ctx.bool_val(false); // for the pre-position
@@ -471,24 +471,24 @@ conj reorderings::wait_notify_order(const reorderings::seperated_trace& strace, 
       vector<bool> after(strace.threads);
       abstraction::op_class before_symbol = abstraction::op_class::notify;
       abstraction::op_class after_symbol = abstraction::op_class::reset;
-      if (it->first->symbol.symbol->operation != abstraction::op_class::wait_not) {
+      if (it->first->symbol->operation != abstraction::op_class::wait_not) {
         before_symbol = abstraction::op_class::reset;
         after_symbol = abstraction::op_class::notify;
       }
       auto ref_loc = *it->first;
       // look for notifies before and resets after
       for (++it; it != order.rend(); ++it) {
-        if (it->first->symbol.symbol->operation != before_symbol) {
-          if (!before[it->first->symbol.thread_id] && it->first->symbol.thread_id != ref_loc.symbol.thread_id) {
-            before[it->first->symbol.thread_id] = true;
+        if (it->first->symbol->operation != before_symbol) {
+          if (!before[it->first->symbol->thread_id] && it->first->symbol->thread_id != ref_loc.symbol->thread_id) {
+            before[it->first->symbol->thread_id] = true;
             result.push_back(constraint_atom(*it->first, ref_loc, true));
           }
         }
       }
       for (++it2; it2 != order.end(); ++it2) {
-        if (it2->first->symbol.symbol->operation != after_symbol) {
-          if (!after[it2->first->symbol.thread_id] && it2->first->symbol.thread_id != ref_loc.symbol.thread_id) {
-            after[it2->first->symbol.thread_id] = true;
+        if (it2->first->symbol->operation != after_symbol) {
+          if (!after[it2->first->symbol->thread_id] && it2->first->symbol->thread_id != ref_loc.symbol->thread_id) {
+            after[it2->first->symbol->thread_id] = true;
             result.push_back(constraint_atom(ref_loc, *it2->first, true));
           }
         }

@@ -20,7 +20,7 @@
 #ifndef SYNTHESIS_TRACE_H
 #define SYNTHESIS_TRACE_H
 
-#include "abstraction/csymbol.h"
+#include "abstraction/symbol.h"
 #include "cfg/program.h"
 #include "location.h"
 #include <vector>
@@ -32,7 +32,7 @@ namespace synthesis {
     std::vector<std::list<location>> threads;
   };
   
-  concurrent_trace make_trace(z3::context& ctx, const cfg::program& program, const std::list< abstraction::pcsymbol > trace);
+  concurrent_trace make_trace(z3::context& ctx, const cfg::program& program, const std::list< abstraction::psymbol > trace);
 }
 
 #endif

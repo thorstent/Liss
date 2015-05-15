@@ -45,7 +45,7 @@ public:
   void apply_reorderings(std::list<reordering>& reorderings);
 private:
   cfg::program& program;
-  const Limi::printer<abstraction::pcsymbol> symbol_printer;
+  const Limi::printer<abstraction::psymbol> symbol_printer;
   /**
    * @brief Find the position in the code where to place a lock
    * 

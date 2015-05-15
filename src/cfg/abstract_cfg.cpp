@@ -62,8 +62,8 @@ ostream& cfg::operator<<(ostream& os, const edge& e)
 }
 
 
-abstract_cfg::abstract_cfg(const clang::FunctionDecl* fd)
-: declaration(fd)
+abstract_cfg::abstract_cfg(const clang::FunctionDecl* fd, thread_id_type thread_id)
+: declaration(fd), thread_id(thread_id)
 {
   add_state("No state");
   clang::DeclarationName dn = declaration->getNameInfo().getName();
@@ -73,9 +73,10 @@ abstract_cfg::abstract_cfg(const clang::FunctionDecl* fd)
 state_id abstract_cfg::add_state(const abstraction::symbol& symbol, const clang::Stmt* stmt)
 {
   if (states.size()>=max_states) throw range_error("Maximum number of states reached");
-  shared_ptr<abstraction::symbol> sym = make_shared<abstraction::symbol>(symbol);
   states.emplace_back(states.size(), symbol);
   edges.emplace_back();
+  states.back().action->thread_id = thread_id;
+  states.back().action->state = states.size() - 1;
   return states.size() - 1;
 }
 

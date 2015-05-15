@@ -24,7 +24,7 @@
 using namespace synthesis;
 using namespace std;
 
-void synthesis::print_reordering(const reordering& reordering, const Limi::printer< abstraction::pcsymbol >& symbol_printer, std::ostream& out) {
+void synthesis::print_reordering(const reordering& reordering, const Limi::printer< abstraction::psymbol >& symbol_printer, std::ostream& out) {
   out << reordering.name << " (";
   print_location(reordering.location.start, symbol_printer, out);
   out << "-";

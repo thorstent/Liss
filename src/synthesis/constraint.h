@@ -45,10 +45,10 @@ typedef std::vector<conj> cnf;
 z3::expr make_constraint(z3::context& ctx, conj c);
 z3::expr make_constraint(z3::context& ctx, dnf d);
 
-void print_constraint(const conj& c, const Limi::printer< abstraction::pcsymbol >& symbol_printer, std::ostream& out);
-void print_constraint(const dnf& d, const Limi::printer< abstraction::pcsymbol >& symbol_printer, std::ostream& out);
+void print_constraint(const conj& c, const Limi::printer< abstraction::psymbol >& symbol_printer, std::ostream& out);
+void print_constraint(const dnf& d, const Limi::printer< abstraction::psymbol >& symbol_printer, std::ostream& out);
 
-void print_constraint_cnf(const disj& d, const Limi::printer< abstraction::pcsymbol >& symbol_printer, std::ostream& out);
+void print_constraint_cnf(const disj& d, const Limi::printer< abstraction::psymbol >& symbol_printer, std::ostream& out);
 
 cnf negate_dnf(const dnf& dnf);
 

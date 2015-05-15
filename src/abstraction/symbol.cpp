@@ -79,7 +79,8 @@ operation(operation), cstack(cstack), variable_name(variable_name), variable(var
 
 std::ostream& abstraction::operator<< (std::ostream &out, const abstraction::symbol &val) {
   val.operation;
-  if (val.tag_state != no_state) {
+  out << val.thread_id << "-";
+  if (val.tag_branch != -1) {
     out << to_string(val.tag_branch);
   } else {
     out << val.operation;
@@ -95,7 +96,7 @@ std::ostream& abstraction::operator<< (std::ostream &out, const abstraction::sym
   return out;
 }
 
-symbol::symbol(state_id state, uint8_t branch) : operation(op_class::tag), tag_state(state), tag_branch(branch)
+symbol::symbol(state_id state, uint8_t branch) : operation(op_class::tag), state(state), tag_branch(branch)
 {
   
 }

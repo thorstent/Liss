@@ -38,7 +38,7 @@ bool actions::test_deadlock(const cfg::program& program, deadlock_result& result
 
 bool actions::test_deadlock(const abstraction::concurrent_automaton& automaton, deadlock_result& result)
 {
-  Limi::deadlock_algo<abstraction::pcstate,abstraction::pcsymbol,abstraction::concurrent_automaton> algo;
+  Limi::deadlock_algo<abstraction::pcstate,abstraction::psymbol,abstraction::concurrent_automaton> algo;
   result = algo.run(automaton);
   return true;
 }

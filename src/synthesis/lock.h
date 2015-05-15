@@ -55,7 +55,7 @@ namespace synthesis {
     clang::VarDecl* declaration = nullptr;
   };
   
-  void print_lock(const lock& lock, const Limi::printer< abstraction::pcsymbol >& symbol_printer, std::ostream& out);
+  void print_lock(const lock& lock, const Limi::printer< abstraction::psymbol >& symbol_printer, std::ostream& out);
   
 }
 
