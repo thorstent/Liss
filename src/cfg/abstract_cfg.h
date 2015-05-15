@@ -46,6 +46,8 @@ struct state {
   unsigned distance = 0;
   state(state_id id, const abstraction::symbol& action) : id(id), action(std::make_shared<abstraction::symbol>(action)) {}
   state(state_id id) : id(id), action(nullptr) {}
+  state(const state& other) : id(other.id), action(other.action?std::make_shared<abstraction::symbol>(*other.action):nullptr), final(other.final), 
+  non_det(other.non_det), name(other.name), distance(other.distance) {}
 };
 
 std::ostream& operator<<(std::ostream& os, const state& s);
@@ -56,6 +58,8 @@ struct edge {
   state_id to;
   reward_t cost = 0; // back_edges have a cost for going back, all other edges have cost 0
   edge(state_id to, bool back_edge, int cost) : to(to), back_edge(back_edge), cost(cost) {}
+  edge(const edge& other) : back_edge(other.back_edge), tag(other.tag?std::make_shared<abstraction::symbol>(*other.tag):nullptr), to(other.to),
+  cost(other.cost) {}
 };
 
 std::ostream& operator<<(std::ostream& os, const edge& e);

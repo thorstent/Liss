@@ -104,7 +104,7 @@ place_locks::place_locks(const std::vector< const cfg::abstract_cfg* >& threads)
   init_locks();
   init_consistancy();
   
-  z3::expr x = ctx.fresh_constant("x", locations);
+  /*z3::expr x = ctx.fresh_constant("x", locations);
   z3::expr l = ctx.fresh_constant("l", locks);
   // insert a lock for testing
   z3::solver slv(ctx);
@@ -122,7 +122,7 @@ place_locks::place_locks(const std::vector< const cfg::abstract_cfg* >& threads)
     print_func_interp(model, inls);
     print_func_interp(model, inl);
     print_func_interp(model, inle);
-  }
+  }*/
   //cout << slv.get_model() << endl;
   //z3::model model = slv.get_model();
   //cout << model.get_func_interp(unlock) << endl;

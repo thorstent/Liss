@@ -46,7 +46,6 @@ using namespace std;
 
 void actions::synthesis2::run(const cfg::program& program, clang::CompilerInstance& compiler)
 {
-  cfg::program new_program(program);
   Rewriter rewriter;
   
   string file_name = main_filename;
@@ -54,7 +53,7 @@ void actions::synthesis2::run(const cfg::program& program, clang::CompilerInstan
   print_code(program, debug_folder, file_name);
   print_code(program, start_file_code);
   
-  bool success = synth_loop(program, new_program);
+  bool success = synth_loop(program);
   
   file_name = main_filename;
   file_name.replace(file_name.length()-2,2, ".end.c");
@@ -139,14 +138,14 @@ vector<vector<placement::location>> locks_to_locations(list<::synthesis::lock> l
   return result;
 }
 
-bool actions::synthesis2::synth_loop(const cfg::program& original_program, cfg::program& program)
+bool actions::synthesis2::synth_loop(const cfg::program& program)
 {
   z3::context ctx;
 
   Limi::printer<abstraction::psymbol> symbol_printer;
-  abstraction::concurrent_automaton sequential(original_program, false, true);
+  abstraction::concurrent_automaton sequential(program, false, true);
   
-  placement::place_locks plocks(original_program.minimised_threads());
+  placement::place_locks plocks(program.minimised_threads());
   
   unsigned counter = 0;
   list<::synthesis::lock> locks;
@@ -181,7 +180,7 @@ bool actions::synthesis2::synth_loop(const cfg::program& original_program, cfg::
     } else {
       verification += std::chrono::duration_cast<chrono::milliseconds>(langinc_end - langinc_start);
       cout << "Synthesis was successful." << endl;
-      print_summary(original_program);
+      print_summary(program);
       return true;
     }
     ++counter;

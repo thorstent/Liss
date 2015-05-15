@@ -237,6 +237,8 @@ void abstract_cfg::compact()
           active[j] = false;
           mapping[j] = i;
           states[i].id = i;
+          if(states[i].action)
+            states[i].action->state = i;
           break;
         }
       }
@@ -253,6 +255,7 @@ void abstract_cfg::compact()
   for (unsigned i = 1; i < states.size(); ++i) {
     for (edge& e : edges[i]) {
       if (mapping[e.to]!=no_state) e.to = mapping[e.to];
+      if (e.tag) e.tag->state = i;
     }
   }
 }
