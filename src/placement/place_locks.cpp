@@ -240,3 +240,36 @@ void place_locks::init_consistancy()
 }
 
 
+void place_locks::find_locks(const vector< vector< location > >& locks_to_place, vector< location >& locks, vector< location >& unlocks)
+{
+  z3::expr x = ctx.fresh_constant("x", locations);
+  z3::expr l = ctx.fresh_constant("l", locks);
+  // insert a lock for testing
+  z3::solver slv(ctx);
+  slv.add(succ_def);
+  slv.add(inl_def);
+  slv.add(lock_consistency);
+  //slv.add(z3::forall(x,l,lock(x,l)==z3::ite(x==location_vector[0][2]&&l==lock_vector[0],ztrue,zfalse)));
+  
+  // add lock places
+  for (const vector< location >& lplaces : locks_to_place) {
+    z3::expr e = ztrue;
+    for (const location& loc : lplaces) {
+      e = e && inl(l, location_vector[loc.thread][loc.state]);
+    }
+    slv.add(z3::exists(l, e));
+  }
+  
+  z3::check_result res = slv.check();
+  cout << res << endl;
+  assert (res == z3::sat);
+  if (res == z3::sat) {
+    z3::model model = slv.get_model();
+    print_func_interp(model, succ);
+    print_func_interp(model, lock);
+    print_func_interp(model, unlock);
+    print_func_interp(model, inls);
+    print_func_interp(model, inl);
+    print_func_interp(model, inle);
+  }
+}

@@ -26,7 +26,7 @@
 using namespace synthesis;
 using namespace std;
 
-concurrent_trace synthesis::make_trace(z3::context& ctx, const cfg::program& program, const list< abstraction::psymbol > trace)
+concurrent_trace synthesis::make_trace(z3::context& ctx, const cfg::program& program, const vector< abstraction::psymbol > trace)
 {
   unordered_map<abstraction::psymbol, unsigned> iteration_counter;
   concurrent_trace result(program.no_threads());

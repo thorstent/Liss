@@ -36,6 +36,8 @@ namespace clang {
 
 namespace cfg {
 
+  class abstract_cfg;
+  
 //TODO: Remove distance if not needed
 struct state {
   state_id id;
@@ -46,6 +48,8 @@ struct state {
   unsigned distance = 0;
   state(state_id id, const abstraction::symbol& action) : id(id), action(std::make_shared<abstraction::symbol>(action)) {}
   state(state_id id) : id(id), action(nullptr) {}
+  state(state&& other) = default;
+  state& operator=(const state& other) = default;
   state(const state& other) : id(other.id), action(other.action?std::make_shared<abstraction::symbol>(*other.action):nullptr), final(other.final), 
   non_det(other.non_det), name(other.name), distance(other.distance) {}
 };
@@ -58,6 +62,8 @@ struct edge {
   state_id to;
   reward_t cost = 0; // back_edges have a cost for going back, all other edges have cost 0
   edge(state_id to, bool back_edge, int cost) : to(to), back_edge(back_edge), cost(cost) {}
+  edge(edge&& other) = default;
+  edge& operator= (const edge& other) = default;
   edge(const edge& other) : back_edge(other.back_edge), tag(other.tag?std::make_shared<abstraction::symbol>(*other.tag):nullptr), to(other.to),
   cost(other.cost) {}
 };
@@ -113,7 +119,7 @@ public:
     assert (id!=no_state);
     return states[id];
   }
-  inline const std::vector<edge> get_successors(state_id from) const {
+  inline const std::vector<edge>& get_successors(state_id from) const {
     return edges[from];
   }
   const std::unordered_set<state_id> get_forward_successors(state_id from) const;

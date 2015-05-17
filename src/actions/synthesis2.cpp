@@ -127,12 +127,17 @@ void actions::synthesis2::print_summary(const cfg::program& original_program) {
   debug << "| " << original_program.no_threads() << " | " << iteration << " | " << this->max_bound <<  " | " << (double)langinc.count()/1000 << "s | "  << (double)synthesis_time.count()/1000 << "s | " << (double)verification.count()/1000 << "s |";
 }
 
-vector<vector<placement::location>> locks_to_locations(list<::synthesis::lock> locks, const list<abstraction::psymbol>& trace, const cfg::program& program) {
+vector<vector<placement::location>> locks_to_locations(list<::synthesis::lock> locks, const vector<abstraction::psymbol>& trace) {
   vector<vector<placement::location>> result;
   for (::synthesis::lock l : locks) {
     result.push_back(vector<placement::location>());
+    bool started = false;
     for (::synthesis::lock_location loc : l.locations) {
-      
+      assert (loc.start.instruction_id() < loc.end.instruction_id());
+      for (unsigned i = loc.start.instruction_id(); i <= loc.end.instruction_id(); ++i) {
+        if (trace[i]->thread_id==loc.start.thread_id())
+          result.back().push_back(placement::location(trace[i]->thread_id, trace[i]->state));
+      }
     }
   }
   return result;
@@ -148,7 +153,6 @@ bool actions::synthesis2::synth_loop(const cfg::program& program)
   placement::place_locks plocks(program.minimised_threads());
   
   unsigned counter = 0;
-  list<::synthesis::lock> locks;
   while (true) {
     print_program(program, false, true, to_string(counter) + ".");
     
@@ -174,6 +178,9 @@ bool actions::synthesis2::synth_loop(const cfg::program& program)
       list<::synthesis::lock> new_locks;
       list<::synthesis::reordering> reorderings;
       synch.generate_sync(cnf, new_locks, reorderings, false);
+      vector<vector<placement::location>> lock_locations = locks_to_locations(new_locks, result.counter_example);
+      vector<placement::location> locks, unlocks;
+      plocks.find_locks(lock_locations, locks, unlocks);
       
       
       

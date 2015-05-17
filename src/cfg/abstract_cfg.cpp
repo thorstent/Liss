@@ -105,7 +105,7 @@ void abstract_cfg::add_edge(state_id from, state_id to, bool back_edge, bool aut
 {
   assert(from>=0 && to>=0);
   if (auto_tag && edges[from].size() == 1) {
-    // automatic tagging is to expensive. We now have the add_tag function
+    // automatic tagging is too expensive. We now have the add_tag function
     if (!states[from].non_det)
       tag_edge(from, 0);
   }
@@ -159,7 +159,7 @@ void abstract_cfg::minimise()
             edge new_edge(edge2);
             if (edge_to.tag)
               new_edge.tag = edge_to.tag;
-            edges[next].push_back(new_edge);
+            edges[next].push_back(std::move(new_edge));
           }
         } else {
           auto newp = make_pair(edge_to.to, edge_to.tag!=nullptr);
@@ -233,7 +233,7 @@ void abstract_cfg::compact()
         if (active[j]) {
           // move this
           states[i] = states[j];
-          edges[i] = edges[j];
+          edges[i] = std::move(edges[j]);
           active[j] = false;
           mapping[j] = i;
           states[i].id = i;

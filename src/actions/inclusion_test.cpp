@@ -36,7 +36,7 @@
 using namespace actions;
 using namespace std;
 
-Limi::inclusion_result< abstraction::psymbol > check_trace(std::list<abstraction::psymbol> trace,
+Limi::inclusion_result< abstraction::psymbol > check_trace(std::vector<abstraction::psymbol> trace,
                                                                 const abstraction::concurrent_automaton& sequential,
                                                                 const Limi::printer_base< abstraction::psymbol >& symbol_printer
 ) {

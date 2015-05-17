@@ -32,7 +32,7 @@ namespace synthesis {
     std::vector<std::list<location>> threads;
   };
   
-  concurrent_trace make_trace(z3::context& ctx, const cfg::program& program, const std::list< abstraction::psymbol > trace);
+  concurrent_trace make_trace(z3::context& ctx, const cfg::program& program, const std::vector< abstraction::psymbol > trace);
 }
 
 #endif
