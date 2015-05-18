@@ -102,14 +102,21 @@ struct symbol
   symbol() : operation(op_class::epsilon) {}
   symbol(op_class operation, call_stack cstack, std::string variable_name, variable_type variable, identifier_store& is, const clang::Stmt* stmt);
   symbol(state_id state, uint8_t branch);
-  inline const clang::Stmt* instr_id() const { return stmt; }
+  /**
+   * @brief The statement id of the instruction
+   */
+  inline clang::Stmt* instr_stmt() const { return cstack.back().second; }
+  /**
+   * @brief The function this instruction is contained in
+   */
+  inline clang::Stmt* function_stmt() const { return cstack.back().first; }
   symbol(const symbol& sym) = default;
   
   bool operator==(const symbol &other) const {
     if (thread_id != other.thread_id) return false;
     if (tag_branch == -1) {
       if (other.tag_branch!=-1) return false;
-      return (operation == other.operation && variable == other.variable && instr_id() == other.instr_id());
+      return (operation == other.operation && variable == other.variable && instr_stmt() == other.instr_stmt());
     } else {
       if (other.tag_branch==-1) return false;
       return (state == other.state) && (tag_branch == other.tag_branch);
@@ -141,7 +148,7 @@ namespace std {
       if (val.tag_branch == -1) {
         Limi::internal::hash_combine(seed, val.operation);
         Limi::internal::hash_combine(seed, val.variable);
-        Limi::internal::hash_combine(seed, val.instr_id());
+        Limi::internal::hash_combine(seed, val.instr_stmt());
       } else {
         Limi::internal::hash_combine(seed, val.state);
         Limi::internal::hash_combine(seed, val.tag_branch);

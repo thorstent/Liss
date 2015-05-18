@@ -78,7 +78,7 @@ public:
   abstract_cfg(const abstract_cfg& other) = default;
   const clang::FunctionDecl* declaration; // just to have this around
   
-  state_id add_state(const abstraction::symbol& symbol, const clang::Stmt* stmt);
+  state_id add_state(const abstraction::symbol& symbol);
   state_id add_state(const std::string& name);
   state_id add_dummy_state();
   //const std::shared_ptr<abstraction::symbol>& lookup_state(const clang::Stmt* stmt) const;

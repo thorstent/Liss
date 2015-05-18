@@ -40,6 +40,7 @@
 #include <algorithm>
 
 #include "placement/place_locks.h"
+#include "placement/print_program.h"
 
 using namespace clang;
 using namespace std;
@@ -133,7 +134,7 @@ vector<vector<placement::location>> locks_to_locations(list<::synthesis::lock> l
     result.push_back(vector<placement::location>());
     bool started = false;
     for (::synthesis::lock_location loc : l.locations) {
-      assert (loc.start.instruction_id() < loc.end.instruction_id());
+      assert (loc.start.instruction_id() <= loc.end.instruction_id());
       for (unsigned i = loc.start.instruction_id(); i <= loc.end.instruction_id(); ++i) {
         if (trace[i]->thread_id==loc.start.thread_id())
           result.back().push_back(placement::location(trace[i]->thread_id, trace[i]->state));
@@ -151,6 +152,7 @@ bool actions::synthesis2::synth_loop(const cfg::program& program)
   abstraction::concurrent_automaton sequential(program, false, true);
   
   placement::place_locks plocks(program.minimised_threads());
+  placement::print_program pprogram(program);
   
   unsigned counter = 0;
   while (true) {
@@ -179,10 +181,12 @@ bool actions::synthesis2::synth_loop(const cfg::program& program)
       list<::synthesis::reordering> reorderings;
       synch.generate_sync(cnf, new_locks, reorderings, false);
       vector<vector<placement::location>> lock_locations = locks_to_locations(new_locks, result.counter_example);
-      vector<placement::location> locks, unlocks;
+      vector<pair<unsigned,placement::location>> locks, unlocks;
       plocks.find_locks(lock_locations, locks, unlocks);
-      
-      
+      string file_name = main_filename;
+      file_name.replace(file_name.length()-2,2, "." + to_string(counter) + ".c");
+      pprogram.print_with_locks(locks, unlocks, debug_folder + file_name);
+      exit(1);
       
     } else {
       verification += std::chrono::duration_cast<chrono::milliseconds>(langinc_end - langinc_start);

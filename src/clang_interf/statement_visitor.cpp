@@ -44,7 +44,7 @@ bool statement_visitor::VisitDeclRefExpr(DeclRefExpr* stmt)
         variable_type var = identifier_store.insert_variable(variable);
         cstack.back().second = stmt;
         symbol action(access_type, cstack, variable, var, identifier_store, stmt);
-        state_id next = thread.add_state(action, stmt);
+        state_id next = thread.add_state(action);
         add_successor(next);
       } else {
         last_nondet = true;
@@ -141,7 +141,7 @@ bool statement_visitor::TraverseCallExpr(CallExpr* s)
     cstack.back().second = s;
     symbol action(operation, cstack, var_name, var, identifier_store, s);
     action.assume = assume;
-    state_id next = thread.add_state(action, s);
+    state_id next = thread.add_state(action);
     add_successor(next);
   } else {
     RecursiveASTVisitor::TraverseCallExpr(s);

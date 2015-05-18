@@ -71,7 +71,7 @@ symbol::symbol(op_class operation, call_stack cstack, string variable_name, vari
 operation(operation), cstack(cstack), variable_name(variable_name), variable(variable), stmt(stmt) {
   assert(cstack.back().second);
   assert(cstack.back().second==stmt);
-  clang::SourceLocation loc = is.source_manager.getFileLoc(instr_id()->getLocStart());
+  clang::SourceLocation loc = is.source_manager.getFileLoc(instr_stmt()->getLocStart());
   fileentry = is.source_manager.getFileEntryForID(is.source_manager.getFileID(loc));
   if (!fileentry) synthesised = true;
   line_no = is.source_manager.getPresumedLineNumber(loc);
@@ -79,7 +79,7 @@ operation(operation), cstack(cstack), variable_name(variable_name), variable(var
 
 std::ostream& abstraction::operator<< (std::ostream &out, const abstraction::symbol &val) {
   val.operation;
-  out << val.thread_id << "-";
+  out << to_string(val.thread_id) << "-";
   if (val.tag_branch != -1) {
     out << to_string(val.tag_branch);
   } else {

@@ -19,82 +19,99 @@
 
 #include "place_locks.h"
 
+#include <string.h>
+
 using namespace placement;
 using namespace std;
 
-#include <string.h>
 
-void print_func_interp1(const z3::model& model, const z3::func_decl& func_decl);
+z3::expr func_result(const z3::model& model, const z3::func_decl& func_decl, vector<vector<z3::expr>>& result);
 
-void print_expr(const z3::model& model, const z3::expr& expr) {
+z3::expr func_result_expr(const z3::model& model, const z3::expr& expr, vector<vector<z3::expr>>& result) {
   Z3_decl_kind decl_kind = expr.decl().decl_kind();
   switch (decl_kind) {
     case Z3_OP_UNINTERPRETED: {
-      print_func_interp1(model, expr.decl());
+      return func_result(model, expr.decl(), result);
       //print_expr(model, expr.arg(0));
     } break;
     case Z3_OP_ITE: {
+      assert(false);
       z3::expr cond = expr.arg(0);
       z3::expr then = expr.arg(1);
       z3::expr else1 = expr.arg(2);
       cout << "  " << cond << " -> " << then << endl;
-      print_expr(model, else1);
+      return func_result_expr(model, else1, result);
     } break;
     default:
-      cout << "  else: " << expr << endl;
+      return expr;
       break;
   }
 }
 
-void print_func_interp1(const z3::model& model, const z3::func_decl& func_decl) {
+
+/**
+ * @brief Reads the function assignments from the model
+ * 
+ * @param model The model
+ * @param func_decl The original function declaration
+ * @param result The arguments and what was assigned to the arguments (last component of the vector)
+ * @return The else case
+ */
+z3::expr func_result(const z3::model& model, const z3::func_decl& func_decl, vector<vector<z3::expr>>& result) {
   //cout << func_decl.name().str() << endl;
   z3::func_interp interp = model.get_func_interp(func_decl);
   for (unsigned i = 0; i < interp.num_entries(); ++i) {
     z3::func_entry e = interp.entry(i);
-    cout << "  (";
+    result.push_back(vector<z3::expr>());
     for (unsigned j = 0; j < e.num_args(); ++j) {
-      cout << e.arg(j);
-      if (j < e.num_args()-1) cout << ", ";
+      result.back().push_back(e.arg(j));
     }
-    cout << ") -> ";
-    cout << e.value() << endl;
+    result.back().push_back(e.value());
   }
-  print_expr(model, interp.else_value());
+  return func_result_expr(model, interp.else_value(), result);
 }
+
 
 void print_func_interp(const z3::model& model, const z3::func_decl& func_decl) {
   cout << func_decl.name().str() << endl;
-  print_func_interp1(model, func_decl);
+  vector<vector<z3::expr>> result;
+  z3::expr elsee = func_result(model, func_decl, result);
+  for (vector<z3::expr>& e : result) {
+    cout << "  (";
+    for (unsigned i = 0; i < e.size()-1; ++i) {
+      cout << e[i];
+      if (i < e.size()-2) cout << ", ";
+    }
+    cout << ") -> " << e.back() << endl;
+  }
+  cout << "  else: " << elsee << endl;
 }
 
 place_locks::place_locks(const std::vector< const cfg::abstract_cfg* >& threads) : threads(threads)
 {
   // build position array
   // we assume the threads are compacted (no inreachable states)
-  vector<const char*> positions;
+  vector<string> positions;
   unsigned i = 0;
   for (const cfg::abstract_cfg* thread : threads) {
     for (unsigned j = 1; j <= thread->no_states(); ++j) { 
-      string name = to_string(i) + "_" + to_string(j);
-      const char* namec = strdup(name.c_str());
-      positions.push_back(namec);      
+      string name = to_string(thread->thread_id) + "_" + to_string(j);
+      positions.push_back(name);
     }
   }
   
   z3::func_decl_vector consts(ctx);
   z3::func_decl_vector ts(ctx);
-  locations = ctx.enumeration_sort("locations", positions.size(), &positions[0], consts, ts);
-  // delete the name array once again
-  for (const char* p : positions) {
-    delete p;
-  }
+  locations = ctx.enumeration_sort("locations", positions, consts, ts);
   
   unsigned index = 0;
   for (const cfg::abstract_cfg* thread : threads) {
     location_vector.push_back(std::vector<z3::expr>());
     location_vector.back().push_back(ctx);
     for (unsigned j = 1; j <= thread->no_states(); ++j) { 
-      location_vector.back().push_back(consts[index]());
+      z3::expr ex = consts[index]();
+      location_vector.back().push_back(ex);
+      location_map.insert(make_pair(ex, location(location_vector.size()-1,j)));
       ++index;
     }
   }
@@ -104,28 +121,6 @@ place_locks::place_locks(const std::vector< const cfg::abstract_cfg* >& threads)
   init_locks();
   init_consistancy();
   
-  /*z3::expr x = ctx.fresh_constant("x", locations);
-  z3::expr l = ctx.fresh_constant("l", locks);
-  // insert a lock for testing
-  z3::solver slv(ctx);
-  slv.add(succ_def);
-  slv.add(inl_def);
-  slv.add(lock_consistency);
-  slv.add(z3::forall(x,l,lock(x,l)==z3::ite(x==location_vector[0][2]&&l==lock_vector[0],ztrue,zfalse)));
-  z3::check_result res = slv.check();
-  cout << res << endl;
-  if (res == z3::sat) {
-    z3::model model = slv.get_model();
-    print_func_interp(model, succ);
-    print_func_interp(model, lock);
-    print_func_interp(model, unlock);
-    print_func_interp(model, inls);
-    print_func_interp(model, inl);
-    print_func_interp(model, inle);
-  }*/
-  //cout << slv.get_model() << endl;
-  //z3::model model = slv.get_model();
-  //cout << model.get_func_interp(unlock) << endl;
 }
 
 void place_locks::init_successors()
@@ -161,24 +156,20 @@ void place_locks::init_successors()
 
 void place_locks::init_locks()
 {
-  vector<const char*> lock_names;
-  unsigned i = 1;
-  for (i = 1; i<=3; ++i) {
+  vector<string> lock_names;
+  for (unsigned i = 0; i<3; ++i) {
     string name = "lock_" + to_string(i);
-    const char* namec = strdup(name.c_str());
-    lock_names.push_back(namec);
+    lock_names.push_back(name);
   }
   z3::func_decl_vector consts(ctx);
   z3::func_decl_vector ts(ctx);
-  locks = ctx.enumeration_sort("locks", lock_names.size(), &lock_names[0], consts, ts);
-  // delete the name array once again
-  for (const char* p : lock_names) {
-    delete p;
-  }
+  locks = ctx.enumeration_sort("locks", lock_names, consts, ts);
   
   unsigned index = 0;
   for (unsigned index = 0; index < lock_names.size(); ++index) {
-    lock_vector.push_back(consts[index]());
+    z3::expr ex = consts[index]();
+    lock_vector.push_back(ex);
+    lock_map.insert(make_pair(ex,index));
   }
   
   // lock and unlock functions
@@ -200,6 +191,9 @@ void place_locks::init_locks()
 
 void place_locks::init_consistancy()
 {
+  z3::expr x = ctx.fresh_constant("x", locations);
+  z3::expr xp = ctx.fresh_constant("xp", locations); // x'
+  z3::expr l = ctx.fresh_constant("l", locks);
   lock_consistency = ztrue;
   // predecessor rule
   unsigned t = 0;
@@ -208,6 +202,11 @@ void place_locks::init_consistancy()
     vector<unordered_set<state_id>> predecessors(thread->no_states()+1);
     
     for (unsigned i = 1; i <= thread->no_states(); ++i) {
+      // forbid locking and unlock at non-locations
+      if (!thread->get_state(i).action) {
+        lock_consistency = lock_consistency && z3::forall(l, !lock(location_vector[t][i],l) && !unlock(location_vector[t][i],l));
+      }
+      // gather predecessor list
       for (const cfg::edge& e : thread->get_successors(i)) {
         predecessors[e.to].insert(i);
       }
@@ -230,17 +229,27 @@ void place_locks::init_consistancy()
     ++t;
   }
   
-  z3::expr x = ctx.fresh_constant("x", locations);
-  z3::expr xp = ctx.fresh_constant("xp", locations); // x'
-  z3::expr l = ctx.fresh_constant("l", locks);
+
   lock_consistency = lock_consistency && z3::forall(x, l, implies(unlock(x,l), inl(x,l) ));
   lock_consistency = lock_consistency && z3::forall(x, l, implies(lock(x,l), !inls(x,l) ));
   lock_consistency = lock_consistency && z3::forall(x, l, implies(lock(x,l) , !z3::exists (xp, succ(xp,x) && unlock(xp,l) ) ));
   
 }
 
+void place_locks::result_to_locklist(const vector<vector<z3::expr>>& result, vector<pair<unsigned, location >>& locks) {
+  for (const vector<z3::expr>& r : result) {
+    z3::expr lock = r[1];
+    z3::expr loc = r[0];
+    assert(r[2]==ztrue);
+    auto llock = lock_map.find(lock);
+    auto lloc = location_map.find(loc);
+    assert (llock != lock_map.end());
+    assert (lloc != location_map.end());
+    locks.push_back(make_pair(llock->second,lloc->second));
+  }
+}
 
-void place_locks::find_locks(const vector< vector< location > >& locks_to_place, vector< location >& locks, vector< location >& unlocks)
+void place_locks::find_locks(const vector< vector< location > >& locks_to_place, vector<pair<unsigned, location >>& locks_placed, vector<pair<unsigned, location >>& unlocks_placed)
 {
   z3::expr x = ctx.fresh_constant("x", locations);
   z3::expr l = ctx.fresh_constant("l", locks);
@@ -255,7 +264,7 @@ void place_locks::find_locks(const vector< vector< location > >& locks_to_place,
   for (const vector< location >& lplaces : locks_to_place) {
     z3::expr e = ztrue;
     for (const location& loc : lplaces) {
-      e = e && inl(l, location_vector[loc.thread][loc.state]);
+      e = e && inl(location_vector[loc.thread][loc.state],l);
     }
     slv.add(z3::exists(l, e));
   }
@@ -271,5 +280,16 @@ void place_locks::find_locks(const vector< vector< location > >& locks_to_place,
     print_func_interp(model, inls);
     print_func_interp(model, inl);
     print_func_interp(model, inle);
+  
+  
+    vector<vector<z3::expr>> result;
+    z3::expr elsee = func_result(model, lock, result);
+    assert (elsee == zfalse);
+    result_to_locklist(result, locks_placed);
+    
+    result.clear();
+    elsee = func_result(model, unlock, result);
+    assert (elsee == zfalse);
+    result_to_locklist(result, unlocks_placed);
   }
 }

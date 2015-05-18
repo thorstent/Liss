@@ -24,6 +24,7 @@ Notes:
 #include<cassert>
 #include<iostream>
 #include<string>
+#include <vector>
 #include<sstream>
 #include<z3.h>
 #include<limits.h>
@@ -203,6 +204,7 @@ namespace z3 {
            and in \c ts the predicates for testing if terms of the enumeration sort correspond to an enumeration.
         */
         sort enumeration_sort(char const * name, unsigned n, char const * const * enum_names, func_decl_vector & cs, func_decl_vector & ts);
+        sort enumeration_sort(char const * name, const std::vector<std::string> enum_names, func_decl_vector & cs, func_decl_vector & ts);
         
         func_decl function(symbol const & name, unsigned arity, sort const * domain, sort const & range);
         func_decl function(char const * name, unsigned arity, sort const * domain, sort const & range);
@@ -1578,6 +1580,19 @@ namespace z3 {
         for (unsigned i = 0; i < n; i++) { cs.push_back(func_decl(*this, _cs[i])); ts.push_back(func_decl(*this, _ts[i])); }
         return s;
     }
+    
+    inline sort context::enumeration_sort(char const * name, const std::vector<std::string> enum_names, func_decl_vector & cs, func_decl_vector & ts) {
+      unsigned n = enum_names.size();
+      array<Z3_symbol> _enum_names(n);
+      for (unsigned i = 0; i < n; i++) { _enum_names[i] = Z3_mk_string_symbol(*this, enum_names[i].c_str()); }
+      array<Z3_func_decl> _cs(n);
+      array<Z3_func_decl> _ts(n);
+      Z3_symbol _name = Z3_mk_string_symbol(*this, name);
+      sort s = to_sort(*this, Z3_mk_enumeration_sort(*this, _name, n, _enum_names.ptr(), _cs.ptr(), _ts.ptr()));
+      check_error();
+      for (unsigned i = 0; i < n; i++) { cs.push_back(func_decl(*this, _cs[i])); ts.push_back(func_decl(*this, _ts[i])); }
+      return s;
+    }
 
     inline func_decl context::function(symbol const & name, unsigned arity, sort const * domain, sort const & range) {
         array<Z3_sort> args(arity);
@@ -1843,6 +1858,16 @@ namespace z3 {
         return expr(ctx(), r);
     }
 };
+
+namespace std{
+  template<>
+  struct hash<z3::expr> {
+    size_t operator()(z3::expr const& e) const 
+    {
+      return (size_t)((Z3_ast)e);
+    }
+  };
+}
 
 /*@}*/
 /*@}*/

@@ -31,23 +31,35 @@ class place_locks
 {
 public:
   place_locks(const std::vector<const cfg::abstract_cfg*>& threads);
-  void find_locks(const std::vector<std::vector<location>>& locks_to_place, std::vector<location>& locks, std::vector<location>& unlocks);
+  /**
+   * @brief Determines the lock placement
+   * 
+   * @param locks_to_place List of locations that need to share the same lock
+   * @param locks_placed Pair which lock and where
+   * @param unlocks_placed ...
+   * @return void
+   */
+  void find_locks(const std::vector< std::vector< placement::location > >& locks_to_place, std::vector< std::pair< unsigned, placement::location > >& locks_placed, std::vector< std::pair<unsigned, placement::location > >& unlocks_placed);
 private:
   void init_successors();
   void init_locks();
   void init_consistancy();
+  
+  void result_to_locklist(const std::vector<std::vector<z3::expr>>& result, std::vector<std::pair<unsigned, location >>& locks);
 
   z3::context ctx;  
   z3::expr ztrue = ctx.bool_val(true);
   z3::expr zfalse = ctx.bool_val(false);
   const std::vector<const cfg::abstract_cfg*>& threads;
   std::vector<std::vector<z3::expr>> location_vector;
+  std::unordered_map<z3::expr,location> location_map;
   z3::sort locations = z3::sort(ctx);
   z3::func_decl succ = z3::func_decl(ctx);
   z3::expr succ_def = z3::expr(ctx);
   
   z3::sort locks = z3::sort(ctx);
   std::vector<z3::expr> lock_vector;
+  std::unordered_map<z3::expr, unsigned> lock_map;
   z3::func_decl lock = z3::func_decl(ctx);
   z3::func_decl unlock = z3::func_decl(ctx);
   

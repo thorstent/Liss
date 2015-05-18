@@ -20,7 +20,9 @@ int nondet_int;
 
 #define yield int_yield()
 #define lock(X) int_lock(X)
+#define lock_s(X) int_lock(X)
 #define unlock(X) int_unlock(X)
+#define unlock_s(X) int_unlock(X)
 #define notify(X) int_notify(X)
 #define wait(X) int_wait(X)
 #define assume(X) int_assume(X)

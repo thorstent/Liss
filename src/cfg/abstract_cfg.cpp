@@ -70,7 +70,7 @@ abstract_cfg::abstract_cfg(const clang::FunctionDecl* fd, thread_id_type thread_
   name = dn.getAsString();
 }
 
-state_id abstract_cfg::add_state(const abstraction::symbol& symbol, const clang::Stmt* stmt)
+state_id abstract_cfg::add_state(const abstraction::symbol& symbol)
 {
   if (states.size()>=max_states) throw range_error("Maximum number of states reached");
   states.emplace_back(states.size(), symbol);
