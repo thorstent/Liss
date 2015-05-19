@@ -46,7 +46,6 @@ std::ostream& cfg::operator<<(std::ostream& os, const state& s) {
   } else {
     os << s.name;
   }
-  os << "(" << s.distance << ")";
   return os;
 }
 
@@ -98,6 +97,7 @@ void abstract_cfg::mark_final(state_id state)
 void abstract_cfg::tag_edge(state_id state, uint8_t edge)
 {
   edges[state][edge].tag = make_shared<abstraction::symbol>(state, edge);
+  edges[state][edge].tag->thread_id = thread_id;
 }
 
 
@@ -179,29 +179,8 @@ void abstract_cfg::minimise()
       }
     }
   }
-  
-  calc_distance(1);
 }
 
-unsigned int abstract_cfg::calc_distance(state_id state)
-{
-  if (states[state].distance!=0) return states[state].distance;
-  unsigned min = 999;
-  if (states[state].final) min = 0;
-  else {
-    for (edge& e : edges[state]) {
-      unsigned other;
-      if (e.back_edge) {
-        other = states[e.to].distance;
-      } else {
-        other = calc_distance(e.to);
-      }
-      min = std::min(min, other+1);
-    }
-  }
-  states[state].distance = min+1;
-  return min+1;
-}
 
 void abstract_cfg::compact()
 {

@@ -41,15 +41,16 @@ void print_program::place_locks(Rewriter& rewriter, const vector< pair< unsigned
     
     const cfg::state& state = program.minimised_threads()[l.second.thread]->get_state(l.second.state);
     assert(state.action);
-    pair<Stmt*,bool> parent = find_stmt_parent(state.action->instr_stmt(), state.action->function_stmt());
-    SourceLocation start = parent.first->getLocStart();
-    SourceLocation end = parent.first->getLocEnd();
+    parent_result parent = find_stmt_parent(state.action->instr_stmt(), state.action->function_stmt());
+    SourceLocation start = parent.stmt_to_lock->getLocStart();
+    SourceLocation end = parent.stmt_to_lock->getLocEnd();
     
     // MeasureTokenLength gets us past the last token, and adding 1 gets
     // us past the ';'.
-    int offset = Lexer::MeasureTokenLength(end, rewriter.getSourceMgr(), rewriter.getLangOpts()) + 1;
+    int offset = Lexer::MeasureTokenLength(end, rewriter.getSourceMgr(), rewriter.getLangOpts());
+    if (parent.ends_semicolon) offset += 1;
     end = end.getLocWithOffset(offset);
-    if (parent.second && added_brace.insert(parent.first).second) {
+    if (parent.braces_needed && added_brace.insert(parent.stmt_to_lock).second) {
       // we need to add braces around the expression
       rewriter.InsertText(start, "{", true, true);
       rewriter.InsertText(end, "}", true, true);
@@ -77,14 +78,41 @@ void print_program::print_with_locks(const vector< pair< unsigned, placement::lo
   outFile.close();
 }
 
+void print_program::print_original(const string& outname)
+{
+  Rewriter rewriter(program.ast_context.getSourceManager(), program.ast_context.getLangOpts());
+  
+  // print out the program
+  std::error_code error_code;
+  llvm::raw_fd_ostream outFile(outname, error_code, llvm::sys::fs::F_None);
+  rewriter.getEditBuffer(program.ast_context.getSourceManager().getMainFileID()).write(outFile);
+  outFile.close();
+}
 
-pair<Stmt*,bool> print_program::find_stmt_parent(Stmt* stmt, Stmt* function)
+
+print_program::parent_result print_program::find_stmt_parent(Stmt* stmt, Stmt* function)
 {
   ParentMap map(function);
-  while(isa<Expr>(map.getParent(stmt))) {
-    stmt = map.getParent(stmt);
-    map.getParent(stmt)->dump();
+  bool ends_semicolon = true;
+  while (true) {
+    Stmt* parent = map.getParent(stmt);
+    if (isa<CompoundStmt>(parent)) {
+      return parent_result(stmt, false, ends_semicolon);
+    } else if (IfStmt* ifs = dyn_cast<IfStmt>(parent)) {
+      if (stmt!=ifs->getCond())
+        return parent_result(stmt, true, ends_semicolon);
+      ends_semicolon = false;
+    } else if (WhileStmt* whiles = dyn_cast<WhileStmt>(parent)) {
+      if (stmt!=whiles->getCond())
+        return parent_result(stmt, true, ends_semicolon);
+      ends_semicolon = false;
+    } else if (DoStmt* dos = dyn_cast<DoStmt>(parent)) {
+      if (stmt!=dos->getCond()) 
+        return parent_result(stmt, true, ends_semicolon);
+      ends_semicolon = true;
+    } else {
+      ends_semicolon = true;
+    }
+    stmt = parent;
   }
-  bool braces = !isa<CompoundStmt>(map.getParent(stmt));
-  return make_pair(stmt,braces);
 }

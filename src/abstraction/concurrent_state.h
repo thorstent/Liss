@@ -31,8 +31,6 @@
 
 namespace abstraction {
   
-  const thread_id_type unassigned = -1;
-
   struct concurrent_state {
     concurrent_state(unsigned no_threads);
     ~concurrent_state();
@@ -44,7 +42,7 @@ namespace abstraction {
     
     state_id* threads;
     thread_id_type length;
-    thread_id_type current = unassigned;
+    thread_id_type current = no_thread;
     uint16_t reward = 0;
     
     state_id& operator[] (const int i) {return threads[i];};

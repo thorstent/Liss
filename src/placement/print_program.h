@@ -36,13 +36,22 @@ class print_program
 public:
   print_program(const cfg::program& program);
   
+  void print_original(const std::string& outname);
   void print_with_locks(const std::vector<std::pair<unsigned,placement::location>>& locks, const std::vector<std::pair<unsigned,placement::location>>& unlocks, const std::string& outname);
 private:
+  struct parent_result {
+    clang::Stmt* stmt_to_lock;
+    bool braces_needed;
+    bool ends_semicolon;
+    parent_result(clang::Stmt* stmt_to_lock, bool braces_needed, bool ends_semicolon) : stmt_to_lock(stmt_to_lock),
+    braces_needed(braces_needed), ends_semicolon(ends_semicolon) {}
+  };
+  
   void place_locks(clang::Rewriter& rewriter, const std::vector< std::pair< unsigned, placement::location > >& locks, const std::string name, bool after, std::unordered_set<clang::Stmt*>& added_brace);
   /**
    * @brief Finds the parent and if additional braces are needed
    */
-  std::pair<clang::Stmt*,bool> find_stmt_parent(clang::Stmt* stmt,clang::Stmt* function);
+  parent_result find_stmt_parent(clang::Stmt* stmt,clang::Stmt* function);
   
   const cfg::program& program;
 };

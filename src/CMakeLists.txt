@@ -27,7 +27,7 @@ set(CLANG_LIBS clangTooling clangFrontend clangDriver clangSerialization clangPa
 
 #z3
 include_directories("${PROJECT_SOURCE_DIR}/../libs/z3/src/api" "${PROJECT_SOURCE_DIR}/../libs")
-link_directories("${PROJECT_SOURCE_DIR}/../libs/z3/buildd")
+link_directories("${PROJECT_SOURCE_DIR}/../libs/z3/build")
 
 #Limi
 include_directories("../libs/Limi")

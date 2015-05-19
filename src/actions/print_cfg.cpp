@@ -36,11 +36,4 @@ void print_cfg::run(const cfg::program& program, clang::CompilerInstance& compil
     ++t;
   }
   
-  placement::place_locks plocks(program.minimised_threads());
-  try {
-  //placement::place_locks plocks(program.threads());
-  }
-  catch (z3::exception ex) {
-    std::cerr << ex.msg() << std::endl;
-  }
 }

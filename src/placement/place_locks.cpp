@@ -20,6 +20,7 @@
 #include "place_locks.h"
 
 #include <string.h>
+#include "options.h"
 
 using namespace placement;
 using namespace std;
@@ -216,18 +217,21 @@ void place_locks::init_consistancy()
         // for all locks
         for (z3::expr& l : lock_vector) {
           // for all precessors, either they hold l or they don't
-          z3::expr all_locked = ztrue;
-          z3::expr all_unlocked = ztrue;
-          for (state_id pred : predecessors[i]) {
-            all_locked = all_locked && inle(location_vector[t][pred],l);
-            all_unlocked = all_unlocked && !inle(location_vector[t][pred],l);
+          z3::expr all_equal = ztrue;
+          auto it = predecessors[i].begin();
+          state_id first_pred = *it;
+          
+          for (++it; it != predecessors[i].end(); ++it) {
+            state_id pred = *it;
+            all_equal = all_equal && (inle(location_vector[t][first_pred],l) == inle(location_vector[t][pred],l));
           }
-          lock_consistency = lock_consistency && (all_locked || all_unlocked);
+          lock_consistency = lock_consistency && (all_equal);
         }
       }
     }
     ++t;
   }
+
   
 
   lock_consistency = lock_consistency && z3::forall(x, l, implies(unlock(x,l), inl(x,l) ));
@@ -253,12 +257,22 @@ void place_locks::find_locks(const vector< vector< location > >& locks_to_place,
 {
   z3::expr x = ctx.fresh_constant("x", locations);
   z3::expr l = ctx.fresh_constant("l", locks);
+  
+  z3::params params(ctx);
+  params.set("smt.mbqi", false);
+  params.set("smt.auto-config", false);
   // insert a lock for testing
   z3::solver slv(ctx);
+  //slv.set(params);
   slv.add(succ_def);
   slv.add(inl_def);
   slv.add(lock_consistency);
   //slv.add(z3::forall(x,l,lock(x,l)==z3::ite(x==location_vector[0][2]&&l==lock_vector[0],ztrue,zfalse)));
+  slv.add(z3::forall(x,l,inl(x,l)==zfalse));
+  slv.add(z3::forall(x,l,inls(x,l)==zfalse));
+  slv.add(z3::forall(x,l,inle(x,l)==zfalse));
+  slv.add(z3::forall(x,l,lock(x,l)==zfalse));
+  slv.add(z3::forall(x,l,unlock(x,l)==zfalse));
   
   // add lock places
   for (const vector< location >& lplaces : locks_to_place) {
@@ -268,6 +282,9 @@ void place_locks::find_locks(const vector< vector< location > >& locks_to_place,
     }
     slv.add(z3::exists(l, e));
   }
+  
+  if (verbosity > 1)
+    debug << "Starting lock placement" << endl;
   
   z3::check_result res = slv.check();
   cout << res << endl;
@@ -293,3 +310,4 @@ void place_locks::find_locks(const vector< vector< location > >& locks_to_place,
     result_to_locklist(result, unlocks_placed);
   }
 }
+

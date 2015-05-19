@@ -45,13 +45,12 @@ struct state {
   bool final = false;
   bool non_det = false; // state branches non-deterministically
   std::string name;
-  unsigned distance = 0;
   state(state_id id, const abstraction::symbol& action) : id(id), action(std::make_shared<abstraction::symbol>(action)) {}
   state(state_id id) : id(id), action(nullptr) {}
   state(state&& other) = default;
   state& operator=(const state& other) = default;
   state(const state& other) : id(other.id), action(other.action?std::make_shared<abstraction::symbol>(*other.action):nullptr), final(other.final), 
-  non_det(other.non_det), name(other.name), distance(other.distance) {}
+  non_det(other.non_det), name(other.name) {}
 };
 
 std::ostream& operator<<(std::ostream& os, const state& s);
@@ -112,11 +111,11 @@ public:
     return ret;
   }
   inline const state& get_state(state_id id) const { 
+    if (id <= 0) throw std::invalid_argument("Id must be >0");
     return states[id];
   }
   inline state& get_state(state_id id) { 
-    assert (id>0);
-    assert (id!=no_state);
+    if (id <= 0) throw std::invalid_argument("Id must be >0");
     return states[id];
   }
   inline const std::vector<edge>& get_successors(state_id from) const {

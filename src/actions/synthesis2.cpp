@@ -47,21 +47,21 @@ using namespace std;
 
 void actions::synthesis2::run(const cfg::program& program, clang::CompilerInstance& compiler)
 {
-  Rewriter rewriter;
+  placement::print_program pprogram(program);
   
   string file_name = main_filename;
   file_name.replace(file_name.length()-2,2, ".start.c");
-  print_code(program, debug_folder, file_name);
-  print_code(program, start_file_code);
+  pprogram.print_original(debug_folder + file_name);
+  pprogram.print_original(start_file_code);
   
   bool success = synth_loop(program);
   
   file_name = main_filename;
   file_name.replace(file_name.length()-2,2, ".end.c");
-  print_code(program, debug_folder, file_name);
+  //print_code(program, debug_folder, file_name);
   
   if (success) {
-    print_code(program, output_file_code);
+    //print_code(program, output_file_code);
   } else {
     Limi::printer<abstraction::psymbol> symbol_printer;
     ofstream file_out(output_file_log);
@@ -70,36 +70,6 @@ void actions::synthesis2::run(const cfg::program& program, clang::CompilerInstan
   }
 }
 
-void actions::synthesis2::print_code(const cfg::program& program, string directory, string filename)
-{ 
-  print_code(program, directory + filename);
-}
-
-void actions::synthesis2::print_code(const cfg::program& program, string filename)
-{  
-  std::error_code ec;
-  llvm::raw_fd_ostream file_out(filename, ec, llvm::sys::fs::F_Text | llvm::sys::fs::F_RW);
-  file_out << "#include \"langinc.h\"\n\n";
-  for (Decl* d : program.translation_unit->decls()) {
-    
-    if (is_local(d, program.ast_context)) {
-      if (isa<FunctionDecl>(d) && cast<FunctionDecl>(d)->hasBody())
-        continue;
-      d->print(file_out);
-      file_out << ";\n";
-    }
-  }
-  file_out << "\n";
-  
-  for (Decl* d : program.translation_unit->decls()) {
-    if (is_local(d, program.ast_context) && isa<FunctionDecl>(d) && cast<FunctionDecl>(d)->hasBody()) {
-      d->print(file_out);
-      file_out << "\n";
-    }
-  }
-  
-  file_out.close();
-}
 
 bool actions::synthesis2::is_local(Decl* d, ASTContext& ast_context)
 {
@@ -154,6 +124,11 @@ bool actions::synthesis2::synth_loop(const cfg::program& program)
   placement::place_locks plocks(program.minimised_threads());
   placement::print_program pprogram(program);
   
+  vector<vector<placement::location>> lock_locations;
+  vector<pair<unsigned,placement::location>> locks, unlocks;
+  plocks.find_locks(lock_locations, locks, unlocks);
+  exit(2);
+  
   unsigned counter = 0;
   while (true) {
     print_program(program, false, true, to_string(counter) + ".");
@@ -200,7 +175,7 @@ bool actions::synthesis2::synth_loop(const cfg::program& program)
     debug << endl;
     string file_name = main_filename;
     file_name.replace(file_name.length()-2,2, "." + to_string(counter) + ".c");
-    print_code(program, debug_folder, file_name);
+    //print_code(program, debug_folder, file_name);
     // reparse threads
     std::list<const clang::FunctionDecl*> functions;
     for (const cfg::abstract_cfg* t : program.threads()) {

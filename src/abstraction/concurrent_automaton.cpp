@@ -96,8 +96,9 @@ void concurrent_automaton::int_next_symbols(const pcstate& state, concurrent_aut
 void concurrent_automaton::int_successors(const pcstate& state, const psymbol& sigma, concurrent_automaton::State_set& successors) const
 {
   thread_id_type thread = sigma->thread_id;
-  if (state->current != unassigned && state->current != static_cast<int>(thread)) return;
+  if (state->current != no_thread && state->current != static_cast<int>(thread)) return;
   cfg::reward_symbol rs(0,sigma);
+  assert(thread>=0);
   const cfg::automaton::State_set succs = threads[thread].successors(state->threads[thread], rs); // cost is not relevant here
   assert(!succs.empty());
   bool progress;
@@ -115,7 +116,7 @@ void concurrent_automaton::int_successors(const pcstate& state, const psymbol& s
       next->reward += rs.reward;
       copy->threads[thread] = p;
       //cout << threads[thread]->name(p) << " ";
-      if (concurrent_ || threads[thread].is_final_state(p)) copy->current = unassigned;
+      if (concurrent_ || threads[thread].is_final_state(p)) copy->current = no_thread;
       successors.insert(copy);
       first = false;
     }
@@ -142,17 +143,17 @@ pcstate concurrent_automaton::apply_symbol(const pcstate& original_state, const 
       case abstraction::op_class::wait:
         if (!original_state->conditionals.test(sigma->variable)) {
           // no context switching on synthesised symbols
-          if (original_state->current == unassigned || (sigma->assume&&!assumes_allow_switch)) return nullptr;
+          if (original_state->current == no_thread || (sigma->assume&&!assumes_allow_switch)) return nullptr;
         }
         break;
       case abstraction::op_class::wait_not:
         if (original_state->conditionals.test(sigma->variable)) {
-          if (original_state->current == unassigned || (sigma->assume&&!assumes_allow_switch)) return nullptr;
+          if (original_state->current == no_thread || (sigma->assume&&!assumes_allow_switch)) return nullptr;
         }
         break;
       case abstraction::op_class::lock:
         if (original_state->locks.test(sigma->variable)) {
-          if (original_state->current == unassigned || (sigma->assume&&!assumes_allow_switch)) return nullptr;
+          if (original_state->current == no_thread || (sigma->assume&&!assumes_allow_switch)) return nullptr;
         }
         break;
     }
@@ -171,7 +172,7 @@ pcstate concurrent_automaton::apply_symbol(const pcstate& original_state, const 
       break;
     case abstraction::op_class::lock:
       if (original_state->locks.test(sigma->variable)) {
-        cloned_state->current = unassigned;
+        cloned_state->current = no_thread;
         progress = false;
       } else {
         cloned_state->locks.set(sigma->variable);
@@ -188,7 +189,7 @@ pcstate concurrent_automaton::apply_symbol(const pcstate& original_state, const 
       break;
     case abstraction::op_class::wait_reset:
       if (!cloned_state->conditionals.test(sigma->variable)) {
-        cloned_state->current = unassigned;
+        cloned_state->current = no_thread;
         progress = false;
       } else {
         cloned_state->conditionals.reset(sigma->variable);
@@ -196,18 +197,18 @@ pcstate concurrent_automaton::apply_symbol(const pcstate& original_state, const 
       break;
     case abstraction::op_class::wait:
       if (!cloned_state->conditionals.test(sigma->variable)) {
-        cloned_state->current = unassigned;
+        cloned_state->current = no_thread;
         progress = false;
       }
       break;
     case abstraction::op_class::wait_not:
       if (cloned_state->conditionals.test(sigma->variable)) {
-        cloned_state->current = unassigned;
+        cloned_state->current = no_thread;
         progress = false;
       }
       break;
     case abstraction::op_class::yield:
-      cloned_state->current = unassigned;
+      cloned_state->current = no_thread;
       break;
   }
   return cloned_state;

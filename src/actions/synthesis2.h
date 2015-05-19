@@ -38,8 +38,6 @@ public:
   virtual void run(const cfg::program& program, clang::CompilerInstance& compiler) override;
 private:
   bool synth_loop(const cfg::program& program);
-  void print_code(const cfg::program& program, std::string directory, std::string filename);
-  void print_code(const cfg::program& program, std::string filename);
   bool is_local(clang::Decl* d, clang::ASTContext& ast_context);
   Limi::inclusion_result<abstraction::psymbol> result; // so we can access this if synthesis goes wrong
   unsigned max_bound; // maximum bound during the verification run
