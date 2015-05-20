@@ -37,7 +37,7 @@ bool statement_visitor::VisitDeclRefExpr(DeclRefExpr* stmt)
     VarDecl* vd = cast<VarDecl>(decl);
     if (!vd->isLocalVarDecl()) {
       string variable = decl->getName().str();
-      if (variable != "nondet_int") {
+      if (variable != "nondet") {
         string type_name = get_type_name(stmt);
         if (type_name == "lock_t" || type_name == "conditional_t")
           throw parse_error("Variable " + variable + " must not use type lock_t or conditional_t");
@@ -83,7 +83,7 @@ bool statement_visitor::TraverseCallExpr(CallExpr* s)
     FunctionDecl* callee = cast<FunctionDecl>(s->getCalleeDecl());
     DeclarationName dn = callee->getNameInfo().getName();
     std::string name = dn.getAsString();
-    if (name=="int_yield") {
+    if (name=="yield") {
       operation = abstraction::op_class::yield;
     } else {
       // see if we find an argument
@@ -94,39 +94,39 @@ bool statement_visitor::TraverseCallExpr(CallExpr* s)
           var_name = argexp->getFoundDecl()->getNameAsString();
           string type_name = get_type_name(argexp);
           
-          if (name == "int_lock") {
+          if (name == "lock") {
             if (type_name != "lock_t")
               throw parse_error("Variable " + var_name + " must be of type lock_t");
             var = identifier_store.insert_lock(var_name);
             operation = abstraction::op_class::lock;
-          } else if (name == "int_unlock") {
+          } else if (name == "unlock") {
             if (type_name != "lock_t")
               throw parse_error("Variable " + var_name + " must be of type lock_t");
             var = identifier_store.insert_lock(var_name);
             operation = abstraction::op_class::unlock;
-          } else if (name == "int_notify") {
+          } else if (name == "notify") {
             if (type_name != "conditional_t")
               throw parse_error("Variable " + var_name + " must be of type conditional_t");
             var = identifier_store.insert_conditonal(var_name);
             operation = abstraction::op_class::notify;
-          } else if (name == "int_reset") {
+          } else if (name == "reset") {
               if (type_name != "conditional_t")
                 throw parse_error("Variable " + var_name + " must be of type conditional_t");
               var = identifier_store.insert_conditonal(var_name);
               operation = abstraction::op_class::reset;
-          } else if (name == "int_wait" || name == "int_assume") {
+          } else if (name == "wait" || name == "assume") {
             if (type_name != "conditional_t")
               throw parse_error("Variable " + var_name + " must be of type conditional_t");
             var = identifier_store.insert_conditonal(var_name);
             operation = abstraction::op_class::wait;
-            assume = name == "int_assume";
-          } else if (name == "int_wait_not" || name == "int_assume_not") {
+            assume = name == "assume";
+          } else if (name == "wait_not" || name == "assume_not") {
             if (type_name != "conditional_t")
               throw parse_error("Variable " + var_name + " must be of type conditional_t");
             var = identifier_store.insert_conditonal(var_name);
             operation = abstraction::op_class::wait_not;
-            assume = name == "int_assume_not";
-          } else if (name == "int_wait_reset") {
+            assume = name == "assume_not";
+          } else if (name == "wait_reset") {
             if (type_name != "conditional_t")
               throw parse_error("Variable " + var_name + " must be of type conditional_t");
             var = identifier_store.insert_conditonal(var_name);

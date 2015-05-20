@@ -41,7 +41,6 @@ public:
    */
   void find_locks(const std::vector< std::vector< placement::location > >& locks_to_place, std::vector< std::pair< unsigned, placement::location > >& locks_placed, std::vector< std::pair<unsigned, placement::location > >& unlocks_placed);
 private:
-  void init_successors();
   void init_locks();
   void init_consistancy();
   
@@ -54,8 +53,6 @@ private:
   std::vector<std::vector<z3::expr>> location_vector;
   std::unordered_map<z3::expr,location> location_map;
   z3::sort locations = z3::sort(ctx);
-  z3::func_decl succ = z3::func_decl(ctx);
-  z3::expr succ_def = z3::expr(ctx);
   
   z3::sort locks = z3::sort(ctx);
   std::vector<z3::expr> lock_vector;
@@ -63,9 +60,10 @@ private:
   z3::func_decl lock = z3::func_decl(ctx);
   z3::func_decl unlock = z3::func_decl(ctx);
   
+  z3::expr cost = z3::expr(ctx);
+  z3::expr cost_def = z3::expr(ctx);
+  
   z3::func_decl inl = z3::func_decl(ctx);
-  z3::func_decl inls = z3::func_decl(ctx);
-  z3::func_decl inle = z3::func_decl(ctx);
   z3::expr inl_def = z3::expr(ctx);
   
   z3::expr lock_consistency = z3::expr(ctx);

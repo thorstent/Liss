@@ -124,10 +124,10 @@ bool actions::synthesis2::synth_loop(const cfg::program& program)
   placement::place_locks plocks(program.minimised_threads());
   placement::print_program pprogram(program);
   
-  vector<vector<placement::location>> lock_locations;
+  /*vector<vector<placement::location>> lock_locations;
   vector<pair<unsigned,placement::location>> locks, unlocks;
   plocks.find_locks(lock_locations, locks, unlocks);
-  exit(2);
+  exit(2);*/
   
   unsigned counter = 0;
   while (true) {

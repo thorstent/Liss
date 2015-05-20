@@ -55,6 +55,7 @@ void print_program::place_locks(Rewriter& rewriter, const vector< pair< unsigned
       rewriter.InsertText(start, "{", true, true);
       rewriter.InsertText(end, "}", true, true);
     }
+    assert(rewriter.isRewritable(start));
     if(!after) {
       rewriter.InsertText(start, name + "(l" + to_string(l.first) + ");\n", true, true);
     } else {
