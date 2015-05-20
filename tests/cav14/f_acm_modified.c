@@ -182,11 +182,11 @@ void thread_worker () {
         // E. if there are more requests pending, schedule them now
         if (nondet) {
             // Without this yield, sequential semantics does not allow a preemption before next lock acquisition
-            yield;
+            yield();
             assume(pending);
             acm_cdc_notify3();
         } else {
-            yield;
+            yield();
             assume_not(pending);
             //unlock(l);
         };

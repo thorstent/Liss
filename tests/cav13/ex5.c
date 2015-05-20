@@ -73,7 +73,7 @@ void i2c_hid_close ()
 void thread_open() {
     while (nondet)
     {
-        yield;
+        yield();
         i2c_hid_open();
     }
 }
@@ -83,7 +83,7 @@ void thread_close() {
     {
       assume(open);
       i2c_hid_close();
-      yield;
+      yield();
     }
 }
 

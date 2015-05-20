@@ -478,9 +478,9 @@ void thread_fw_module () {
 
 void thread_usb_bus () {
     assume (drv_usb_registered /*| drv_device_id_registered*/);
-    yield;
+    yield();
     usb_serial_probe ();
-    yield;
+    yield();
     // TODO
     
     // hack to avoid checking return value of usb_serial_probe
@@ -530,7 +530,7 @@ void thread_tty () {
     int x;
     assume (drv_registered_with_serial_fw);
     serial_install ();
-    yield;
+    yield();
     //while (port_tty_installed != 0) {
         lock_tty ();
         if (nondet) {

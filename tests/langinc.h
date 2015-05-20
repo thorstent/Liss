@@ -18,7 +18,5 @@ void wait_reset(conditional_t);
 
 int nondet;
 
-#define yield yield()
-
 
 #endif // _LANGINC_H_

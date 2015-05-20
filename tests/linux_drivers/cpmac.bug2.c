@@ -1404,7 +1404,7 @@ void thread_init_exit()
         return;
     } else {
         assume (cond_platform_driver_registered);
-        yield;
+        yield();
         wait (cond_platform_driver_not_in_use);
         cpmac_exit();
     };
@@ -1417,7 +1417,7 @@ void thread_probe_remove () {
         cpmac_probe();
         if (nondet) {
             assume(netdev_registered);
-            yield;
+            yield();
             cpmac_remove();
         } else {
             assume_not(netdev_registered);
@@ -1437,7 +1437,7 @@ void thread_open_close () {
                 netif_start_queue();
                 unlock(rtnl);
 
-                yield;
+                yield();
 
                 lock(rtnl);
                 if (nondet) {
@@ -1464,7 +1464,7 @@ void thread_irq () {
         assume (cond_irq_enabled);
         cpmac_irq(nondet);
         unlock(irq_running_lock);
-        yield;
+        yield();
     }
 }
 
@@ -1475,7 +1475,7 @@ void thread_irq () {
 //        assume(cond_napi_enabled);
 //        cpmac_poll(nondet);
 //        unlock(napi_running_lock);
-//        yield;
+//        yield();
 //    }
 //}
 
@@ -1483,7 +1483,7 @@ void thread_irq () {
 
 void thread_send() {
     while(nondet) {
-        yield;
+        yield();
         notify(send_in_progress);
         if (nondet) {
             assume(send_enabled);
