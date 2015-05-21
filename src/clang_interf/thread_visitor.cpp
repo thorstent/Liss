@@ -38,6 +38,9 @@ void clang_interf::parse_thread(cfg::abstract_cfg& thread, abstraction::identifi
   //cfg->dump(context.getLangOpts(), false);
   visitor.process_block(cfg->getEntry(), cstack, no_state);
   thread.mark_final(visitor.exit_state());
+  thread.get_state(visitor.entry_state()).return_state = visitor.exit_state();
+  thread.get_state(visitor.entry_state()).name = "initial";
+  thread.get_state(visitor.exit_state()).name = "last";
 }
 
 

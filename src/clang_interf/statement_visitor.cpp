@@ -158,7 +158,9 @@ bool statement_visitor::TraverseCallExpr(CallExpr* s)
         cvisitor.process_block(cfg->getEntry(), cs, no_state);
         add_successor(cvisitor.entry_state());
         end_state = cvisitor.exit_state();
-        
+        thread.get_state(cvisitor.entry_state()).return_state = cvisitor.exit_state();
+        thread.get_state(cvisitor.entry_state()).name = "call " + name;
+        thread.get_state(cvisitor.exit_state()).name = "ret " + name;
       } else {
         cerr << "Ignoring function without body: " << name << endl;
       }

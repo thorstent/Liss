@@ -25,6 +25,7 @@
 #include <clang/AST/Expr.h>
 
 #include <clang/AST/ParentMap.h>
+#include <iostream>
 
 using namespace placement;
 using namespace std;

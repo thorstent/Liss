@@ -45,12 +45,13 @@ struct state {
   bool final = false;
   bool non_det = false; // state branches non-deterministically
   std::string name;
+  state_id return_state = no_state; // if this is a function call, then it contains the position where the function call returns
   state(state_id id, const abstraction::symbol& action) : id(id), action(std::make_shared<abstraction::symbol>(action)) {}
   state(state_id id) : id(id), action(nullptr) {}
   state(state&& other) = default;
   state& operator=(const state& other) = default;
   state(const state& other) : id(other.id), action(other.action?std::make_shared<abstraction::symbol>(*other.action):nullptr), final(other.final), 
-  non_det(other.non_det), name(other.name) {}
+  non_det(other.non_det), name(other.name), return_state(other.return_state) {}
 };
 
 std::ostream& operator<<(std::ostream& os, const state& s);
@@ -95,8 +96,9 @@ public:
   /**
    * @brief Removes unneeded states from the CFG, leaving only the most important ones (those that have actions)
    * 
+   * @param leave_function_states means that the states representing function start and end points remain
    */
-  void minimise();
+  void minimise(bool leave_function_states);
   
   /**
    * @brief Ensures that the arrays are tightly packed

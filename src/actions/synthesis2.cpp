@@ -98,16 +98,17 @@ void actions::synthesis2::print_summary(const cfg::program& original_program) {
   debug << "| " << original_program.no_threads() << " | " << iteration << " | " << this->max_bound <<  " | " << (double)langinc.count()/1000 << "s | "  << (double)synthesis_time.count()/1000 << "s | " << (double)verification.count()/1000 << "s |";
 }
 
-vector<vector<placement::location>> locks_to_locations(list<::synthesis::lock> locks, const vector<abstraction::psymbol>& trace) {
-  vector<vector<placement::location>> result;
+vector<vector<vector<placement::location>>> locks_to_locations(list<::synthesis::lock> locks, const vector<abstraction::psymbol>& trace) {
+  vector<vector<vector<placement::location>>> result;
   for (::synthesis::lock l : locks) {
-    result.push_back(vector<placement::location>());
+    result.push_back(vector<vector<placement::location>>());
     bool started = false;
     for (::synthesis::lock_location loc : l.locations) {
+      result.back().push_back(vector<placement::location>());
       assert (loc.start.instruction_id() <= loc.end.instruction_id());
       for (unsigned i = loc.start.instruction_id(); i <= loc.end.instruction_id(); ++i) {
         if (trace[i]->thread_id==loc.start.thread_id())
-          result.back().push_back(placement::location(trace[i]->thread_id, trace[i]->state));
+          result.back().back().push_back(placement::location(trace[i]->thread_id, trace[i]->state));
       }
     }
   }
@@ -121,7 +122,7 @@ bool actions::synthesis2::synth_loop(const cfg::program& program)
   Limi::printer<abstraction::psymbol> symbol_printer;
   abstraction::concurrent_automaton sequential(program, false, true);
   
-  placement::place_locks plocks(program.minimised_threads());
+  placement::place_locks plocks(program);
   placement::print_program pprogram(program);
   
   /*vector<vector<placement::location>> lock_locations;
@@ -155,7 +156,7 @@ bool actions::synthesis2::synth_loop(const cfg::program& program)
       list<::synthesis::lock> new_locks;
       list<::synthesis::reordering> reorderings;
       synch.generate_sync(cnf, new_locks, reorderings, false);
-      vector<vector<placement::location>> lock_locations = locks_to_locations(new_locks, result.counter_example);
+      vector<vector<vector<placement::location>>> lock_locations = locks_to_locations(new_locks, result.counter_example);
       vector<pair<unsigned,placement::location>> locks, unlocks;
       plocks.find_locks(lock_locations, locks, unlocks);
       string file_name = main_filename;

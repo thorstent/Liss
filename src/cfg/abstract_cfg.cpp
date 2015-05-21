@@ -129,8 +129,17 @@ struct successors_pair_less {
   }
 };
 
-void abstract_cfg::minimise()
+void abstract_cfg::minimise(bool leave_function_states)
 {
+  std::unordered_set<state_id> remain; // leave these states alone
+  if (leave_function_states) {
+    for (unsigned i = 0; i <= no_states(); ++i) {
+      if (states[i].return_state != no_state) {
+        remain.insert(i);
+        remain.insert(states[i].return_state);
+      }
+    }
+  }
   std::unordered_set<state_id> seen;
   
   // add the current set of initial states to the frontier
@@ -141,7 +150,7 @@ void abstract_cfg::minimise()
   while (!frontier2.empty()) {
     pair<state_id,vector<state_id>> nextp = frontier2.front();
     state_id next = nextp.first;
-    assert(states[next].action || states[next].final || next == 1);
+    assert(states[next].action || states[next].final || next == 1 || remain.find(next)!=remain.end());
     vector<state_id> parents = nextp.second;
     frontier2.pop_front();
     if (seen.find(next) == seen.end()) {
@@ -153,7 +162,7 @@ void abstract_cfg::minimise()
       for (unsigned i = 0; i<edges[next].size();++i) {
         edge edge_to = edges[next][i];
         state& succ = states[edge_to.to];
-        if (!succ.action && !succ.final) {
+        if (!succ.action && !succ.final && remain.find(edge_to.to)==remain.end()) {
           // remove this successor
           for (const edge& edge2 : get_successors(edge_to.to)) {
             edge new_edge(edge2);
@@ -232,6 +241,9 @@ void abstract_cfg::compact()
   
   // now update the mappings
   for (unsigned i = 1; i < states.size(); ++i) {
+    if (states[i].return_state != no_state && mapping[states[i].return_state]!=no_state) {
+      states[i].return_state = mapping[states[i].return_state];
+    }
     for (edge& e : edges[i]) {
       if (mapping[e.to]!=no_state) e.to = mapping[e.to];
       if (e.tag) e.tag->state = i;

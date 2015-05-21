@@ -103,7 +103,7 @@ void print_func_interp(const z3::model& model, const z3::func_decl& func_decl) {
   cout << "  else: " << elsee << endl;
 }
 
-place_locks::place_locks(const std::vector< const cfg::abstract_cfg* >& threads) : threads(threads)
+place_locks::place_locks(const cfg::program& program) : threads(program.threads())
 {
   // build position array
   // we assume the threads are compacted (no inreachable states)
@@ -166,16 +166,7 @@ void place_locks::init_locks()
   unlock = ctx.function("unlock", locations, locks, ctx.bool_sort());
   
   inl = ctx.function("inl", locations, locks, ctx.bool_sort());
-  /*inle = ctx.function("inle", locations, locks, ctx.bool_sort());
-  inls = ctx.function("inls", locations, locks, ctx.bool_sort());
-  
-  inl_def = ztrue;
-  z3::expr x = ctx.fresh_constant("x", locations);
-  z3::expr xp = ctx.fresh_constant("xp", locations); // x'
-  z3::expr l = ctx.fresh_constant("l", locks);
-  inl_def = inl_def && z3::forall(x, l, inls(x,l) == z3::exists(xp, succ(xp,x)==ztrue && inle(xp, l)==ztrue));
-  inl_def = inl_def && z3::forall(x, l, inl(x,l) == (lock(x,l) || inls(x, l)));
-  inl_def = inl_def && z3::forall(x, l, inle(x,l) == (inl(x, l) && !unlock(x,l)));*/
+
 }
 
 void place_locks::init_consistancy()
@@ -211,6 +202,10 @@ void place_locks::init_consistancy()
       z3::expr x = location_vector[t][i];
       // for all locks
       for (z3::expr& l : lock_vector) {
+        // ensure that function returns hold the same locks as function call positions
+        if (thread->get_state(i).return_state != no_state) {
+          lock_consistency = lock_consistency && inl(x,l) == inl(location_vector[t][thread->get_state(i).return_state],l);
+        }
         // define inl in terms of the predecessors
         if (predecessors_forward[i].size()>=1) {
           auto it = predecessors_forward[i].begin();
@@ -222,12 +217,12 @@ void place_locks::init_consistancy()
             lock_consistency = lock_consistency && implies(lock(x,l), !inl(location_vector[t][*it],l));
           }
         } else {
-          // there is on predecessor
+          // there is no predecessor
           inl_def = inl_def && inl(x,l) == lock(x,l);
         }
         // define that at join points locking has to agree
         if (predecessors[i].size()>1) {
-          // for all precessors, either they hold l or they don't
+          // for all precessors, either they all hold lock l or they don't
           z3::expr all_equal = ztrue;
           auto it = predecessors[i].begin();
           state_id first_pred = *it;
@@ -253,11 +248,6 @@ void place_locks::init_consistancy()
 
   cost_def = cost == cost_sum;
   
-
-  /*lock_consistency = lock_consistency && z3::forall(x, l, implies(unlock(x,l), inl(x,l) ));
-  lock_consistency = lock_consistency && z3::forall(x, l, implies(lock(x,l), !inls(x,l) ));
-  lock_consistency = lock_consistency && z3::forall(x, l, implies(lock(x,l) , !z3::exists (xp, succ(xp,x) && unlock(xp,l) ) ));*/
-  
 }
 
 void place_locks::result_to_locklist(const vector<vector<z3::expr>>& result, vector<pair<unsigned, location >>& locks) {
@@ -273,34 +263,34 @@ void place_locks::result_to_locklist(const vector<vector<z3::expr>>& result, vec
   }
 }
 
-void place_locks::find_locks(const vector< vector< location > >& locks_to_place, vector<pair<unsigned, location >>& locks_placed, vector<pair<unsigned, location >>& unlocks_placed)
+void place_locks::find_locks(const vector< vector< vector <location> > >& locks_to_place, vector<pair<unsigned, location >>& locks_placed, vector<pair<unsigned, location >>& unlocks_placed)
 {
-  /*z3::expr x = ctx.fresh_constant("x", locations);
-  z3::expr l = ctx.fresh_constant("l", locks);*/
-  
   // insert a lock for testing
   z3::solver slv(ctx);
   slv.add(inl_def);
   slv.add(cost_def);
   slv.add(lock_consistency);
-  //slv.add(z3::forall(x,l,lock(x,l)==z3::ite(x==location_vector[0][2]&&l==lock_vector[0],ztrue,zfalse)));
-  /*slv.add(z3::forall(x,l,inl(x,l)==zfalse));
-  slv.add(z3::forall(x,l,inls(x,l)==zfalse));
-  slv.add(z3::forall(x,l,inle(x,l)==zfalse));
-  slv.add(z3::forall(x,l,lock(x,l)==zfalse));
-  slv.add(z3::forall(x,l,unlock(x,l)==zfalse));*/
   
   // add lock places
-  for (const vector< location >& lplaces : locks_to_place) {
+  for (const vector< vector<location> >& lplaces : locks_to_place) {
     z3::expr one_lock = zfalse;
     for (z3::expr& l : lock_vector) {
       z3::expr e = ztrue;
-      for (const location& loc : lplaces) {
-        e = e && inl(location_vector[loc.thread][loc.state],l);
+      for (const vector< location >& lplaces2 : lplaces) {
+        for (unsigned i = 0; i < lplaces2.size(); ++i) {
+          const location& loc = lplaces2[i];
+          z3::expr& loce = location_vector[loc.thread][loc.state];
+          e = e && inl(loce,l);
+          if (i!=0) { // only the first one may lock
+            e = e && !lock(loce,l);
+          }
+          if (i<lplaces2.size()-1) { // only the last one may unlock
+            e = e && !unlock(loce,l);
+          }
+        }
       }
       one_lock = one_lock || e;
     }
-    cout << one_lock << endl;
     slv.add(one_lock);
   }
   
@@ -308,15 +298,26 @@ void place_locks::find_locks(const vector< vector< location > >& locks_to_place,
     debug << "Starting lock placement" << endl;
   
   z3::check_result last_res = slv.check();
-  cout << last_res << endl;
   assert (last_res == z3::sat);
   z3::model last_model = slv.get_model();
   // try and reduce cost
-  while (last_res==z3::sat) {
-    last_model = slv.get_model();
-    z3::expr c = last_model.eval(cost);
-    slv.add(cost < c);
-    last_res = slv.check();
+  int reduce = 100;
+  z3::expr c = last_model.eval(cost);
+  while (reduce > 0) {
+    do {
+      slv.push();
+      slv.add(cost <= (c-ctx.int_val(reduce)));
+      last_res = slv.check();
+      if (verbosity>=2) {
+        debug << "Cost: " << c << endl;
+      }
+      if (last_res == z3::sat) {
+        last_model = slv.get_model();
+        c = last_model.eval(cost);
+      }
+    } while(last_res==z3::sat);
+    slv.pop();
+    reduce = reduce/10;
   }
   print_func_interp(last_model, lock);
   print_func_interp(last_model, unlock);

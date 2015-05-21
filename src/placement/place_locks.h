@@ -20,7 +20,7 @@
 #ifndef PLACEMENT_PLACE_LOCKS_H
 #define PLACEMENT_PLACE_LOCKS_H
 
-#include "cfg/abstract_cfg.h"
+#include "cfg/program.h"
 #include <z3++.h>
 #include <vector>
 #include "location.h"
@@ -30,16 +30,18 @@ namespace placement {
 class place_locks
 {
 public:
-  place_locks(const std::vector<const cfg::abstract_cfg*>& threads);
+  place_locks(const cfg::program& program);
   /**
    * @brief Determines the lock placement
    * 
    * @param locks_to_place List of locations that need to share the same lock
+   * The innermost is a sequence of location that need to be locked without an unlock in between. The middle layer
+   * are the locations that need to be locked by the same lock.
    * @param locks_placed Pair which lock and where
    * @param unlocks_placed ...
    * @return void
    */
-  void find_locks(const std::vector< std::vector< placement::location > >& locks_to_place, std::vector< std::pair< unsigned, placement::location > >& locks_placed, std::vector< std::pair<unsigned, placement::location > >& unlocks_placed);
+  void find_locks(const std::vector< std::vector< std::vector<placement::location> > >& locks_to_place, std::vector< std::pair< unsigned, placement::location > >& locks_placed, std::vector< std::pair<unsigned, placement::location > >& unlocks_placed);
 private:
   void init_locks();
   void init_consistancy();
