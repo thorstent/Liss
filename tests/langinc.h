@@ -7,6 +7,8 @@ typedef int conditional_t;
 void yield();
 void lock(lock_t);
 void unlock(lock_t);
+void lock_s(lock_t);
+void unlock_s(lock_t);
 void notify(conditional_t);
 void wait(conditional_t);
 void wait_not(conditional_t);

@@ -78,6 +78,7 @@ bool statement_visitor::TraverseCallExpr(CallExpr* s)
   abstraction::op_class operation = abstraction::op_class::epsilon;
   variable_type var = 0;
   bool assume = false;
+  bool synthesised = false; // this is a synthesised lock
   string var_name;
   if (isa<FunctionDecl>(s->getCalleeDecl())) {
     FunctionDecl* callee = cast<FunctionDecl>(s->getCalleeDecl());
@@ -94,16 +95,18 @@ bool statement_visitor::TraverseCallExpr(CallExpr* s)
           var_name = argexp->getFoundDecl()->getNameAsString();
           string type_name = get_type_name(argexp);
           
-          if (name == "lock") {
+          if (name == "lock" || name == "lock_s") {
             if (type_name != "lock_t")
               throw parse_error("Variable " + var_name + " must be of type lock_t");
             var = identifier_store.insert_lock(var_name);
             operation = abstraction::op_class::lock;
-          } else if (name == "unlock") {
+            synthesised = name == "lock_s";
+          } else if (name == "unlock" || name == "unlock_s") {
             if (type_name != "lock_t")
               throw parse_error("Variable " + var_name + " must be of type lock_t");
             var = identifier_store.insert_lock(var_name);
             operation = abstraction::op_class::unlock;
+            synthesised = name == "unlock_s";
           } else if (name == "notify") {
             if (type_name != "conditional_t")
               throw parse_error("Variable " + var_name + " must be of type conditional_t");
@@ -141,6 +144,7 @@ bool statement_visitor::TraverseCallExpr(CallExpr* s)
     cstack.back().second = s;
     symbol action(operation, cstack, var_name, var, identifier_store, s);
     action.assume = assume;
+    action.synthesised = synthesised;
     state_id next = thread.add_state(action);
     add_successor(next);
   } else {

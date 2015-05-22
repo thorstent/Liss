@@ -45,6 +45,7 @@ public:
 private:
   void init_locks();
   void init_consistancy();
+  void init_sameinstr();
   
   void result_to_locklist(const std::vector<std::vector<z3::expr>>& result, std::vector<std::pair<unsigned, location >>& locks);
 
@@ -69,6 +70,7 @@ private:
   z3::expr inl_def = z3::expr(ctx);
   
   z3::expr lock_consistency = z3::expr(ctx);
+  z3::expr lock_sameinstr = z3::expr(ctx);
   
   
 };

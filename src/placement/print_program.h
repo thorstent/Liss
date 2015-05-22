@@ -23,6 +23,7 @@
 #include "cfg/program.h"
 #include "location.h"
 #include <vector>
+#include <string>
 #include <unordered_set>
 
 namespace clang {
@@ -48,12 +49,18 @@ private:
   };
   
   void place_locks(clang::Rewriter& rewriter, const std::vector< std::pair< unsigned, placement::location > >& locks, const std::string name, bool after, std::unordered_set<clang::Stmt*>& added_brace);
+  void place_lock_decl(clang::Rewriter& rewriter, const std::vector< std::pair< unsigned, placement::location > >& locks);
   /**
    * @brief Finds the parent and if additional braces are needed
    */
   parent_result find_stmt_parent(clang::Stmt* stmt,clang::Stmt* function);
   
   const cfg::program& program;
+  
+  const std::string lock_name = "synthlock_";
+  const std::string unlock_instr = "unlock_s";
+  const std::string lock_instr = "lock_s";
+  const std::string lock_t = "lock_t";
 };
 }
 

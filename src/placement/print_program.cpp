@@ -58,20 +58,50 @@ void print_program::place_locks(Rewriter& rewriter, const vector< pair< unsigned
     }
     assert(rewriter.isRewritable(start));
     if(!after) {
-      rewriter.InsertText(start, name + "(l" + to_string(l.first) + ");\n", true, true);
+      rewriter.InsertText(start, name + "(" + lock_name + to_string(l.first) + ");\n", true, true);
     } else {
-      rewriter.InsertText(end, "\n" + name + "(l" + to_string(l.first) + ");", false, true);
+      rewriter.InsertText(end, "\n" + name + "(" + lock_name + to_string(l.first) + ");", false, true);
     }
   }
 }
+
+void print_program::place_lock_decl(Rewriter& rewriter, const vector< pair< unsigned, placement::location > >& locks)
+{
+  std::unordered_set<unsigned> locks_in_use;
+  for (const pair< unsigned, placement::location >& lock : locks) {
+    locks_in_use.insert(lock.first);
+  }
+  bool found_lockt = false;
+  Decl* first_decl = nullptr; // the first declaration after lock_t is found
+  for (auto x : program.translation_unit->decls()) {
+    // find the lock_t declaration
+    if (TypedefDecl* lockt = dyn_cast<TypedefDecl>(x)) {
+      if (lockt->getNameAsString() == lock_t)
+        found_lockt = true;
+    } else 
+      if (found_lockt && rewriter.getSourceMgr().getFileID(x->getLocation()) == program.ast_context.getSourceManager().getMainFileID()) {
+        first_decl = x;
+        break;
+      }    
+  }
+  assert (first_decl);
+  // insert locks after this
+  SourceLocation start = first_decl->getLocStart();
+  assert(rewriter.isRewritable(start));
+  for (unsigned l : locks_in_use) {
+    rewriter.InsertText(start, lock_t + " " + lock_name + to_string(l) + ";\n", true, true);
+  }
+}
+
 
 void print_program::print_with_locks(const vector< pair< unsigned, placement::location > >& locks, const vector< pair< unsigned, placement::location > >& unlocks, const string& outname)
 {
   Rewriter rewriter(program.ast_context.getSourceManager(), program.ast_context.getLangOpts());
   
   unordered_set<Stmt*> added_brace;
-  place_locks(rewriter, locks, "lock_s", false, added_brace);
-  place_locks(rewriter, unlocks, "unlock_s", true, added_brace);
+  place_locks(rewriter, locks, lock_instr, false, added_brace);
+  place_locks(rewriter, unlocks, unlock_instr, true, added_brace);
+  place_lock_decl(rewriter, locks);
   
   // print out the program
   std::error_code error_code;

@@ -139,7 +139,7 @@ place_locks::place_locks(const cfg::program& program) : threads(program.threads(
   // other functions  
   init_locks();   
   init_consistancy();
-  
+  init_sameinstr();
 }
 
 
@@ -250,6 +250,36 @@ void place_locks::init_consistancy()
   
 }
 
+// ensure that all positions refering to the same physical location have the same lock and unlock semantics
+void place_locks::init_sameinstr()
+{
+  lock_sameinstr = ztrue;
+  unordered_map<clang::Stmt*,vector<z3::expr>> instr_map;
+  // build a cache of instructions and their locations
+  unsigned t = 0;
+  for (const cfg::abstract_cfg* thread : threads) {
+    for (unsigned i = 1; i <= thread->no_states(); ++i) {
+      z3::expr x = location_vector[t][i];
+      if (threads[t]->get_state(i).action)
+        instr_map[threads[t]->get_state(i).action->instr_stmt()].push_back(x);
+    }
+    ++t;
+  }
+  // check which ones have more than one position
+  for (const auto& in : instr_map) {
+    const vector<z3::expr>& inv = in.second;
+    if (inv.size()>1) {
+      z3::expr first = inv[0];
+      for (z3::expr& l : lock_vector) {
+        for (unsigned i = 1; i < inv.size(); ++i) {
+          lock_sameinstr = lock_sameinstr && lock(first,l) == lock(inv[i],l) && unlock(first,l) == unlock(inv[i],l);
+        }
+      }
+    }
+  }
+}
+
+
 void place_locks::result_to_locklist(const vector<vector<z3::expr>>& result, vector<pair<unsigned, location >>& locks) {
   for (const vector<z3::expr>& r : result) {
     z3::expr lock = r[1];
@@ -270,6 +300,7 @@ void place_locks::find_locks(const vector< vector< vector <location> > >& locks_
   slv.add(inl_def);
   slv.add(cost_def);
   slv.add(lock_consistency);
+  slv.add(lock_sameinstr);
   
   // add lock places
   for (const vector< vector<location> >& lplaces : locks_to_place) {
