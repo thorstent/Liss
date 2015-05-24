@@ -30,7 +30,6 @@
 #include "synthesis/reorderings.h"
 #include "synthesis/synchronisation.h"
 #include "synthesis/lock.h"
-#include "synthesis/insertion.h"
 #include "inclusion_test.h"
 #include "print.h"
 #include "options.h"
@@ -61,21 +60,14 @@ void actions::synthesis2::run(const cfg::program& program, clang::CompilerInstan
   //print_code(program, debug_folder, file_name);
   
   if (success) {
-    //print_code(program, output_file_code);
+    //pprogram.print_with_locks(locks, unlocks, debug_folder + file_name);
+    
   } else {
     Limi::printer<abstraction::psymbol> symbol_printer;
     ofstream file_out(output_file_log);
     result.print_long(file_out, symbol_printer);
     file_out.close();
   }
-}
-
-
-bool actions::synthesis2::is_local(Decl* d, ASTContext& ast_context)
-{
-  FileID id = ast_context.getSourceManager().getFileID(d->getLocStart());
-  FileID main = ast_context.getSourceManager().getMainFileID();
-  return id == main || (isa<VarDecl>(d) && d->getLocStart() == SourceLocation());
 }
 
 unsigned iteration = 0;
@@ -98,17 +90,17 @@ void actions::synthesis2::print_summary(const cfg::program& original_program) {
   debug << "| " << original_program.no_threads() << " | " << iteration << " | " << this->max_bound <<  " | " << (double)langinc.count()/1000 << "s | "  << (double)synthesis_time.count()/1000 << "s | " << (double)verification.count()/1000 << "s |";
 }
 
-vector<vector<vector<placement::location>>> locks_to_locations(list<::synthesis::lock> locks, const vector<abstraction::psymbol>& trace) {
-  vector<vector<vector<placement::location>>> result;
+vector<vector<vector<abstraction::location>>> locks_to_locations(list<::synthesis::lock> locks, const vector<abstraction::psymbol>& trace) {
+  vector<vector<vector<abstraction::location>>> result;
   for (::synthesis::lock l : locks) {
-    result.push_back(vector<vector<placement::location>>());
+    result.push_back(vector<vector<abstraction::location>>());
     bool started = false;
     for (::synthesis::lock_location loc : l.locations) {
-      result.back().push_back(vector<placement::location>());
+      result.back().push_back(vector<abstraction::location>());
       assert (loc.start.instruction_id() <= loc.end.instruction_id());
       for (unsigned i = loc.start.instruction_id(); i <= loc.end.instruction_id(); ++i) {
-        if (trace[i]->thread_id==loc.start.thread_id())
-          result.back().back().push_back(placement::location(trace[i]->thread_id, trace[i]->state));
+        if (trace[i]->thread_id()==loc.start.thread_id())
+          result.back().back().push_back(abstraction::location(trace[i]->thread_id(), trace[i]->state_id()));
       }
     }
   }
@@ -121,23 +113,18 @@ bool actions::synthesis2::synth_loop(const cfg::program& program)
 
   Limi::printer<abstraction::psymbol> symbol_printer;
   abstraction::concurrent_automaton sequential(program, false, true);
+  abstraction::concurrent_automaton concurrent(program, true, false);
+  concurrent.use_cache = false; // do not use cache as it interfers with disallowing bad traces
   
   placement::place_locks plocks(program);
-  placement::print_program pprogram(program);
-  
-  /*vector<vector<placement::location>> lock_locations;
-  vector<pair<unsigned,placement::location>> locks, unlocks;
-  plocks.find_locks(lock_locations, locks, unlocks);
-  exit(2);*/
   
   unsigned counter = 0;
   while (true) {
-    print_program(program, false, true, to_string(counter) + ".");
     
     auto langinc_start = chrono::steady_clock::now();
     auto start = chrono::steady_clock::now();
-    // compare program to itself (context switches on synthesised locks are not allowed)
-    bool success = test_inclusion(program, program, result);
+    // do language inclusion test
+    bool success = test_inclusion(sequential, concurrent, result);
     this->max_bound = max(result.max_bound,this->max_bound);
     auto langinc_end = chrono::steady_clock::now();
     if (!success)
@@ -150,18 +137,27 @@ bool actions::synthesis2::synth_loop(const cfg::program& program)
       ::synthesis::concurrent_trace trace = ::synthesis::make_trace(ctx, program, result.counter_example);
       ::synthesis::reorderings reorder(ctx, program);
       pair<::synthesis::dnf,::synthesis::dnf> dnf = reorder.process_trace(trace);
+      ::synthesis::dnf bad_cond = dnf.first; // these conditions make the trace bad
+      concurrent.add_forbidden_traces(bad_cond);
+    } else {
+      verification += std::chrono::duration_cast<chrono::milliseconds>(langinc_end - langinc_start);
+      cout << "Synthesis was successful." << endl;
+      print_summary(program);
+      return true;
+    }
+  }
+      
+      /*
       ::synthesis::synchronisation synch(program, trace);
       ::synthesis::cnf cnf = negate_dnf(dnf.first);
       ::synthesis::cnf cnf_weak = negate_dnf(dnf.second);
       list<::synthesis::lock> new_locks;
-      list<::synthesis::reordering> reorderings;
-      synch.generate_sync(cnf, new_locks, reorderings, false);
+      synch.generate_sync(cnf, new_locks);
       vector<vector<vector<placement::location>>> lock_locations = locks_to_locations(new_locks, result.counter_example);
       vector<pair<unsigned,placement::location>> locks, unlocks;
       plocks.find_locks(lock_locations, locks, unlocks);
       string file_name = main_filename;
       file_name.replace(file_name.length()-2,2, "." + to_string(counter) + ".c");
-      pprogram.print_with_locks(locks, unlocks, debug_folder + file_name);
       exit(1);
       
     } else {
@@ -181,7 +177,6 @@ bool actions::synthesis2::synth_loop(const cfg::program& program)
     std::list<const clang::FunctionDecl*> functions;
     for (const cfg::abstract_cfg* t : program.threads()) {
       functions.push_back(t->declaration);
-    }
+    }*/
 
-  }
 }

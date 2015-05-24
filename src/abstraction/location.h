@@ -21,12 +21,30 @@
 #define PLACEMENT_LOCATION_H
 
 #include "types.h"
+#include <Limi/internal/hash.h>
 
-namespace placement {
+namespace abstraction {
   struct location {
-    unsigned thread;
-    state_id state;
-    location(unsigned thread, state_id state) : thread(thread), state(state) {      
+    thread_id_type thread;
+    state_id_type state;
+    location(thread_id_type thread, state_id_type state) : thread(thread), state(state) {      
+    }
+    location() : thread(no_thread), state(no_state) {}
+    bool operator==(const location& other) const {
+      return state == other.state && thread == other.thread;
+    }
+    bool operator!=(const location& other) const {
+      return !(*this==other);
+    }
+  };
+}
+
+namespace std {
+  template<> struct hash<abstraction::location> {
+    size_t operator()(const abstraction::location& val) const {
+      size_t seed = val.state;
+      Limi::internal::hash_combine(seed, val.thread);
+      return seed;
     }
   };
 }

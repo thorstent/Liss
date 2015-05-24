@@ -31,7 +31,7 @@ using namespace std;
 
 struct short_symbol_printer : public Limi::printer_base<abstraction::psymbol> {
   virtual void print(const abstraction::psymbol& symbol, std::ostream& out) const {
-    out << std::to_string(symbol->thread_id);
+    out << std::to_string(symbol->thread_id());
     out << symbol->operation << symbol->variable << symbol->cstack.back().second;
   }
 };
@@ -42,7 +42,7 @@ void actions::print_program(const cfg::program& program, bool timbuk, bool only_
 {
   short_symbol_printer symbol_printer;
   if (!timbuk) {
-    Limi::dot_printer<state_id, cfg::reward_symbol, cfg::automaton> pr;
+    Limi::dot_printer<state_id_type, cfg::reward_symbol, cfg::automaton> pr;
     unsigned i = 0;
     for (const cfg::abstract_cfg* thread : program.minimised_threads()) {
       cfg::automaton automaton(*thread);

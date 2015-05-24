@@ -40,13 +40,13 @@ namespace abstraction {
     concurrent_state(concurrent_state&& other);
     concurrent_state & operator= (concurrent_state && other);
     
-    state_id* threads;
+    state_id_type* threads;
     thread_id_type length;
     thread_id_type current = no_thread;
     uint16_t reward = 0;
     
-    state_id& operator[] (const int i) {return threads[i];};
-    const state_id& operator[] (const int i) const {return threads[i];};
+    state_id_type& operator[] (const int i) {return threads[i];};
+    const state_id_type& operator[] (const int i) const {return threads[i];};
     
     std::bitset<max_conditionals> conditionals; // bit is set if conditional is notified
     std::bitset<max_locks> locks; // bit is set if lock is taken

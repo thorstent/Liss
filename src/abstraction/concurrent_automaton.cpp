@@ -57,7 +57,7 @@ void concurrent_automaton::int_initial_states(concurrent_automaton::State_set& s
     State_set duplicates = states;
     states.clear();
     bool first = true;
-    for (const state_id& init : threads[i].initial_states()) {
+    for (const state_id_type& init : threads[i].initial_states()) {
 
       if (first) {
         for (const pcstate& s : duplicates) {
@@ -95,7 +95,7 @@ void concurrent_automaton::int_next_symbols(const pcstate& state, concurrent_aut
 
 void concurrent_automaton::int_successors(const pcstate& state, const psymbol& sigma, concurrent_automaton::State_set& successors) const
 {
-  thread_id_type thread = sigma->thread_id;
+  thread_id_type thread = sigma->thread_id();
   if (state->current != no_thread && state->current != static_cast<int>(thread)) return;
   cfg::reward_symbol rs(0,sigma);
   assert(thread>=0);
@@ -111,7 +111,7 @@ void concurrent_automaton::int_successors(const pcstate& state, const psymbol& s
     }
     //cout << threads[thread]->name(next->threads[thread]) << " -> ";
     bool first = true;
-    for (const state_id& p : succs) {
+    for (const state_id_type& p : succs) {
       pcstate copy = first ? next : make_shared<concurrent_state>(*next); // copy needed if not first element
       next->reward += rs.reward;
       copy->threads[thread] = p;
@@ -160,7 +160,7 @@ pcstate concurrent_automaton::apply_symbol(const pcstate& original_state, const 
   }
   
   pcstate cloned_state = make_shared<concurrent_state>(*original_state);
-  cloned_state->current = sigma->thread_id;
+  cloned_state->current = sigma->thread_id();
   if (!concurrent_ && sigma->synthesised) {
     return cloned_state;
   }
@@ -223,4 +223,8 @@ inline void concurrent_automaton::next_single(const pcstate& state, concurrent_a
   }
 }
 
+void concurrent_automaton::add_forbidden_traces(synthesis::dnf forbidden_traces)
+{
+  this->forbidden_traces.insert(this->forbidden_traces.end(), forbidden_traces.begin(), forbidden_traces.end());
+}
 

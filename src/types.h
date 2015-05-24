@@ -22,9 +22,9 @@
 
 #include <cstdint>
 
-typedef int16_t state_id;
+typedef int16_t state_id_type;
 typedef int16_t reward_t;
-const state_id no_state = 0;
+const state_id_type no_state = 0;
 const unsigned max_states = INT16_MAX;
 
 const unsigned max_variables = UINT16_MAX;

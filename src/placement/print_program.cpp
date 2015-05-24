@@ -36,8 +36,8 @@ print_program::print_program(const cfg::program& program) : program(program)
 
 }
 
-void print_program::place_locks(Rewriter& rewriter, const vector< pair< unsigned, placement::location > >& locks, const string name, bool after, unordered_set<Stmt*>& added_brace) {
-  for (pair< unsigned, placement::location > l : locks) {
+void print_program::place_locks(Rewriter& rewriter, const vector< pair< unsigned, abstraction::location > >& locks, const string name, bool after, unordered_set<Stmt*>& added_brace) {
+  for (pair< unsigned, abstraction::location > l : locks) {
     // find location
     
     const cfg::state& state = program.minimised_threads()[l.second.thread]->get_state(l.second.state);
@@ -65,10 +65,10 @@ void print_program::place_locks(Rewriter& rewriter, const vector< pair< unsigned
   }
 }
 
-void print_program::place_lock_decl(Rewriter& rewriter, const vector< pair< unsigned, placement::location > >& locks)
+void print_program::place_lock_decl(Rewriter& rewriter, const vector< pair< unsigned, abstraction::location > >& locks)
 {
   std::unordered_set<unsigned> locks_in_use;
-  for (const pair< unsigned, placement::location >& lock : locks) {
+  for (const pair< unsigned, abstraction::location >& lock : locks) {
     locks_in_use.insert(lock.first);
   }
   bool found_lockt = false;
@@ -94,7 +94,7 @@ void print_program::place_lock_decl(Rewriter& rewriter, const vector< pair< unsi
 }
 
 
-void print_program::print_with_locks(const vector< pair< unsigned, placement::location > >& locks, const vector< pair< unsigned, placement::location > >& unlocks, const string& outname)
+void print_program::print_with_locks(const vector< pair< unsigned, abstraction::location > >& locks, const vector< pair< unsigned, abstraction::location > >& unlocks, const string& outname)
 {
   Rewriter rewriter(program.ast_context.getSourceManager(), program.ast_context.getLangOpts());
   

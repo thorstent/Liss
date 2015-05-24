@@ -23,7 +23,7 @@
 #include "cfg/program.h"
 #include <z3++.h>
 #include <vector>
-#include "location.h"
+#include "abstraction/location.h"
 
 namespace placement {
 
@@ -41,20 +41,20 @@ public:
    * @param unlocks_placed ...
    * @return void
    */
-  void find_locks(const std::vector< std::vector< std::vector<placement::location> > >& locks_to_place, std::vector< std::pair< unsigned, placement::location > >& locks_placed, std::vector< std::pair<unsigned, placement::location > >& unlocks_placed);
+  void find_locks(const std::vector< std::vector< std::vector<abstraction::location> > >& locks_to_place, std::vector< std::pair< unsigned, abstraction::location > >& locks_placed, std::vector< std::pair<unsigned, abstraction::location > >& unlocks_placed);
 private:
   void init_locks();
   void init_consistancy();
   void init_sameinstr();
   
-  void result_to_locklist(const std::vector<std::vector<z3::expr>>& result, std::vector<std::pair<unsigned, location >>& locks);
+  void result_to_locklist(const std::vector<std::vector<z3::expr>>& result, std::vector<std::pair<unsigned, abstraction::location >>& locks);
 
   z3::context ctx;  
   z3::expr ztrue = ctx.bool_val(true);
   z3::expr zfalse = ctx.bool_val(false);
   const std::vector<const cfg::abstract_cfg*>& threads;
   std::vector<std::vector<z3::expr>> location_vector;
-  std::unordered_map<z3::expr,location> location_map;
+  std::unordered_map<z3::expr,abstraction::location> location_map;
   z3::sort locations = z3::sort(ctx);
   
   z3::sort locks = z3::sort(ctx);

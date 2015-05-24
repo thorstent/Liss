@@ -57,8 +57,8 @@ public:
   bool TraverseCallExpr(clang::CallExpr* s);
   bool TraverseStmt(clang::Stmt* s);
   
-  state_id last_state();
-  state_id first_state();
+  state_id_type last_state();
+  state_id_type first_state();
   inline bool progress() { return start_state != no_state; }
   /**
    * @brief Means that the last instruction referenced non-det
@@ -69,11 +69,11 @@ private:
   clang::ASTContext& context;
   cfg::abstract_cfg& thread;
   abstraction::identifier_store& identifier_store;
-  state_id start_state = no_state;
-  state_id end_state = no_state;
+  state_id_type start_state = no_state;
+  state_id_type end_state = no_state;
   abstraction::op_class access_type;
 
-  void add_successor(state_id successor);
+  void add_successor(state_id_type successor);
   std::string get_type_name(clang::DeclRefExpr* decl);
   call_stack cstack;
   std::unordered_set<const clang::Stmt*>& seen_stmt;

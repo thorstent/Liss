@@ -1,1 +1,1 @@
-add_library(actions action_base.cpp print.cpp print_cfg.cpp inclusion_test.cpp deadlock_check.cpp perf_test.cpp synthesis.cpp synthesis2.cpp)
+add_library(actions action_base.cpp print.cpp print_cfg.cpp inclusion_test.cpp deadlock_check.cpp perf_test.cpp synthesis2.cpp)

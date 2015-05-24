@@ -47,7 +47,7 @@ concurrent_trace synthesis::make_trace(z3::context& ctx, const cfg::program& pro
     }
     location loc(ctx.fresh_constant(name.c_str(), ctx.int_sort()), name, symbol, counter++);
     loc.iteration = iteration_counter[symbol];
-    result.threads[symbol->thread_id].push_back(loc);
+    result.threads[symbol->thread_id()].push_back(loc);
   }
   return result;
 }

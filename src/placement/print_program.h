@@ -21,7 +21,7 @@
 #define PLACEMENT_PRINT_PROGRAM_H
 
 #include "cfg/program.h"
-#include "location.h"
+#include "abstraction/location.h"
 #include <vector>
 #include <string>
 #include <unordered_set>
@@ -38,7 +38,7 @@ public:
   print_program(const cfg::program& program);
   
   void print_original(const std::string& outname);
-  void print_with_locks(const std::vector<std::pair<unsigned,placement::location>>& locks, const std::vector<std::pair<unsigned,placement::location>>& unlocks, const std::string& outname);
+  void print_with_locks(const std::vector<std::pair<unsigned,abstraction::location>>& locks, const std::vector<std::pair<unsigned,abstraction::location>>& unlocks, const std::string& outname);
 private:
   struct parent_result {
     clang::Stmt* stmt_to_lock;
@@ -48,8 +48,8 @@ private:
     braces_needed(braces_needed), ends_semicolon(ends_semicolon) {}
   };
   
-  void place_locks(clang::Rewriter& rewriter, const std::vector< std::pair< unsigned, placement::location > >& locks, const std::string name, bool after, std::unordered_set<clang::Stmt*>& added_brace);
-  void place_lock_decl(clang::Rewriter& rewriter, const std::vector< std::pair< unsigned, placement::location > >& locks);
+  void place_locks(clang::Rewriter& rewriter, const std::vector< std::pair< unsigned, abstraction::location > >& locks, const std::string name, bool after, std::unordered_set<clang::Stmt*>& added_brace);
+  void place_lock_decl(clang::Rewriter& rewriter, const std::vector< std::pair< unsigned, abstraction::location > >& locks);
   /**
    * @brief Finds the parent and if additional braces are needed
    */

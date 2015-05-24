@@ -34,7 +34,7 @@ struct location
   abstraction::psymbol symbol;
   std::string description;
   unsigned iteration = 0; // the loop iteration of this symbol
-  inline uint8_t thread_id() const { assert(symbol_valid); return symbol->thread_id; }
+  inline thread_id_type thread_id() const { assert(symbol_valid); return symbol->thread_id(); }
   int original_position = -1; // position in the original trace (-1 means not in original trace) (needed only for debug purposes)
   inline unsigned instruction_id() const { assert(original_position>=0); return static_cast<unsigned>(original_position); }
   bool pre_location = false; // this is a pre-location (used for waits and locks)

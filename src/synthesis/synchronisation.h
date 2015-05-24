@@ -25,7 +25,6 @@
 #include "abstraction/concurrent_state.h"
 
 #include "lock.h"
-#include "reordering.h"
 #include "trace.h"
 
 namespace synthesis {
@@ -34,13 +33,12 @@ class synchronisation
 {
 public:
   synchronisation(const cfg::program& program, const concurrent_trace& trace);
-  void generate_sync(const synthesis::cnf& cnf, std::list< synthesis::lock >& locks, std::list< synthesis::reordering >& reorderings, bool prefer_reorder);
+  void generate_sync(const synthesis::cnf& cnf, std::list< synthesis::lock >& locks);
 private:
   //const abstraction::program& program;
   const Limi::printer<abstraction::psymbol> symbol_printer;
   const concurrent_trace& trace;
   bool find_lock(const disj& disjunct, std::list<lock>& locks);
-  bool find_reordering(const synthesis::disj& disjunct, std::list< synthesis::reordering >& reorderings);
   void merge_locks(std::list<lock>& locks);
   //void merge_locks_multithread(std::list<lock>& locks);
   

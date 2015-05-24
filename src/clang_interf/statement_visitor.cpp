@@ -44,7 +44,7 @@ bool statement_visitor::VisitDeclRefExpr(DeclRefExpr* stmt)
         variable_type var = identifier_store.insert_variable(variable);
         cstack.back().second = stmt;
         symbol action(access_type, cstack, variable, var, identifier_store, stmt);
-        state_id next = thread.add_state(action);
+        state_id_type next = thread.add_state(action);
         add_successor(next);
       } else {
         last_nondet = true;
@@ -145,7 +145,7 @@ bool statement_visitor::TraverseCallExpr(CallExpr* s)
     symbol action(operation, cstack, var_name, var, identifier_store, s);
     action.assume = assume;
     action.synthesised = synthesised;
-    state_id next = thread.add_state(action);
+    state_id_type next = thread.add_state(action);
     add_successor(next);
   } else {
     RecursiveASTVisitor::TraverseCallExpr(s);
@@ -186,17 +186,17 @@ string statement_visitor::get_type_name(DeclRefExpr* expr)
   return string();
 }
 
-state_id statement_visitor::last_state()
+state_id_type statement_visitor::last_state()
 {
   return end_state;
 }
 
-state_id statement_visitor::first_state()
+state_id_type statement_visitor::first_state()
 {
   return start_state;
 }
 
-void statement_visitor::add_successor(state_id successor)
+void statement_visitor::add_successor(state_id_type successor)
 {
   if (end_state != no_state) {
     thread.add_edge(end_state, successor);

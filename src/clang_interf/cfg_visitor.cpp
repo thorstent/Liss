@@ -28,7 +28,7 @@ using namespace std;
 using namespace clang;
 
 // parent_blocks is used to identify back_edges
-void cfg_visitor::process_block(const CFGBlock& block, call_stack cstack, state_id last_state, unordered_set<unsigned> parent_blocks)
+void cfg_visitor::process_block(const CFGBlock& block, call_stack cstack, state_id_type last_state, unordered_set<unsigned> parent_blocks)
 {
   unordered_set<const Stmt*> seen_stmt;
   
@@ -52,7 +52,7 @@ void cfg_visitor::process_block(const CFGBlock& block, call_stack cstack, state_
       // cache the first state for later
       block_map.insert(make_pair(block.getBlockID(), svisitor.first_state()));
     } else {
-      state_id dummy_state = thread.add_dummy_state();
+      state_id_type dummy_state = thread.add_dummy_state();
       // make the connection
       if (last_state!=no_state)
         thread.add_edge(last_state, dummy_state);
@@ -102,12 +102,12 @@ void cfg_visitor::process_block(const CFGBlock& block, call_stack cstack, state_
 
 }
 
-state_id cfg_visitor::entry_state()
+state_id_type cfg_visitor::entry_state()
 {
   return entry_state_;
 }
 
-state_id cfg_visitor::exit_state()
+state_id_type cfg_visitor::exit_state()
 {
   return exit_state_;
 }

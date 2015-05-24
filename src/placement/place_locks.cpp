@@ -127,7 +127,7 @@ place_locks::place_locks(const cfg::program& program) : threads(program.threads(
     for (unsigned j = 1; j <= thread->no_states(); ++j) { 
       z3::expr ex = consts[index]();
       location_vector.back().push_back(ex);
-      location_map.insert(make_pair(ex, location(location_vector.size()-1,j)));
+      location_map.insert(make_pair(ex, abstraction::location(location_vector.size()-1,j)));
       ++index;
     }
   }
@@ -181,8 +181,8 @@ void place_locks::init_consistancy()
   unsigned t = 0;
   for (const cfg::abstract_cfg* thread : threads) {
     // make a predecessor map
-    vector<unordered_set<state_id>> predecessors(thread->no_states()+1);
-    vector<unordered_set<state_id>> predecessors_forward(thread->no_states()+1); // only the forward predecessors ()
+    vector<unordered_set<state_id_type>> predecessors(thread->no_states()+1);
+    vector<unordered_set<state_id_type>> predecessors_forward(thread->no_states()+1); // only the forward predecessors ()
     
     for (unsigned i = 1; i <= thread->no_states(); ++i) {
       // forbid locking and unlock at non-locations
@@ -209,7 +209,7 @@ void place_locks::init_consistancy()
         // define inl in terms of the predecessors
         if (predecessors_forward[i].size()>=1) {
           auto it = predecessors_forward[i].begin();
-          state_id first_pred = *it;
+          state_id_type first_pred = *it;
           z3::expr pred_x = location_vector[t][first_pred];
           inl_def = inl_def && inl(x,l) == (lock(x,l) || (inl(pred_x,l) && !unlock(pred_x,l)));
           for (; it != predecessors[i].end(); ++it) {
@@ -225,9 +225,9 @@ void place_locks::init_consistancy()
           // for all precessors, either they all hold lock l or they don't
           z3::expr all_equal = ztrue;
           auto it = predecessors[i].begin();
-          state_id first_pred = *it;
+          state_id_type first_pred = *it;
           for (++it; it != predecessors[i].end(); ++it) {
-            state_id pred = *it;
+            state_id_type pred = *it;
             all_equal = all_equal && ((inl(location_vector[t][first_pred],l)&& !unlock(location_vector[t][first_pred],l)) == (inl(location_vector[t][pred],l)&& !unlock(location_vector[t][pred],l)));
           }
           lock_consistency = lock_consistency && (all_equal);
@@ -280,7 +280,7 @@ void place_locks::init_sameinstr()
 }
 
 
-void place_locks::result_to_locklist(const vector<vector<z3::expr>>& result, vector<pair<unsigned, location >>& locks) {
+void place_locks::result_to_locklist(const vector<vector<z3::expr>>& result, vector<pair<unsigned, abstraction::location >>& locks) {
   for (const vector<z3::expr>& r : result) {
     z3::expr lock = r[1];
     z3::expr loc = r[0];
@@ -293,7 +293,7 @@ void place_locks::result_to_locklist(const vector<vector<z3::expr>>& result, vec
   }
 }
 
-void place_locks::find_locks(const vector< vector< vector <location> > >& locks_to_place, vector<pair<unsigned, location >>& locks_placed, vector<pair<unsigned, location >>& unlocks_placed)
+void place_locks::find_locks(const vector< vector< vector <abstraction::location> > >& locks_to_place, vector<pair<unsigned, abstraction::location >>& locks_placed, vector<pair<unsigned, abstraction::location >>& unlocks_placed)
 {
   // insert a lock for testing
   z3::solver slv(ctx);
@@ -303,13 +303,13 @@ void place_locks::find_locks(const vector< vector< vector <location> > >& locks_
   slv.add(lock_sameinstr);
   
   // add lock places
-  for (const vector< vector<location> >& lplaces : locks_to_place) {
+  for (const vector< vector<abstraction::location> >& lplaces : locks_to_place) {
     z3::expr one_lock = zfalse;
     for (z3::expr& l : lock_vector) {
       z3::expr e = ztrue;
-      for (const vector< location >& lplaces2 : lplaces) {
+      for (const vector< abstraction::location >& lplaces2 : lplaces) {
         for (unsigned i = 0; i < lplaces2.size(); ++i) {
-          const location& loc = lplaces2[i];
+          const abstraction::location& loc = lplaces2[i];
           z3::expr& loce = location_vector[loc.thread][loc.state];
           e = e && inl(loce,l);
           if (i!=0) { // only the first one may lock

@@ -80,7 +80,7 @@ void reorderings::prepare_trace(const concurrent_trace& trace, reorderings::sepe
   int counter = 0;
   for (const auto& th : trace.threads)
   for (const location loc : th) {
-    unsigned thread_id = loc.symbol->thread_id;
+    thread_id_type thread_id = loc.symbol->thread_id();
     variable_type var = loc.symbol->variable;
     
     string name = loc.name_str;
@@ -479,16 +479,16 @@ conj reorderings::wait_notify_order(const reorderings::seperated_trace& strace, 
       // look for notifies before and resets after
       for (++it; it != order.rend(); ++it) {
         if (it->first->symbol->operation != before_symbol) {
-          if (!before[it->first->symbol->thread_id] && it->first->symbol->thread_id != ref_loc.symbol->thread_id) {
-            before[it->first->symbol->thread_id] = true;
+          if (!before[it->first->symbol->thread_id()] && it->first->symbol->thread_id() != ref_loc.symbol->thread_id()) {
+            before[it->first->symbol->thread_id()] = true;
             result.push_back(constraint_atom(*it->first, ref_loc, true));
           }
         }
       }
       for (++it2; it2 != order.end(); ++it2) {
         if (it2->first->symbol->operation != after_symbol) {
-          if (!after[it2->first->symbol->thread_id] && it2->first->symbol->thread_id != ref_loc.symbol->thread_id) {
-            after[it2->first->symbol->thread_id] = true;
+          if (!after[it2->first->symbol->thread_id()] && it2->first->symbol->thread_id() != ref_loc.symbol->thread_id()) {
+            after[it2->first->symbol->thread_id()] = true;
             result.push_back(constraint_atom(ref_loc, *it2->first, true));
           }
         }

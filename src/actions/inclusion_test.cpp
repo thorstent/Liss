@@ -70,9 +70,8 @@ void actions::filter_result(inclusion_result& result) {
   result.filter_trace([](const abstraction::psymbol& sym){return sym->tag_branch!=-1;});
 }
 
-bool actions::test_inclusion(const abstraction::concurrent_automaton& sequential, const cfg::program& concurrent_program, inclusion_result& result)
+bool actions::test_inclusion(const abstraction::concurrent_automaton& sequential, const abstraction::concurrent_automaton& concurrent, inclusion_result& result)
 {
-  abstraction::concurrent_automaton concurrent(concurrent_program, true, false);
   
   unsigned bound = 1;
   Limi::antichain_algo_ind<abstraction::pcstate,abstraction::pcstate,abstraction::psymbol,abstraction::concurrent_automaton,abstraction::concurrent_automaton> algo(concurrent, sequential, bound);
@@ -128,7 +127,8 @@ bool actions::test_inclusion(const cfg::program& sequential_program, const cfg::
 {
   
   abstraction::concurrent_automaton sequential(sequential_program, false, true);
-  return test_inclusion(sequential, concurrent_program, result);
+  abstraction::concurrent_automaton concurrent(concurrent_program, true, false);
+  return test_inclusion(sequential, concurrent, result);
 }
 
 

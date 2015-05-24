@@ -40,14 +40,14 @@ namespace cfg {
   
 //TODO: Remove distance if not needed
 struct state {
-  state_id id;
+  state_id_type id;
   std::shared_ptr<abstraction::symbol> action;
   bool final = false;
   bool non_det = false; // state branches non-deterministically
   std::string name;
-  state_id return_state = no_state; // if this is a function call, then it contains the position where the function call returns
-  state(state_id id, const abstraction::symbol& action) : id(id), action(std::make_shared<abstraction::symbol>(action)) {}
-  state(state_id id) : id(id), action(nullptr) {}
+  state_id_type return_state = no_state; // if this is a function call, then it contains the position where the function call returns
+  state(state_id_type id, const abstraction::symbol& action) : id(id), action(std::make_shared<abstraction::symbol>(action)) {}
+  state(state_id_type id) : id(id), action(nullptr) {}
   state(state&& other) = default;
   state& operator=(const state& other) = default;
   state(const state& other) : id(other.id), action(other.action?std::make_shared<abstraction::symbol>(*other.action):nullptr), final(other.final), 
@@ -59,9 +59,9 @@ std::ostream& operator<<(std::ostream& os, const state& s);
 struct edge {
   bool back_edge = false; // this edge is the back-edge of a loop
   std::shared_ptr<abstraction::symbol> tag = nullptr; // can be null
-  state_id to;
+  state_id_type to;
   reward_t cost = 0; // back_edges have a cost for going back, all other edges have cost 0
-  edge(state_id to, bool back_edge, int cost) : to(to), back_edge(back_edge), cost(cost) {}
+  edge(state_id_type to, bool back_edge, int cost) : to(to), back_edge(back_edge), cost(cost) {}
   edge(edge&& other) = default;
   edge& operator= (const edge& other) = default;
   edge(const edge& other) : back_edge(other.back_edge), tag(other.tag?std::make_shared<abstraction::symbol>(*other.tag):nullptr), to(other.to),
@@ -78,11 +78,11 @@ public:
   abstract_cfg(const abstract_cfg& other) = default;
   const clang::FunctionDecl* declaration; // just to have this around
   
-  state_id add_state(const abstraction::symbol& symbol);
-  state_id add_state(const std::string& name);
-  state_id add_dummy_state();
+  state_id_type add_state(const abstraction::symbol& symbol);
+  state_id_type add_state(const std::string& name);
+  state_id_type add_dummy_state();
   //const std::shared_ptr<abstraction::symbol>& lookup_state(const clang::Stmt* stmt) const;
-  void mark_final(state_id state);
+  void mark_final(state_id_type state);
 
   /**
    * @brief ...
@@ -91,7 +91,7 @@ public:
    * @param to ...
    * @param back_edge A back edge is an edge that points to an earlier node in the CFG (without them the CFG is acyclic)
    */
-  void add_edge(state_id from, state_id to, bool back_edge = false, bool auto_tag = true, reward_t cost = 0);
+  void add_edge(state_id_type from, state_id_type to, bool back_edge = false, bool auto_tag = true, reward_t cost = 0);
   
   /**
    * @brief Removes unneeded states from the CFG, leaving only the most important ones (those that have actions)
@@ -107,23 +107,23 @@ public:
   
   std::string name;
   
-  inline const std::unordered_set<state_id> initial_states() const {
-    std::unordered_set<state_id> ret;
+  inline const std::unordered_set<state_id_type> initial_states() const {
+    std::unordered_set<state_id_type> ret;
     ret.insert(1); // default initial state
     return ret;
   }
-  inline const state& get_state(state_id id) const { 
+  inline const state& get_state(state_id_type id) const { 
     if (id <= 0) throw std::invalid_argument("Id must be >0");
     return states[id];
   }
-  inline state& get_state(state_id id) { 
+  inline state& get_state(state_id_type id) { 
     if (id <= 0) throw std::invalid_argument("Id must be >0");
     return states[id];
   }
-  inline const std::vector<edge>& get_successors(state_id from) const {
+  inline const std::vector<edge>& get_successors(state_id_type from) const {
     return edges[from];
   }
-  const std::unordered_set<state_id> get_forward_successors(state_id from) const;
+  const std::unordered_set<state_id_type> get_forward_successors(state_id_type from) const;
   inline unsigned no_states() const { return states.size()-1; }
   
   const thread_id_type thread_id;
@@ -132,15 +132,15 @@ private:
   typedef std::unordered_set<std::unordered_multiset<const abstraction::symbol*>> set_of_set;
   std::vector<state> states;
   std::vector<std::vector<edge>> edges;
-  void tag_edge(state_id state, uint8_t edge);
-  unsigned calc_distance(state_id state);
+  void tag_edge(state_id_type state, uint8_t edge);
+  unsigned calc_distance(state_id_type state);
 };
 }
 
 namespace Limi {
-  template<> struct printer<state_id> : printer_base<state_id> {
+  template<> struct printer<state_id_type> : printer_base<state_id_type> {
     printer(const cfg::abstract_cfg& thread) : thread_(thread) {}
-    virtual void print(const state_id& state, std::ostream& out) const override {
+    virtual void print(const state_id_type& state, std::ostream& out) const override {
       out << thread_.get_state(state);
     }
   private:

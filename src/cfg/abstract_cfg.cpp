@@ -69,17 +69,17 @@ abstract_cfg::abstract_cfg(const clang::FunctionDecl* fd, thread_id_type thread_
   name = dn.getAsString();
 }
 
-state_id abstract_cfg::add_state(const abstraction::symbol& symbol)
+state_id_type abstract_cfg::add_state(const abstraction::symbol& symbol)
 {
   if (states.size()>=max_states) throw range_error("Maximum number of states reached");
   states.emplace_back(states.size(), symbol);
   edges.emplace_back();
-  states.back().action->thread_id = thread_id;
-  states.back().action->state = states.size() - 1;
+  states.back().action->loc.thread = thread_id;
+  states.back().action->loc.state = states.size() - 1;
   return states.size() - 1;
 }
 
-state_id abstract_cfg::add_state(const string& name)
+state_id_type abstract_cfg::add_state(const string& name)
 {
   if (states.size()>=max_states) throw range_error("Maximum number of states reached");
   states.emplace_back(states.size());
@@ -89,19 +89,18 @@ state_id abstract_cfg::add_state(const string& name)
 }
 
 
-void abstract_cfg::mark_final(state_id state)
+void abstract_cfg::mark_final(state_id_type state)
 {
   states[state].final = true;
 }
 
-void abstract_cfg::tag_edge(state_id state, uint8_t edge)
+void abstract_cfg::tag_edge(state_id_type state, uint8_t edge)
 {
-  edges[state][edge].tag = make_shared<abstraction::symbol>(state, edge);
-  edges[state][edge].tag->thread_id = thread_id;
+  edges[state][edge].tag = make_shared<abstraction::symbol>(thread_id, state, edge);
 }
 
 
-void abstract_cfg::add_edge(state_id from, state_id to, bool back_edge, bool auto_tag, reward_t cost)
+void abstract_cfg::add_edge(state_id_type from, state_id_type to, bool back_edge, bool auto_tag, reward_t cost)
 {
   assert(from>=0 && to>=0);
   if (auto_tag && edges[from].size() == 1) {
@@ -116,7 +115,7 @@ void abstract_cfg::add_edge(state_id from, state_id to, bool back_edge, bool aut
   }
 }
 
-state_id abstract_cfg::add_dummy_state()
+state_id_type abstract_cfg::add_dummy_state()
 {
   if (states.size() == 1)
     return add_state("Init");
@@ -124,14 +123,14 @@ state_id abstract_cfg::add_dummy_state()
 }
 
 struct successors_pair_less {
-  bool operator()(std::pair<state_id,bool> p1, std::pair<state_id,bool> p2) const {
+  bool operator()(std::pair<state_id_type,bool> p1, std::pair<state_id_type,bool> p2) const {
     return p1.first < p2.first;
   }
 };
 
 void abstract_cfg::minimise(bool leave_function_states)
 {
-  std::unordered_set<state_id> remain; // leave these states alone
+  std::unordered_set<state_id_type> remain; // leave these states alone
   if (leave_function_states) {
     for (unsigned i = 0; i <= no_states(); ++i) {
       if (states[i].return_state != no_state) {
@@ -140,24 +139,24 @@ void abstract_cfg::minimise(bool leave_function_states)
       }
     }
   }
-  std::unordered_set<state_id> seen;
+  std::unordered_set<state_id_type> seen;
   
   // add the current set of initial states to the frontier
-  std::deque<pair<state_id,vector<state_id>>> frontier2;
-  frontier2.push_back(make_pair(1,vector<state_id>()));
+  std::deque<pair<state_id_type,vector<state_id_type>>> frontier2;
+  frontier2.push_back(make_pair(1,vector<state_id_type>()));
   
   // check if the successor of every state is good, otherwise replace with successor of successor
   while (!frontier2.empty()) {
-    pair<state_id,vector<state_id>> nextp = frontier2.front();
-    state_id next = nextp.first;
+    pair<state_id_type,vector<state_id_type>> nextp = frontier2.front();
+    state_id_type next = nextp.first;
     assert(states[next].action || states[next].final || next == 1 || remain.find(next)!=remain.end());
-    vector<state_id> parents = nextp.second;
+    vector<state_id_type> parents = nextp.second;
     frontier2.pop_front();
     if (seen.find(next) == seen.end()) {
       parents.push_back(next);
       seen.insert(next);
       
-      set<std::pair<state_id,bool>, successors_pair_less> successors; // set of successors
+      set<std::pair<state_id_type,bool>, successors_pair_less> successors; // set of successors
       
       for (unsigned i = 0; i<edges[next].size();++i) {
         edge edge_to = edges[next][i];
@@ -177,7 +176,7 @@ void abstract_cfg::minimise(bool leave_function_states)
       }
       edges[next].clear();
       // re-add the edges
-      for (std::pair<state_id,bool> succ : successors) {
+      for (std::pair<state_id_type,bool> succ : successors) {
         frontier2.push_back(make_pair(succ.first,parents));
         reward_t cost = parents.end() - find(parents.begin(), parents.end(), succ.first);
         bool back_edge = cost != 0;
@@ -195,11 +194,11 @@ void abstract_cfg::compact()
 {
   vector<bool> active(states.size(), false);
   // get a list of active states
-  std::deque<state_id> frontier;
+  std::deque<state_id_type> frontier;
   frontier.push_back(1);
   
   while (!frontier.empty()) {
-    state_id next = frontier.front();
+    state_id_type next = frontier.front();
     frontier.pop_front();
     active[next] = true;
     for (edge& e : edges[next]) {
@@ -209,10 +208,10 @@ void abstract_cfg::compact()
     }
   }
   
-  vector<state_id> mapping(states.size(), no_state);
+  vector<state_id_type> mapping(states.size(), no_state);
  
   //filter out the ones not active
-  state_id last_active = 0;
+  state_id_type last_active = 0;
   for (unsigned i = 1; i < states.size(); ++i) {
     if (!active[i]) {
       // find next one and move it ahead
@@ -226,7 +225,7 @@ void abstract_cfg::compact()
           mapping[j] = i;
           states[i].id = i;
           if(states[i].action)
-            states[i].action->state = i;
+            states[i].action->loc.state = i;
           break;
         }
       }
@@ -246,14 +245,14 @@ void abstract_cfg::compact()
     }
     for (edge& e : edges[i]) {
       if (mapping[e.to]!=no_state) e.to = mapping[e.to];
-      if (e.tag) e.tag->state = i;
+      if (e.tag) e.tag->loc.state = i;
     }
   }
 }
 
-const unordered_set< state_id > abstract_cfg::get_forward_successors(state_id from) const
+const unordered_set< state_id_type > abstract_cfg::get_forward_successors(state_id_type from) const
 {
-  unordered_set< state_id > res;
+  unordered_set< state_id_type > res;
   for (const edge& e : edges[from]) {
     if (!e.back_edge) res.insert(e.to);
   }

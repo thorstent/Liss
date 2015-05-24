@@ -30,15 +30,16 @@ namespace actions {
 typedef Limi::inclusion_result< abstraction::psymbol > inclusion_result;
 bool test_inclusion(const cfg::program& program, inclusion_result& result);
 bool test_inclusion(const cfg::program& sequential_program, const cfg::program& concurrent_program, inclusion_result& result);
+
 /**
  * @brief Runs the language inclusion test
  * 
  * @param sequential The sequential automaton (can be reused, caching!)
- * @param concurrent_program The concurrent program
+ * @param concurrent The concurrent automaton
  * @param result The result will be found in here if the return value is true
  * @return True if a result was found
  */
-bool test_inclusion(const abstraction::concurrent_automaton& sequential, const cfg::program& concurrent_program, inclusion_result& result);
+bool test_inclusion(const abstraction::concurrent_automaton& sequential, const abstraction::concurrent_automaton& concurrent, inclusion_result& result);
 
 void filter_result(inclusion_result& result);
   

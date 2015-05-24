@@ -22,11 +22,11 @@
 using namespace abstraction;
 
 
-concurrent_state::concurrent_state(unsigned no_threads) : threads(new state_id[no_threads] {}), 
+concurrent_state::concurrent_state(unsigned no_threads) : threads(new state_id_type[no_threads] {}), 
 length(no_threads) {
 }
 
-concurrent_state::concurrent_state(const concurrent_state& other) : threads(new state_id[other.length]), length(other.length), current(other.current), 
+concurrent_state::concurrent_state(const concurrent_state& other) : threads(new state_id_type[other.length]), length(other.length), current(other.current), 
 conditionals(other.conditionals), locks(other.locks), reward(other.reward)
 {
   for (thread_id_type i = 0; i<length; ++i) {
@@ -48,7 +48,7 @@ concurrent_state& concurrent_state::operator=(const concurrent_state& other)
     return *this;
   if (length < other.length) {
     delete[] threads;
-    threads = new state_id[other.length];
+    threads = new state_id_type[other.length];
   }
   
   length = other.length;
@@ -91,7 +91,7 @@ bool concurrent_state::operator==(const concurrent_state& other) const
 {
   if (length!=other.length) return false;
   for (thread_id_type i = 0; i<length; ++i) {
-    if (!std::equal_to<state_id>()(threads[i],other.threads[i])) return false;
+    if (!std::equal_to<state_id_type>()(threads[i],other.threads[i])) return false;
   }
   if (conditionals != other.conditionals) return false;
   if (locks != other.locks) return false;

@@ -28,9 +28,9 @@ namespace cfg {
   
   // the idea is that a negative number indicates we are after the state
   
-  struct state_printer : Limi::printer_base<state_id> {
+  struct state_printer : Limi::printer_base<state_id_type> {
     state_printer(const cfg::abstract_cfg& thread) : thread_(thread) {}
-    virtual void print(const state_id& state, std::ostream& out) const override {
+    virtual void print(const state_id_type& state, std::ostream& out) const override {
       if (state<0) {
         out << "a";
         out << thread_.get_state(state*-1);
@@ -67,18 +67,18 @@ namespace std {
 
 namespace cfg {
 
-  class automaton : public Limi::automaton<state_id,reward_symbol,automaton> {
+  class automaton : public Limi::automaton<state_id_type,reward_symbol,automaton> {
   public:
-    automaton(const abstract_cfg& thread, bool collapse_epsilon = false) : Limi::automaton<state_id,reward_symbol,automaton>(collapse_epsilon, false), thread_(thread) {}
-    bool int_is_final_state(const state_id& state) const;
+    automaton(const abstract_cfg& thread, bool collapse_epsilon = false) : Limi::automaton<state_id_type,reward_symbol,automaton>(collapse_epsilon, false), thread_(thread) {}
+    bool int_is_final_state(const state_id_type& state) const;
     
     void int_initial_states(State_set& states) const;
     
-    void int_successors(const state_id& state, const reward_symbol& sigma, State_set& successors) const;
+    void int_successors(const state_id_type& state, const reward_symbol& sigma, State_set& successors) const;
     
-    void int_next_symbols(const state_id& state, Symbol_set& symbols) const;
+    void int_next_symbols(const state_id_type& state, Symbol_set& symbols) const;
     
-    inline Limi::printer_base<state_id>* int_state_printer() const { return new cfg::state_printer(thread_); }
+    inline Limi::printer_base<state_id_type>* int_state_printer() const { return new cfg::state_printer(thread_); }
     
     inline bool int_is_epsilon(const reward_symbol& symbol) const { return symbol.symbol->is_epsilon(); }
     

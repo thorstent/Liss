@@ -30,12 +30,10 @@ synchronisation::synchronisation(const cfg::program& program, const concurrent_t
   
 }
 
-void synchronisation::generate_sync(const cnf& cnf, list< lock >& locks, list<reordering>& reorderings, bool prefer_reorder)
+void synchronisation::generate_sync(const cnf& cnf, list< lock >& locks)
 {
   for (const disj& d : cnf) {
-    if ((!prefer_reorder && !find_lock(d, locks) && !find_reordering(d, reorderings)) ||
-      (prefer_reorder && !find_reordering(d, reorderings) && !find_lock(d, locks))
-    ) {
+    if (!find_lock(d, locks)) {
       cerr << "Inferrence failed for ";
       print_constraint_cnf(d, symbol_printer, cerr);
       cerr << endl;
@@ -52,50 +50,10 @@ void synchronisation::generate_sync(const cnf& cnf, list< lock >& locks, list<re
       print_lock(l, symbol_printer, debug);
       debug << endl;
     }
-    debug << "Reorderings inferred: " << endl;
-    for (const auto& l : reorderings) {
-      print_reordering(l, symbol_printer, debug);
-      debug << endl;
-    }
+    
   }
   
 }
-
-unsigned reorder_counter = 0;
-bool synchronisation::find_reordering(const disj& disjunct, list< reordering >& reorderings)
-{
-  bool found = false;
-  if ((disjunct.size()==1 && !disjunct[0].from_wait_notify) || (disjunct.size()==2 && !disjunct[0].from_wait_notify && disjunct[1].from_wait_notify )) {
-    const location& before = disjunct[0].before;
-    const location& after = disjunct[0].after;
-    // there must be a wait before after
-    list<const location*> waits;
-    auto it = find(trace.threads[after.thread_id()].rbegin(), trace.threads[after.thread_id()].rend(), after);
-    assert(it!=trace.threads[after.thread_id()].rend());
-    for (; it!=trace.threads[after.thread_id()].rend(); ++it) {
-      if (it->symbol->operation == abstraction::op_class::wait || it->symbol->operation == abstraction::op_class::wait_reset)
-        waits.push_back(&*it);
-    }
-    // is there a corresponding notify in the before thread
-    it = find(trace.threads[before.thread_id()].rbegin(), trace.threads[before.thread_id()].rend(), before);
-    assert(it!=trace.threads[before.thread_id()].rend());
-    for (; it!=trace.threads[before.thread_id()].rend(); ++it) {
-      if (it->symbol->operation == abstraction::op_class::notify) {
-        // is there a corresponding wait
-        lock_type var = it->symbol->variable;
-        auto itw = find_if(waits.begin(), waits.end(), [var](const location* l) {return l->symbol->variable==var;});
-        if (itw != waits.end()) {
-          found = true;
-          lock_location rr(*it,before);
-          reordering r("r" + std::to_string(++reorder_counter), rr);
-          reorderings.push_back(r);
-        }
-      }
-    }
-  }
-  return found;
-}
-
 
 unsigned lock_counter = 0;
 bool synchronisation::find_lock(const disj& disjunct, std::list<lock>& locks)

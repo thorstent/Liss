@@ -1,1 +1,1 @@
-add_library(synthesis insertion.cpp synchronisation.cpp lock.cpp reordering.cpp trace.cpp reorderings.cpp constraint.cpp location.cpp)
+add_library(synthesis synchronisation.cpp lock.cpp trace.cpp reorderings.cpp constraint.cpp location.cpp)

@@ -25,6 +25,7 @@
 #include <list>
 #include <cassert>
 #include "identifier_store.h"
+#include "location.h"
 #include <Limi/generics.h>
 #include <Limi/internal/hash.h>
 
@@ -76,8 +77,7 @@ struct symbol
   unsigned line_no = 0;
   
   // to be able to find this later again in the CFG
-  state_id state = no_state;
-  thread_id_type thread_id = no_thread;
+  location loc;
   int8_t tag_branch = -1;
   
   
@@ -101,7 +101,7 @@ struct symbol
   
   symbol() : operation(op_class::epsilon) {}
   symbol(op_class operation, call_stack cstack, std::string variable_name, variable_type variable, identifier_store& is, const clang::Stmt* stmt);
-  symbol(state_id state, uint8_t branch);
+  symbol(thread_id_type thread_id, state_id_type state_id, uint8_t branch);
   /**
    * @brief The statement id of the instruction
    */
@@ -110,17 +110,20 @@ struct symbol
    * @brief The function this instruction is contained in
    */
   inline clang::Stmt* function_stmt() const { return cstack.back().first; }
+  
+  inline state_id_type state_id() const { return loc.state; }
+  inline thread_id_type thread_id() const { return loc.thread; }
   symbol(const symbol& sym) = default;
   
   bool operator==(const symbol &other) const {
-    if (thread_id != other.thread_id) return false;
+    if (loc != other.loc) return false;
     if (tag_branch == -1) {
       if (other.tag_branch!=-1) return false;
       return (operation == other.operation && variable == other.variable && instr_stmt() == other.instr_stmt());
     } else {
       if (other.tag_branch==-1) return false;
-      return (state == other.state) && (tag_branch == other.tag_branch);
     }
+    return true;
   }
   
   friend std::ostream& operator<< (std::ostream &out, const abstraction::symbol &val);
@@ -144,13 +147,12 @@ namespace std {
   };
   template<> struct hash<abstraction::symbol> {
     size_t operator()(const abstraction::symbol& val) const {
-      std::size_t seed = val.thread_id;
+      std::size_t seed = hash<abstraction::location>()(val.loc);
       if (val.tag_branch == -1) {
         Limi::internal::hash_combine(seed, val.operation);
         Limi::internal::hash_combine(seed, val.variable);
         Limi::internal::hash_combine(seed, val.instr_stmt());
       } else {
-        Limi::internal::hash_combine(seed, val.state);
         Limi::internal::hash_combine(seed, val.tag_branch);
       }
       return seed;
@@ -179,7 +181,7 @@ namespace Limi {
   
   template<> struct independence<abstraction::symbol> {
     inline bool operator()(const abstraction::symbol& a, const abstraction::symbol& b) const {
-      return a.thread_id!=b.thread_id && 
+      return a.thread_id()!=b.thread_id() && 
       (
         a.variable != b.variable ||
         a.operation==abstraction::op_class::read && b.operation==abstraction::op_class::read ||

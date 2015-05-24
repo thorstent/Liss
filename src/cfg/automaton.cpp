@@ -21,7 +21,7 @@
 
 using namespace cfg;
 
-bool automaton::int_is_final_state(const state_id& state) const {
+bool automaton::int_is_final_state(const state_id_type& state) const {
   if (state>=0)
     return thread_.get_state(state).final;
   else {
@@ -32,7 +32,7 @@ bool automaton::int_is_final_state(const state_id& state) const {
   return false;
 }
 
-void automaton::int_successors(const state_id& state, const reward_symbol& sigma, State_set& successors) const {
+void automaton::int_successors(const state_id_type& state, const reward_symbol& sigma, State_set& successors) const {
   if (state<0) {
     // we are after this state, examine the successor edges
     // we are only after the state if there are several successors
@@ -68,7 +68,7 @@ void automaton::int_successors(const state_id& state, const reward_symbol& sigma
   }
 }
 
-void automaton::int_next_symbols(const state_id& state, Symbol_set& symbols) const {
+void automaton::int_next_symbols(const state_id_type& state, Symbol_set& symbols) const {
   if (state<0) {
     // we are after this state, examine the successor edges
     // we are only after the state if there are several successors
@@ -89,9 +89,9 @@ void automaton::int_next_symbols(const state_id& state, Symbol_set& symbols) con
   }
 }
 
-void automaton::int_initial_states(Limi::automaton< state_id, abstraction::psymbol, automaton >::State_set& states) const
+void automaton::int_initial_states(Limi::automaton< state_id_type, abstraction::psymbol, automaton >::State_set& states) const
 {
   assert (thread_.initial_states().size() == 1);
-  state_id init = *thread_.initial_states().begin();
+  state_id_type init = *thread_.initial_states().begin();
   states.insert(-init);
 }

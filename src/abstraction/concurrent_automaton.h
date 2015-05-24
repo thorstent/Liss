@@ -26,6 +26,7 @@
 
 #include "concurrent_state.h"
 #include <Limi/automaton.h>
+#include <synthesis/constraint.h>
 #include "cfg/program.h"
 #include "cfg/automaton.h"
 
@@ -55,6 +56,8 @@ namespace abstraction {
      * 
      */
     std::unordered_set<psymbol> successor_filter;
+    
+    void add_forbidden_traces(::synthesis::dnf forbidden_traces);
   private:
     std::vector<cfg::automaton> threads;
     std::vector<const cfg::abstract_cfg*> cfgs;
@@ -71,7 +74,12 @@ namespace abstraction {
      */
     pcstate apply_symbol(const pcstate& original_state, const psymbol& sigma, bool& progress) const;
     void next_single(const pcstate& state, Symbol_set& symbols, unsigned thread) const;
-    psymbol make_pair(psymbol symbol, unsigned thread) const;
+    
+    /**
+     * @brief A vector of conditions for traces that are not considered. This means such traces will be eliminated from the automaton
+     * 
+     */
+    ::synthesis::dnf forbidden_traces; 
   };
 }
 
