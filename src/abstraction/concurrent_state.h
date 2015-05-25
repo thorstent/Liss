@@ -26,13 +26,14 @@
 #include <bitset>
 #include <memory>
 #include <ostream>
+#include <boost/dynamic_bitset.hpp>
 #include "identifier_store.h"
 #include "cfg/automaton.h"
 
 namespace abstraction {
   
   struct concurrent_state {
-    concurrent_state(unsigned no_threads);
+    concurrent_state(unsigned no_threads, unsigned dnf_size);
     ~concurrent_state();
     
     concurrent_state(const concurrent_state& other);
@@ -50,6 +51,12 @@ namespace abstraction {
     
     std::bitset<max_conditionals> conditionals; // bit is set if conditional is notified
     std::bitset<max_locks> locks; // bit is set if lock is taken
+    
+    // for detecting if this state is forbidden by the bad dnf
+    // the first bitset are the locations to be found first
+    boost::dynamic_bitset<unsigned long> found_before;
+    // if then the second location is found the constraint is violated
+    boost::dynamic_bitset<unsigned long> found_after;
     
     bool operator==(const concurrent_state &other) const;
     inline bool operator<(const concurrent_state &other) const {

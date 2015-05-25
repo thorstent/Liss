@@ -107,7 +107,7 @@ bool actions::test_inclusion(const abstraction::concurrent_automaton& sequential
       if (verbosity>=1) {
         debug << "Candidate is not a counter-example" << endl;
       }
-      if (verbosity>=2) {
+      if (verbosity>=3) {
         result.print_long(debug, concurrent.symbol_printer());
       }
       //result = algo.run();

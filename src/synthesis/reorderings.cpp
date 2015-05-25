@@ -384,7 +384,7 @@ pair<dnf,dnf> reorderings::process_trace(const concurrent_trace& trace)
   dnf bad_traces;
   for (const pair<conj,conj>& p : bad_traces_int) {
     conj c1(p.first);
-    c1.insert(c1.end(), p.second.begin(), p.second.end());
+    //c1.insert(c1.end(), p.second.begin(), p.second.end());
     bad_traces.push_back(c1);
   }
   

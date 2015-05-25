@@ -51,7 +51,7 @@ bool concurrent_automaton::int_is_final_state(const pcstate& state) const
 
 void concurrent_automaton::int_initial_states(concurrent_automaton::State_set& states) const
 {
-  states.insert(make_shared<concurrent_state>(threads.size()));
+  states.insert(make_shared<concurrent_state>(threads.size(), bad_traces_size));
   thread_id_type length = threads.size();
   for (thread_id_type i = 0; i<length; ++i) {
     State_set duplicates = states;
@@ -211,8 +211,39 @@ pcstate concurrent_automaton::apply_symbol(const pcstate& original_state, const 
       cloned_state->current = no_thread;
       break;
   }
+  if (!apply_bad_trace_dnf(cloned_state, sigma)) return nullptr;
   return cloned_state;
 }
+
+bool concurrent_automaton::apply_bad_trace_dnf(pcstate& cloned_state, const psymbol& sigma) const
+{
+  const location& loc = sigma->loc;
+  auto before = location_map_before.find(loc);
+  if (before != location_map_before.end()) {
+    for (unsigned pos : before->second) {
+      cloned_state->found_before.set(pos);
+    }
+  }
+  auto after = location_map_after.find(loc);
+  if (after != location_map_after.end()) {
+    for (unsigned pos : after->second) {
+      if (cloned_state->found_before.test(pos)) {
+        // the first position was reached, we also reach the second position now
+        cloned_state->found_after.set(pos);
+        // now let's see if this violates any of the constraints of the dnf
+        // (for the dnf to be violated it needs to be violated on all atoms in the conjunction)
+        for (const auto& bad : bad_traces) {
+          // at least one of the conjuncts is fulfilled
+          if ((cloned_state->found_after & bad) == bad) {
+            return false;
+          }
+        }
+      }
+    }
+  }
+  return true;
+}
+
 
 
 inline void concurrent_automaton::next_single(const pcstate& state, concurrent_automaton::Symbol_set& symbols, unsigned int thread) const
@@ -223,8 +254,22 @@ inline void concurrent_automaton::next_single(const pcstate& state, concurrent_a
   }
 }
 
-void concurrent_automaton::add_forbidden_traces(synthesis::dnf forbidden_traces)
+void concurrent_automaton::add_forbidden_traces(const synthesis::dnf& forbidden_traces)
 {
-  this->forbidden_traces.insert(this->forbidden_traces.end(), forbidden_traces.begin(), forbidden_traces.end());
+  for (const synthesis::conj& conj : forbidden_traces) {
+    bad_traces.emplace_back(bad_traces_size);
+    for (const synthesis::constraint_atom& ca : conj) {
+      bad_traces.back().push_back(true);
+      location_map_before[ca.before.symbol->loc].insert(bad_traces_size);
+      location_map_after[ca.after.symbol->loc].insert(bad_traces_size);
+      ++bad_traces_size;
+    }
+  }
+  
+  // convert bad_traces
+  for (auto& bad : bad_traces) {
+    bad.resize(bad_traces_size, false);
+  }
+  
 }
 

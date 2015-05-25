@@ -121,9 +121,8 @@ struct symbol
       if (other.tag_branch!=-1) return false;
       return (operation == other.operation && variable == other.variable && instr_stmt() == other.instr_stmt());
     } else {
-      if (other.tag_branch==-1) return false;
+      return (other.tag_branch==tag_branch);
     }
-    return true;
   }
   
   friend std::ostream& operator<< (std::ostream &out, const abstraction::symbol &val);

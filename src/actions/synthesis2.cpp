@@ -138,6 +138,10 @@ bool actions::synthesis2::synth_loop(const cfg::program& program)
       ::synthesis::reorderings reorder(ctx, program);
       pair<::synthesis::dnf,::synthesis::dnf> dnf = reorder.process_trace(trace);
       ::synthesis::dnf bad_cond = dnf.first; // these conditions make the trace bad
+      if (verbosity>=1)
+        debug << "Found constraints to eliminate bad traces" << endl;
+      /*if (verbosity>=2)
+        ::synthesis::print_constraint(bad_cond, concurrent.symbol_printer(), debug);*/
       concurrent.add_forbidden_traces(bad_cond);
     } else {
       verification += std::chrono::duration_cast<chrono::milliseconds>(langinc_end - langinc_start);

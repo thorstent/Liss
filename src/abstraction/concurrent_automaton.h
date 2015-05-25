@@ -27,6 +27,7 @@
 #include "concurrent_state.h"
 #include <Limi/automaton.h>
 #include <synthesis/constraint.h>
+#include <boost/dynamic_bitset.hpp>
 #include "cfg/program.h"
 #include "cfg/automaton.h"
 
@@ -57,7 +58,7 @@ namespace abstraction {
      */
     std::unordered_set<psymbol> successor_filter;
     
-    void add_forbidden_traces(::synthesis::dnf forbidden_traces);
+    void add_forbidden_traces(const synthesis::dnf& forbidden_traces);
   private:
     std::vector<cfg::automaton> threads;
     std::vector<const cfg::abstract_cfg*> cfgs;
@@ -73,13 +74,24 @@ namespace abstraction {
      * @return abstraction::pcstate If it is possible to apply the symbol than this is a copy of the original state with the symbol applied, otherwise null
      */
     pcstate apply_symbol(const pcstate& original_state, const psymbol& sigma, bool& progress) const;
-    void next_single(const pcstate& state, Symbol_set& symbols, unsigned thread) const;
     
     /**
-     * @brief A vector of conditions for traces that are not considered. This means such traces will be eliminated from the automaton
+     * @brief Apply happens-before constraints from the dnf
      * 
+     * The function checks if the location matches a known location in the dnf
+     * of bad traces. If so it markes this in the state. If the dnf is violated
+     * the function returns false.
+     * 
+     * @param cloned_state The state (will be changed to reflect which ones are hit)
+     * @return true if this successor is allowed, false otherwise
      */
-    ::synthesis::dnf forbidden_traces; 
+    bool apply_bad_trace_dnf(pcstate& cloned_state, const psymbol& sigma) const;
+    void next_single(const pcstate& state, Symbol_set& symbols, unsigned thread) const;
+    
+    std::vector<boost::dynamic_bitset<unsigned long >> bad_traces; // these patterns match the bad traces
+    std::unordered_map<location,std::unordered_set<unsigned>> location_map_before; // maps locations to the bits in the first bitset
+    std::unordered_map<location,std::unordered_set<unsigned>> location_map_after; // maps locations to the bits in the second bitset
+    unsigned bad_traces_size = 0;
   };
 }
 

@@ -22,12 +22,12 @@
 using namespace abstraction;
 
 
-concurrent_state::concurrent_state(unsigned no_threads) : threads(new state_id_type[no_threads] {}), 
-length(no_threads) {
+concurrent_state::concurrent_state(unsigned no_threads, unsigned dnf_size) : threads(new state_id_type[no_threads] {}), 
+length(no_threads), found_before(dnf_size), found_after(dnf_size) {
 }
 
 concurrent_state::concurrent_state(const concurrent_state& other) : threads(new state_id_type[other.length]), length(other.length), current(other.current), 
-conditionals(other.conditionals), locks(other.locks), reward(other.reward)
+conditionals(other.conditionals), locks(other.locks), reward(other.reward), found_before(other.found_before), found_after(other.found_after)
 {
   for (thread_id_type i = 0; i<length; ++i) {
     threads[i] = other.threads[i];
@@ -35,7 +35,7 @@ conditionals(other.conditionals), locks(other.locks), reward(other.reward)
 }
 
 concurrent_state::concurrent_state(concurrent_state&& other) : length(other.length), current(other.current),
-conditionals(std::move(other.conditionals)), locks(std::move(other.locks))
+conditionals(std::move(other.conditionals)), locks(std::move(other.locks)), found_before(std::move(other.found_before)), found_after(std::move(other.found_after))
 {
   threads = other.threads;
   other.threads = nullptr;
@@ -60,6 +60,10 @@ concurrent_state& concurrent_state::operator=(const concurrent_state& other)
     threads[i] = other.threads[i];
   }
   reward = other.reward;
+  
+  found_before = other.found_before;
+  found_after = other.found_after;
+  
   return *this;
 }
 
@@ -77,6 +81,9 @@ concurrent_state& concurrent_state::operator=(concurrent_state&& other)
   other.threads = nullptr;
   
   reward = other.reward;
+  
+  found_before = std::move(other.found_before);
+  found_after = std::move(other.found_after);
   
   return *this;
 }
@@ -96,6 +103,8 @@ bool concurrent_state::operator==(const concurrent_state& other) const
   if (conditionals != other.conditionals) return false;
   if (locks != other.locks) return false;
   if (current != other.current) return false;
+  if (found_before != other.found_before) return false;
+  if (found_after != other.found_after) return false;
   return true;
 }
 
