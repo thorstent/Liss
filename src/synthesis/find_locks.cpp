@@ -17,7 +17,7 @@
  * along with Liss.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "reorderings.h"
+#include "find_locks.h"
 #include <z3++.h>
 #include <vector>
 #include <algorithm>
@@ -32,7 +32,7 @@
 using namespace synthesis;
 using namespace std;
 
-reorderings::reorderings(z3::context& ctx, const cfg::program& program) :
+find_locks::find_locks(z3::context& ctx, const cfg::program& program) :
 program(program), ctx(ctx), symbol_printer(Limi::printer<abstraction::psymbol>()) {
   
 }
@@ -43,7 +43,7 @@ struct lock_pair {
   lock_pair(const location* lock, const location* unlock) : lock(lock), unlock(unlock) {}
 };
 
-void reorderings::prepare_trace(const concurrent_trace& trace, reorderings::seperated_trace& strace)
+void find_locks::prepare_trace(const concurrent_trace& trace, find_locks::seperated_trace& strace)
 {
   vector<list<lock_pair>> lockings(program.identifiers().no_locks()); // gathers informations about locks and unlocks
   vector<list<const location*>>& notifies = strace.notifies; // the places where the conditional is notified
@@ -59,6 +59,7 @@ void reorderings::prepare_trace(const concurrent_trace& trace, reorderings::sepe
   z3::expr& locks = strace.locks;
   z3::expr& conditionals = strace.conditionals;
   z3::expr& distinct = strace.distinct;
+  z3::expr& atomic_execution = strace.atomic_execution;
   
   // a unique final location
   location final_state(ctx.fresh_constant("final", ctx.int_sort()), "final location");
@@ -76,7 +77,7 @@ void reorderings::prepare_trace(const concurrent_trace& trace, reorderings::sepe
     strace.trace.push_back(loc);
     location* loc_ptr = &strace.trace.back();
     
-    z3::expr seq_condition = ctx.bool_val(true); // condition that the sequential constraint has to hold
+    bool seq_condition = true; // seq has to hold
         
     // deal with other operations
     switch(loc.symbol->operation) {
@@ -109,12 +110,16 @@ void reorderings::prepare_trace(const concurrent_trace& trace, reorderings::sepe
       case abstraction::op_class::epsilon:
         break;
       case abstraction::op_class::yield:
-        seq_condition = ctx.bool_val(false);
+        seq_condition = false;
         break;
     }
     
     if (thread_endpoints[thread_id]) {
-      sequential = sequential && implies(seq_condition, ((z3::expr)loc) == ((z3::expr)*thread_endpoints[thread_id]) + ctx.int_val(1));
+      if (seq_condition) {
+        sequential = sequential && ((z3::expr)loc) == ((z3::expr)*thread_endpoints[thread_id]) + ctx.int_val(1);
+        strace.atomics.emplace_back(ctx, *thread_endpoints[thread_id], loc);
+        atomic_execution = atomic_execution && implies(strace.atomics.back().atomic, ((z3::expr)loc) == ((z3::expr)*thread_endpoints[thread_id]) + ctx.int_val(1));
+      }
       thread_order = thread_order && loc > *thread_endpoints[thread_id];
     }
     thread_endpoints[thread_id] = loc_ptr;
@@ -189,7 +194,7 @@ void reorderings::prepare_trace(const concurrent_trace& trace, reorderings::sepe
 }
 
 
-pair<dnf_constr,dnf_constr> reorderings::process_trace(const concurrent_trace& trace)
+void find_locks::process_trace(const concurrent_trace& trace)
 {
   seperated_trace strace(program.identifiers().no_variables(), program.identifiers().no_conditionals(), program.no_threads(), ctx);
   prepare_trace(trace, strace);
@@ -223,12 +228,6 @@ pair<dnf_constr,dnf_constr> reorderings::process_trace(const concurrent_trace& t
   slv_good.add(strace.locks);
   slv_good.add(strace.conditionals);
   slv_good.add(strace.sequential);
-  
-  z3::solver slv_good_weak(ctx);
-  slv_good_weak.add(strace.thread_order);
-  slv_good_weak.add(strace.distinct);
-  slv_good_weak.add(strace.locks);
-  slv_good_weak.add(strace.sequential);
   
   
 #ifdef SANITY
@@ -276,12 +275,11 @@ pair<dnf_constr,dnf_constr> reorderings::process_trace(const concurrent_trace& t
   slv_bad.add(strace.distinct);
   slv_bad.add(strace.locks);
   slv_bad.add(strace.conditionals);
+  slv_bad.add(strace.atomic_execution);
   // gather concurrent traces that are not possible sequentially
   if (verbosity >=1) {
-    debug << "Find concurrent traces that are not sequential" << endl;
+    debug << "Find atomic sections" << endl;
   }
-  vector<pair<conj_constr,conj_constr>> bad_traces_int;
-  dnf_constr bad_traces_weak;
   
 #ifdef SANITY
   // sanity check: 
@@ -291,31 +289,59 @@ pair<dnf_constr,dnf_constr> reorderings::process_trace(const concurrent_trace& t
   slv_bad.pop();
 #endif
   
+  // only interested in bad traces
   slv_bad.add(!make_constraint(ctx, seq_traces));
   
+  // trace copy
+  std::vector<atomic_instr> trace_copy;
+  for (const auto& i : strace.atomics) {
+    trace_copy.push_back(i);
+  }
+  // minimal set of atomic constraints needed to eliminate all bad traces
+  min_unsat<atomic_instr>(slv_bad, trace_copy, [](const atomic_instr& loc)->z3::expr{return loc.atomic;});
+  
+  for (const atomic_instr& l : trace_copy) {
+    cout << l.before << "--" << l.after << endl;
+  }
+  
   slv_bad.push();
+  for (unsigned i = 1; i < trace_copy.size(); ++i) {
+    slv_bad.add(trace_copy[i].atomic);
+  }
   while (slv_bad.check() == z3::sat) {
     if (verbosity >=3) {
       debug << "Solver:" << endl << slv_bad << endl;
       debug << "Model:" << endl << slv_bad.get_model() << endl;
     }
     conj_constr constraint = find_order(strace, slv_bad.get_model());
-    conj_constr constraint_weak = find_order(strace, slv_bad.get_model());
     min_unsat<constraint_atom>(slv_good, constraint, [](const constraint_atom& ca)->z3::expr{return ca;});
-    min_unsat<constraint_atom>(slv_good_weak, constraint_weak, [](const constraint_atom& ca)->z3::expr{return ca;});
-    slv_bad.add(!make_constraint(ctx, constraint));
+
     if (verbosity >= 2) {
       debug << "Found constraint: ";
       debug << constraint;
       debug << endl;
     }
-    conj_constr wnconstraint = wait_notify_order(strace, slv_bad.get_model());
-    bad_traces_int.push_back(make_pair(constraint,wnconstraint));
-    bad_traces_weak.push_back(constraint_weak);
+    
+    // find interrupting instructions
+    print_trace_bound(strace, slv_bad.get_model(), cout, trace_copy[0].before.name, trace_copy[0].after.name);
+    
+    // find interrupters
+    z3::expr bef = trace_copy[0].before.name;
+    z3::expr af = trace_copy[0].after.name;
+    std::vector<location> trace_copy;
+    for (const auto& i : strace.trace) {
+      if (i.symbol_valid) trace_copy.push_back(i);
+    }
+    cout << "Min inside" << endl;
+    min_unsat<location>(slv_bad, trace_copy, [bef,af](const location& l)->z3::expr{return l <= bef || l >= af;});
+    for (const location& l : trace_copy) {
+      cout << l << endl;
+    }
+    slv_bad.add(!make_constraint(ctx, constraint));
   }
   slv_bad.pop();
   
-  // filter out duplicates:
+  /*// filter out duplicates:
   min_unsat<pair<conj_constr,conj_constr>>(slv_bad, bad_traces_int, [this](const pair<conj_constr,conj_constr>& c)->z3::expr{return !make_constraint(ctx, c.first);});
   min_unsat<conj_constr>(slv_bad, bad_traces_weak, [this](const conj_constr& c)->z3::expr{return !make_constraint(ctx, c);});
   
@@ -340,10 +366,10 @@ pair<dnf_constr,dnf_constr> reorderings::process_trace(const concurrent_trace& t
     debug << "All weak constraints: " << endl;
     debug << bad_traces_weak;
   }
-  return make_pair(bad_traces, bad_traces_weak);
+  return make_pair(bad_traces, bad_traces_weak);*/
 }
 
-conj_constr reorderings::find_order(const reorderings::seperated_trace& strace, const z3::model& model)
+conj_constr find_locks::find_order(const find_locks::seperated_trace& strace, const z3::model& model)
 {
   conj_constr result;
   // get the assigned numbers:
@@ -376,7 +402,7 @@ conj_constr reorderings::find_order(const reorderings::seperated_trace& strace, 
   return result;
 }
 
-conj_constr reorderings::wait_notify_order(const reorderings::seperated_trace& strace, const z3::model& model)
+conj_constr find_locks::wait_notify_order(const find_locks::seperated_trace& strace, const z3::model& model)
 {
   typedef pair<const location*, int> loc_pair;
   conj_constr result;
@@ -440,7 +466,7 @@ conj_constr reorderings::wait_notify_order(const reorderings::seperated_trace& s
 }
 
 
-void reorderings::print_trace(const reorderings::seperated_trace& strace, const z3::model& model, ostream& out)
+void find_locks::print_trace(const find_locks::seperated_trace& strace, const z3::model& model, ostream& out)
 {
   typedef pair<location, int> loc_pair;
   vector<loc_pair> order;
@@ -452,6 +478,36 @@ void reorderings::print_trace(const reorderings::seperated_trace& strace, const 
   }
   
   std::sort(order.begin(), order.end(), [](const loc_pair& a, const loc_pair& b) { return a.second < b.second; } );
+  
+  for (const loc_pair& p : order) {
+    if (!p.first.description.empty())
+      out << p.first.description;
+    else {
+      out << p.first;
+    }
+    out << endl;
+  }
+}
+
+void find_locks::print_trace_bound(const find_locks::seperated_trace& strace, const z3::model& model, ostream& out, z3::expr start, z3::expr end)
+{
+  typedef pair<location, int> loc_pair;
+  vector<loc_pair> order;
+  for (const location& l : strace.trace) {
+    z3::expr number_expr = model.eval(l);
+    int number;
+    Z3_get_numeral_int(ctx, number_expr, &number);
+    order.push_back(make_pair(l, number));
+  }
+  
+  int start_num, end_num;
+  z3::expr number_start = model.eval(start);
+  Z3_get_numeral_int(ctx, number_start, &start_num);
+  z3::expr number_end = model.eval(end);
+  Z3_get_numeral_int(ctx, number_end, &end_num);
+  
+  std::sort(order.begin(), order.end(), [](const loc_pair& a, const loc_pair& b) { return a.second < b.second; } );
+  order.erase(std::remove_if(order.begin(), order.end(), [start_num,end_num](const loc_pair& a) { return a.second <= start_num || a.second >= end_num; } ), order.end());
   
   for (const loc_pair& p : order) {
     if (!p.first.description.empty())

@@ -28,6 +28,7 @@
 #include "clang_interf/thread_visitor.h"
 
 #include "synthesis/reorderings.h"
+#include "synthesis/find_locks.h"
 #include "synthesis/synchronisation.h"
 #include "synthesis/lock.h"
 #include "inclusion_test.h"
@@ -113,7 +114,7 @@ cnf<vector<vector<abstraction::location>>> locks_to_locations(const cnf<::synthe
 
 bool actions::synthesis2::synth_loop(const cfg::program& program, vector<pair<unsigned,abstraction::location>>& locks, vector<pair<unsigned,abstraction::location>>& unlocks)
 {
-  z3::context ctx;
+  z3::context ctx,ctx2;
 
   Limi::printer<abstraction::psymbol> symbol_printer;
   abstraction::concurrent_automaton sequential(program, false, true);
@@ -122,6 +123,7 @@ bool actions::synthesis2::synth_loop(const cfg::program& program, vector<pair<un
 
   
   unsigned counter = 0;
+  ::synthesis::reorderings reorder(ctx, program);
   ::synthesis::synchronisation synch(program);
   cnf<vector<vector<abstraction::location>>> lock_locations;
   while (true) {
@@ -141,8 +143,10 @@ bool actions::synthesis2::synth_loop(const cfg::program& program, vector<pair<un
     if (!result.included) {
       auto synth_start = chrono::steady_clock::now();
       ::synthesis::concurrent_trace trace = ::synthesis::make_trace(ctx, program, result.counter_example);
-      ::synthesis::reorderings reorder(ctx, program);
+      
       pair<::synthesis::dnf_constr,::synthesis::dnf_constr> dnf = reorder.process_trace(trace);
+      ::synthesis::find_locks find_locks(ctx, program);
+      find_locks.process_trace(trace);
       ::synthesis::dnf_constr bad_cond = dnf.first; // these conditions make the trace bad
       if (verbosity>=1)
         debug << "Found constraints to eliminate bad traces" << endl;
