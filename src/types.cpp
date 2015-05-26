@@ -17,23 +17,5 @@
  * along with Liss.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "lock.h"
+#include "types.h"
 
-#include <iostream>
-
-using namespace synthesis;
-using namespace std;
-
-namespace synthesis {
-  std::ostream& operator<<(std::ostream& out, const lock& lock) {
-    out << lock.name << " (";
-    for(auto l = lock.locations.begin(); l!=lock.locations.end(); ) {
-      out << l->start;
-      out << "-";
-      out << l->end;
-      if (++l != lock.locations.end()) out << ", ";
-    }
-    out << ")";
-    return out;
-  }
-}

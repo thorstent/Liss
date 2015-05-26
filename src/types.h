@@ -21,6 +21,8 @@
 #define TYPES_H
 
 #include <cstdint>
+#include <vector>
+#include <ostream>
 
 typedef int16_t state_id_type;
 typedef int16_t reward_t;
@@ -42,12 +44,57 @@ const thread_id_type no_thread = -1;
 
 
 template <typename atom>
-using conj = std::vector<atom>;
+class conj : public std::vector<atom> {};
 template <typename atom>
-using disj = std::vector<atom>;
+std::ostream& operator<<(std::ostream& out, const conj<atom>& c) {
+  if (c.size()==0)
+    out << "true";
+  for (unsigned i = 0; i < c.size(); ++i) {
+    out << c[i];
+    if (i < c.size() - 1) out << " /\\ ";
+  }
+  return out;
+}
+
 template <typename atom>
-using dnf = std::vector<conj<atom>>;
+class disj : public std::vector<atom> {};
 template <typename atom>
-using cnf = std::vector<disj<atom>>;
+std::ostream& operator<<(std::ostream& out, const disj<atom>& c) {
+  if (c.size()==0)
+    out << "false";
+  for (unsigned i = 0; i < c.size(); ++i) {
+    out << c[i];
+    if (i < c.size() - 1) out << " \\/ ";
+  }
+  return out;
+}
+
+template <typename atom>
+class dnf : public std::vector<conj<atom>> {};
+template <typename atom>
+std::ostream& operator<<(std::ostream& out, const dnf<atom>& c) {
+  if (c.size()==0)
+    out << "false";
+  for (unsigned i = 0; i < c.size(); ++i) {
+    out << c[i];
+    if (i < c.size() - 1) out << " \\/ ";
+    out << std::endl;
+  }
+  return out;
+}
+
+template <typename atom>
+class cnf : public std::vector<disj<atom>> {};
+template <typename atom>
+std::ostream& operator<<(std::ostream& out, const cnf<atom>& c) {
+  if (c.size()==0)
+    out << "true";
+  for (unsigned i = 0; i < c.size(); ++i) {
+    out << c[i];
+    if (i < c.size() - 1) out << " /\\ ";
+    out << std::endl;
+  }
+  return out;
+}
 
 #endif 

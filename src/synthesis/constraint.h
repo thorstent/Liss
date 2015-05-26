@@ -37,6 +37,8 @@ struct constraint_atom {
   operator z3::expr () const { return static_cast<z3::expr>(before) < after; }
 };
 
+std::ostream& operator<<(std::ostream& out, const constraint_atom& ca);
+
 
 using cnf_constr = cnf<constraint_atom>;
 using dnf_constr = dnf<constraint_atom>;
@@ -45,11 +47,6 @@ using conj_constr = conj<constraint_atom>;
 
 z3::expr make_constraint(z3::context& ctx, conj_constr c);
 z3::expr make_constraint(z3::context& ctx, dnf_constr d);
-
-void print_constraint(const conj_constr& c, std::ostream& out);
-void print_constraint(const dnf_constr& d, std::ostream& out);
-
-void print_constraint_cnf(const disj_constr& d, std::ostream& out);
 
 cnf_constr negate_dnf(const dnf_constr& dnf);
 

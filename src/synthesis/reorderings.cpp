@@ -240,7 +240,7 @@ pair<dnf_constr,dnf_constr> reorderings::process_trace(const concurrent_trace& t
     cerr << endl << endl << "SANITY: Original trace is sequential; Here is the trace" << endl;
     print_trace(strace, slv_good.get_model(), cerr);
     cerr << "And here is the sequential constraint" << endl;
-    print_constraint(original_trace_gen, cerr);
+    cerr << original_trace_gen;
     cerr << endl;
   }
   slv_good.pop();
@@ -263,7 +263,7 @@ pair<dnf_constr,dnf_constr> reorderings::process_trace(const concurrent_trace& t
     slv_good.add(!make_constraint(ctx, constraint));
     if (verbosity >= 2) {
       debug << "Found constraint: ";
-      print_constraint(constraint, debug);
+      debug << constraint;
       debug << endl;
     }
     seq_traces.push_back(constraint);
@@ -306,7 +306,7 @@ pair<dnf_constr,dnf_constr> reorderings::process_trace(const concurrent_trace& t
     slv_bad.add(!make_constraint(ctx, constraint));
     if (verbosity >= 2) {
       debug << "Found constraint: ";
-      print_constraint(constraint, debug);
+      debug << constraint;
       debug << endl;
     }
     conj_constr wnconstraint = wait_notify_order(strace, slv_bad.get_model());
@@ -332,7 +332,7 @@ pair<dnf_constr,dnf_constr> reorderings::process_trace(const concurrent_trace& t
     for (unsigned i = 0; i < bad_traces.size(); ++i) {
       if (all_of(bad_traces_int[i].first.begin(), bad_traces_int[i].first.end(), [](constraint_atom ca) {return ca.before.original_position<ca.after.original_position;}))
         debug << "(*) ";
-      print_constraint(bad_traces[i], debug);
+      debug << bad_traces[i];
       if (i < bad_traces.size() - 1) 
         debug << " \\/" << std::endl;
     }

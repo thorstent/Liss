@@ -293,7 +293,41 @@ void place_locks::result_to_locklist(const vector<vector<z3::expr>>& result, vec
   }
 }
 
-void place_locks::find_locks(const vector< vector< vector <abstraction::location> > >& locks_to_place, vector<pair<unsigned, abstraction::location >>& locks_placed, vector<pair<unsigned, abstraction::location >>& unlocks_placed)
+z3::expr place_locks::locked_together(const cnf< vector< vector< abstraction::location > > >& locks_to_place)
+{
+  z3::expr result = ztrue;
+  for (const disj<vector< vector< abstraction::location > >>& d : locks_to_place) {
+    z3::expr di = zfalse;
+    // add lock places
+    for (const vector< vector<abstraction::location> >& lplaces : d) {
+      z3::expr one_lock = zfalse;
+      for (z3::expr& l : lock_vector) {
+        z3::expr e = ztrue;
+        for (const vector< abstraction::location >& lplaces2 : lplaces) {
+          for (unsigned i = 0; i < lplaces2.size(); ++i) {
+            const abstraction::location& loc = lplaces2[i];
+            z3::expr& loce = location_vector[loc.thread][loc.state];
+            e = e && inl(loce,l);
+            if (i!=0) { // only the first one may lock
+              e = e && !lock(loce,l);
+            }
+            if (i<lplaces2.size()-1) { // only the last one may unlock
+              e = e && !unlock(loce,l);
+            }
+          }
+        }
+        one_lock = one_lock || e;
+      }
+      di = di || one_lock;
+    }
+    cout << di << endl;
+    result = result && di;
+  }
+  return result;
+}
+
+
+bool place_locks::find_locks(const cnf< vector< vector <abstraction::location> > >& locks_to_place, vector<pair<unsigned, abstraction::location >>& locks_placed, vector<pair<unsigned, abstraction::location >>& unlocks_placed)
 {
   // insert a lock for testing
   z3::solver slv(ctx);
@@ -302,34 +336,14 @@ void place_locks::find_locks(const vector< vector< vector <abstraction::location
   slv.add(lock_consistency);
   slv.add(lock_sameinstr);
   
-  // add lock places
-  for (const vector< vector<abstraction::location> >& lplaces : locks_to_place) {
-    z3::expr one_lock = zfalse;
-    for (z3::expr& l : lock_vector) {
-      z3::expr e = ztrue;
-      for (const vector< abstraction::location >& lplaces2 : lplaces) {
-        for (unsigned i = 0; i < lplaces2.size(); ++i) {
-          const abstraction::location& loc = lplaces2[i];
-          z3::expr& loce = location_vector[loc.thread][loc.state];
-          e = e && inl(loce,l);
-          if (i!=0) { // only the first one may lock
-            e = e && !lock(loce,l);
-          }
-          if (i<lplaces2.size()-1) { // only the last one may unlock
-            e = e && !unlock(loce,l);
-          }
-        }
-      }
-      one_lock = one_lock || e;
-    }
-    slv.add(one_lock);
-  }
+  z3::expr locking = locked_together(locks_to_place);
+  slv.add(locking);
   
   if (verbosity > 1)
     debug << "Starting lock placement" << endl;
   
   z3::check_result last_res = slv.check();
-  assert (last_res == z3::sat);
+  if (last_res != z3::sat) return false;
   z3::model last_model = slv.get_model();
   // try and reduce cost
   int reduce = 100;
@@ -364,6 +378,6 @@ void place_locks::find_locks(const vector< vector< vector <abstraction::location
   elsee = func_result(last_model, unlock, result);
   assert ((Z3_ast)elsee == zfalse);
   result_to_locklist(result, unlocks_placed);
-  
+  return true;
 }
 

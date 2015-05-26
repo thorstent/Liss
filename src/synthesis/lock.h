@@ -55,7 +55,7 @@ namespace synthesis {
     clang::VarDecl* declaration = nullptr;
   };
   
-  void print_lock(const lock& lock, std::ostream& out);
+  std::ostream& operator<<(std::ostream& out, const lock& lock);
   
 }
 

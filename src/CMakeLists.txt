@@ -54,7 +54,7 @@ add_subdirectory(synthesis)
 add_subdirectory(cfg)
 add_subdirectory(placement)
 
-add_executable(liss options.cpp main.cpp "${CMAKE_CURRENT_BINARY_DIR}/GIT.cpp") 
+add_executable(liss options.cpp main.cpp types.cpp "${CMAKE_CURRENT_BINARY_DIR}/GIT.cpp") 
 
 #add_precompiled_header(langinc pch.h
 #       FORCEINCLUDE)

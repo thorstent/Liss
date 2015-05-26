@@ -23,6 +23,7 @@
 #include <list>
 #include "cfg/program.h"
 #include "abstraction/concurrent_state.h"
+#include "types.h"
 
 #include "lock.h"
 
@@ -32,11 +33,11 @@ class synchronisation
 {
 public:
   synchronisation(const cfg::program& program);
-  void generate_sync(const synthesis::cnf_constr& cnf, std::list< synthesis::lock >& locks);
+  void generate_sync(const synthesis::cnf_constr& cnf_weak, cnf< synthesis::lock >& locks);
 private:
   //const abstraction::program& program;
   const Limi::printer<abstraction::psymbol> symbol_printer;
-  bool find_lock(const disj_constr& disjunct, std::list<lock>& locks);
+  bool find_lock(const disj_constr& disjunct, std::vector<lock>& locks);
   void merge_locks(std::list<lock>& locks);
   //void merge_locks_multithread(std::list<lock>& locks);
   

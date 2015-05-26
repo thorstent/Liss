@@ -24,6 +24,7 @@
 #include <z3++.h>
 #include <vector>
 #include "abstraction/location.h"
+#include "types.h"
 
 namespace placement {
 
@@ -36,18 +37,21 @@ public:
    * 
    * @param locks_to_place List of locations that need to share the same lock
    * The innermost is a sequence of location that need to be locked without an unlock in between. The middle layer
-   * are the locations that need to be locked by the same lock.
+   * are the locations that need to be locked by the same lock. There is a cnf over that
    * @param locks_placed Pair which lock and where
    * @param unlocks_placed ...
    * @return void
    */
-  void find_locks(const std::vector< std::vector< std::vector<abstraction::location> > >& locks_to_place, std::vector< std::pair< unsigned, abstraction::location > >& locks_placed, std::vector< std::pair<unsigned, abstraction::location > >& unlocks_placed);
+  bool find_locks(const cnf< std::vector< std::vector<abstraction::location> > >& locks_to_place, std::vector< std::pair< unsigned, abstraction::location > >& locks_placed, std::vector< std::pair<unsigned, abstraction::location > >& unlocks_placed);
 private:
   void init_locks();
   void init_consistancy();
   void init_sameinstr();
   
   void result_to_locklist(const std::vector<std::vector<z3::expr>>& result, std::vector<std::pair<unsigned, abstraction::location >>& locks);
+  
+  // calculates the places to that need to be locked together
+  z3::expr locked_together(const cnf< std::vector< std::vector<abstraction::location> > >& locks_to_place);
 
   z3::context ctx;  
   z3::expr ztrue = ctx.bool_val(true);

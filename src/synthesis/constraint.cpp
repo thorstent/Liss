@@ -37,50 +37,26 @@ z3::expr synthesis::make_constraint(z3::context& ctx, dnf_constr d) {
   return result;
 }
 
-void print_constraint(const conj_constr& c, std::ostream& out, std::string seperator)
-{
-  if (c.size()==0)
-    out << "true";
-  for (unsigned i = 0; i < c.size(); ++i) {
-    out << c[i].before;
-    out << " < ";
-    out << c[i].after;
-    if (i < c.size() - 1) 
-      out << " " << seperator << " ";
-  }
-}
-
-void synthesis::print_constraint(const conj_constr& c, std::ostream& out)
-{
-  ::print_constraint(c, out, "/\\");
-}
-
-void synthesis::print_constraint_cnf(const disj_constr& d, std::ostream& out)
-{
-  ::print_constraint(d, out, "\\/");
-}
-
-void synthesis::print_constraint(const dnf_constr& d, std::ostream& out)
-{
-  if (d.size()==0)
-    out << "false";
-  for (unsigned i = 0; i < d.size(); ++i) {
-    print_constraint(d[i], out);
-    if (i < d.size() - 1) 
-      out << " \\/" << std::endl;
-  }
-}
-
-
 cnf_constr synthesis::negate_dnf(const dnf_constr& dnf)
 {
-  cnf_constr cnf(dnf);
-  for(conj_constr& c : cnf) {
-    for(constraint_atom& ca : c) {
+  cnf_constr cnf;
+  for(const conj_constr& c : dnf) {
+    cnf.emplace_back();
+    for(constraint_atom ca : c) {
       auto temp = ca.after;
       ca.after = ca.before;
       ca.before = temp;
+      cnf.back().push_back(ca);
     }
   }
   return cnf;
+}
+
+namespace synthesis {
+  std::ostream& operator<<(std::ostream& out, const constraint_atom& ca) {
+    out << ca.before;
+    out << " < ";
+    out << ca.after;
+    return out;
+  }
 }

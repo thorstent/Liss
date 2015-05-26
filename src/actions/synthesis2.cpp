@@ -91,17 +91,20 @@ void actions::synthesis2::print_summary(const cfg::program& original_program) {
   debug << "| " << original_program.no_threads() << " | " << iteration << " | " << this->max_bound <<  " | " << (double)langinc.count()/1000 << "s | "  << (double)synthesis_time.count()/1000 << "s | " << (double)verification.count()/1000 << "s |";
 }
 
-vector<vector<vector<abstraction::location>>> locks_to_locations(list<::synthesis::lock> locks, const vector<abstraction::psymbol>& trace) {
-  vector<vector<vector<abstraction::location>>> result;
-  for (::synthesis::lock l : locks) {
-    result.push_back(vector<vector<abstraction::location>>());
-    bool started = false;
-    for (::synthesis::lock_location loc : l.locations) {
-      result.back().push_back(vector<abstraction::location>());
-      assert (loc.start.instruction_id() <= loc.end.instruction_id());
-      for (unsigned i = loc.start.instruction_id(); i <= loc.end.instruction_id(); ++i) {
-        if (trace[i]->thread_id()==loc.start.thread_id())
-          result.back().back().push_back(abstraction::location(trace[i]->thread_id(), trace[i]->state_id()));
+cnf<vector<vector<abstraction::location>>> locks_to_locations(const cnf<::synthesis::lock>& locks, const vector<abstraction::psymbol>& trace) {
+  cnf<vector<vector<abstraction::location>>> result;
+  for (const disj<::synthesis::lock>& d : locks) {
+    result.emplace_back();
+    for (::synthesis::lock l : d) {
+      result.back().emplace_back();
+      bool started = false;
+      for (::synthesis::lock_location loc : l.locations) {
+        result.back().back().emplace_back();
+        assert (loc.start.instruction_id() <= loc.end.instruction_id());
+        for (unsigned i = loc.start.instruction_id(); i <= loc.end.instruction_id(); ++i) {
+          if (trace[i]->thread_id()==loc.start.thread_id())
+            result.back().back().back().push_back(abstraction::location(trace[i]->thread_id(), trace[i]->state_id()));
+        }
       }
     }
   }
@@ -119,9 +122,9 @@ bool actions::synthesis2::synth_loop(const cfg::program& program, vector<pair<un
 
   
   unsigned counter = 0;
-  ::synthesis::dnf_constr weak_bad_cond;
+  ::synthesis::synchronisation synch(program);
+  cnf<vector<vector<abstraction::location>>> lock_locations;
   while (true) {
-    
     auto langinc_start = chrono::steady_clock::now();
     auto start = chrono::steady_clock::now();
     // do language inclusion test
@@ -141,10 +144,15 @@ bool actions::synthesis2::synth_loop(const cfg::program& program, vector<pair<un
       ::synthesis::reorderings reorder(ctx, program);
       pair<::synthesis::dnf_constr,::synthesis::dnf_constr> dnf = reorder.process_trace(trace);
       ::synthesis::dnf_constr bad_cond = dnf.first; // these conditions make the trace bad
-      weak_bad_cond.insert(weak_bad_cond.end(), dnf.second.begin(), dnf.second.end());
       if (verbosity>=1)
         debug << "Found constraints to eliminate bad traces" << endl;
       concurrent.add_forbidden_traces(bad_cond);
+      // synthesis of locks for these constraints
+      ::synthesis::cnf_constr cnf_weak = negate_dnf(dnf.second);
+      cnf<::synthesis::lock> new_locks;
+      synch.generate_sync(cnf_weak, new_locks);
+      cnf<vector<vector<abstraction::location>>> new_lock_locations = locks_to_locations(new_locks, result.counter_example);
+      lock_locations.insert(lock_locations.end(), new_lock_locations.begin(), new_lock_locations.end());
       ++counter;
       print_time(start);
       langinc += std::chrono::duration_cast<chrono::milliseconds>(langinc_end - langinc_start);
@@ -152,14 +160,12 @@ bool actions::synthesis2::synth_loop(const cfg::program& program, vector<pair<un
     } else {
       verification += std::chrono::duration_cast<chrono::milliseconds>(langinc_end - langinc_start);
       
-      if (!weak_bad_cond.empty()) {
+      if (!lock_locations.empty()) {
         placement::place_locks plocks(program);
-        ::synthesis::synchronisation synch(program);
-        ::synthesis::cnf_constr cnf_weak = negate_dnf(weak_bad_cond);
-        list<::synthesis::lock> new_locks;
-        synch.generate_sync(cnf_weak, new_locks);
-        vector<vector<vector<abstraction::location>>> lock_locations = locks_to_locations(new_locks, result.counter_example);
-        plocks.find_locks(lock_locations, locks, unlocks);
+        if (!plocks.find_locks(lock_locations, locks, unlocks)) {
+          cout << "Found no valid lock placement" << endl;
+          return false;
+        }
       }
       
       cout << "Synthesis was successful." << endl;

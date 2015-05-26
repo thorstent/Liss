@@ -30,33 +30,31 @@ synchronisation::synchronisation(const cfg::program& program):
   
 }
 
-void synchronisation::generate_sync(const cnf_constr& cnf, list< lock >& locks)
+void synchronisation::generate_sync(const cnf_constr& cnf_weak, cnf< lock >& locks)
 {
-  for (const disj_constr& d : cnf) {
-    if (!find_lock(d, locks)) {
+  for (const disj_constr& d : cnf_weak) {
+    locks.emplace_back();
+    if (!find_lock(d, locks.back())) {
       cerr << "Inferrence failed for ";
-      print_constraint_cnf(d, cerr);
+      cerr << d;
       cerr << endl;
     }
   }
   
-  merge_locks(locks);
+  //merge_locks(locks);
   // we do lock merging later
   //merge_locks_multithread(locks);
   
   if (verbosity >= 1) {
     debug << "Locks inferred: " << endl;
-    for (const auto& l : locks) {
-      print_lock(l, debug);
-      debug << endl;
-    }
+    debug << locks;
     
   }
   
 }
 
 unsigned lock_counter = 0;
-bool synchronisation::find_lock(const disj_constr& disjunct, std::list<lock>& locks)
+bool synchronisation::find_lock(const disj_constr& disjunct, std::vector<lock>& locks)
 {
   bool found = false;
   if (disjunct.size()>=2) {
