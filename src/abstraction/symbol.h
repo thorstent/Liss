@@ -90,12 +90,6 @@ struct symbol
    */
   bool assume = false;
   
-  /**
-   * @brief The symbol has been synthesised in one of the previous iterations
-   * 
-   */
-  bool synthesised = false;
-  
   inline bool is_epsilon() const { return operation!=op_class::read && operation!=op_class::write && operation!=op_class::tag; }
   inline bool is_real_epsilon() const { return operation==op_class::epsilon; }
   

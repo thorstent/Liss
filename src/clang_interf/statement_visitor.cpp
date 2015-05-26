@@ -23,6 +23,7 @@
 #include "abstraction/symbol.h"
 #include "parse_error.h"
 #include "cfg_visitor.h"
+#include "options.h"
 
 
 using namespace clang_interf;
@@ -142,9 +143,29 @@ bool statement_visitor::TraverseCallExpr(CallExpr* s)
   
   if (operation != abstraction::op_class::epsilon) {
     cstack.back().second = s;
+    // add a yield before these locks to allow for context switches
+    if (!synthesised && (assumes_allow_switch || !assume)) {
+      string type;
+      switch (operation) {
+        case abstraction::op_class::lock:
+          type = "lock";
+        case abstraction::op_class::wait:
+        case abstraction::op_class::wait_not:
+        case abstraction::op_class::wait_reset:
+        {
+          if (type.empty()) type = "wait";
+          symbol actiony(abstraction::op_class::yield, cstack, type, 0, identifier_store, s);
+          state_id_type nexty = thread.add_state(actiony);
+          add_successor(nexty);
+        }
+          break;
+        default:
+          break;
+      }
+    }
+    
     symbol action(operation, cstack, var_name, var, identifier_store, s);
     action.assume = assume;
-    action.synthesised = synthesised;
     state_id_type next = thread.add_state(action);
     add_successor(next);
   } else {

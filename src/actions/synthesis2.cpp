@@ -53,14 +53,15 @@ void actions::synthesis2::run(const cfg::program& program, clang::CompilerInstan
   pprogram.print_original(debug_folder + file_name);
   pprogram.print_original(start_file_code);
   
-  bool success = synth_loop(program);
+  vector<pair<unsigned,abstraction::location>> locks, unlocks;
+  bool success = synth_loop(program, locks, unlocks);
   
-  file_name = main_filename;
-  file_name.replace(file_name.length()-2,2, ".end.c");
-  //print_code(program, debug_folder, file_name);
+
   
   if (success) {
-    //pprogram.print_with_locks(locks, unlocks, debug_folder + file_name);
+    file_name = main_filename;
+    file_name.replace(file_name.length()-2,2, ".end.c");
+    pprogram.print_with_locks(locks, unlocks, debug_folder + file_name);
     
   } else {
     Limi::printer<abstraction::psymbol> symbol_printer;
@@ -107,7 +108,7 @@ vector<vector<vector<abstraction::location>>> locks_to_locations(list<::synthesi
   return result;
 }
 
-bool actions::synthesis2::synth_loop(const cfg::program& program)
+bool actions::synthesis2::synth_loop(const cfg::program& program, vector<pair<unsigned,abstraction::location>>& locks, vector<pair<unsigned,abstraction::location>>& unlocks)
 {
   z3::context ctx;
 
@@ -115,10 +116,10 @@ bool actions::synthesis2::synth_loop(const cfg::program& program)
   abstraction::concurrent_automaton sequential(program, false, true);
   abstraction::concurrent_automaton concurrent(program, true, false);
   concurrent.use_cache = false; // do not use cache as it interfers with disallowing bad traces
-  
-  placement::place_locks plocks(program);
+
   
   unsigned counter = 0;
+  ::synthesis::dnf_constr weak_bad_cond;
   while (true) {
     
     auto langinc_start = chrono::steady_clock::now();
@@ -127,8 +128,10 @@ bool actions::synthesis2::synth_loop(const cfg::program& program)
     bool success = test_inclusion(sequential, concurrent, result);
     this->max_bound = max(result.max_bound,this->max_bound);
     auto langinc_end = chrono::steady_clock::now();
-    if (!success)
+    if (!success) {
       cout << "Found no counter-example up to maximum bound; synthesis cannot proceed." << endl;
+      return false;
+    }
     if (verbosity >= 1) {
       result.print_long(debug, symbol_printer);
     }
@@ -136,51 +139,34 @@ bool actions::synthesis2::synth_loop(const cfg::program& program)
       auto synth_start = chrono::steady_clock::now();
       ::synthesis::concurrent_trace trace = ::synthesis::make_trace(ctx, program, result.counter_example);
       ::synthesis::reorderings reorder(ctx, program);
-      pair<::synthesis::dnf,::synthesis::dnf> dnf = reorder.process_trace(trace);
-      ::synthesis::dnf bad_cond = dnf.first; // these conditions make the trace bad
+      pair<::synthesis::dnf_constr,::synthesis::dnf_constr> dnf = reorder.process_trace(trace);
+      ::synthesis::dnf_constr bad_cond = dnf.first; // these conditions make the trace bad
+      weak_bad_cond.insert(weak_bad_cond.end(), dnf.second.begin(), dnf.second.end());
       if (verbosity>=1)
         debug << "Found constraints to eliminate bad traces" << endl;
-      /*if (verbosity>=2)
-        ::synthesis::print_constraint(bad_cond, concurrent.symbol_printer(), debug);*/
       concurrent.add_forbidden_traces(bad_cond);
+      ++counter;
+      print_time(start);
+      langinc += std::chrono::duration_cast<chrono::milliseconds>(langinc_end - langinc_start);
+      debug << endl;
     } else {
       verification += std::chrono::duration_cast<chrono::milliseconds>(langinc_end - langinc_start);
+      
+      if (!weak_bad_cond.empty()) {
+        placement::place_locks plocks(program);
+        ::synthesis::synchronisation synch(program);
+        ::synthesis::cnf_constr cnf_weak = negate_dnf(weak_bad_cond);
+        list<::synthesis::lock> new_locks;
+        synch.generate_sync(cnf_weak, new_locks);
+        vector<vector<vector<abstraction::location>>> lock_locations = locks_to_locations(new_locks, result.counter_example);
+        plocks.find_locks(lock_locations, locks, unlocks);
+      }
+      
       cout << "Synthesis was successful." << endl;
       print_summary(program);
       return true;
     }
   }
       
-      /*
-      ::synthesis::synchronisation synch(program, trace);
-      ::synthesis::cnf cnf = negate_dnf(dnf.first);
-      ::synthesis::cnf cnf_weak = negate_dnf(dnf.second);
-      list<::synthesis::lock> new_locks;
-      synch.generate_sync(cnf, new_locks);
-      vector<vector<vector<placement::location>>> lock_locations = locks_to_locations(new_locks, result.counter_example);
-      vector<pair<unsigned,placement::location>> locks, unlocks;
-      plocks.find_locks(lock_locations, locks, unlocks);
-      string file_name = main_filename;
-      file_name.replace(file_name.length()-2,2, "." + to_string(counter) + ".c");
-      exit(1);
-      
-    } else {
-      verification += std::chrono::duration_cast<chrono::milliseconds>(langinc_end - langinc_start);
-      cout << "Synthesis was successful." << endl;
-      print_summary(program);
-      return true;
-    }
-    ++counter;
-    print_time(start);
-    langinc += std::chrono::duration_cast<chrono::milliseconds>(langinc_end - langinc_start);
-    debug << endl;
-    string file_name = main_filename;
-    file_name.replace(file_name.length()-2,2, "." + to_string(counter) + ".c");
-    //print_code(program, debug_folder, file_name);
-    // reparse threads
-    std::list<const clang::FunctionDecl*> functions;
-    for (const cfg::abstract_cfg* t : program.threads()) {
-      functions.push_back(t->declaration);
-    }*/
-
+  return false;
 }

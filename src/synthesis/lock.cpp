@@ -24,12 +24,12 @@
 using namespace synthesis;
 using namespace std;
 
-void synthesis::print_lock(const lock& lock, const Limi::printer< abstraction::psymbol >& symbol_printer, std::ostream& out) {
+void synthesis::print_lock(const lock& lock, std::ostream& out) {
   out << lock.name << " (";
   for(auto l = lock.locations.begin(); l!=lock.locations.end(); ) {
-    print_location(l->start, symbol_printer, out);
+    out << l->start;
     out << "-";
-    print_location(l->end, symbol_printer, out);
+    out << l->end;
     if (++l != lock.locations.end()) out << ", ";
   }
   out << ")";

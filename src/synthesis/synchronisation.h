@@ -25,20 +25,18 @@
 #include "abstraction/concurrent_state.h"
 
 #include "lock.h"
-#include "trace.h"
 
 namespace synthesis {
   
 class synchronisation
 {
 public:
-  synchronisation(const cfg::program& program, const concurrent_trace& trace);
-  void generate_sync(const synthesis::cnf& cnf, std::list< synthesis::lock >& locks);
+  synchronisation(const cfg::program& program);
+  void generate_sync(const synthesis::cnf_constr& cnf, std::list< synthesis::lock >& locks);
 private:
   //const abstraction::program& program;
   const Limi::printer<abstraction::psymbol> symbol_printer;
-  const concurrent_trace& trace;
-  bool find_lock(const disj& disjunct, std::list<lock>& locks);
+  bool find_lock(const disj_constr& disjunct, std::list<lock>& locks);
   void merge_locks(std::list<lock>& locks);
   //void merge_locks_multithread(std::list<lock>& locks);
   

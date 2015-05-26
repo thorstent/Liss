@@ -44,7 +44,7 @@ public:
    * @return std::pair< synthesis::dnf, synthesis::dnf > The first element is traditional bad trace analysis. The second element is a pair where less happens-before relations are removed, namely 
    * all those that are automatically true due to wait-notifies are not removed
    */
-  std::pair< dnf, dnf > process_trace(const synthesis::concurrent_trace& trace);
+  std::pair< dnf_constr, dnf_constr > process_trace(const synthesis::concurrent_trace& trace);
 private:
   const cfg::program& program;
   struct seperated_trace {
@@ -73,13 +73,13 @@ private:
     distinct(ctx.bool_val(true)),
     threads(threads) {}
   };
-  conj find_order(const seperated_trace& strace, const z3::model& model);
+  conj_constr find_order(const seperated_trace& strace, const z3::model& model);
   void print_trace(const seperated_trace& strace, const z3::model& model, std::ostream& out);
   z3::context& ctx;
   const Limi::printer<abstraction::psymbol> symbol_printer;
   std::bitset<max_locks> get_lockset(const abstraction::pcstate& state);
   void prepare_trace(const synthesis::concurrent_trace& trace, synthesis::reorderings::seperated_trace& strace);
-  conj wait_notify_order(const seperated_trace& strace, const z3::model& model);
+  conj_constr wait_notify_order(const seperated_trace& strace, const z3::model& model);
 };
 }
 

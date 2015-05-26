@@ -58,7 +58,7 @@ namespace abstraction {
      */
     std::unordered_set<psymbol> successor_filter;
     
-    void add_forbidden_traces(const synthesis::dnf& forbidden_traces);
+    void add_forbidden_traces(const synthesis::dnf_constr& forbidden_traces);
   private:
     std::vector<cfg::automaton> threads;
     std::vector<const cfg::abstract_cfg*> cfgs;
@@ -69,11 +69,10 @@ namespace abstraction {
      * @brief Applies a symbol to a state
      * 
      * @param sigma The symbol
-     * @param progress Returns true if the program can advance to the next program location
      * @param original_state The state we are coming from
      * @return abstraction::pcstate If it is possible to apply the symbol than this is a copy of the original state with the symbol applied, otherwise null
      */
-    pcstate apply_symbol(const pcstate& original_state, const psymbol& sigma, bool& progress) const;
+    pcstate apply_symbol(const pcstate& original_state, const psymbol& sigma) const;
     
     /**
      * @brief Apply happens-before constraints from the dnf

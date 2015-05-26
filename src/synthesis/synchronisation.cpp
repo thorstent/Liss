@@ -25,17 +25,17 @@
 using namespace synthesis;
 using namespace std;
 
-synchronisation::synchronisation(const cfg::program& program, const concurrent_trace& trace):
- symbol_printer(Limi::printer<abstraction::psymbol>()), trace(trace) {
+synchronisation::synchronisation(const cfg::program& program):
+ symbol_printer(Limi::printer<abstraction::psymbol>()) {
   
 }
 
-void synchronisation::generate_sync(const cnf& cnf, list< lock >& locks)
+void synchronisation::generate_sync(const cnf_constr& cnf, list< lock >& locks)
 {
-  for (const disj& d : cnf) {
+  for (const disj_constr& d : cnf) {
     if (!find_lock(d, locks)) {
       cerr << "Inferrence failed for ";
-      print_constraint_cnf(d, symbol_printer, cerr);
+      print_constraint_cnf(d, cerr);
       cerr << endl;
     }
   }
@@ -47,7 +47,7 @@ void synchronisation::generate_sync(const cnf& cnf, list< lock >& locks)
   if (verbosity >= 1) {
     debug << "Locks inferred: " << endl;
     for (const auto& l : locks) {
-      print_lock(l, symbol_printer, debug);
+      print_lock(l, debug);
       debug << endl;
     }
     
@@ -56,7 +56,7 @@ void synchronisation::generate_sync(const cnf& cnf, list< lock >& locks)
 }
 
 unsigned lock_counter = 0;
-bool synchronisation::find_lock(const disj& disjunct, std::list<lock>& locks)
+bool synchronisation::find_lock(const disj_constr& disjunct, std::list<lock>& locks)
 {
   bool found = false;
   if (disjunct.size()>=2) {

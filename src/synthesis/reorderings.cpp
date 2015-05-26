@@ -37,21 +37,10 @@ program(program), ctx(ctx), symbol_printer(Limi::printer<abstraction::psymbol>()
   
 }
 
-/**
- * @brief Pair that represents the cases where a symbol is split into an actual symbol an a pre symbol
- * 
- */
-struct pre_pair {
-  const location* pre;
-  const location* actual;
-  z3::expr satisfied;
-  pre_pair(const location* pre, const location* actual, z3::expr satisfied) : pre(pre), actual(actual), satisfied(satisfied) {}
-};
-
 struct lock_pair {
-  const pre_pair lock;
+  const location* lock;
   const location* unlock;
-  lock_pair(const pre_pair& lock, const location* unlock) : lock(lock), unlock(unlock) {}
+  lock_pair(const location* lock, const location* unlock) : lock(lock), unlock(unlock) {}
 };
 
 void reorderings::prepare_trace(const concurrent_trace& trace, reorderings::seperated_trace& strace)
@@ -62,7 +51,7 @@ void reorderings::prepare_trace(const concurrent_trace& trace, reorderings::sepe
   // the places where the conditional is waited for
   // it is a pair, the first element is the pre-wait, the second the actual wait. There can be a context switch between wait
   // and pre-wait if the condition is not fulfilled at the pre-wait
-  vector<list<pre_pair>> waits(program.identifiers().no_conditionals());
+  vector<list<const location*>>& waits = strace.waits;
   
   // the constraints
   z3::expr& sequential = strace.sequential;
@@ -92,25 +81,8 @@ void reorderings::prepare_trace(const concurrent_trace& trace, reorderings::sepe
     // deal with other operations
     switch(loc.symbol->operation) {
       case abstraction::op_class::lock: {
-        if (!loc.symbol->synthesised) {
-          location loc_between(ctx.fresh_constant((name+"_pre").c_str(), ctx.int_sort()), name+"_pre", loc.symbol, counter++);
-          loc_between.pre_location = true;
-          if (thread_endpoints[thread_id]) {
-            sequential = sequential && implies(seq_condition, ((z3::expr)loc_between) == ((z3::expr)*thread_endpoints[thread_id]) + ctx.int_val(1));
-            thread_order = thread_order && loc_between > *thread_endpoints[thread_id];
-          }
-          strace.trace.push_back(loc_between);
-          thread_endpoints[thread_id] = &strace.trace.back();
-          
-          z3::expr ls = ctx.fresh_constant((name+"_lock_cond").c_str(), ctx.bool_sort());
-          seq_condition = ls;
-          pre_pair pp(&strace.trace.back(), loc_ptr, ls);
-          lockings[var].push_back(lock_pair(pp, nullptr));
-        } else {
-          pre_pair pp(nullptr, loc_ptr, z3::expr(ctx));
-          lockings[var].push_back(lock_pair(pp, nullptr));
+          lockings[var].push_back(lock_pair(loc_ptr, nullptr));
         }
-      }
         break;
       case abstraction::op_class::unlock:
         lockings[var].back().unlock = loc_ptr;
@@ -119,24 +91,8 @@ void reorderings::prepare_trace(const concurrent_trace& trace, reorderings::sepe
         resets[var].push_back(loc_ptr);
       case abstraction::op_class::wait:
       case abstraction::op_class::wait_not: {
-        if ((!loc.symbol->assume||assumes_allow_switch) && !loc.symbol->synthesised) {
-          location loc_between(ctx.fresh_constant((name+"_pre").c_str(), ctx.int_sort()), name+"_pre", loc.symbol, counter++);
-          loc_between.pre_location = true;
-          if (thread_endpoints[thread_id]) {
-            sequential = sequential && implies(seq_condition, ((z3::expr)loc_between) == ((z3::expr)*thread_endpoints[thread_id]) + ctx.int_val(1));
-            thread_order = thread_order && loc_between > *thread_endpoints[thread_id];
-          }
-          strace.trace.push_back(loc_between);
-          thread_endpoints[thread_id] = &strace.trace.back();
-          
-          z3::expr cs = ctx.fresh_constant((name+"_wait_cond").c_str(), ctx.bool_sort());
-          seq_condition = cs;
-          waits[var].push_back(pre_pair(&strace.trace.back(), loc_ptr, cs));
-        } else {
-          waits[var].push_back(pre_pair(nullptr, loc_ptr, z3::expr(ctx)));
+          waits[var].push_back(loc_ptr);
         }
-        strace.waits[var].push_back(loc_ptr);
-      }
       break;
       case abstraction::op_class::notify:
         notifies[var].push_back(loc_ptr);
@@ -176,7 +132,6 @@ void reorderings::prepare_trace(const concurrent_trace& trace, reorderings::sepe
   // conditions for locks (for each pair, either one before the other or the other wait round)
   for (unsigned i = 0; i < lockings.size(); ++i) {
     for (auto it = lockings[i].begin(); it != lockings[i].end(); ++it) {
-      z3::expr lock_pre = ctx.bool_val(true);
       for (auto it2 = lockings[i].begin(); it2 != lockings[i].end(); ++it2) {
         if (it != it2) {
           if (it->unlock == nullptr)
@@ -184,74 +139,57 @@ void reorderings::prepare_trace(const concurrent_trace& trace, reorderings::sepe
           if (it2->unlock == nullptr)
             it2->unlock = &final_state;
           // make the lock sections exclusive to each other
-          locks = locks && ((*(it->lock.actual) > *(it2->unlock)) || (*(it->lock.actual) < *(it2->lock.actual)));
-          if (it->lock.pre) lock_pre = lock_pre && ((*(it->lock.pre) > *(it2->unlock)) || (*(it->lock.pre) < *(it2->lock.actual)));
+          locks = locks && ((*(it->lock) > *(it2->unlock)) || (*(it->lock) < *(it2->lock)));
         }
       }
-      if (it->lock.pre) locks = locks && (lock_pre == it->lock.satisfied);
     }
   }
   
   // conditions for conditionals
   for (unsigned i = 0; i < waits.size(); ++i) {
     for (auto it = waits[i].begin(); it != waits[i].end(); ++it) {
-      bool is_wait = it->actual->symbol->operation!=abstraction::op_class::wait_not;
+      bool is_wait = (*it)->symbol->operation!=abstraction::op_class::wait_not;
       if (is_wait) {
         z3::expr conditional_notify = ctx.bool_val(false); // it is not notified to begin with
-        z3::expr conditional_notify_pre = ctx.bool_val(false); // for the pre-position
         for (auto itn = notifies[i].begin(); itn != notifies[i].end(); ++itn) {
           // if this is a wait, then ensure that it is after a notify and no reset is in between
-          z3::expr conditional_one_notify = (**itn < *(it->actual));
-          z3::expr conditional_one_notify_pre(ctx);
-          if (it->pre) conditional_one_notify_pre = (**itn < *(it->pre));
+          z3::expr conditional_one_notify = (**itn < **it);
           for (auto itr = resets[i].begin(); itr != resets[i].end(); ++itr) {
-            if (it->actual != *itr) {
-              conditional_one_notify = conditional_one_notify && (**itr < **itn || **itr > *(it->actual));
-              if (it->pre) conditional_one_notify_pre = conditional_one_notify_pre && (**itr < **itn || **itr > *(it->pre));
+            if (*it != *itr) {
+              conditional_one_notify = conditional_one_notify && (**itr < **itn || **itr > **(it));
             }
           }
           conditional_notify = conditional_notify || conditional_one_notify;
-          if (it->pre) conditional_notify_pre = conditional_notify_pre || conditional_one_notify_pre;
         }
         conditionals = conditionals && conditional_notify;
-        if (it->pre) conditionals = conditionals && (conditional_notify_pre == it->satisfied);
       } else {
         // we have a wait_not
         z3::expr conditional_notify = ctx.bool_val(false);
-        z3::expr conditional_notify_pre = ctx.bool_val(false);
         // firstly we can be before all the notifies, that is fine
         {
           z3::expr conditional_one_notify = ctx.bool_val(true);
-          z3::expr conditional_one_notify_pre = ctx.bool_val(true);
           for (auto itn = notifies[i].begin(); itn != notifies[i].end(); ++itn) {
-            conditional_one_notify = conditional_one_notify && (*(it->actual) < **itn);
-            if (it->pre) conditional_one_notify_pre = conditional_one_notify_pre && (*(it->pre) < **itn);
+            conditional_one_notify = conditional_one_notify && (**it < **itn);
           }
           conditional_notify = conditional_notify || conditional_one_notify;
-          if (it->pre) conditional_notify_pre = conditional_notify_pre || conditional_one_notify_pre;
         }
         // or a reset needs to be before a notify
         for (auto itr = resets[i].begin(); itr != resets[i].end(); ++itr) {
           // if this is a wait, then ensure that it is after a notify and no reset is in between
-          z3::expr conditional_one_notify = (**itr < *(it->actual));
-          z3::expr conditional_one_notify_pre(ctx);
-          if (it->pre) conditional_one_notify_pre = (**itr < *(it->pre));
+          z3::expr conditional_one_notify = (**itr < **it);
           for (auto itn = notifies[i].begin(); itn != notifies[i].end(); ++itn) {
-            conditional_one_notify = conditional_one_notify && (**itn < **itr || **itn > *(it->actual));
-            if (it->pre) conditional_one_notify_pre = conditional_one_notify_pre && (**itn < **itr || **itn > *(it->pre));
+            conditional_one_notify = conditional_one_notify && (**itn < **itr || **itn > **it);
           }
           conditional_notify = conditional_notify || conditional_one_notify;
-          if (it->pre) conditional_notify_pre = conditional_notify_pre || conditional_one_notify_pre;
         }
         conditionals = conditionals && conditional_notify;
-        if (it->pre) conditionals = conditionals && (conditional_notify_pre == it->satisfied);
       }
     }
   }
 }
 
 
-pair<dnf,dnf> reorderings::process_trace(const concurrent_trace& trace)
+pair<dnf_constr,dnf_constr> reorderings::process_trace(const concurrent_trace& trace)
 {
   seperated_trace strace(program.identifiers().no_variables(), program.identifiers().no_conditionals(), program.no_threads(), ctx);
   prepare_trace(trace, strace);
@@ -275,7 +213,7 @@ pair<dnf,dnf> reorderings::process_trace(const concurrent_trace& trace)
   slv.add(original_trace);
   auto r = slv.check();
   assert (r==z3::sat);
-  conj original_trace_gen = find_order(strace, slv.get_model());
+  conj_constr original_trace_gen = find_order(strace, slv.get_model());
   z3::expr original_trace_gen_expr = make_constraint(ctx, original_trace_gen);
 #endif
   
@@ -302,7 +240,7 @@ pair<dnf,dnf> reorderings::process_trace(const concurrent_trace& trace)
     cerr << endl << endl << "SANITY: Original trace is sequential; Here is the trace" << endl;
     print_trace(strace, slv_good.get_model(), cerr);
     cerr << "And here is the sequential constraint" << endl;
-    print_constraint(original_trace_gen, symbol_printer, cerr);
+    print_constraint(original_trace_gen, cerr);
     cerr << endl;
   }
   slv_good.pop();
@@ -310,7 +248,7 @@ pair<dnf,dnf> reorderings::process_trace(const concurrent_trace& trace)
   
   slv_good.push();
   
-  dnf seq_traces;
+  dnf_constr seq_traces;
   
   if (verbosity >=1) {
     debug << "Find all sequential traces" << endl;
@@ -321,11 +259,11 @@ pair<dnf,dnf> reorderings::process_trace(const concurrent_trace& trace)
       debug << "Solver:" << endl << slv_good << endl;
       debug << "Model:" << endl << slv_good.get_model() << endl;
     }
-    conj constraint = find_order(strace, slv_good.get_model());
+    conj_constr constraint = find_order(strace, slv_good.get_model());
     slv_good.add(!make_constraint(ctx, constraint));
     if (verbosity >= 2) {
       debug << "Found constraint: ";
-      print_constraint(constraint, symbol_printer, debug);
+      print_constraint(constraint, debug);
       debug << endl;
     }
     seq_traces.push_back(constraint);
@@ -342,8 +280,8 @@ pair<dnf,dnf> reorderings::process_trace(const concurrent_trace& trace)
   if (verbosity >=1) {
     debug << "Find concurrent traces that are not sequential" << endl;
   }
-  vector<pair<conj,conj>> bad_traces_int;
-  dnf bad_traces_weak;
+  vector<pair<conj_constr,conj_constr>> bad_traces_int;
+  dnf_constr bad_traces_weak;
   
 #ifdef SANITY
   // sanity check: 
@@ -361,29 +299,29 @@ pair<dnf,dnf> reorderings::process_trace(const concurrent_trace& trace)
       debug << "Solver:" << endl << slv_bad << endl;
       debug << "Model:" << endl << slv_bad.get_model() << endl;
     }
-    conj constraint = find_order(strace, slv_bad.get_model());
-    conj constraint_weak = find_order(strace, slv_bad.get_model());
+    conj_constr constraint = find_order(strace, slv_bad.get_model());
+    conj_constr constraint_weak = find_order(strace, slv_bad.get_model());
     min_unsat<constraint_atom>(slv_good, constraint, [](const constraint_atom& ca)->z3::expr{return ca;});
     min_unsat<constraint_atom>(slv_good_weak, constraint_weak, [](const constraint_atom& ca)->z3::expr{return ca;});
     slv_bad.add(!make_constraint(ctx, constraint));
     if (verbosity >= 2) {
       debug << "Found constraint: ";
-      print_constraint(constraint, symbol_printer, debug);
+      print_constraint(constraint, debug);
       debug << endl;
     }
-    conj wnconstraint = wait_notify_order(strace, slv_bad.get_model());
+    conj_constr wnconstraint = wait_notify_order(strace, slv_bad.get_model());
     bad_traces_int.push_back(make_pair(constraint,wnconstraint));
     bad_traces_weak.push_back(constraint_weak);
   }
   slv_bad.pop();
   
   // filter out duplicates:
-  min_unsat<pair<conj,conj>>(slv_bad, bad_traces_int, [this](const pair<conj,conj>& c)->z3::expr{return !make_constraint(ctx, c.first);});
-  min_unsat<conj>(slv_bad, bad_traces_weak, [this](const conj& c)->z3::expr{return !make_constraint(ctx, c);});
+  min_unsat<pair<conj_constr,conj_constr>>(slv_bad, bad_traces_int, [this](const pair<conj_constr,conj_constr>& c)->z3::expr{return !make_constraint(ctx, c.first);});
+  min_unsat<conj_constr>(slv_bad, bad_traces_weak, [this](const conj_constr& c)->z3::expr{return !make_constraint(ctx, c);});
   
-  dnf bad_traces;
-  for (const pair<conj,conj>& p : bad_traces_int) {
-    conj c1(p.first);
+  dnf_constr bad_traces;
+  for (const pair<conj_constr,conj_constr>& p : bad_traces_int) {
+    conj_constr c1(p.first);
     //c1.insert(c1.end(), p.second.begin(), p.second.end());
     bad_traces.push_back(c1);
   }
@@ -394,7 +332,7 @@ pair<dnf,dnf> reorderings::process_trace(const concurrent_trace& trace)
     for (unsigned i = 0; i < bad_traces.size(); ++i) {
       if (all_of(bad_traces_int[i].first.begin(), bad_traces_int[i].first.end(), [](constraint_atom ca) {return ca.before.original_position<ca.after.original_position;}))
         debug << "(*) ";
-      print_constraint(bad_traces[i], symbol_printer, debug);
+      print_constraint(bad_traces[i], debug);
       if (i < bad_traces.size() - 1) 
         debug << " \\/" << std::endl;
     }
@@ -403,9 +341,9 @@ pair<dnf,dnf> reorderings::process_trace(const concurrent_trace& trace)
   return make_pair(bad_traces, bad_traces_weak);
 }
 
-conj reorderings::find_order(const reorderings::seperated_trace& strace, const z3::model& model)
+conj_constr reorderings::find_order(const reorderings::seperated_trace& strace, const z3::model& model)
 {
-  conj result;
+  conj_constr result;
   // get the assigned numbers:
   
   for (variable_type i = 0; i < strace.reads.size(); ++i) {
@@ -436,10 +374,10 @@ conj reorderings::find_order(const reorderings::seperated_trace& strace, const z
   return result;
 }
 
-conj reorderings::wait_notify_order(const reorderings::seperated_trace& strace, const z3::model& model)
+conj_constr reorderings::wait_notify_order(const reorderings::seperated_trace& strace, const z3::model& model)
 {
   typedef pair<const location*, int> loc_pair;
-  conj result;
+  conj_constr result;
 
   for (conditional_type i = 0; i < strace.waits.size(); ++i) {
     vector<loc_pair> order;
@@ -517,7 +455,7 @@ void reorderings::print_trace(const reorderings::seperated_trace& strace, const 
     if (!p.first.description.empty())
       out << p.first.description;
     else {
-      print_location(p.first, symbol_printer, out);
+      out << p.first;
       if (p.first.pre_location) {
         out << " (pre)";
       }

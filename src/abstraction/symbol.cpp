@@ -73,7 +73,7 @@ operation(operation), cstack(cstack), variable_name(variable_name), variable(var
   assert(cstack.back().second==stmt);
   clang::SourceLocation loc = is.source_manager.getFileLoc(instr_stmt()->getLocStart());
   fileentry = is.source_manager.getFileEntryForID(is.source_manager.getFileID(loc));
-  if (!fileentry) synthesised = true;
+  assert (fileentry);
   line_no = is.source_manager.getPresumedLineNumber(loc);
 }
 

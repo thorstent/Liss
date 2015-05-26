@@ -40,4 +40,14 @@ typedef int8_t thread_id_type;
 const unsigned max_threads = INT8_MAX;
 const thread_id_type no_thread = -1;
 
+
+template <typename atom>
+using conj = std::vector<atom>;
+template <typename atom>
+using disj = std::vector<atom>;
+template <typename atom>
+using dnf = std::vector<conj<atom>>;
+template <typename atom>
+using cnf = std::vector<disj<atom>>;
+
 #endif 

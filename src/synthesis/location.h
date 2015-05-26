@@ -52,7 +52,7 @@ private:
 
 typedef std::pair<const location*, const location*> loc_pair;
 
-void print_location(const location& loc, const Limi::printer_base< abstraction::psymbol >& symbol_printer, std::ostream& out);
+std::ostream& operator<<(std::ostream& out, const location& loc);
 }
 
 #endif // SYNTHESIS_LOCATION_H
