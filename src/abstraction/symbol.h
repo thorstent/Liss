@@ -90,6 +90,13 @@ struct symbol
    */
   bool assume = false;
   
+  /**
+   * @brief A conditional yield.
+   * 
+   * This is an instruction before a wait or lock instruction and allows a context switch if the condition is not fulfiled
+   */
+  bool cond_yield = false;
+  
   inline bool is_epsilon() const { return operation!=op_class::read && operation!=op_class::write && operation!=op_class::tag; }
   inline bool is_real_epsilon() const { return operation==op_class::epsilon; }
   
@@ -177,7 +184,7 @@ namespace Limi {
       return a.thread_id()!=b.thread_id() && 
       (
         a.variable != b.variable ||
-        a.operation==abstraction::op_class::read && b.operation==abstraction::op_class::read ||
+        (a.operation==abstraction::op_class::read && b.operation==abstraction::op_class::read) ||
         a.is_epsilon() || b.is_epsilon() ||
         a.operation==abstraction::op_class::tag || b.operation==abstraction::op_class::tag
       );

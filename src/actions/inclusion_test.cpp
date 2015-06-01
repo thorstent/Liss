@@ -73,8 +73,9 @@ void actions::filter_result(inclusion_result& result) {
 
 bool actions::test_inclusion(const abstraction::concurrent_automaton& sequential, const abstraction::concurrent_automaton& concurrent, inclusion_result& result)
 {
-  Limi::antichain_algo_ind<abstraction::pcstate,abstraction::pcstate,abstraction::psymbol,abstraction::concurrent_automaton,abstraction::concurrent_automaton> algo3(concurrent, sequential, 4);
-  algo3.run();
+  /*Limi::antichain_algo_ind<abstraction::pcstate,abstraction::pcstate,abstraction::psymbol,abstraction::concurrent_automaton,abstraction::concurrent_automaton> algo3(concurrent, sequential, 4);
+  auto res3 = algo3.run();
+  res3.print_long(debug, concurrent.symbol_printer());
   exit(4);
   if (verbosity>=1) {
     debug << "Compressing concurrent automaton" << endl;
@@ -92,7 +93,7 @@ bool actions::test_inclusion(const abstraction::concurrent_automaton& sequential
   Limi::antichain_algo_ind<abstraction::com_state,abstraction::com_state,abstraction::com_symbol,abstraction::compressed_automaton<abstraction::psymbol>,abstraction::compressed_automaton<abstraction::psymbol>,abstraction::compressed_automaton_independence<abstraction::psymbol>> algo2(compressed_concurrent, compressed_sequential, 4, ind);
   auto res = algo2.run();
   res.print_long(debug, compressed_concurrent.symbol_printer());
-  exit(5);
+  exit(5);*/
   
   unsigned bound = 1;
   Limi::antichain_algo_ind<abstraction::pcstate,abstraction::pcstate,abstraction::psymbol,abstraction::concurrent_automaton,abstraction::concurrent_automaton> algo(concurrent, sequential, bound);

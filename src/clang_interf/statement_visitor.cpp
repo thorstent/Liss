@@ -148,13 +148,12 @@ bool statement_visitor::TraverseCallExpr(CallExpr* s)
       string type;
       switch (operation) {
         case abstraction::op_class::lock:
-          type = "lock";
         case abstraction::op_class::wait:
         case abstraction::op_class::wait_not:
         case abstraction::op_class::wait_reset:
         {
-          if (type.empty()) type = "wait";
-          symbol actiony(abstraction::op_class::yield, cstack, type, 0, identifier_store, s);
+          symbol actiony(operation, cstack, var_name, var, identifier_store, s);
+          actiony.cond_yield = true;
           state_id_type nexty = thread.add_state(actiony);
           add_successor(nexty);
         }
