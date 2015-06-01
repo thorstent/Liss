@@ -41,7 +41,7 @@ typedef std::list<stmt_loc> call_stack;
 
 namespace abstraction {
 
-enum class op_class { 
+enum class op_class : uint8_t { 
   read,
   write,
   lock,

@@ -145,8 +145,8 @@ bool actions::synthesis2::synth_loop(const cfg::program& program, vector<pair<un
       ::synthesis::concurrent_trace trace = ::synthesis::make_trace(ctx, program, result.counter_example);
       
       pair<::synthesis::dnf_constr,::synthesis::dnf_constr> dnf = reorder.process_trace(trace);
-      ::synthesis::find_locks find_locks(ctx, program);
-      find_locks.process_trace(trace);
+      //::synthesis::find_locks find_locks(ctx, program);
+      //find_locks.process_trace(trace);
       ::synthesis::dnf_constr bad_cond = dnf.first; // these conditions make the trace bad
       if (verbosity>=1)
         debug << "Found constraints to eliminate bad traces" << endl;

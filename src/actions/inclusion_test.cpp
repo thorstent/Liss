@@ -24,8 +24,9 @@
 
 #include <Limi/antichain_algo_ind.h>
 #include <Limi/list_automaton.h>
+#include <Limi/dot_printer.h>
 #include "abstraction/concurrent_automaton.h"
-
+#include "abstraction/compressed_automaton.h"
 
 #include <clang/AST/PrettyPrinter.h>
 #include <clang/AST/Stmt.h>
@@ -72,6 +73,26 @@ void actions::filter_result(inclusion_result& result) {
 
 bool actions::test_inclusion(const abstraction::concurrent_automaton& sequential, const abstraction::concurrent_automaton& concurrent, inclusion_result& result)
 {
+  Limi::antichain_algo_ind<abstraction::pcstate,abstraction::pcstate,abstraction::psymbol,abstraction::concurrent_automaton,abstraction::concurrent_automaton> algo3(concurrent, sequential, 4);
+  algo3.run();
+  exit(4);
+  if (verbosity>=1) {
+    debug << "Compressing concurrent automaton" << endl;
+  }
+  abstraction::compressed_automaton<abstraction::psymbol> compressed_concurrent = abstraction::from_concurrent_automaton(concurrent);
+  Limi::dot_printer<abstraction::com_state, abstraction::com_symbol, abstraction::compressed_automaton<abstraction::psymbol>> pr;
+  //pr.print_dot(compressed_concurrent, debug_folder + "compr.program_con.dot");
+  if (verbosity>=1) {
+    debug << "Compressing sequential automaton" << endl;
+  }
+  abstraction::compressed_automaton<abstraction::psymbol> compressed_sequential = abstraction::from_concurrent_automaton(sequential, compressed_concurrent);
+  //pr.print_dot(compressed_sequential, debug_folder + "compr.program_seq.dot");
+  
+  auto ind = compressed_sequential.get_independence();
+  Limi::antichain_algo_ind<abstraction::com_state,abstraction::com_state,abstraction::com_symbol,abstraction::compressed_automaton<abstraction::psymbol>,abstraction::compressed_automaton<abstraction::psymbol>,abstraction::compressed_automaton_independence<abstraction::psymbol>> algo2(compressed_concurrent, compressed_sequential, 4, ind);
+  auto res = algo2.run();
+  res.print_long(debug, compressed_concurrent.symbol_printer());
+  exit(5);
   
   unsigned bound = 1;
   Limi::antichain_algo_ind<abstraction::pcstate,abstraction::pcstate,abstraction::psymbol,abstraction::concurrent_automaton,abstraction::concurrent_automaton> algo(concurrent, sequential, bound);

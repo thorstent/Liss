@@ -1,18 +1,7 @@
 1. What will happen with constraints that span over iterations
 2. What if there are contradicting constraints
 3. Performance problems (with locks we converged faster)
-4. Our assumption that no locks will be created around preemption points could be wrong:
-
-thread_a() {
-  notify(x);
-  x = 1;
-}
-
-thread_b() {
-  a = 1;
-  wait (x);
-  x = 2;
-}
+4. Performance problems because we have the yields everywhere
 
 Problems with current approach:
 a) Often only one arrow
