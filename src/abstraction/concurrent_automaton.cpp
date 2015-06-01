@@ -98,12 +98,16 @@ void concurrent_automaton::int_successors(const pcstate& state, const psymbol& s
   thread_id_type thread = sigma->thread_id();
   if (state->current != no_thread && state->current != static_cast<int>(thread)) return;
   cfg::reward_symbol rs(0,sigma);
-  assert(thread>=0);
   const cfg::automaton::State_set succs = threads[thread].successors(state->threads[thread], rs); // cost is not relevant here
   assert(!succs.empty());
-  pcstate next = apply_symbol(state, sigma);
-
+  bool progress;
+  pcstate next = apply_symbol(state, sigma, progress);
+  
   if (next) {
+    if (!progress) {
+      successors.insert(next);
+      return;
+    }
     //cout << threads[thread]->name(next->threads[thread]) << " -> ";
     bool first = true;
     for (const state_id_type& p : succs) {
@@ -119,87 +123,113 @@ void concurrent_automaton::int_successors(const pcstate& state, const psymbol& s
   }
 }
 
-pcstate concurrent_automaton::apply_symbol(const pcstate& original_state, const psymbol& sigma) const
+pcstate concurrent_automaton::apply_symbol(const pcstate& original_state, const psymbol& sigma, bool& progress) const
 {
-  pcstate cloned_state = make_shared<concurrent_state>(*original_state);
-  cloned_state->current = sigma->thread_id();
-  // apply changes
-  // take into account the conditional yields
-  if (sigma->cond_yield) {
-    if (condyield_is_always_yield) {
-      cloned_state->current = no_thread;
-    } else {
-      // conditionally allow context switch
-      switch (sigma->operation) {
-        case abstraction::op_class::lock:
-          if (original_state->locks.test(sigma->variable)) {
-            cloned_state->current = no_thread;
-          }
-          break;
-        case abstraction::op_class::wait_reset:
-          if (!cloned_state->conditionals.test(sigma->variable)) {
-            cloned_state->current = no_thread;
-          }
-          break;
-        case abstraction::op_class::wait:
-          if (!cloned_state->conditionals.test(sigma->variable)) {
-            cloned_state->current = no_thread;
-          }
-          break;
-        case abstraction::op_class::wait_not:
-          if (cloned_state->conditionals.test(sigma->variable)) {
-            cloned_state->current = no_thread;
-          }
-          break;
-        default:
-          assert(false); // this operator should never have a conditional yield
-          break;
-      }
-    }
-  } else {
-    // other operations
+  progress = true;
+  
+  if (original_state->current == no_thread || (sigma->assume&&!assumes_allow_switch)) {
+    // test if locking is ok
     switch (sigma->operation) {
       case abstraction::op_class::read:
       case abstraction::op_class::write:
       case abstraction::op_class::epsilon:
-        break;
-      case abstraction::op_class::lock:
-        if (original_state->locks.test(sigma->variable)) {
-          return nullptr;
-        } else {
-          cloned_state->locks.set(sigma->variable);
-        }
-        break;
       case abstraction::op_class::unlock:
-          cloned_state->locks.reset(sigma->variable);
-        break;
       case abstraction::op_class::notify:
-        cloned_state->conditionals.set(sigma->variable);
-        break;
       case abstraction::op_class::reset:
-        cloned_state->conditionals.reset(sigma->variable);
+      case abstraction::op_class::yield:
         break;
       case abstraction::op_class::wait_reset:
-        if (!cloned_state->conditionals.test(sigma->variable)) {
-          return nullptr;
-        } else {
-          cloned_state->conditionals.reset(sigma->variable);
-        }
-        break;
       case abstraction::op_class::wait:
-        if (!cloned_state->conditionals.test(sigma->variable)) {
+        if (!original_state->conditionals.test(sigma->variable)) {
+          // no context switching on synthesised symbols
           return nullptr;
         }
         break;
       case abstraction::op_class::wait_not:
-        if (cloned_state->conditionals.test(sigma->variable)) {
+        if (original_state->conditionals.test(sigma->variable)) {
           return nullptr;
         }
         break;
-      case abstraction::op_class::yield:
-        cloned_state->current = no_thread;
+      case abstraction::op_class::lock:
+        if (original_state->locks.test(sigma->variable)) {
+          return nullptr;
+        }
         break;
     }
+  }
+  
+  pcstate cloned_state = make_shared<concurrent_state>(*original_state);
+  
+  if (condyield_is_always_yield) {
+    switch (sigma->operation) {
+      case abstraction::op_class::read:
+      case abstraction::op_class::write:
+      case abstraction::op_class::epsilon:
+      case abstraction::op_class::unlock:
+      case abstraction::op_class::notify:
+      case abstraction::op_class::reset:
+      case abstraction::op_class::yield:
+        break;
+      case abstraction::op_class::wait_reset:
+      case abstraction::op_class::wait:
+      case abstraction::op_class::wait_not:
+      case abstraction::op_class::lock:
+        if (original_state->current != no_thread) {
+          cloned_state->current = no_thread;
+          progress = false;
+          return cloned_state;
+        }
+        break;
+    }
+  }
+  
+  cloned_state->current = sigma->thread_id();
+  // apply changes
+  switch (sigma->operation) {
+    case abstraction::op_class::read:
+    case abstraction::op_class::write:
+    case abstraction::op_class::epsilon:
+      break;
+    case abstraction::op_class::lock:
+      if (original_state->locks.test(sigma->variable)) {
+        cloned_state->current = no_thread;
+        progress = false;
+      } else {
+        cloned_state->locks.set(sigma->variable);
+      }
+      break;
+    case abstraction::op_class::unlock:
+      cloned_state->locks.reset(sigma->variable);
+      break;
+    case abstraction::op_class::notify:
+      cloned_state->conditionals.set(sigma->variable);
+      break;
+    case abstraction::op_class::reset:
+      cloned_state->conditionals.reset(sigma->variable);
+      break;
+    case abstraction::op_class::wait_reset:
+      if (!cloned_state->conditionals.test(sigma->variable)) {
+        cloned_state->current = no_thread;
+        progress = false;
+      } else {
+        cloned_state->conditionals.reset(sigma->variable);
+      }
+      break;
+    case abstraction::op_class::wait:
+      if (!cloned_state->conditionals.test(sigma->variable)) {
+        cloned_state->current = no_thread;
+        progress = false;
+      }
+      break;
+    case abstraction::op_class::wait_not:
+      if (cloned_state->conditionals.test(sigma->variable)) {
+        cloned_state->current = no_thread;
+        progress = false;
+      }
+      break;
+    case abstraction::op_class::yield:
+      cloned_state->current = no_thread;
+      break;
   }
   if (!apply_bad_trace_dnf(cloned_state, sigma)) return nullptr;
   return cloned_state;

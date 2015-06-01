@@ -23,7 +23,8 @@ using namespace abstraction;
 
 
 concurrent_state::concurrent_state(unsigned no_threads, unsigned dnf_size) : threads(new state_id_type[no_threads] {}), 
-length(no_threads), found_before(dnf_size), found_after(dnf_size) {
+length(no_threads), found_before(dnf_size), found_after(dnf_size) 
+{
 }
 
 concurrent_state::concurrent_state(const concurrent_state& other) : threads(new state_id_type[other.length]), length(other.length), current(other.current), 

@@ -144,7 +144,7 @@ bool statement_visitor::TraverseCallExpr(CallExpr* s)
   if (operation != abstraction::op_class::epsilon) {
     cstack.back().second = s;
     // add a yield before these locks to allow for context switches
-    if (!synthesised && (assumes_allow_switch || !assume)) {
+    /*if (!synthesised && (assumes_allow_switch || !assume)) {
       string type;
       switch (operation) {
         case abstraction::op_class::lock:
@@ -161,7 +161,7 @@ bool statement_visitor::TraverseCallExpr(CallExpr* s)
         default:
           break;
       }
-    }
+    }*/
     
     symbol action(operation, cstack, var_name, var, identifier_store, s);
     action.assume = assume;

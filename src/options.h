@@ -32,6 +32,6 @@ extern std::string output_file_log;
 extern std::string main_filename;
 const bool assumes_allow_switch = true;
 
-const bool condyield_is_always_yield = false;
+const bool condyield_is_always_yield = true;
 
 #endif // OPTIONS_H

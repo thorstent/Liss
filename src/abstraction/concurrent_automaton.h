@@ -72,7 +72,7 @@ namespace abstraction {
      * @param original_state The state we are coming from
      * @return abstraction::pcstate If it is possible to apply the symbol than this is a copy of the original state with the symbol applied, otherwise null
      */
-    pcstate apply_symbol(const pcstate& original_state, const psymbol& sigma) const;
+    pcstate apply_symbol(const pcstate& original_state, const psymbol& sigma, bool& progress) const;
     
     /**
      * @brief Apply happens-before constraints from the dnf
