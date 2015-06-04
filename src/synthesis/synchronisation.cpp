@@ -59,10 +59,10 @@ bool synchronisation::find_lock(const disj_constr& disjunct, std::vector<lock>& 
   bool found = false;
   if (disjunct.size()>=2) {
     // find all combinations
-    for (auto a = disjunct.begin(); a!=disjunct.end() && !found; a++)
+    for (auto a = disjunct.begin(); a!=disjunct.end(); a++)
     {
       auto b = a;
-      for (b++; b!=disjunct.end() && !found; b++) {
+      for (b++; b!=disjunct.end(); b++) {
         if (!a->from_wait_notify || !b->from_wait_notify) {
           // check if this is a lock
           const location* loc1a = &a->before;

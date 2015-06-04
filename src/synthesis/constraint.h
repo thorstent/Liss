@@ -35,6 +35,8 @@ struct constraint_atom {
   bool from_wait_notify; // this is an artifical constraint from a wait-notify in the code
   constraint_atom(location before, location after, bool from_wait_notify = false) : before(before), after(after), from_wait_notify(from_wait_notify) {}
   operator z3::expr () const { return static_cast<z3::expr>(before) < after; }
+  bool operator==(const constraint_atom& ca) const;
+  bool operator!=(const constraint_atom& ca) const;
 };
 
 std::ostream& operator<<(std::ostream& out, const constraint_atom& ca);
@@ -49,6 +51,7 @@ z3::expr make_constraint(z3::context& ctx, conj_constr c);
 z3::expr make_constraint(z3::context& ctx, dnf_constr d);
 
 cnf_constr negate_dnf(const dnf_constr& dnf);
+disj_constr negate_conj(const conj_constr& con);
 
 }
 

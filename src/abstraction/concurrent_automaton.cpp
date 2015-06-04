@@ -51,7 +51,7 @@ bool concurrent_automaton::int_is_final_state(const pcstate& state) const
 
 void concurrent_automaton::int_initial_states(concurrent_automaton::State_set& states) const
 {
-  states.insert(make_shared<concurrent_state>(threads.size(), bad_traces_size));
+  states.insert(make_shared<concurrent_state>(threads.size(), locks_size));
   thread_id_type length = threads.size();
   for (thread_id_type i = 0; i<length; ++i) {
     State_set duplicates = states;
@@ -237,25 +237,28 @@ pcstate concurrent_automaton::apply_symbol(const pcstate& original_state, const 
 
 bool concurrent_automaton::apply_bad_trace_dnf(pcstate& cloned_state, const psymbol& sigma) const
 {
-  const location& loc = sigma->loc;
-  auto before = location_map_before.find(loc);
-  if (before != location_map_before.end()) {
-    for (unsigned pos : before->second) {
-      cloned_state->found_before.set(pos);
-    }
-  }
-  auto after = location_map_after.find(loc);
-  if (after != location_map_after.end()) {
-    for (unsigned pos : after->second) {
-      if (cloned_state->found_before.test(pos)) {
-        // the first position was reached, we also reach the second position now
-        cloned_state->found_after.set(pos);
-        // now let's see if this violates any of the constraints of the dnf
-        // (for the dnf to be violated it needs to be violated on all atoms in the conjunction)
-        for (const auto& bad : bad_traces) {
-          // at least one of the conjuncts is fulfilled
-          if ((cloned_state->found_after & bad) == bad) {
-            return false;
+  auto it = conflict_map.find(sigma);
+  if (it!=conflict_map.end()) {
+    // we found a symbol that may have a conflict
+    // check if we are in a conflicting state
+    for (unsigned t = 0; t < cloned_state->length; ++t) {
+      if (t != sigma->thread_id()) {
+        location l(t,(*cloned_state)[t]);
+        cout << sigma << "   " << l << endl;
+        auto it2 = it->second.find(l);
+        if (it2 != it->second.end()) {
+          uint16_t index = it2->second; // the lock that was violated
+          bool old = cloned_state->locksviolated.test(index);
+          cloned_state->locksviolated.set(index);
+          if (!old) {
+            // this bit was not set before
+            // check if we want to throw away this execution
+            for (const auto& bad : locks) {
+              // at least one of the conjuncts is fulfilled
+              if ((cloned_state->locksviolated & bad) == bad) {
+                return false;
+              }
+            }
           }
         }
       }
@@ -274,21 +277,47 @@ inline void concurrent_automaton::next_single(const pcstate& state, concurrent_a
   }
 }
 
-void concurrent_automaton::add_forbidden_traces(const synthesis::dnf_constr& forbidden_traces)
+void concurrent_automaton::add_forbidden_traces(const placement::lock_symbols& new_locks)
 {
-  for (const synthesis::conj_constr& conj : forbidden_traces) {
-    bad_traces.emplace_back(bad_traces_size);
-    for (const synthesis::constraint_atom& ca : conj) {
-      bad_traces.back().push_back(true);
-      location_map_before[ca.before.symbol->loc].insert(bad_traces_size);
-      location_map_after[ca.after.symbol->loc].insert(bad_traces_size);
-      ++bad_traces_size;
+  for (const disj<std::vector<std::vector<abstraction::psymbol>>>& lockd : new_locks) {
+    // one of these locks needs to hold
+    locks.emplace_back(locks_size);
+    for (const std::vector<std::vector<abstraction::psymbol>>& lock : lockd) {
+      // one single lock
+      locks.back().push_back(true);
+      // define conflicts mutually between locations
+      for (auto it = lock.begin(); it!=lock.end(); ++it) {
+        // each conflict in this vector is in conflict with all the other vectors
+        for (const psymbol& sy : (*it)) {
+          for (auto it2 = lock.begin(); it2!=lock.end(); ++it2) {
+            // for size 1 there cannot be really a conflict because there are no states in between
+            if (it!=it2 && it2->size()>1) {
+              // state < 0 means after the state, > 0 before the state
+              for (unsigned i = 0; i < it2->size(); ++i) {
+                const location& loc2 = (*it2)[i]->loc;
+                location negloc2 = loc2;
+                negloc2.state = -negloc2.state;
+                if (i!=0) {
+                  // add the before location
+                  conflict_map[sy].insert(make_pair(loc2,locks_size));
+                }
+                if (i!=it2->size()-1) {
+                  // add the after location
+                  conflict_map[sy].insert(make_pair(negloc2,locks_size));
+                }
+              }
+              
+            }
+          }
+        }
+      }
+      ++locks_size;
     }
   }
   
-  // convert bad_traces
-  for (auto& bad : bad_traces) {
-    bad.resize(bad_traces_size, false);
+  // convert locks to correct length
+  for (auto& bad : locks) {
+    bad.resize(locks_size, false);
   }
   
 }

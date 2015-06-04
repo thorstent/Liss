@@ -1,1 +1,1 @@
-add_library(placement place_locks.cpp print_program.cpp)
+add_library(placement place_locks.cpp print_program.cpp lock_locations.cpp)

@@ -31,6 +31,7 @@
 #include "synthesis/find_locks.h"
 #include "synthesis/synchronisation.h"
 #include "synthesis/lock.h"
+#include "placement/lock_locations.h"
 #include "inclusion_test.h"
 #include "print.h"
 #include "options.h"
@@ -92,26 +93,6 @@ void actions::synthesis2::print_summary(const cfg::program& original_program) {
   debug << "| " << original_program.no_threads() << " | " << iteration << " | " << this->max_bound <<  " | " << (double)langinc.count()/1000 << "s | "  << (double)synthesis_time.count()/1000 << "s | " << (double)verification.count()/1000 << "s |";
 }
 
-cnf<vector<vector<abstraction::location>>> locks_to_locations(const cnf<::synthesis::lock>& locks, const vector<abstraction::psymbol>& trace) {
-  cnf<vector<vector<abstraction::location>>> result;
-  for (const disj<::synthesis::lock>& d : locks) {
-    result.emplace_back();
-    for (::synthesis::lock l : d) {
-      result.back().emplace_back();
-      bool started = false;
-      for (::synthesis::lock_location loc : l.locations) {
-        result.back().back().emplace_back();
-        assert (loc.start.instruction_id() <= loc.end.instruction_id());
-        for (unsigned i = loc.start.instruction_id(); i <= loc.end.instruction_id(); ++i) {
-          if (trace[i]->thread_id()==loc.start.thread_id())
-            result.back().back().back().push_back(abstraction::location(trace[i]->thread_id(), trace[i]->state_id()));
-        }
-      }
-    }
-  }
-  return result;
-}
-
 bool actions::synthesis2::synth_loop(const cfg::program& program, vector<pair<unsigned,abstraction::location>>& locks, vector<pair<unsigned,abstraction::location>>& unlocks)
 {
   z3::context ctx,ctx2;
@@ -150,12 +131,14 @@ bool actions::synthesis2::synth_loop(const cfg::program& program, vector<pair<un
       ::synthesis::dnf_constr bad_cond = dnf.first; // these conditions make the trace bad
       if (verbosity>=1)
         debug << "Found constraints to eliminate bad traces" << endl;
-      concurrent.add_forbidden_traces(bad_cond);
       // synthesis of locks for these constraints
       ::synthesis::cnf_constr cnf_weak = negate_dnf(dnf.second);
+      ::synthesis::cnf_constr cnf1 = negate_dnf(dnf.first);
       cnf<::synthesis::lock> new_locks;
-      synch.generate_sync(cnf_weak, new_locks);
-      cnf<vector<vector<abstraction::location>>> new_lock_locations = locks_to_locations(new_locks, result.counter_example);
+      synch.generate_sync(cnf1, new_locks);
+      placement::lock_symbols new_lock_symbols = placement::locks_to_symbols(new_locks, result.counter_example);
+      placement::lock_locations new_lock_locations = placement::symbols_to_locations(new_lock_symbols);
+      concurrent.add_forbidden_traces(new_lock_symbols);
       lock_locations.insert(lock_locations.end(), new_lock_locations.begin(), new_lock_locations.end());
       ++counter;
       print_time(start);

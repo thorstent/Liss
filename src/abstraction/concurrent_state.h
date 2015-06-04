@@ -52,11 +52,8 @@ namespace abstraction {
     std::bitset<max_conditionals> conditionals; // bit is set if conditional is notified
     std::bitset<max_locks> locks; // bit is set if lock is taken
     
-    // for detecting if this state is forbidden by the bad dnf
-    // the first bitset are the locations to be found first
-    boost::dynamic_bitset<unsigned long> found_before;
-    // if then the second location is found the constraint is violated
-    boost::dynamic_bitset<unsigned long> found_after;
+    // locks that have been violated (refering to synthesised locks that are inserted on the fly)
+    boost::dynamic_bitset<unsigned long> locksviolated;
     
     bool operator==(const concurrent_state &other) const;
     inline bool operator<(const concurrent_state &other) const {

@@ -24,7 +24,7 @@
 #include <vector>
 #include <ostream>
 
-typedef int16_t state_id_type;
+typedef int16_t state_id_type; // a negative number means we already passed that state, a positive number means we are before that state
 typedef int16_t reward_t;
 const state_id_type no_state = 0;
 const unsigned max_states = INT16_MAX;
@@ -42,6 +42,9 @@ typedef int8_t thread_id_type;
 const unsigned max_threads = INT8_MAX;
 const thread_id_type no_thread = -1;
 
+/**
+ * DNFs and CNFs
+ */
 
 template <typename atom>
 class conj : public std::vector<atom> {};

@@ -25,6 +25,7 @@
 #include <vector>
 #include "abstraction/location.h"
 #include "types.h"
+#include "placement/lock_locations.h"
 
 namespace placement {
 
@@ -42,7 +43,7 @@ public:
    * @param unlocks_placed ...
    * @return void
    */
-  bool find_locks(const cnf< std::vector< std::vector<abstraction::location> > >& locks_to_place, std::vector< std::pair< unsigned, abstraction::location > >& locks_placed, std::vector< std::pair<unsigned, abstraction::location > >& unlocks_placed);
+  bool find_locks(const placement::lock_locations& locks_to_place, std::vector< std::pair< unsigned, abstraction::location > >& locks_placed, std::vector< std::pair<unsigned, abstraction::location > >& unlocks_placed);
 private:
   void init_locks();
   void init_consistancy();
@@ -51,7 +52,7 @@ private:
   void result_to_locklist(const std::vector<std::vector<z3::expr>>& result, std::vector<std::pair<unsigned, abstraction::location >>& locks);
   
   // calculates the places to that need to be locked together
-  z3::expr locked_together(const cnf< std::vector< std::vector<abstraction::location> > >& locks_to_place);
+  z3::expr locked_together(const placement::lock_locations& locks_to_place);
 
   z3::context ctx;  
   z3::expr ztrue = ctx.bool_val(true);

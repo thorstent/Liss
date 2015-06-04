@@ -320,7 +320,6 @@ z3::expr place_locks::locked_together(const cnf< vector< vector< abstraction::lo
       }
       di = di || one_lock;
     }
-    cout << di << endl;
     result = result && di;
   }
   return result;

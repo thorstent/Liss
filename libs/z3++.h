@@ -475,6 +475,12 @@ namespace z3 {
           assert(b!=Z3_L_UNDEF);
           return b==Z3_L_TRUE;
         }
+        
+        bool get_int(int& number) const {
+          Z3_bool r = Z3_get_numeral_int(*m_ctx, m_ast, &number);
+          return r==Z3_TRUE;
+        }
+        
         /**
            \brief Return the sort of this expression.
         */

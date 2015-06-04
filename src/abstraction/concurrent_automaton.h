@@ -30,6 +30,7 @@
 #include <boost/dynamic_bitset.hpp>
 #include "cfg/program.h"
 #include "cfg/automaton.h"
+#include "placement/lock_locations.h"
 
 namespace abstraction {
   
@@ -58,7 +59,7 @@ namespace abstraction {
      */
     std::unordered_set<psymbol> successor_filter;
     
-    void add_forbidden_traces(const synthesis::dnf_constr& forbidden_traces);
+    void add_forbidden_traces(const placement::lock_symbols& new_locks);
   private:
     std::vector<cfg::automaton> threads;
     std::vector<const cfg::abstract_cfg*> cfgs;
@@ -87,10 +88,13 @@ namespace abstraction {
     bool apply_bad_trace_dnf(pcstate& cloned_state, const psymbol& sigma) const;
     void next_single(const pcstate& state, Symbol_set& symbols, unsigned thread) const;
     
-    std::vector<boost::dynamic_bitset<unsigned long >> bad_traces; // these patterns match the bad traces
-    std::unordered_map<location,std::unordered_set<unsigned>> location_map_before; // maps locations to the bits in the first bitset
-    std::unordered_map<location,std::unordered_set<unsigned>> location_map_after; // maps locations to the bits in the second bitset
-    unsigned bad_traces_size = 0;
+    
+    // locks are represented in a dnf
+    std::vector<boost::dynamic_bitset<unsigned long >> locks; // these patterns match the locks
+    // for a symbol it gives the places that are in conflict and if there is a conflict location
+    // the index of which lock to tick off in the locks list above
+    std::unordered_map<psymbol,std::unordered_map<location,uint16_t>> conflict_map;
+    unsigned locks_size = 0;
   };
 }
 

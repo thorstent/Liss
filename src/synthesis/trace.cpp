@@ -22,6 +22,7 @@
 #include <sstream>
 #include <z3++.h>
 #include <unordered_map>
+#include <vector>
 
 using namespace synthesis;
 using namespace std;
@@ -31,6 +32,7 @@ concurrent_trace synthesis::make_trace(z3::context& ctx, const cfg::program& pro
   unordered_map<abstraction::psymbol, unsigned> iteration_counter;
   concurrent_trace result(program.no_threads());
   unsigned counter = 0;
+  vector<unsigned> iter(program.no_threads(),0);
   for (const abstraction::psymbol& symbol : trace) {
     string name = "loc";
     
@@ -38,15 +40,18 @@ concurrent_trace synthesis::make_trace(z3::context& ctx, const cfg::program& pro
       iteration_counter[symbol] = 1;
     else
       iteration_counter[symbol]++;
+    iter[symbol->thread_id()] = max(iter[symbol->thread_id()],iteration_counter[symbol]);
     
     // create location
     if (verbosity >= 2) {
       stringstream ss;
       ss << symbol;
+      if (iter[symbol->thread_id()]>1)
+        ss << "(" << iter[symbol->thread_id()] << ")";
       name = ss.str();
     }
     location loc(ctx.fresh_constant(name.c_str(), ctx.int_sort()), name, symbol, counter++);
-    loc.iteration = iteration_counter[symbol];
+    loc.iteration = iter[symbol->thread_id()];
     result.threads[symbol->thread_id()].push_back(loc);
   }
   return result;

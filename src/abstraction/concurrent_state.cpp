@@ -23,12 +23,12 @@ using namespace abstraction;
 
 
 concurrent_state::concurrent_state(unsigned no_threads, unsigned dnf_size) : threads(new state_id_type[no_threads] {}), 
-length(no_threads), found_before(dnf_size), found_after(dnf_size) 
+length(no_threads), locksviolated(dnf_size) 
 {
 }
 
 concurrent_state::concurrent_state(const concurrent_state& other) : threads(new state_id_type[other.length]), length(other.length), current(other.current), 
-conditionals(other.conditionals), locks(other.locks), reward(other.reward), found_before(other.found_before), found_after(other.found_after)
+conditionals(other.conditionals), locks(other.locks), reward(other.reward), locksviolated(other.locksviolated)
 {
   for (thread_id_type i = 0; i<length; ++i) {
     threads[i] = other.threads[i];
@@ -36,7 +36,7 @@ conditionals(other.conditionals), locks(other.locks), reward(other.reward), foun
 }
 
 concurrent_state::concurrent_state(concurrent_state&& other) : length(other.length), current(other.current),
-conditionals(std::move(other.conditionals)), locks(std::move(other.locks)), found_before(std::move(other.found_before)), found_after(std::move(other.found_after))
+conditionals(std::move(other.conditionals)), locks(std::move(other.locks)), locksviolated(std::move(other.locksviolated))
 {
   threads = other.threads;
   other.threads = nullptr;
@@ -62,8 +62,7 @@ concurrent_state& concurrent_state::operator=(const concurrent_state& other)
   }
   reward = other.reward;
   
-  found_before = other.found_before;
-  found_after = other.found_after;
+  locksviolated = other.locksviolated;
   
   return *this;
 }
@@ -83,8 +82,7 @@ concurrent_state& concurrent_state::operator=(concurrent_state&& other)
   
   reward = other.reward;
   
-  found_before = std::move(other.found_before);
-  found_after = std::move(other.found_after);
+  locksviolated = std::move(other.locksviolated);
   
   return *this;
 }
@@ -104,8 +102,7 @@ bool concurrent_state::operator==(const concurrent_state& other) const
   if (conditionals != other.conditionals) return false;
   if (locks != other.locks) return false;
   if (current != other.current) return false;
-  if (found_before != other.found_before) return false;
-  if (found_after != other.found_after) return false;
+  if (locksviolated != other.locksviolated) return false;
   return true;
 }
 

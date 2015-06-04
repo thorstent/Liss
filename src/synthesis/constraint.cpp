@@ -52,6 +52,17 @@ cnf_constr synthesis::negate_dnf(const dnf_constr& dnf)
   return cnf;
 }
 
+disj_constr synthesis::negate_conj(const conj_constr& con) {
+  disj_constr dis;
+  for(constraint_atom ca : con) {
+    auto temp = ca.after;
+    ca.after = ca.before;
+    ca.before = temp;
+    dis.push_back(ca);
+  }
+  return dis;
+}
+
 namespace synthesis {
   std::ostream& operator<<(std::ostream& out, const constraint_atom& ca) {
     out << ca.before;
@@ -59,4 +70,12 @@ namespace synthesis {
     out << ca.after;
     return out;
   }
+}
+
+bool constraint_atom::operator==(const constraint_atom& ca) const {
+  return (before==ca.before && after==ca.after);
+}
+
+bool constraint_atom::operator!=(const constraint_atom& ca) const {
+  return (!(*this==ca));
 }

@@ -22,6 +22,7 @@
 
 #include "types.h"
 #include <Limi/internal/hash.h>
+#include <ostream>
 
 namespace abstraction {
   struct location {
@@ -37,6 +38,11 @@ namespace abstraction {
       return !(*this==other);
     }
   };
+  
+  inline std::ostream& operator<<(std::ostream& out, const location& loc) {
+    out << std::to_string(loc.thread) << "-" << std::to_string(loc.state);
+    return out;
+  }
 }
 
 namespace std {
