@@ -46,6 +46,8 @@ struct lock_pair {
 
 void reorderings::prepare_trace(const concurrent_trace& trace, reorderings::seperated_trace& strace)
 {
+  assert(condyield_is_always_yield); // other semantics are not supported by this class
+  
   vector<list<lock_pair>> lockings(program.identifiers().no_locks()); // gathers informations about locks and unlocks
   vector<list<const location*>>& notifies = strace.notifies; // the places where the conditional is notified
   vector<list<const location*>>& resets = strace.resets; // the places where the conditional is reset
@@ -90,11 +92,11 @@ void reorderings::prepare_trace(const concurrent_trace& trace, reorderings::sepe
         lockings[var].back().unlock = loc_ptr;
         break;
       case abstraction::op_class::wait_reset:
-        seq_condition = false;
         resets[var].push_back(loc_ptr);
+        // no break here
       case abstraction::op_class::wait:
       case abstraction::op_class::wait_not: {
-          seq_condition = false;
+          seq_condition = loc.symbol->assume && !assumes_allow_switch;
           waits[var].push_back(loc_ptr);
         }
       break;
@@ -123,7 +125,6 @@ void reorderings::prepare_trace(const concurrent_trace& trace, reorderings::sepe
       thread_order = thread_order && loc > *thread_endpoints[thread_id];
     }
     thread_endpoints[thread_id] = loc_ptr;
-
   }
   
   for (const auto& endp : thread_endpoints) {
@@ -362,17 +363,24 @@ pair<dnf_constr,dnf_constr> reorderings::process_trace(const concurrent_trace& t
       debug << "Model:" << endl << model << endl;
     }
     conj_constr constraint = find_order(strace, model);
-    conj_constr constraint_weak = find_order(strace, model);
+    //conj_constr constraint_weak = find_order(strace, model);
     min_unsat<constraint_atom>(slv_good, constraint, [](const constraint_atom& ca)->z3::expr{return ca;});
-    min_unsat<constraint_atom>(slv_good_weak, constraint_weak, [](const constraint_atom& ca)->z3::expr{return ca;});
-    slv_bad.add(!make_constraint(ctx, constraint));
-    conj_constr wnconstraint = wait_notify_order(strace, model);
-    slv_good_weak.push();
-    slv_good_weak.add(make_constraint(ctx, constraint));
-    min_unsat<constraint_atom>(slv_good_weak, wnconstraint, [](const constraint_atom& ca)->z3::expr{return ca;});
-    slv_good_weak.pop();
-    bad_traces_int.push_back(make_pair(constraint,wnconstraint));
-    bad_traces_weak.push_back(constraint_weak);
+    //min_unsat<constraint_atom>(slv_good_weak, constraint_weak, [](const constraint_atom& ca)->z3::expr{return ca;});
+    if (!constraint.empty()) {
+      // we found some constraint that is holding, now find additional weak constraints
+      slv_bad.add(!make_constraint(ctx, constraint));
+      conj_constr wnconstraint = wait_notify_order(strace, model);
+      slv_good_weak.push();
+      slv_good_weak.add(make_constraint(ctx, constraint));
+      min_unsat<constraint_atom>(slv_good_weak, wnconstraint, [](const constraint_atom& ca)->z3::expr{return ca;});
+      slv_good_weak.pop();
+      bad_traces_int.push_back(make_pair(constraint,wnconstraint));
+    } else {
+      // now we need to understand what makes this trace feasable
+      constraint = wait_notify_order(strace, model);
+      cout << constraint << endl;
+    }
+    //bad_traces_weak.push_back(constraint_weak);
     if (verbosity >= 2) {
       debug << count++;
       debug << ": Found constraint: ";
@@ -383,11 +391,11 @@ pair<dnf_constr,dnf_constr> reorderings::process_trace(const concurrent_trace& t
       /*debug << "Weak constraint: " << endl;
       debug << constraint_weak << endl;*/
       debug << "Weak WN: " << endl;
-      debug << wnconstraint << endl;
+      debug << bad_traces_int.back().second << endl;
     }
-    disj< lock > locks;
+    /*disj< lock > locks;
     cout << "Locks:" << endl;
-    disj_constr constraint_weak_neg = negate_conj(constraint_weak);
+    //disj_constr constraint_weak_neg = negate_conj(constraint_weak);
     disj_constr wnconstraint_neg = negate_conj(wnconstraint);
     constraint_atom must = constraint[0];
     auto temp = must.before;
@@ -395,13 +403,13 @@ pair<dnf_constr,dnf_constr> reorderings::process_trace(const concurrent_trace& t
     must.after = temp;
     find_lock(must,wnconstraint_neg, locks);
     cout << locks << endl;
-    cout << endl;
+    cout << endl;*/
   }
   slv_bad.pop();
   
   // filter out duplicates:
   min_unsat<pair<conj_constr,conj_constr>>(slv_bad, bad_traces_int, [this](const pair<conj_constr,conj_constr>& c)->z3::expr{return !make_constraint(ctx, c.first);});
-  min_unsat<conj_constr>(slv_bad, bad_traces_weak, [this](const conj_constr& c)->z3::expr{return !make_constraint(ctx, c);});
+  //min_unsat<conj_constr>(slv_bad, bad_traces_weak, [this](const conj_constr& c)->z3::expr{return !make_constraint(ctx, c);});
   
   dnf_constr bad_traces;
   for (const pair<conj_constr,conj_constr>& p : bad_traces_int) {
@@ -475,6 +483,7 @@ conj_constr reorderings::wait_notify_order(const reorderings::seperated_trace& s
 
   for (conditional_type i = 0; i < strace.waits.size(); ++i) {
     vector<loc_pair> order;
+    // adds waits, notifies and resets to a list
     for (const location* wait : strace.waits[i]) {
       z3::expr number_expr = model.eval(*wait);
       int number;
@@ -495,22 +504,29 @@ conj_constr reorderings::wait_notify_order(const reorderings::seperated_trace& s
     }
     std::sort(order.begin(), order.end(), [](const loc_pair& a, const loc_pair& b) { return a.second < b.second; } );
     for (const location* wait : strace.waits[i]) {
+      // it moves backwards
       auto it = find_if(order.rbegin(), order.rend(), [wait](loc_pair p){return p.first==wait;});
       assert (it!=order.rend());
+      // it2 moves forwards
       auto it2 = find_if(order.begin(), order.end(), [wait](loc_pair p){return p.first==wait;});
       assert (it2!=order.end());
       vector<bool> before(strace.threads); // mark off the threads we already saw
       vector<bool> after(strace.threads);
       abstraction::op_class before_symbol = abstraction::op_class::notify;
+      abstraction::op_class before_symbol2 = abstraction::op_class::notify;
       abstraction::op_class after_symbol = abstraction::op_class::reset;
-      if (it->first->symbol->operation != abstraction::op_class::wait_not) {
+      abstraction::op_class after_symbol2 = abstraction::op_class::wait_reset;
+      if (it->first->symbol->operation == abstraction::op_class::wait_not) {
+        // for wait_not invert the logic of the symbols
         before_symbol = abstraction::op_class::reset;
+        before_symbol2 = abstraction::op_class::wait_reset;
         after_symbol = abstraction::op_class::notify;
+        after_symbol2 = abstraction::op_class::notify;
       }
       auto ref_loc = *it->first;
       // look for notifies before and resets after
       for (++it; it != order.rend(); ++it) {
-        if (it->first->symbol->operation != before_symbol) {
+        if (it->first->symbol->operation == before_symbol || it->first->symbol->operation == before_symbol2) {
           if (!before[it->first->symbol->thread_id()] && it->first->symbol->thread_id() != ref_loc.symbol->thread_id()) {
             before[it->first->symbol->thread_id()] = true;
             result.push_back(constraint_atom(*it->first, ref_loc, true));
@@ -518,7 +534,7 @@ conj_constr reorderings::wait_notify_order(const reorderings::seperated_trace& s
         }
       }
       for (++it2; it2 != order.end(); ++it2) {
-        if (it2->first->symbol->operation != after_symbol) {
+        if (it2->first->symbol->operation == after_symbol || it2->first->symbol->operation == after_symbol2) {
           if (!after[it2->first->symbol->thread_id()] && it2->first->symbol->thread_id() != ref_loc.symbol->thread_id()) {
             after[it2->first->symbol->thread_id()] = true;
             result.push_back(constraint_atom(ref_loc, *it2->first, true));

@@ -141,7 +141,6 @@ pcstate concurrent_automaton::apply_symbol(const pcstate& original_state, const 
       case abstraction::op_class::wait_reset:
       case abstraction::op_class::wait:
         if (!original_state->conditionals.test(sigma->variable)) {
-          // no context switching on synthesised symbols
           return nullptr;
         }
         break;
@@ -174,7 +173,7 @@ pcstate concurrent_automaton::apply_symbol(const pcstate& original_state, const 
       case abstraction::op_class::wait:
       case abstraction::op_class::wait_not:
       case abstraction::op_class::lock:
-        if (original_state->current != no_thread) {
+        if (!(original_state->current == no_thread || (sigma->assume&&!assumes_allow_switch))) {
           cloned_state->current = no_thread;
           progress = false;
           return cloned_state;
@@ -244,7 +243,7 @@ bool concurrent_automaton::apply_bad_trace_dnf(pcstate& cloned_state, const psym
     for (unsigned t = 0; t < cloned_state->length; ++t) {
       if (t != sigma->thread_id()) {
         location l(t,(*cloned_state)[t]);
-        cout << sigma << "   " << l << endl;
+        //cout << sigma << "   " << l << endl;
         auto it2 = it->second.find(l);
         if (it2 != it->second.end()) {
           uint16_t index = it2->second; // the lock that was violated

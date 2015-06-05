@@ -53,7 +53,6 @@ void actions::synthesis2::run(const cfg::program& program, clang::CompilerInstan
   string file_name = main_filename;
   file_name.replace(file_name.length()-2,2, ".start.c");
   pprogram.print_original(debug_folder + file_name);
-  pprogram.print_original(start_file_code);
   
   vector<pair<unsigned,abstraction::location>> locks, unlocks;
   bool success = synth_loop(program, locks, unlocks);
@@ -64,6 +63,7 @@ void actions::synthesis2::run(const cfg::program& program, clang::CompilerInstan
     file_name = main_filename;
     file_name.replace(file_name.length()-2,2, ".end.c");
     pprogram.print_with_locks(locks, unlocks, debug_folder + file_name);
+    pprogram.print_with_locks(locks, unlocks, output_file_code);
     
   } else {
     Limi::printer<abstraction::psymbol> symbol_printer;
@@ -132,7 +132,7 @@ bool actions::synthesis2::synth_loop(const cfg::program& program, vector<pair<un
       if (verbosity>=1)
         debug << "Found constraints to eliminate bad traces" << endl;
       // synthesis of locks for these constraints
-      ::synthesis::cnf_constr cnf_weak = negate_dnf(dnf.second);
+      //::synthesis::cnf_constr cnf_weak = negate_dnf(dnf.second);
       ::synthesis::cnf_constr cnf1 = negate_dnf(dnf.first);
       cnf<::synthesis::lock> new_locks;
       synch.generate_sync(cnf1, new_locks);

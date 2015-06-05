@@ -34,7 +34,7 @@ void synchronisation::generate_sync(const cnf_constr& cnf_weak, cnf< lock >& loc
 {
   for (const disj_constr& d : cnf_weak) {
     locks.emplace_back();
-    if (!find_lock(d, locks.back())) {
+    if (!find_lock(d, locks.back(), false) && !find_lock(d, locks.back(), true)) {
       cerr << "Inferrence failed for ";
       cerr << d;
       cerr << endl;
@@ -54,7 +54,7 @@ void synchronisation::generate_sync(const cnf_constr& cnf_weak, cnf< lock >& loc
 }
 
 unsigned lock_counter = 0;
-bool synchronisation::find_lock(const disj_constr& disjunct, std::vector<lock>& locks)
+bool synchronisation::find_lock(const disj_constr& disjunct, std::vector<lock>& locks, bool allow_only_weak)
 {
   bool found = false;
   if (disjunct.size()>=2) {
@@ -63,7 +63,7 @@ bool synchronisation::find_lock(const disj_constr& disjunct, std::vector<lock>& 
     {
       auto b = a;
       for (b++; b!=disjunct.end(); b++) {
-        if (!a->from_wait_notify || !b->from_wait_notify) {
+        if (!a->from_wait_notify || !b->from_wait_notify || allow_only_weak) {
           // check if this is a lock
           const location* loc1a = &a->before;
           const location* loc1b = &b->after;

@@ -142,27 +142,7 @@ bool statement_visitor::TraverseCallExpr(CallExpr* s)
   }
   
   if (operation != abstraction::op_class::epsilon) {
-    cstack.back().second = s;
-    // add a yield before these locks to allow for context switches
-    /*if (!synthesised && (assumes_allow_switch || !assume)) {
-      string type;
-      switch (operation) {
-        case abstraction::op_class::lock:
-        case abstraction::op_class::wait:
-        case abstraction::op_class::wait_not:
-        case abstraction::op_class::wait_reset:
-        {
-          symbol actiony(operation, cstack, var_name, var, identifier_store, s);
-          actiony.cond_yield = true;
-          state_id_type nexty = thread.add_state(actiony);
-          add_successor(nexty);
-        }
-          break;
-        default:
-          break;
-      }
-    }*/
-    
+    cstack.back().second = s;    
     symbol action(operation, cstack, var_name, var, identifier_store, s);
     action.assume = assume;
     state_id_type next = thread.add_state(action);

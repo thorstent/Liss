@@ -37,6 +37,8 @@ void min_unsat(z3::solver& sol, std::vector< value >& items, std::function< z3::
     sol.add(implies(trigger,translation));
   }
   
+  assert(sol.check(triggers.size(), &triggers[0])==z3::unsat);
+  
   //assert(sol.check(triggers.size(), &triggers[0])==z3::unsat);
   // for many items, first do unsat core
   if (items.size() > 10) {

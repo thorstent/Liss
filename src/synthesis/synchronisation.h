@@ -37,7 +37,7 @@ public:
 private:
   //const abstraction::program& program;
   const Limi::printer<abstraction::psymbol> symbol_printer;
-  bool find_lock(const disj_constr& disjunct, std::vector<lock>& locks);
+  bool find_lock(const disj_constr& disjunct, std::vector<lock>& locks, bool allow_only_weak);
   void merge_locks(std::list<lock>& locks);
   //void merge_locks_multithread(std::list<lock>& locks);
   

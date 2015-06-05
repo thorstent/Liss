@@ -41,7 +41,6 @@ z3::expr func_result_expr(const z3::model& model, const z3::expr& expr, vector<v
       z3::expr cond = expr.arg(0);
       z3::expr then = expr.arg(1);
       z3::expr else1 = expr.arg(2);
-      cout << "  " << cond << " -> " << then << endl;
       return func_result_expr(model, else1, result);
     } break;
     default:
@@ -363,9 +362,9 @@ bool place_locks::find_locks(const cnf< vector< vector <abstraction::location> >
     slv.pop();
     reduce = reduce/10;
   }
-  print_func_interp(last_model, lock);
+  /*print_func_interp(last_model, lock);
   print_func_interp(last_model, unlock);
-  print_func_interp(last_model, inl);
+  print_func_interp(last_model, inl);*/
   cout << last_model.eval(cost) << endl;
 
   vector<vector<z3::expr>> result;
