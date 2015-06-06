@@ -44,7 +44,7 @@ public:
    * @return std::pair< synthesis::dnf, synthesis::dnf > The first element is traditional bad trace analysis. The second element is a pair where less happens-before relations are removed, namely 
    * all those that are automatically true due to wait-notifies are not removed
    */
-  std::pair< dnf_constr, dnf_constr > process_trace(const synthesis::concurrent_trace& trace);
+    dnf_constr process_trace(const synthesis::concurrent_trace& trace);
 private:
   const cfg::program& program;
   struct seperated_trace {

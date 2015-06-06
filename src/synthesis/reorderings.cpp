@@ -249,7 +249,7 @@ bool find_lock(const constraint_atom& must, const disj_constr& disjunct, std::ve
   return found;
 }
 
-pair<dnf_constr,dnf_constr> reorderings::process_trace(const concurrent_trace& trace)
+dnf_constr reorderings::process_trace(const concurrent_trace& trace)
 {
   seperated_trace strace(program.identifiers().no_variables(), program.identifiers().no_conditionals(), program.no_threads(), ctx);
   prepare_trace(trace, strace);
@@ -341,8 +341,7 @@ pair<dnf_constr,dnf_constr> reorderings::process_trace(const concurrent_trace& t
   if (verbosity >=1) {
     debug << "Find concurrent traces that are not sequential" << endl;
   }
-  vector<pair<conj_constr,conj_constr>> bad_traces_int;
-  dnf_constr bad_traces_weak;
+  vector<conj_constr> bad_traces_int;
   
 #ifdef SANITY
   // sanity check: 
@@ -363,24 +362,13 @@ pair<dnf_constr,dnf_constr> reorderings::process_trace(const concurrent_trace& t
       debug << "Model:" << endl << model << endl;
     }
     conj_constr constraint = find_order(strace, model);
-    //conj_constr constraint_weak = find_order(strace, model);
-    min_unsat<constraint_atom>(slv_good, constraint, [](const constraint_atom& ca)->z3::expr{return ca;});
-    //min_unsat<constraint_atom>(slv_good_weak, constraint_weak, [](const constraint_atom& ca)->z3::expr{return ca;});
-    if (!constraint.empty()) {
-      // we found some constraint that is holding, now find additional weak constraints
-      slv_bad.add(!make_constraint(ctx, constraint));
-      conj_constr wnconstraint = wait_notify_order(strace, model);
-      slv_good_weak.push();
-      slv_good_weak.add(make_constraint(ctx, constraint));
-      min_unsat<constraint_atom>(slv_good_weak, wnconstraint, [](const constraint_atom& ca)->z3::expr{return ca;});
-      slv_good_weak.pop();
-      bad_traces_int.push_back(make_pair(constraint,wnconstraint));
-    } else {
-      // now we need to understand what makes this trace feasable
-      constraint = wait_notify_order(strace, model);
-      cout << constraint << endl;
-    }
-    //bad_traces_weak.push_back(constraint_weak);
+    conj_constr wnconstraint = wait_notify_order(strace, model);
+    constraint.insert(constraint.end(), wnconstraint.begin(), wnconstraint.end());
+    min_unsat<constraint_atom>(slv_good_weak, constraint, [](const constraint_atom& ca)->z3::expr{return ca;});
+    assert (!constraint.empty());
+    slv_bad.add(!make_constraint(ctx, constraint));
+    bad_traces_int.push_back(constraint);
+
     if (verbosity >= 2) {
       debug << count++;
       debug << ": Found constraint: ";
@@ -388,52 +376,31 @@ pair<dnf_constr,dnf_constr> reorderings::process_trace(const concurrent_trace& t
       debug << endl;
       debug << "Trace:" << endl;
       print_trace(strace, model, debug);
-      /*debug << "Weak constraint: " << endl;
-      debug << constraint_weak << endl;*/
-      debug << "Weak WN: " << endl;
-      debug << bad_traces_int.back().second << endl;
     }
-    /*disj< lock > locks;
-    cout << "Locks:" << endl;
-    //disj_constr constraint_weak_neg = negate_conj(constraint_weak);
-    disj_constr wnconstraint_neg = negate_conj(wnconstraint);
-    constraint_atom must = constraint[0];
-    auto temp = must.before;
-    must.before = must.after;
-    must.after = temp;
-    find_lock(must,wnconstraint_neg, locks);
-    cout << locks << endl;
-    cout << endl;*/
   }
   slv_bad.pop();
   
   // filter out duplicates:
-  min_unsat<pair<conj_constr,conj_constr>>(slv_bad, bad_traces_int, [this](const pair<conj_constr,conj_constr>& c)->z3::expr{return !make_constraint(ctx, c.first);});
-  //min_unsat<conj_constr>(slv_bad, bad_traces_weak, [this](const conj_constr& c)->z3::expr{return !make_constraint(ctx, c);});
+  min_unsat<conj_constr>(slv_bad, bad_traces_int, [this](const conj_constr& c)->z3::expr{return !make_constraint(ctx, c);});
   
   dnf_constr bad_traces;
-  for (const pair<conj_constr,conj_constr>& p : bad_traces_int) {
-    conj_constr c1(p.first);
-    c1.insert(c1.end(), p.second.begin(), p.second.end());
-    bad_traces.push_back(c1);
+  for (const conj_constr& p : bad_traces_int) {
+    bad_traces.push_back(p);
   }
   
   if (verbosity >= 1) {
     debug << "All bad traces: " << endl;
     //print_constraint(bad_traces, symbol_printer, debug);
     for (unsigned i = 0; i < bad_traces.size(); ++i) {
-      if (all_of(bad_traces_int[i].first.begin(), bad_traces_int[i].first.end(), [](constraint_atom ca) {return ca.before.original_position<ca.after.original_position;}))
+      if (all_of(bad_traces_int[i].begin(), bad_traces_int[i].end(), [](constraint_atom ca) {return ca.before.original_position<ca.after.original_position;}))
         debug << "(*) ";
-      debug << bad_traces_int[i].first;
-      debug << " /\\ [ " << bad_traces_int[i].second << " ]";
+      debug << bad_traces_int[i];
       if (i < bad_traces.size() - 1) 
         debug << " \\/" << std::endl;
     }
     debug << endl;
-    /*debug << "All weak constraints: " << endl;
-    debug << bad_traces_weak;*/
   }
-  return make_pair(bad_traces, bad_traces_weak);
+  return bad_traces;
 }
 
 conj_constr reorderings::find_order(const reorderings::seperated_trace& strace, const z3::model& model)

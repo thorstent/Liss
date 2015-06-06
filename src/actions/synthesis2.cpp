@@ -125,15 +125,11 @@ bool actions::synthesis2::synth_loop(const cfg::program& program, vector<pair<un
       auto synth_start = chrono::steady_clock::now();
       ::synthesis::concurrent_trace trace = ::synthesis::make_trace(ctx, program, result.counter_example);
       
-      pair<::synthesis::dnf_constr,::synthesis::dnf_constr> dnf = reorder.process_trace(trace);
-      //::synthesis::find_locks find_locks(ctx, program);
-      //find_locks.process_trace(trace);
-      ::synthesis::dnf_constr bad_cond = dnf.first; // these conditions make the trace bad
+      ::synthesis::dnf_constr bad_cond = reorder.process_trace(trace);
       if (verbosity>=1)
         debug << "Found constraints to eliminate bad traces" << endl;
       // synthesis of locks for these constraints
-      //::synthesis::cnf_constr cnf_weak = negate_dnf(dnf.second);
-      ::synthesis::cnf_constr cnf1 = negate_dnf(dnf.first);
+      ::synthesis::cnf_constr cnf1 = negate_dnf(bad_cond);
       cnf<::synthesis::lock> new_locks;
       synch.generate_sync(cnf1, new_locks);
       placement::lock_symbols new_lock_symbols = placement::locks_to_symbols(new_locks, result.counter_example);

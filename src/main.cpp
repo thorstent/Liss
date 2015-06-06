@@ -90,6 +90,10 @@ int main(int argc, const char **argv) {
   string file = OptionsParser.getSourcePathList().front();
   boost::filesystem::path file_path(file);
   file_path = boost::filesystem::absolute(file_path);
+  if (!boost::filesystem::exists(file_path)) {
+    cerr << "File " << file_path << " not found!" << endl;
+    return 1;
+  }
   main_filename = file_path.filename().string();
   output_file_code = file_path.string();
   output_file_code.replace(output_file_code.length()-2,2, ".complete.c");
