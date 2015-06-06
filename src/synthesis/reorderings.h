@@ -29,14 +29,13 @@
 #include "cfg/program.h"
 #include "abstraction/concurrent_state.h" // for the printer
 #include <Limi/results.h>
-#include "trace.h"
 
 namespace synthesis {
 
 class reorderings
 {
 public:
-  reorderings(z3::context& ctx, const cfg::program& program);
+  reorderings(const cfg::program& program);
   /**
    * @brief Discovers a summary of bad traces
    * 
@@ -44,11 +43,13 @@ public:
    * @return std::pair< synthesis::dnf, synthesis::dnf > The first element is traditional bad trace analysis. The second element is a pair where less happens-before relations are removed, namely 
    * all those that are automatically true due to wait-notifies are not removed
    */
-    dnf_constr process_trace(const synthesis::concurrent_trace& trace);
+  dnf_constr process_trace(const std::vector< abstraction::psymbol >& trace);
 private:
   const cfg::program& program;
+  
   struct seperated_trace {
     std::list<location> trace; // a list of all locations in the program
+    std::vector<std::vector<const location*>> threaded_trace;
     std::vector<std::list<const location*>> reads;  // the vector represents the variables, the list the location where the variable is read
     std::vector<std::list<const location*>> writes; // the vector represents the variables
     std::vector<std::list<const location*>> waits; // the vector represents the variables
@@ -59,6 +60,7 @@ private:
     z3::expr locks;
     z3::expr conditionals;
     z3::expr distinct;
+    z3::expr synth_locks;
     unsigned threads;
     seperated_trace(unsigned variables, unsigned conditionals, unsigned threads, z3::context& ctx) :
     reads(variables),
@@ -71,14 +73,18 @@ private:
     locks(ctx.bool_val(true)),
     conditionals(ctx.bool_val(true)),
     distinct(ctx.bool_val(true)),
+    synth_locks(ctx.bool_val(true)),
     threads(threads) {}
   };
+  
+  void split_trace(const std::vector< abstraction::psymbol >& trace, synthesis::reorderings::seperated_trace& strace);
   conj_constr find_order(const seperated_trace& strace, const z3::model& model);
   void print_trace(const seperated_trace& strace, const z3::model& model, std::ostream& out);
-  z3::context& ctx;
+  z3::context ctx;
   const Limi::printer<abstraction::psymbol> symbol_printer;
   std::bitset<max_locks> get_lockset(const abstraction::pcstate& state);
-  void prepare_trace(const synthesis::concurrent_trace& trace, synthesis::reorderings::seperated_trace& strace);
+  void prepare_trace(synthesis::reorderings::seperated_trace& strace);
+  void synth_locks(synthesis::reorderings::seperated_trace& strace);
   conj_constr wait_notify_order(const seperated_trace& strace, const z3::model& model);
 };
 }

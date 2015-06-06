@@ -33,8 +33,8 @@
 using namespace synthesis;
 using namespace std;
 
-reorderings::reorderings(z3::context& ctx, const cfg::program& program) :
-program(program), ctx(ctx), symbol_printer(Limi::printer<abstraction::psymbol>()) {
+reorderings::reorderings(const cfg::program& program) :
+program(program), symbol_printer(Limi::printer<abstraction::psymbol>()) {
   
 }
 
@@ -44,7 +44,7 @@ struct lock_pair {
   lock_pair(const location* lock, const location* unlock) : lock(lock), unlock(unlock) {}
 };
 
-void reorderings::prepare_trace(const concurrent_trace& trace, reorderings::seperated_trace& strace)
+void reorderings::prepare_trace(reorderings::seperated_trace& strace)
 {
   assert(condyield_is_always_yield); // other semantics are not supported by this class
   
@@ -67,50 +67,48 @@ void reorderings::prepare_trace(const concurrent_trace& trace, reorderings::sepe
   location final_state(ctx.fresh_constant("final", ctx.int_sort()), "final location");
   strace.trace.push_back(final_state);
   
-  vector<location*> thread_endpoints(program.no_threads(), nullptr);  
+  vector<const location*> thread_endpoints(program.no_threads(), nullptr);  
   
   int counter = 0;
-  for (const auto& th : trace.threads)
-  for (const location loc : th) {
-    thread_id_type thread_id = loc.symbol->thread_id();
-    variable_type var = loc.symbol->variable;
+  for (const auto& th : strace.threaded_trace)
+  for (const location* loc : th) {
+    thread_id_type thread_id = loc->symbol->thread_id();
+    variable_type var = loc->symbol->variable;
     
-    string name = loc.name_str;
-    strace.trace.push_back(loc);
-    location* loc_ptr = &strace.trace.back();
+    string name = loc->name_str;
     
     bool seq_condition = true;
     
     // deal with other operations
-    switch(loc.symbol->operation) {
+    switch(loc->symbol->operation) {
       case abstraction::op_class::lock: {
           seq_condition = false;
-          lockings[var].push_back(lock_pair(loc_ptr, nullptr));
+          lockings[var].push_back(lock_pair(loc, nullptr));
         }
         break;
       case abstraction::op_class::unlock:
-        lockings[var].back().unlock = loc_ptr;
+        lockings[var].back().unlock = loc;
         break;
       case abstraction::op_class::wait_reset:
-        resets[var].push_back(loc_ptr);
+        resets[var].push_back(loc);
         // no break here
       case abstraction::op_class::wait:
       case abstraction::op_class::wait_not: {
-          seq_condition = loc.symbol->assume && !assumes_allow_switch;
-          waits[var].push_back(loc_ptr);
+          seq_condition = loc->symbol->assume && !assumes_allow_switch;
+          waits[var].push_back(loc);
         }
       break;
       case abstraction::op_class::notify:
-        notifies[var].push_back(loc_ptr);
+        notifies[var].push_back(loc);
         break;
       case abstraction::op_class::reset:
-        resets[var].push_back(loc_ptr);
+        resets[var].push_back(loc);
         break;
       case abstraction::op_class::read:
-        strace.reads[var].push_back(loc_ptr);
+        strace.reads[var].push_back(loc);
         break;
       case abstraction::op_class::write:
-        strace.writes[var].push_back(loc_ptr);
+        strace.writes[var].push_back(loc);
         break;
       case abstraction::op_class::epsilon:
         break;
@@ -121,10 +119,10 @@ void reorderings::prepare_trace(const concurrent_trace& trace, reorderings::sepe
     
     if (thread_endpoints[thread_id]) {
       if (seq_condition)
-        sequential = sequential && ((z3::expr)loc) == ((z3::expr)*thread_endpoints[thread_id]) + ctx.int_val(1);
-      thread_order = thread_order && loc > *thread_endpoints[thread_id];
+        sequential = sequential && ((z3::expr)*loc) == ((z3::expr)*thread_endpoints[thread_id]) + ctx.int_val(1);
+      thread_order = thread_order && *loc > *thread_endpoints[thread_id];
     }
-    thread_endpoints[thread_id] = loc_ptr;
+    thread_endpoints[thread_id] = loc;
   }
   
   for (const auto& endp : thread_endpoints) {
@@ -249,10 +247,11 @@ bool find_lock(const constraint_atom& must, const disj_constr& disjunct, std::ve
   return found;
 }
 
-dnf_constr reorderings::process_trace(const concurrent_trace& trace)
+dnf_constr reorderings::process_trace(const std::vector< abstraction::psymbol >& trace)
 {
   seperated_trace strace(program.identifiers().no_variables(), program.identifiers().no_conditionals(), program.no_threads(), ctx);
-  prepare_trace(trace, strace);
+  split_trace(trace, strace);
+  prepare_trace(strace);
   
 #ifdef SANITY
   z3::expr original_trace = ctx.bool_val(true);
@@ -403,7 +402,7 @@ dnf_constr reorderings::process_trace(const concurrent_trace& trace)
   return bad_traces;
 }
 
-conj_constr reorderings::find_order(const reorderings::seperated_trace& strace, const z3::model& model)
+conj_constr reorderings::find_order(const seperated_trace& strace, const z3::model& model)
 {
   conj_constr result;
   // get the assigned numbers:
@@ -535,5 +534,35 @@ void reorderings::print_trace(const reorderings::seperated_trace& strace, const 
       out << p.first;
     }
     out << endl;
+  }
+}
+
+void reorderings::split_trace(const vector< abstraction::psymbol >& trace, reorderings::seperated_trace& strace)
+{
+  unordered_map<abstraction::psymbol, unsigned> iteration_counter;
+  strace.threaded_trace=std::vector<std::vector<const location*>>(program.no_threads());
+  unsigned counter = 0;
+  vector<unsigned> iter(program.no_threads(),0);
+  for (const abstraction::psymbol& symbol : trace) {
+    string name = "loc";
+    
+    if (iteration_counter.find(symbol)==iteration_counter.end())
+      iteration_counter[symbol] = 1;
+    else
+      iteration_counter[symbol]++;
+    iter[symbol->thread_id()] = max(iter[symbol->thread_id()],iteration_counter[symbol]);
+    
+    // create location
+    if (verbosity >= 2) {
+      stringstream ss;
+      ss << symbol;
+      if (iter[symbol->thread_id()]>1)
+        ss << "(" << iter[symbol->thread_id()] << ")";
+      name = ss.str();
+    }
+    location loc(ctx.fresh_constant(name.c_str(), ctx.int_sort()), name, symbol, counter++);
+    loc.iteration = iter[symbol->thread_id()];
+    strace.trace.push_back(loc);
+    strace.threaded_trace[symbol->thread_id()].push_back(&strace.trace.back());
   }
 }

@@ -45,9 +45,19 @@ const thread_id_type no_thread = -1;
 /**
  * DNFs and CNFs
  */
+template <typename atom> class disj;
 
 template <typename atom>
-class conj : public std::vector<atom> {};
+class conj : public std::vector<atom> {
+public:
+  disj<atom> operator!() const {
+    disj<atom> dis;
+    for(const atom& ca : *this) {
+      dis.push_back(!ca);
+    }
+    return dis;
+  }
+};
 template <typename atom>
 std::ostream& operator<<(std::ostream& out, const conj<atom>& c) {
   if (c.size()==0)
@@ -60,7 +70,16 @@ std::ostream& operator<<(std::ostream& out, const conj<atom>& c) {
 }
 
 template <typename atom>
-class disj : public std::vector<atom> {};
+class disj : public std::vector<atom> {
+public:
+  conj<atom> operator!() const {
+    conj<atom> con;
+    for(const atom& ca : *this) {
+      con.push_back(!ca);
+    }
+    return con;
+  }
+};
 template <typename atom>
 std::ostream& operator<<(std::ostream& out, const disj<atom>& c) {
   if (c.size()==0)
@@ -72,8 +91,19 @@ std::ostream& operator<<(std::ostream& out, const disj<atom>& c) {
   return out;
 }
 
+template <typename atom> class cnf;
+
 template <typename atom>
-class dnf : public std::vector<conj<atom>> {};
+class dnf : public std::vector<conj<atom>> {
+public:
+  cnf<atom> operator!() const {
+    cnf<atom> cnf;
+    for(const conj<atom>& ca : *this) {
+      cnf.push_back(!ca);
+    }
+    return cnf;
+  }
+};
 template <typename atom>
 std::ostream& operator<<(std::ostream& out, const dnf<atom>& c) {
   if (c.size()==0)
@@ -87,7 +117,16 @@ std::ostream& operator<<(std::ostream& out, const dnf<atom>& c) {
 }
 
 template <typename atom>
-class cnf : public std::vector<disj<atom>> {};
+class cnf : public std::vector<disj<atom>> {
+public:
+  dnf<atom> operator!() const {
+    dnf<atom> dnf;
+    for(const disj<atom>& ca : *this) {
+      dnf.push_back(!ca);
+    }
+    return dnf;
+  }
+};
 template <typename atom>
 std::ostream& operator<<(std::ostream& out, const cnf<atom>& c) {
   if (c.size()==0)

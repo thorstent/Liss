@@ -28,7 +28,6 @@
 #include "clang_interf/thread_visitor.h"
 
 #include "synthesis/reorderings.h"
-#include "synthesis/find_locks.h"
 #include "synthesis/synchronisation.h"
 #include "synthesis/lock.h"
 #include "placement/lock_locations.h"
@@ -95,8 +94,6 @@ void actions::synthesis2::print_summary(const cfg::program& original_program) {
 
 bool actions::synthesis2::synth_loop(const cfg::program& program, vector<pair<unsigned,abstraction::location>>& locks, vector<pair<unsigned,abstraction::location>>& unlocks)
 {
-  z3::context ctx,ctx2;
-
   Limi::printer<abstraction::psymbol> symbol_printer;
   abstraction::concurrent_automaton sequential(program, false, true);
   abstraction::concurrent_automaton concurrent(program, true, false);
@@ -104,9 +101,9 @@ bool actions::synthesis2::synth_loop(const cfg::program& program, vector<pair<un
 
   
   unsigned counter = 0;
-  ::synthesis::reorderings reorder(ctx, program);
+  ::synthesis::reorderings reorder(program);
   ::synthesis::synchronisation synch(program);
-  cnf<vector<vector<abstraction::location>>> lock_locations;
+  placement::lock_symbols lock_symbols;
   while (true) {
     auto langinc_start = chrono::steady_clock::now();
     auto start = chrono::steady_clock::now();
@@ -123,25 +120,25 @@ bool actions::synthesis2::synth_loop(const cfg::program& program, vector<pair<un
     }
     if (!result.included) {
       auto synth_start = chrono::steady_clock::now();
-      ::synthesis::concurrent_trace trace = ::synthesis::make_trace(ctx, program, result.counter_example);
       
-      ::synthesis::dnf_constr bad_cond = reorder.process_trace(trace);
+      ::synthesis::dnf_constr bad_cond = reorder.process_trace(result.counter_example);
       if (verbosity>=1)
         debug << "Found constraints to eliminate bad traces" << endl;
       // synthesis of locks for these constraints
-      ::synthesis::cnf_constr cnf1 = negate_dnf(bad_cond);
+      ::synthesis::cnf_constr cnf1 = !bad_cond;
       cnf<::synthesis::lock> new_locks;
       synch.generate_sync(cnf1, new_locks);
       placement::lock_symbols new_lock_symbols = placement::locks_to_symbols(new_locks, result.counter_example);
-      placement::lock_locations new_lock_locations = placement::symbols_to_locations(new_lock_symbols);
       concurrent.add_forbidden_traces(new_lock_symbols);
-      lock_locations.insert(lock_locations.end(), new_lock_locations.begin(), new_lock_locations.end());
+      lock_symbols.insert(lock_symbols.end(), new_lock_symbols.begin(), new_lock_symbols.end());
       ++counter;
       print_time(start);
       langinc += std::chrono::duration_cast<chrono::milliseconds>(langinc_end - langinc_start);
       debug << endl;
     } else {
       verification += std::chrono::duration_cast<chrono::milliseconds>(langinc_end - langinc_start);
+      
+      placement::lock_locations lock_locations = placement::symbols_to_locations(lock_symbols);
       
       if (!lock_locations.empty()) {
         placement::place_locks plocks(program);
