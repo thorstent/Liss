@@ -198,60 +198,12 @@ void reorderings::prepare_trace(reorderings::seperated_trace& strace)
 }
 
 
-extern unsigned lock_counter;
-bool find_lock(const constraint_atom& must, const disj_constr& disjunct, std::vector<lock>& locks)
-{
-  bool found = false;
-  if (disjunct.size()>=1) {
-    // find all combinations
-    auto a = &must;
-    {
-      auto b = disjunct.begin();
-      for (; b!=disjunct.end(); b++) {
-        //cout << must << "-" << *b << endl;
-        if (!(must.before.symbol==b->before.symbol && must.after.symbol==b->after.symbol) && (!a->from_wait_notify || !b->from_wait_notify)) {
-          // check if this is a lock
-          const location* loc1a = &a->before;
-          const location* loc1b = &b->after;
-          const location* loc2b = &a->after;
-          const location* loc2a = &b->before;
-          if (loc1a->thread_id() == loc1b->thread_id() && loc2a->thread_id()==loc2b->thread_id() && 
-            ((loc1a->instruction_id() >= loc1b->instruction_id() && loc2a->instruction_id() >= loc2b->instruction_id()) ||
-            (loc1a->instruction_id() >= loc1b->instruction_id() && loc2a->instruction_id() <= loc2b->instruction_id()) ||
-            (loc1a->instruction_id() <= loc1b->instruction_id() && loc2a->instruction_id() >= loc2b->instruction_id()) ||
-            (loc1a->instruction_id() == loc1b->instruction_id() && loc2a->instruction_id() <= loc2b->instruction_id()) ||
-            (loc1a->instruction_id() <= loc1b->instruction_id() && loc2a->instruction_id() == loc2b->instruction_id()))
-          ) {
-            if (loc1a->instruction_id() > loc1b->instruction_id()) {
-              auto temp = loc1a; loc1a = loc1b; loc1b = temp;
-            }
-            if (loc2a->instruction_id() > loc2b->instruction_id()) {
-              auto temp = loc2a; loc2a = loc2b; loc2b = temp;
-            }
-            lock l("l" + std::to_string(++lock_counter));
-            // order the locations by thread number
-            if (loc1a->thread_id() > loc2a->thread_id()) {
-              l.locations.push_back(lock_location(*loc1a,*loc1b));
-              l.locations.push_back(lock_location(*loc2a,*loc2b));
-            } else {
-              l.locations.push_back(lock_location(*loc2a,*loc2b));
-              l.locations.push_back(lock_location(*loc1a,*loc1b));
-            }
-            locks.push_back(l);
-            found = true;
-          }
-        }
-      }
-    }
-  }
-  return found;
-}
-
-dnf_constr reorderings::process_trace(const std::vector< abstraction::psymbol >& trace)
+dnf_constr reorderings::process_trace(const std::vector< abstraction::psymbol >& trace, const placement::lock_symbols& synthesised_locks)
 {
   seperated_trace strace(program.identifiers().no_variables(), program.identifiers().no_conditionals(), program.no_threads(), ctx);
   split_trace(trace, strace);
   prepare_trace(strace);
+  synth_locks(strace, synthesised_locks);
   
 #ifdef SANITY
   z3::expr original_trace = ctx.bool_val(true);
@@ -282,12 +234,14 @@ dnf_constr reorderings::process_trace(const std::vector< abstraction::psymbol >&
   slv_good.add(strace.locks);
   slv_good.add(strace.conditionals);
   slv_good.add(strace.sequential);
+  slv_good.add(strace.synth_locks);
   
   z3::solver slv_good_weak(ctx);
   slv_good_weak.add(strace.thread_order);
   slv_good_weak.add(strace.distinct);
   slv_good_weak.add(strace.locks);
   slv_good_weak.add(strace.sequential);
+  slv_good_weak.add(strace.synth_locks);
   
   
 #ifdef SANITY
@@ -336,6 +290,7 @@ dnf_constr reorderings::process_trace(const std::vector< abstraction::psymbol >&
   slv_bad.add(strace.distinct);
   slv_bad.add(strace.locks);
   slv_bad.add(strace.conditionals);
+  slv_bad.add(strace.synth_locks);
   // gather concurrent traces that are not possible sequentially
   if (verbosity >=1) {
     debug << "Find concurrent traces that are not sequential" << endl;
@@ -564,5 +519,69 @@ void reorderings::split_trace(const vector< abstraction::psymbol >& trace, reord
     loc.iteration = iter[symbol->thread_id()];
     strace.trace.push_back(loc);
     strace.threaded_trace[symbol->thread_id()].push_back(&strace.trace.back());
+  }
+}
+
+std::vector<std::pair<const location*,const location*>> reorderings::find_lock_locs(reorderings::seperated_trace& strace, const std::vector<abstraction::psymbol>& lock) {
+  std::vector<std::pair<const location*,const location*>> result;
+  // here we find the subsets of the locations we are looking for
+  if (lock.size()>1) {
+    const std::vector<const location*>& thread = strace.threaded_trace[lock.front()->thread_id()];
+    std::vector<bool> used(thread.size(),false); // we used this location already, it is therefore not relevant to consider
+    for (auto itsy = lock.begin(); itsy!=lock.end(); ++itsy) {
+      // find this symbol in the thread of the trace
+      for (unsigned i = 0; i < thread.size(); ++i) {
+        if (equal_to<abstraction::psymbol>()(thread[i]->symbol, *itsy) && !used[i]) {
+          // we found a match, see how long it can go on
+          const location* start = thread[i];
+          const location* end = start;
+          used[i] = true;
+          auto itsy2 = itsy;
+          while (i+1 < thread.size() && itsy2+1 != lock.end() && equal_to<abstraction::psymbol>()(thread[i+1]->symbol, *(itsy2+1))) {
+            // the next symbol also matches
+            ++i;++itsy2;
+            used[i] = true;
+            end = thread[i];
+          }
+          if (start != end) {
+            result.push_back(make_pair(start,end));
+          }
+        }
+      }
+    }
+  }
+  return result;
+}
+
+void reorderings::synth_locks(reorderings::seperated_trace& strace, const placement::lock_symbols& synthesised_locks)
+{
+  z3::expr& cnf = strace.synth_locks;
+  for (const disj<std::vector<std::vector<abstraction::psymbol>>>& lockd : synthesised_locks) {
+    // one of these locks needs to hold
+    z3::expr disj = ctx.bool_val(false);
+
+    for (const std::vector<std::vector<abstraction::psymbol>>& lock : lockd) {
+      // one single lock
+      z3::expr locke = ctx.bool_val(true);
+      // define conflicts mutually between locations
+      for (auto it = lock.begin(); it!=lock.end(); ++it) {
+        // each conflict in this vector is in conflict with all the other vectors
+        std::vector<std::pair<const location*,const location*>> locs = find_lock_locs(strace, *it);
+        auto it2 = it+1;
+        for (; it2!=lock.end(); ++it2) {
+          if (it!=it2) {
+            std::vector<std::pair<const location*,const location*>> locs2 = find_lock_locs(strace, *it2);
+            for (const std::pair<const location*,const location*>& l : locs)
+              for (const std::pair<const location*,const location*>& l2 : locs2) {
+                locke = locke && (*l.first > *l2.second || *l.second < *l2.first);
+              }
+            
+          }
+        }
+        
+      }
+      disj = disj || locke;
+    }
+    cnf = cnf && disj; 
   }
 }

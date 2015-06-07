@@ -121,7 +121,7 @@ bool actions::synthesis2::synth_loop(const cfg::program& program, vector<pair<un
     if (!result.included) {
       auto synth_start = chrono::steady_clock::now();
       
-      ::synthesis::dnf_constr bad_cond = reorder.process_trace(result.counter_example);
+      ::synthesis::dnf_constr bad_cond = reorder.process_trace(result.counter_example, lock_symbols);
       if (verbosity>=1)
         debug << "Found constraints to eliminate bad traces" << endl;
       // synthesis of locks for these constraints
