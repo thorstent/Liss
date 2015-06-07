@@ -127,7 +127,7 @@ pcstate concurrent_automaton::apply_symbol(const pcstate& original_state, const 
 {
   progress = true;
   
-  if (original_state->current == no_thread || (sigma->assume&&!assumes_allow_switch)) {
+  if (original_state->current == no_thread || (sigma->assume&&!assumes_allow_switch) || sigma->synthesised) {
     // test if locking is ok
     switch (sigma->operation) {
       case abstraction::op_class::read:
@@ -173,7 +173,7 @@ pcstate concurrent_automaton::apply_symbol(const pcstate& original_state, const 
       case abstraction::op_class::wait:
       case abstraction::op_class::wait_not:
       case abstraction::op_class::lock:
-        if (!(original_state->current == no_thread || (sigma->assume&&!assumes_allow_switch))) {
+        if (!(original_state->current == no_thread || (sigma->assume&&!assumes_allow_switch) || sigma->synthesised)) {
           cloned_state->current = no_thread;
           progress = false;
           return cloned_state;

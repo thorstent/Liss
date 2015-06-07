@@ -362,9 +362,11 @@ bool place_locks::find_locks(const cnf< vector< vector <abstraction::location> >
     slv.pop();
     reduce = reduce/10;
   }
-  /*print_func_interp(last_model, lock);
-  print_func_interp(last_model, unlock);
-  print_func_interp(last_model, inl);*/
+  if (verbosity>=3) {
+    print_func_interp(last_model, lock);
+    print_func_interp(last_model, unlock);
+    print_func_interp(last_model, inl);
+  }
   cout << last_model.eval(cost) << endl;
 
   vector<vector<z3::expr>> result;

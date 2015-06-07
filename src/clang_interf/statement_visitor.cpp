@@ -145,6 +145,7 @@ bool statement_visitor::TraverseCallExpr(CallExpr* s)
     cstack.back().second = s;    
     symbol action(operation, cstack, var_name, var, identifier_store, s);
     action.assume = assume;
+    action.synthesised = synthesised;
     state_id_type next = thread.add_state(action);
     add_successor(next);
   } else {

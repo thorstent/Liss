@@ -91,11 +91,12 @@ struct symbol
   bool assume = false;
   
   /**
-   * @brief A conditional yield.
+   * @brief This lock is not a preemption point
    * 
-   * This is an instruction before a wait or lock instruction and allows a context switch if the condition is not fulfiled
    */
-  bool cond_yield = false;
+  bool synthesised = false;
+  
+  
   
   inline bool is_epsilon() const { return operation!=op_class::read && operation!=op_class::write && operation!=op_class::tag; }
   inline bool is_real_epsilon() const { return operation==op_class::epsilon; }

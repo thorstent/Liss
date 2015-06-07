@@ -93,9 +93,25 @@ void print_program::place_lock_decl(Rewriter& rewriter, const vector< pair< unsi
   }
 }
 
+void print_program::remove_duplicates(vector< pair< unsigned, abstraction::location > >& locks) {
+  for (unsigned i = 0; i < locks.size(); ++i) {
+    for (unsigned j = i+1; j < locks.size(); ++j) {
+      if (locks[i].first == locks[j].first) {
+        const auto& statei = program.minimised_threads()[locks[i].second.thread]->get_state(locks[i].second.state);
+        const auto& statej = program.minimised_threads()[locks[j].second.thread]->get_state(locks[j].second.state);
+        if (statei.action->instr_stmt() == statej.action->instr_stmt()) {
+          // these are actually refering to the same instruction
+          locks.erase(locks.begin()+j);
+        }
+      }
+    }
+  }
+}
 
-void print_program::print_with_locks(const vector< pair< unsigned, abstraction::location > >& locks, const vector< pair< unsigned, abstraction::location > >& unlocks, const string& outname)
+void print_program::print_with_locks(vector< pair< unsigned, abstraction::location > > locks, vector< pair< unsigned, abstraction::location > > unlocks, const string& outname)
 {
+  remove_duplicates(locks);
+  remove_duplicates(unlocks);
   Rewriter rewriter(program.ast_context.getSourceManager(), program.ast_context.getLangOpts());
   
   unordered_set<Stmt*> added_brace;
