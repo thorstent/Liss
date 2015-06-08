@@ -28,11 +28,11 @@ using namespace std;
 using namespace clang;
 
 // parent_blocks is used to identify back_edges
-void cfg_visitor::process_block(const CFGBlock& block, call_stack cstack, state_id_type last_state, unordered_set<unsigned> parent_blocks)
+void cfg_visitor::process_block(const CFGBlock& block, clang::Stmt* function, state_id_type last_state, unordered_set<unsigned> parent_blocks)
 {
   unordered_set<const Stmt*> seen_stmt;
   
-  statement_visitor svisitor(context, thread, identifier_store, seen_stmt, cstack);
+  statement_visitor svisitor(context, thread, identifier_store, seen_stmt, function);
   
   auto found = block_map.find(block.getBlockID());
   if (found == block_map.end()) {
@@ -89,7 +89,7 @@ void cfg_visitor::process_block(const CFGBlock& block, call_stack cstack, state_
     for (auto it = block.succ_begin(); it != block.succ_end(); ++it) {
       const CFGBlock* succ_block = it->getReachableBlock();
       if (succ_block) {
-        process_block(*succ_block, cstack, last_state, parent_blocks);
+        process_block(*succ_block, function, last_state, parent_blocks);
       }
     }
     

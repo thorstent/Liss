@@ -67,10 +67,8 @@ std::ostream& abstraction::operator<< (std::ostream& out, const abstraction::op_
 }
 
 
-symbol::symbol(op_class operation, call_stack cstack, string variable_name, variable_type variable, identifier_store& is, const clang::Stmt* stmt) :
-operation(operation), cstack(cstack), variable_name(variable_name), variable(variable), stmt(stmt) {
-  assert(cstack.back().second);
-  assert(cstack.back().second==stmt);
+symbol::symbol(op_class operation, string variable_name, variable_type variable, identifier_store& is, clang::Stmt* stmt, clang::Stmt* function) :
+operation(operation), variable_name(variable_name), variable(variable), stmt(stmt), function(function) {
   clang::SourceLocation loc = is.source_manager.getFileLoc(instr_stmt()->getLocStart());
   fileentry = is.source_manager.getFileEntryForID(is.source_manager.getFileID(loc));
   assert (fileentry);

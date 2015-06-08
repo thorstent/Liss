@@ -43,8 +43,7 @@ bool statement_visitor::VisitDeclRefExpr(DeclRefExpr* stmt)
         if (type_name == "lock_t" || type_name == "conditional_t")
           throw parse_error("Variable " + variable + " must not use type lock_t or conditional_t");
         variable_type var = identifier_store.insert_variable(variable);
-        cstack.back().second = stmt;
-        symbol action(access_type, cstack, variable, var, identifier_store, stmt);
+        symbol action(access_type, variable, var, identifier_store, stmt, function);
         state_id_type next = thread.add_state(action);
         add_successor(next);
       } else {
@@ -58,7 +57,7 @@ bool statement_visitor::VisitDeclRefExpr(DeclRefExpr* stmt)
 bool statement_visitor::TraverseBinAssign(BinaryOperator* stmt)
 {
   TraverseStmt(stmt->getRHS());
-  statement_visitor svisitor(context, thread, identifier_store, seen_stmt, cstack, true);
+  statement_visitor svisitor(context, thread, identifier_store, seen_stmt, function, true);
   svisitor.TraverseStmt(stmt->getLHS());
   if (svisitor.progress()) {
     add_successor(svisitor.end_state);
@@ -142,8 +141,7 @@ bool statement_visitor::TraverseCallExpr(CallExpr* s)
   }
   
   if (operation != abstraction::op_class::epsilon) {
-    cstack.back().second = s;    
-    symbol action(operation, cstack, var_name, var, identifier_store, s);
+    symbol action(operation, var_name, var, identifier_store, s, function);
     action.assume = assume;
     action.synthesised = synthesised;
     state_id_type next = thread.add_state(action);
@@ -157,10 +155,7 @@ bool statement_visitor::TraverseCallExpr(CallExpr* s)
         Stmt* body = callee->getBody();
         std::unique_ptr<clang::CFG> cfg = CFG::buildCFG(callee, callee->getBody(), &context, clang::CFG::BuildOptions());
         cfg_visitor cvisitor(context, thread, identifier_store, cfg->getExit());
-        call_stack cs(cstack);
-        cs.back().second = s;
-        cs.push_back(make_pair(body, nullptr));
-        cvisitor.process_block(cfg->getEntry(), cs, no_state);
+        cvisitor.process_block(cfg->getEntry(), body, no_state);
         add_successor(cvisitor.entry_state());
         end_state = cvisitor.exit_state();
         thread.get_state(cvisitor.entry_state()).return_state = cvisitor.exit_state();

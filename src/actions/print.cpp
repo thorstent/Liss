@@ -32,7 +32,7 @@ using namespace std;
 struct short_symbol_printer : public Limi::printer_base<abstraction::psymbol> {
   virtual void print(const abstraction::psymbol& symbol, std::ostream& out) const {
     out << std::to_string(symbol->thread_id());
-    out << symbol->operation << symbol->variable << symbol->cstack.back().second;
+    out << symbol->operation << symbol->variable << symbol->instr_stmt();
   }
 };
 

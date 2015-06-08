@@ -43,10 +43,10 @@ public:
   statement_visitor(clang::ASTContext& context, cfg::abstract_cfg& thread,
                     abstraction::identifier_store& identifier_store,
                     std::unordered_set<const clang::Stmt*>& seen_stmt,
-                    call_stack cstack, bool writer = false) :
+                    clang::Stmt* function, bool writer = false) :
                     context(context), thread(thread), identifier_store(identifier_store),
                     access_type(writer ? abstraction::op_class::write : abstraction::op_class::read),
-                    cstack(cstack), seen_stmt(seen_stmt) {}
+                    function(function), seen_stmt(seen_stmt) {}
   
   inline bool shouldUseDataRecursionFor(clang::Stmt* s) { return false; }
   
@@ -75,7 +75,7 @@ private:
 
   void add_successor(state_id_type successor);
   std::string get_type_name(clang::DeclRefExpr* decl);
-  call_stack cstack;
+  clang::Stmt* function;
   std::unordered_set<const clang::Stmt*>& seen_stmt;
 };
 }

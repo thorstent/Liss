@@ -47,7 +47,7 @@ public:
    * @param last_state no_state if no proir state
    * @param parent_blocks The blocks already encountered on the way to this block
    */
-  void process_block(const clang::CFGBlock& block, call_stack cstack, state_id_type last_state, std::unordered_set<unsigned> parent_blocks = std::unordered_set<unsigned>());
+  void process_block(const clang::CFGBlock& block, clang::Stmt* function, state_id_type last_state, std::unordered_set<unsigned> parent_blocks = std::unordered_set<unsigned>());
   
   state_id_type exit_state();
   state_id_type entry_state();

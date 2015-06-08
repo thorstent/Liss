@@ -37,7 +37,6 @@ class FileEntry;
 
 //TODO: remove this
 typedef std::pair<clang::Stmt*, clang::Stmt*> stmt_loc;
-typedef std::list<stmt_loc> call_stack;
 
 namespace abstraction {
 
@@ -70,7 +69,6 @@ struct symbol
 {
   op_class operation;
   variable_type variable = 0;
-  call_stack cstack;
   
   std::string variable_name;
   const clang::FileEntry* fileentry = nullptr;
@@ -102,16 +100,16 @@ struct symbol
   inline bool is_real_epsilon() const { return operation==op_class::epsilon; }
   
   symbol() : operation(op_class::epsilon) {}
-  symbol(op_class operation, call_stack cstack, std::string variable_name, variable_type variable, identifier_store& is, const clang::Stmt* stmt);
+  symbol(op_class operation, std::string variable_name, variable_type variable, identifier_store& is, clang::Stmt* stmt, clang::Stmt* function);
   symbol(thread_id_type thread_id, state_id_type state_id, uint8_t branch);
   /**
    * @brief The statement id of the instruction
    */
-  inline clang::Stmt* instr_stmt() const { return cstack.back().second; }
+  inline clang::Stmt* instr_stmt() const { return stmt; }
   /**
    * @brief The function this instruction is contained in
    */
-  inline clang::Stmt* function_stmt() const { return cstack.back().first; }
+  inline clang::Stmt* function_stmt() const { return function; }
   
   inline state_id_type state_id() const { return loc.state; }
   inline thread_id_type thread_id() const { return loc.thread; }
@@ -129,7 +127,8 @@ struct symbol
   
   friend std::ostream& operator<< (std::ostream &out, const abstraction::symbol &val);
 private:
-  const clang::Stmt* stmt = nullptr;
+  clang::Stmt* stmt = nullptr;
+  clang::Stmt* function = nullptr;
 };
 
 typedef const symbol*  psymbol;
