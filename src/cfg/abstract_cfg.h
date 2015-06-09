@@ -59,10 +59,6 @@ struct state {
   state(state_id_type id, const abstraction::symbol& action) : id(id), action(std::make_shared<abstraction::symbol>(action)), lock_stmt(action.instr_stmt()),
   lock_function(action.function_stmt()), lock_policy(lock_policy_t::both) {}
   state(state_id_type id) : id(id), action(nullptr), lock_policy(lock_policy_t::none) {}
-  state(state&& other) = default;
-  state& operator=(const state& other) = default;
-  state(const state& other) : id(other.id), action(other.action?std::make_shared<abstraction::symbol>(*other.action):nullptr), final(other.final), 
-  non_det(other.non_det), name(other.name), return_state(other.return_state), lock_stmt(other.lock_stmt), lock_function(other.lock_function) {}
 };
 
 std::ostream& operator<<(std::ostream& os, const state& s);
@@ -87,6 +83,13 @@ class abstract_cfg
 public:
   abstract_cfg(const clang::FunctionDecl* fd, thread_id_type thread_id);
   abstract_cfg(const abstract_cfg& other) = default;
+  /**
+   * @brief Copy constructor with deep copy
+   * 
+   * @param other ...
+   * @param deep If true the symbols are duplicated
+   */
+  abstract_cfg(const abstract_cfg& other, bool deep);
   const clang::FunctionDecl* declaration; // just to have this around
   
   state_id_type add_state(const abstraction::symbol& symbol);
@@ -144,7 +147,6 @@ private:
   std::vector<state> states;
   std::vector<std::vector<edge>> edges;
   void tag_edge(state_id_type state, uint8_t edge);
-  unsigned calc_distance(state_id_type state);
 };
 }
 

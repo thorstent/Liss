@@ -69,6 +69,19 @@ abstract_cfg::abstract_cfg(const clang::FunctionDecl* fd, thread_id_type thread_
   name = dn.getAsString();
 }
 
+abstract_cfg::abstract_cfg(const abstract_cfg& other, bool deep) : abstract_cfg(other)
+{
+  if (deep) {
+    for (state& s : states)
+      s.action = s.action ? make_shared<abstraction::symbol>(*s.action) : nullptr;
+    for (auto& e : edges)
+      for (edge& e2 : e) {
+        e2.tag = e2.tag ? make_shared<abstraction::symbol>(*e2.tag) : nullptr;
+      }
+  }
+}
+
+
 state_id_type abstract_cfg::add_state(const abstraction::symbol& symbol)
 {
   if (states.size()>=max_states) throw range_error("Maximum number of states reached");
@@ -165,8 +178,7 @@ void abstract_cfg::minimise(bool leave_function_states)
           // remove this successor
           for (const edge& edge2 : get_successors(edge_to.to)) {
             edge new_edge(edge2);
-            if (edge_to.tag)
-              new_edge.tag = edge_to.tag;
+            new_edge.tag = edge_to.tag;
             edges[next].push_back(std::move(new_edge));
           }
         } else {
