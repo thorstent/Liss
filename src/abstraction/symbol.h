@@ -115,6 +115,8 @@ struct symbol
   inline thread_id_type thread_id() const { return loc.thread; }
   symbol(const symbol& sym) = default;
   
+  bool is_preemption_point() const;
+  
   bool operator==(const symbol &other) const {
     if (loc != other.loc) return false;
     if (tag_branch == -1) {

@@ -20,6 +20,7 @@
 #include "options.h"
 
 #include <iostream>
+#include <boost/filesystem.hpp>
 
 int verbosity = 0;
 unsigned max_bound = 20;
@@ -29,3 +30,8 @@ std::string main_filename;
 std::string output_file_code;
 std::string start_file_code;
 std::string output_file_log;
+
+void create_debug_folder()
+{
+  boost::filesystem::create_directory(debug_folder);
+}

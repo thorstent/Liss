@@ -25,6 +25,7 @@
 #include <vector>
 #include <string>
 #include <unordered_set>
+#include "lock_locations.h"
 
 namespace clang {
   class Rewriter;
@@ -38,7 +39,7 @@ public:
   print_program(const cfg::program& program);
   
   void print_original(const std::string& outname);
-  void print_with_locks(std::vector<std::pair<unsigned,abstraction::location>> locks, std::vector<std::pair<unsigned,abstraction::location>> unlocks, const std::string& outname);
+  void print_with_locks(placement_result locks_to_place, const std::string& outname);
 private:
   struct parent_result {
     clang::Stmt* stmt_to_lock;
@@ -49,7 +50,7 @@ private:
   };
   
   void place_locks(clang::Rewriter& rewriter, const std::vector< std::pair< unsigned, abstraction::location > >& locks, const std::string name, bool after, std::unordered_set<clang::Stmt*>& added_brace);
-  void place_lock_decl(clang::Rewriter& rewriter, const std::vector< std::pair< unsigned, abstraction::location > >& locks);
+  void place_lock_decl(clang::Rewriter& rewriter, const std::unordered_set< unsigned int >& locks_in_use);
   void remove_duplicates(std::vector< std::pair< unsigned, abstraction::location > >& locks);
   /**
    * @brief Finds the parent and if additional braces are needed

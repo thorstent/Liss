@@ -41,8 +41,7 @@ void print_program::place_locks(Rewriter& rewriter, const vector< pair< unsigned
     // find location
     
     const cfg::state& state = program.minimised_threads()[l.second.thread]->get_state(l.second.state);
-    assert(state.action);
-    parent_result parent = find_stmt_parent(state.action->instr_stmt(), state.action->function_stmt());
+    parent_result parent = find_stmt_parent(state.lock_stmt, state.lock_function);
     SourceLocation start = parent.stmt_to_lock->getLocStart();
     SourceLocation end = parent.stmt_to_lock->getLocEnd();
     
@@ -65,12 +64,8 @@ void print_program::place_locks(Rewriter& rewriter, const vector< pair< unsigned
   }
 }
 
-void print_program::place_lock_decl(Rewriter& rewriter, const vector< pair< unsigned, abstraction::location > >& locks)
+void print_program::place_lock_decl(Rewriter& rewriter, const std::unordered_set<unsigned>& locks_in_use)
 {
-  std::unordered_set<unsigned> locks_in_use;
-  for (const pair< unsigned, abstraction::location >& lock : locks) {
-    locks_in_use.insert(lock.first);
-  }
   bool found_lockt = false;
   Decl* first_decl = nullptr; // the first declaration after lock_t is found
   for (auto x : program.translation_unit->decls()) {
@@ -99,7 +94,7 @@ void print_program::remove_duplicates(vector< pair< unsigned, abstraction::locat
       if (locks[i].first == locks[j].first) {
         const auto& statei = program.minimised_threads()[locks[i].second.thread]->get_state(locks[i].second.state);
         const auto& statej = program.minimised_threads()[locks[j].second.thread]->get_state(locks[j].second.state);
-        if (statei.action->instr_stmt() == statej.action->instr_stmt()) {
+        if (statei.lock_stmt == statej.lock_stmt) {
           // these are actually refering to the same instruction
           locks.erase(locks.begin()+j);
         }
@@ -108,16 +103,28 @@ void print_program::remove_duplicates(vector< pair< unsigned, abstraction::locat
   }
 }
 
-void print_program::print_with_locks(vector< pair< unsigned, abstraction::location > > locks, vector< pair< unsigned, abstraction::location > > unlocks, const string& outname)
+void print_program::print_with_locks(placement_result locks_to_place, const string& outname)
 {
-  remove_duplicates(locks);
-  remove_duplicates(unlocks);
+  remove_duplicates(locks_to_place.locks_a);
+  remove_duplicates(locks_to_place.locks_b);
+  remove_duplicates(locks_to_place.unlocks_a);
+  remove_duplicates(locks_to_place.unlocks_b);
   Rewriter rewriter(program.ast_context.getSourceManager(), program.ast_context.getLangOpts());
   
   unordered_set<Stmt*> added_brace;
-  place_locks(rewriter, locks, lock_instr, false, added_brace);
-  place_locks(rewriter, unlocks, unlock_instr, true, added_brace);
-  place_lock_decl(rewriter, locks);
+  place_locks(rewriter, locks_to_place.locks_b, lock_instr, false, added_brace);
+  place_locks(rewriter, locks_to_place.locks_a, lock_instr, true, added_brace);
+  place_locks(rewriter, locks_to_place.unlocks_b, unlock_instr, false, added_brace);
+  place_locks(rewriter, locks_to_place.unlocks_a, unlock_instr, true, added_brace);
+  
+  std::unordered_set<unsigned> locks_in_use;
+  for (const pair< unsigned, abstraction::location >& lock : locks_to_place.locks_a) {
+    locks_in_use.insert(lock.first);
+  }
+  for (const pair< unsigned, abstraction::location >& lock : locks_to_place.locks_b) {
+    locks_in_use.insert(lock.first);
+  }
+  place_lock_decl(rewriter, locks_in_use);
   
   // print out the program
   std::error_code error_code;
@@ -143,6 +150,7 @@ print_program::parent_result print_program::find_stmt_parent(Stmt* stmt, Stmt* f
   ParentMap map(function);
   bool ends_semicolon = true;
   while (true) {
+    assert(stmt);
     Stmt* parent = map.getParent(stmt);
     if (isa<CompoundStmt>(parent)) {
       return parent_result(stmt, false, ends_semicolon);

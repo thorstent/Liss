@@ -27,6 +27,7 @@ using namespace actions;
 
 void print_cfg::run(const cfg::program& program, clang::CompilerInstance& compiler)
 {
+  create_debug_folder();
   for (const cfg::abstract_cfg* thread : program.threads()) {
     cfg::print_dot(*thread, debug_folder + thread->name + "_cfg.dot");
   }

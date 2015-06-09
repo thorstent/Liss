@@ -30,7 +30,6 @@
 #include "synthesis/reorderings.h"
 #include "synthesis/synchronisation.h"
 #include "synthesis/lock.h"
-#include "placement/lock_locations.h"
 #include "inclusion_test.h"
 #include "print.h"
 #include "options.h"
@@ -48,27 +47,22 @@ using namespace std;
 void actions::synthesis2::run(const cfg::program& program, clang::CompilerInstance& compiler)
 {
   placement::print_program pprogram(program);
+  create_debug_folder();
   
   string file_name = main_filename;
   file_name.replace(file_name.length()-2,2, ".start.c");
   pprogram.print_original(debug_folder + file_name);
   
-  vector<pair<unsigned,abstraction::location>> locks, unlocks;
-  bool success = synth_loop(program, locks, unlocks);
+  placement::placement_result result;
+  bool success = synth_loop(program, result);
   
 
   
   if (success) {
-    file_name = main_filename;
-    file_name.replace(file_name.length()-2,2, ".end.c");
-    pprogram.print_with_locks(locks, unlocks, debug_folder + file_name);
-    pprogram.print_with_locks(locks, unlocks, output_file_code);
+    pprogram.print_with_locks(result, output_file_code);
     
   } else {
-    Limi::printer<abstraction::psymbol> symbol_printer;
-    ofstream file_out(output_file_log);
-    result.print_long(file_out, symbol_printer);
-    file_out.close();
+
   }
 }
 
@@ -92,7 +86,7 @@ void actions::synthesis2::print_summary(const cfg::program& original_program) {
   debug << "| " << original_program.no_threads() << " | " << iteration << " | " << this->max_bound <<  " | " << (double)langinc.count()/1000 << "s | "  << (double)synthesis_time.count()/1000 << "s | " << (double)verification.count()/1000 << "s |";
 }
 
-bool actions::synthesis2::synth_loop(const cfg::program& program, vector<pair<unsigned,abstraction::location>>& locks, vector<pair<unsigned,abstraction::location>>& unlocks)
+bool actions::synthesis2::synth_loop(const cfg::program& program, placement::placement_result& lock_result)
 {
   Limi::printer<abstraction::psymbol> symbol_printer;
   abstraction::concurrent_automaton sequential(program, false, true);
@@ -108,6 +102,7 @@ bool actions::synthesis2::synth_loop(const cfg::program& program, vector<pair<un
     auto langinc_start = chrono::steady_clock::now();
     auto start = chrono::steady_clock::now();
     // do language inclusion test
+    Limi::inclusion_result<abstraction::psymbol> result;
     bool success = test_inclusion(sequential, concurrent, result);
     this->max_bound = max(result.max_bound,this->max_bound);
     auto langinc_end = chrono::steady_clock::now();
@@ -137,12 +132,10 @@ bool actions::synthesis2::synth_loop(const cfg::program& program, vector<pair<un
       debug << endl;
     } else {
       verification += std::chrono::duration_cast<chrono::milliseconds>(langinc_end - langinc_start);
-      
-      placement::lock_locations lock_locations = placement::symbols_to_locations(lock_symbols);
-      
-      if (!lock_locations.empty()) {
+            
+      if (!lock_symbols.empty()) {
         placement::place_locks plocks(program);
-        if (!plocks.find_locks(lock_locations, locks, unlocks)) {
+        if (!plocks.find_locks(lock_symbols, lock_result)) {
           cout << "Found no valid lock placement" << endl;
           return false;
         }

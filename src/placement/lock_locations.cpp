@@ -44,20 +44,5 @@ lock_symbols locks_to_symbols(const cnf<::synthesis::lock>& locks, const vector<
   return result;
 }
 
-lock_locations symbols_to_locations(const lock_symbols& symbols) {
-  lock_locations result;
-  for (const auto& disj : symbols) {
-    result.emplace_back();
-    for (const auto& lock : disj) {
-      result.back().emplace_back();
-      for (const auto& list : lock) {
-        result.back().back().emplace_back();
-        for (const abstraction::psymbol& sy : list) {
-          result.back().back().back().push_back(sy->loc);
-        }
-      }
-    }
-  }
-  return result;
-}
+
 }

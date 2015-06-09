@@ -24,6 +24,8 @@
 #include <Limi/results.h>
 #include "abstraction/symbol.h"
 
+#include "placement/lock_locations.h"
+
 namespace clang {
   class Rewriter;
   class Decl;
@@ -37,8 +39,7 @@ class synthesis2 : public actions::action_base
 public:
   virtual void run(const cfg::program& program, clang::CompilerInstance& compiler) override;
 private:
-  bool synth_loop(const cfg::program& program, std::vector< std::pair< unsigned int, abstraction::location > >& locks, std::vector< std::pair< unsigned int, abstraction::location > >& unlocks);
-  Limi::inclusion_result<abstraction::psymbol> result; // so we can access this if synthesis goes wrong
+  bool synth_loop(const cfg::program& program, placement::placement_result& locks);
   unsigned max_bound; // maximum bound during the verification run
   void print_summary(const cfg::program& original_program);
 };

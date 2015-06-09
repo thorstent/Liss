@@ -34,4 +34,6 @@ const bool assumes_allow_switch = false;
 
 const bool condyield_is_always_yield = true;
 
+void create_debug_folder();
+
 #endif // OPTIONS_H

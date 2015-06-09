@@ -35,12 +35,16 @@ namespace placement {
    * and for each place is a vector of locations inside that lock
    * 
    */  
-  using lock_locations = cnf<std::vector<std::vector<abstraction::location>>>;
   using lock_symbols = cnf<std::vector<std::vector<abstraction::psymbol>>>;
   
   lock_symbols locks_to_symbols(const cnf<::synthesis::lock>& locks, const std::vector<abstraction::psymbol>& trace);
-  lock_locations symbols_to_locations(const lock_symbols& symbols);
   
+  struct placement_result {
+    std::vector<std::pair<unsigned, abstraction::location >> locks_b; // before the instruction
+    std::vector<std::pair<unsigned, abstraction::location >> locks_a; // after the instruction
+    std::vector<std::pair<unsigned, abstraction::location >> unlocks_b; // before the instruction
+    std::vector<std::pair<unsigned, abstraction::location >> unlocks_a; // after the instruction
+  };
 }
 
 #endif // PLACEMENT_LOCK_LOCATIONS_H

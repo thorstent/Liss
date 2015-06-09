@@ -45,6 +45,7 @@ bool statement_visitor::VisitDeclRefExpr(DeclRefExpr* stmt)
         variable_type var = identifier_store.insert_variable(variable);
         symbol action(access_type, variable, var, identifier_store, stmt, function);
         state_id_type next = thread.add_state(action);
+        check_mainfile(stmt, next);
         add_successor(next);
       } else {
         last_nondet = true;
@@ -145,6 +146,7 @@ bool statement_visitor::TraverseCallExpr(CallExpr* s)
     action.assume = assume;
     action.synthesised = synthesised;
     state_id_type next = thread.add_state(action);
+    check_mainfile(s, next);
     add_successor(next);
   } else {
     RecursiveASTVisitor::TraverseCallExpr(s);
@@ -158,9 +160,17 @@ bool statement_visitor::TraverseCallExpr(CallExpr* s)
         cvisitor.process_block(cfg->getEntry(), body, no_state);
         add_successor(cvisitor.entry_state());
         end_state = cvisitor.exit_state();
-        thread.get_state(cvisitor.entry_state()).return_state = cvisitor.exit_state();
-        thread.get_state(cvisitor.entry_state()).name = "call " + name;
-        thread.get_state(cvisitor.exit_state()).name = "ret " + name;
+        auto& es = thread.get_state(cvisitor.entry_state());
+        es.return_state = cvisitor.exit_state();
+        es.name = "call " + name;
+        es.lock_policy = lock_policy_t::before;
+        es.lock_stmt = s;
+        es.lock_function = function;
+        auto& exs = thread.get_state(cvisitor.exit_state());
+        exs.name = "ret " + name;
+        exs.lock_policy = lock_policy_t::after;
+        exs.lock_stmt = s;
+        exs.lock_function = function;
       } else {
         cerr << "Ignoring function without body: " << name << endl;
       }
@@ -202,4 +212,11 @@ void statement_visitor::add_successor(state_id_type successor)
   end_state = successor;
 }
 
+void statement_visitor::check_mainfile(Stmt* stmt, state_id_type state)
+{
+  clang::FileID id = context.getSourceManager().getFileID(stmt->getLocStart());
+  if (id!=context.getSourceManager().getMainFileID()) {
+    thread.get_state(state).lock_policy = lock_policy_t::none;
+  }
+}
 

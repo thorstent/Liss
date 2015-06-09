@@ -107,7 +107,7 @@ int main(int argc, const char **argv) {
       boost::filesystem::remove_all(it->path());
     }
   } else {
-    boost::filesystem::create_directory(folder_path);
+    // delay creation of the debug folder
   }
   debug_folder = folder_path.string() + "/";
 

@@ -43,7 +43,7 @@ public:
    * @param unlocks_placed ...
    * @return void
    */
-  bool find_locks(const placement::lock_locations& locks_to_place, std::vector< std::pair< unsigned, abstraction::location > >& locks_placed, std::vector< std::pair<unsigned, abstraction::location > >& unlocks_placed);
+  bool find_locks(const lock_symbols& locks_to_place, placement_result& to_place);
 private:
   void init_locks();
   void init_consistancy();
@@ -52,7 +52,7 @@ private:
   void result_to_locklist(const std::vector<std::vector<z3::expr>>& result, std::vector<std::pair<unsigned, abstraction::location >>& locks);
   
   // calculates the places to that need to be locked together
-  z3::expr locked_together(const placement::lock_locations& locks_to_place);
+  z3::expr locked_together(const placement::lock_symbols& locks_to_place);
 
   z3::context ctx;  
   z3::expr ztrue = ctx.bool_val(true);
@@ -65,19 +65,27 @@ private:
   z3::sort locks = z3::sort(ctx);
   std::vector<z3::expr> lock_vector;
   std::unordered_map<z3::expr, unsigned> lock_map;
-  z3::func_decl lock = z3::func_decl(ctx);
-  z3::func_decl unlock = z3::func_decl(ctx);
+  z3::func_decl lock_b = z3::func_decl(ctx); // lock before
+  z3::func_decl unlock_b = z3::func_decl(ctx); // unlock before
+  z3::func_decl lock_a = z3::func_decl(ctx); // lock after
+  z3::func_decl unlock_a = z3::func_decl(ctx); // lock before
   
-  z3::expr cost = z3::expr(ctx);
-  z3::expr cost_def = z3::expr(ctx);
+  z3::expr cost = ctx.int_const("cost");
+  z3::expr cost_def = ztrue;
   
   z3::func_decl inl = z3::func_decl(ctx);
-  z3::expr inl_def = z3::expr(ctx);
+  z3::expr inl_def = ztrue;
   
-  z3::expr lock_consistency = z3::expr(ctx);
-  z3::expr lock_sameinstr = z3::expr(ctx);
+  z3::expr cons_loc = ztrue; // what locations may be locked or unlocked respectively
+  z3::expr cons_preemption = ztrue; // do not lock preemption points
+  z3::expr cons_basic = ztrue; // basic rule that nothing can be locked and unlocked at the same time
+  z3::expr cons_join = ztrue; // predecessors need the same locking on join
+  z3::expr cons_unl = ztrue; // to be unlocked it needs to be locked first
+  z3::expr cons_lo = ztrue; // to be locked it needs to be unlocked first
+  z3::expr cons_functions = ztrue; // ensure functions start and end with the same locking configuration
+  z3::expr cons_sameinstr = ztrue; // same instructions need to be in the same lock
   
-  
+  z3::expr inle(const z3::expr& x, const z3::expr& l); // lock status after the instruction executed
 };
 }
 

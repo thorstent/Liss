@@ -20,6 +20,7 @@
 #include "symbol.h"
 #include <clang/AST/Stmt.h>
 #include <clang/Basic/SourceManager.h>
+#include "options.h"
 
 using namespace abstraction;
 using namespace std;
@@ -97,4 +98,26 @@ std::ostream& abstraction::operator<< (std::ostream &out, const abstraction::sym
 symbol::symbol(thread_id_type thread_id, state_id_type state_id, uint8_t branch) : operation(op_class::tag), loc(thread_id, state_id), tag_branch(branch)
 {
   
+}
+
+bool symbol::is_preemption_point() const
+{
+  switch (operation) {
+    case abstraction::op_class::read:
+    case abstraction::op_class::write:
+    case abstraction::op_class::unlock:
+    case abstraction::op_class::notify:
+    case abstraction::op_class::reset:
+    case abstraction::op_class::yield:
+    case abstraction::op_class::epsilon:
+    case abstraction::op_class::tag:
+      break;
+    case abstraction::op_class::lock:
+      return !synthesised;
+    case abstraction::op_class::wait_reset:
+    case abstraction::op_class::wait_not:
+    case abstraction::op_class::wait:
+      return !assume || assumes_allow_switch;
+  }
+  return false;
 }

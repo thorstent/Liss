@@ -243,22 +243,6 @@ dnf_constr reorderings::process_trace(const std::vector< abstraction::psymbol >&
   slv_good_weak.add(strace.sequential);
   slv_good_weak.add(strace.synth_locks);
   
-  
-#ifdef SANITY
-  // sanity check: counter example is not sequential
-  slv_good.push();
-  if (slv_good.check()!=z3::sat) cerr << endl << endl << "SANITY: No valid sequential interleaving exists for this counter-example" << endl;
-  slv_good.add(original_trace_gen_expr);
-  if (slv_good.check()!=z3::unsat) {
-    cerr << endl << endl << "SANITY: Original trace is sequential; Here is the trace" << endl;
-    print_trace(strace, slv_good.get_model(), cerr);
-    cerr << "And here is the sequential constraint" << endl;
-    cerr << original_trace_gen;
-    cerr << endl;
-  }
-  slv_good.pop();
-#endif
-  
   slv_good.push();
   
   dnf_constr seq_traces;

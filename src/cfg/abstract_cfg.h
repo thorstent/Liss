@@ -34,6 +34,13 @@ namespace clang {
   class FunctionDecl;
 }
 
+enum class lock_policy_t {
+  none, // no locks allowed
+  before, // locks allowed before this state
+  after, // locks allowed after this state
+  both // locks allowed before and after
+};
+
 namespace cfg {
 
   class abstract_cfg;
@@ -46,12 +53,16 @@ struct state {
   bool non_det = false; // state branches non-deterministically
   std::string name;
   state_id_type return_state = no_state; // if this is a function call, then it contains the position where the function call returns
-  state(state_id_type id, const abstraction::symbol& action) : id(id), action(std::make_shared<abstraction::symbol>(action)) {}
-  state(state_id_type id) : id(id), action(nullptr) {}
+  clang::Stmt* lock_stmt = nullptr; // the statement to place the lock around
+  clang::Stmt* lock_function = nullptr; // the function body where the statement is inside
+  lock_policy_t lock_policy; // where the locks can be placed
+  state(state_id_type id, const abstraction::symbol& action) : id(id), action(std::make_shared<abstraction::symbol>(action)), lock_stmt(action.instr_stmt()),
+  lock_function(action.function_stmt()), lock_policy(lock_policy_t::both) {}
+  state(state_id_type id) : id(id), action(nullptr), lock_policy(lock_policy_t::none) {}
   state(state&& other) = default;
   state& operator=(const state& other) = default;
   state(const state& other) : id(other.id), action(other.action?std::make_shared<abstraction::symbol>(*other.action):nullptr), final(other.final), 
-  non_det(other.non_det), name(other.name), return_state(other.return_state) {}
+  non_det(other.non_det), name(other.name), return_state(other.return_state), lock_stmt(other.lock_stmt), lock_function(other.lock_function) {}
 };
 
 std::ostream& operator<<(std::ostream& os, const state& s);
