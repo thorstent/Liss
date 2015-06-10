@@ -35,7 +35,7 @@ template <class value>
  * @param translate ...
  * @return true if successful, false if sat
  */
-bool min_unsat(z3::solver& sol, std::vector< value >& items, std::function< z3::expr(value) > translate) {
+bool min_unsat(z3::solver& sol, std::vector< value >& items, std::function< z3::expr(value) > translate = [](const z3::expr& e){return e;}) {
   std::vector<z3::expr> triggers;
   // translate items to expr
   for (auto i: items) {

@@ -70,64 +70,66 @@ void reorderings::prepare_trace(reorderings::seperated_trace& strace)
   vector<const location*> thread_endpoints(program.no_threads(), nullptr);  
   
   int counter = 0;
-  for (const auto& th : strace.threaded_trace)
-  for (const location* loc : th) {
-    thread_id_type thread_id = loc->symbol->thread_id();
-    variable_type var = loc->symbol->variable;
-    
-    string name = loc->name_str;
-    
-    bool seq_condition = true;
-    
-    // deal with other operations
-    switch(loc->symbol->operation) {
-      case abstraction::op_class::lock: {
+  for (const auto& th : strace.threaded_trace) {
+    for (const location* loc : th) {
+      thread_id_type thread_id = loc->symbol->thread_id();
+      variable_type var = loc->symbol->variable;
+      
+      string name = loc->name_str;
+      
+      bool seq_condition = true;
+      
+      // deal with other operations
+      switch(loc->symbol->operation) {
+        case abstraction::op_class::lock: {
+            seq_condition = false;
+            lockings[var].push_back(lock_pair(loc, nullptr));
+          }
+          break;
+        case abstraction::op_class::unlock:
+          lockings[var].back().unlock = loc;
+          break;
+        case abstraction::op_class::wait_reset:
+          resets[var].push_back(loc);
+          // no break here
+        case abstraction::op_class::wait:
+        case abstraction::op_class::wait_not: {
+            seq_condition = loc->symbol->assume && !assumes_allow_switch;
+            waits[var].push_back(loc);
+          }
+        break;
+        case abstraction::op_class::notify:
+          notifies[var].push_back(loc);
+          break;
+        case abstraction::op_class::reset:
+          resets[var].push_back(loc);
+          break;
+        case abstraction::op_class::read:
+          strace.reads[var].push_back(loc);
+          break;
+        case abstraction::op_class::write:
+          strace.writes[var].push_back(loc);
+          break;
+        case abstraction::op_class::epsilon:
+          break;
+        case abstraction::op_class::yield:
           seq_condition = false;
-          lockings[var].push_back(lock_pair(loc, nullptr));
-        }
-        break;
-      case abstraction::op_class::unlock:
-        lockings[var].back().unlock = loc;
-        break;
-      case abstraction::op_class::wait_reset:
-        resets[var].push_back(loc);
-        // no break here
-      case abstraction::op_class::wait:
-      case abstraction::op_class::wait_not: {
-          seq_condition = loc->symbol->assume && !assumes_allow_switch;
-          waits[var].push_back(loc);
-        }
-      break;
-      case abstraction::op_class::notify:
-        notifies[var].push_back(loc);
-        break;
-      case abstraction::op_class::reset:
-        resets[var].push_back(loc);
-        break;
-      case abstraction::op_class::read:
-        strace.reads[var].push_back(loc);
-        break;
-      case abstraction::op_class::write:
-        strace.writes[var].push_back(loc);
-        break;
-      case abstraction::op_class::epsilon:
-        break;
-      case abstraction::op_class::yield:
-        seq_condition = false;
-        break;
+          break;
+      }
+      
+      if (thread_endpoints[thread_id]) {
+        if (seq_condition)
+          sequential = sequential && ((z3::expr)*loc) == ((z3::expr)*thread_endpoints[thread_id]) + ctx.int_val(1);
+        thread_order = thread_order && *loc > *thread_endpoints[thread_id];
+      }
+      thread_endpoints[thread_id] = loc;
     }
-    
-    if (thread_endpoints[thread_id]) {
-      if (seq_condition)
-        sequential = sequential && ((z3::expr)*loc) == ((z3::expr)*thread_endpoints[thread_id]) + ctx.int_val(1);
-      thread_order = thread_order && *loc > *thread_endpoints[thread_id];
-    }
-    thread_endpoints[thread_id] = loc;
   }
   
   for (const auto& endp : thread_endpoints) {
     // final must be after all other locations
-    thread_order = thread_order && *endp < final_state;
+    if (endp) // this must be a valid pointer
+      thread_order = thread_order && *endp < final_state;
   }
   
   // generate the distinct constraint
@@ -395,79 +397,6 @@ conj_constr reorderings::wait_notify_order(const seperated_trace& strace, const 
   return result;
 }
 
-/*
-conj_constr reorderings::wait_notify_order(const reorderings::seperated_trace& strace, const z3::model& model)
-{
-  typedef pair<const location*, int> loc_pair;
-  conj_constr result;
-
-  for (conditional_type i = 0; i < strace.waits.size(); ++i) {
-    vector<loc_pair> order;
-    // adds waits, notifies and resets to a list
-    for (const location* wait : strace.waits[i]) {
-      z3::expr number_expr = model.eval(*wait);
-      int number;
-      Z3_get_numeral_int(ctx, number_expr, &number);
-      order.push_back(make_pair(wait, number));  
-    }
-    for (const location* notify : strace.notifies[i]) {
-      z3::expr number_expr = model.eval(*notify);
-      int number;
-      Z3_get_numeral_int(ctx, number_expr, &number);
-      order.push_back(make_pair(notify, number));  
-    }
-    for (const location* reset : strace.resets[i]) {
-      z3::expr number_expr = model.eval(*reset);
-      int number;
-      Z3_get_numeral_int(ctx, number_expr, &number);
-      order.push_back(make_pair(reset, number));  
-    }
-    std::sort(order.begin(), order.end(), [](const loc_pair& a, const loc_pair& b) { return a.second < b.second; } );
-    for (const location* wait : strace.waits[i]) {
-      // it moves backwards
-      auto it = find_if(order.rbegin(), order.rend(), [wait](loc_pair p){return p.first==wait;});
-      assert (it!=order.rend());
-      // it2 moves forwards
-      auto it2 = find_if(order.begin(), order.end(), [wait](loc_pair p){return p.first==wait;});
-      assert (it2!=order.end());
-      vector<bool> before(strace.threads); // mark off the threads we already saw
-      vector<bool> after(strace.threads);
-      abstraction::op_class before_symbol = abstraction::op_class::notify;
-      abstraction::op_class before_symbol2 = abstraction::op_class::notify;
-      abstraction::op_class after_symbol = abstraction::op_class::reset;
-      abstraction::op_class after_symbol2 = abstraction::op_class::wait_reset;
-      if (it->first->symbol->operation == abstraction::op_class::wait_not) {
-        // for wait_not invert the logic of the symbols
-        before_symbol = abstraction::op_class::reset;
-        before_symbol2 = abstraction::op_class::wait_reset;
-        after_symbol = abstraction::op_class::notify;
-        after_symbol2 = abstraction::op_class::notify;
-      }
-      auto ref_loc = *it->first;
-      // look for notifies before and resets after
-      for (++it; it != order.rend(); ++it) {
-        if (it->first->symbol->operation == before_symbol || it->first->symbol->operation == before_symbol2) {
-          if (!before[it->first->symbol->thread_id()] && it->first->symbol->thread_id() != ref_loc.symbol->thread_id()) {
-            before[it->first->symbol->thread_id()] = true;
-            result.push_back(constraint_atom(*it->first, ref_loc, true));
-          }
-        }
-      }
-      for (++it2; it2 != order.end(); ++it2) {
-        if (it2->first->symbol->operation == after_symbol || it2->first->symbol->operation == after_symbol2) {
-          if (!after[it2->first->symbol->thread_id()] && it2->first->symbol->thread_id() != ref_loc.symbol->thread_id()) {
-            after[it2->first->symbol->thread_id()] = true;
-            result.push_back(constraint_atom(ref_loc, *it2->first, true));
-          }
-        }
-      }
-      
-    }
-  }
-  return result;
-}*/
-
-
 void reorderings::print_trace(const reorderings::seperated_trace& strace, const z3::model& model, ostream& out)
 {
   typedef pair<location, int> loc_pair;
@@ -494,7 +423,6 @@ void reorderings::print_trace(const reorderings::seperated_trace& strace, const 
 void reorderings::split_trace(const vector< abstraction::psymbol >& trace, reorderings::seperated_trace& strace)
 {
   unordered_map<abstraction::psymbol, unsigned> iteration_counter;
-  strace.threaded_trace=std::vector<std::vector<const location*>>(program.no_threads());
   unsigned counter = 0;
   vector<unsigned> iter(program.no_threads(),0);
   for (const abstraction::psymbol& symbol : trace) {

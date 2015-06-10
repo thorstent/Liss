@@ -64,6 +64,7 @@ private:
     z3::expr synth_locks;
     unsigned threads;
     seperated_trace(unsigned variables, unsigned conditionals, unsigned threads, z3::context& ctx) :
+    threaded_trace(threads),
     reads(variables),
     writes(variables),
     waits(conditionals),

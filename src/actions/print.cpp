@@ -44,13 +44,13 @@ void actions::print_program(const cfg::program& program, bool timbuk, bool only_
   short_symbol_printer symbol_printer;
   if (!timbuk) {
     Limi::dot_printer<state_id_type, cfg::reward_symbol, cfg::automaton> pr;
-    unsigned i = 0;
+    unsigned t = 0;
     for (const cfg::abstract_cfg* thread : program.minimised_threads()) {
       cfg::automaton automaton(*thread);
-      pr.print_dot(automaton, debug_folder + prefix + thread->name + "(" + to_string(i) + ").dot");
+      pr.print_dot(automaton, debug_folder + prefix + std::to_string(t) + "-" + thread->name + ".dot");
       cfg::automaton automaton_ef(*thread, true);
-      pr.print_dot(automaton_ef, debug_folder + prefix + thread->name + "(" + to_string(i) + ")_ef.dot");
-      ++i;
+      pr.print_dot(automaton_ef, debug_folder + prefix + std::to_string(t) + "-" + thread->name + "_ef.dot");
+      ++t;
     }
     
     if (!only_threads) {

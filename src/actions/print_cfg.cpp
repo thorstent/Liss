@@ -28,12 +28,14 @@ using namespace actions;
 void print_cfg::run(const cfg::program& program, clang::CompilerInstance& compiler)
 {
   create_debug_folder();
-  for (const cfg::abstract_cfg* thread : program.threads()) {
-    cfg::print_dot(*thread, debug_folder + thread->name + "_cfg.dot");
-  }
   unsigned t = 0;
+  for (const cfg::abstract_cfg* thread : program.threads()) {
+    cfg::print_dot(*thread, debug_folder + std::to_string(t) + "-" + thread->name + "_cfg.dot");
+    ++t;
+  }
+  t = 0;
   for (const cfg::abstract_cfg* thread : program.minimised_threads()) {
-    cfg::print_dot(*thread, debug_folder + thread->name + "_min_cfg(" + std::to_string(t) + ").dot");
+    cfg::print_dot(*thread, debug_folder + std::to_string(t) + "-" + thread->name + "_cfg_min.dot");
     ++t;
   }
   

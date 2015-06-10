@@ -22,6 +22,8 @@
 #include <string.h>
 #include <algorithm>
 #include "options.h"
+#include "synthesis/z3_helpers.h"
+#include <Limi/internal/helpers.h>
 
 using namespace placement;
 using namespace std;
@@ -111,6 +113,14 @@ place_locks::place_locks(const cfg::program& program) : threads(program.threads(
   for (const cfg::abstract_cfg* thread : threads) {
     for (unsigned j = 1; j <= thread->no_states(); ++j) { 
       string name = to_string(thread->thread_id) + "_" + to_string(j);
+      
+      // create location
+      if (verbosity >= 2) {
+        stringstream ss;
+        ss << thread->get_state(j);
+        name = ss.str();
+      }
+      
       positions.push_back(name);
     }
   }
@@ -264,9 +274,9 @@ void place_locks::init_sameinstr()
   for (const cfg::abstract_cfg* thread : threads) {
     for (unsigned i = 1; i <= thread->no_states(); ++i) {
       z3::expr x = location_vector[t][i];
-      const auto& act = threads[t]->get_state(i).action;
-      if (act && act->instr_stmt())
-        instr_map[act->instr_stmt()].push_back(x);
+      clang::Stmt* s = threads[t]->get_state(i).lock_stmt;
+      if (s)
+        instr_map[s].push_back(x);
     }
     ++t;
   }
@@ -299,9 +309,9 @@ void place_locks::result_to_locklist(const vector<vector<z3::expr>>& result, vec
   }
 }
 
-z3::expr place_locks::locked_together(const synthesis::lock_symbols& locks_to_place)
+vector<z3::expr> place_locks::locked_together(const synthesis::lock_symbols& locks_to_place)
 {
-  z3::expr result = ztrue;
+  vector<z3::expr> result;
   for (const disj<synthesis::lock_lists>& d : locks_to_place) {
     z3::expr di = zfalse;
     // add lock places
@@ -321,7 +331,7 @@ z3::expr place_locks::locked_together(const synthesis::lock_symbols& locks_to_pl
       }
       di = di || one_lock;
     }
-    result = result && di;
+    result.push_back(di);
   }
   return result;
 }
@@ -343,14 +353,31 @@ bool place_locks::find_locks(const synthesis::lock_symbols& locks_to_place, plac
   slv.add(cons_sameinstr);
   slv.add(cons_preemption);
   
-  z3::expr locking = locked_together(locks_to_place);
-  slv.add(locking);
+  vector<z3::expr> locking = locked_together(locks_to_place);
+  if (verbosity>=3) {
+    debug << "Locking:" << endl;
+    Limi::internal::print_vector(locking, debug);
+    debug << endl;
+  }
+  
+  slv.push();
+  for (z3::expr& e : locking)
+    slv.add(e);
   
   if (verbosity > 1)
     debug << "Starting lock placement" << endl;
   
   z3::check_result last_res = slv.check();
-  if (last_res != z3::sat) return false;
+  if (last_res != z3::sat)  {
+    if (verbosity>=1) {
+      slv.pop();
+      synthesis::min_unsat(slv, locking);
+      debug << "Problem locks:" << endl;
+      Limi::internal::print_vector(locking, debug);
+      debug << endl;
+    }
+    return false;
+  }
   z3::model last_model = slv.get_model();
   // try and reduce cost
   int reduce = 100;
@@ -378,7 +405,8 @@ bool place_locks::find_locks(const synthesis::lock_symbols& locks_to_place, plac
     print_func_interp(last_model, unlock_b);
     print_func_interp(last_model, inl);
   }
-  cout << last_model.eval(cost) << endl;
+  if (verbosity>=1)
+    debug << "Final cost: " << last_model.eval(cost) << endl;
 
   vector<vector<z3::expr>> result;
   z3::expr elsee = func_result(last_model, lock_a, result);

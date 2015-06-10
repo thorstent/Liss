@@ -35,6 +35,8 @@ std::ostream& cfg::operator<<(std::ostream& os, const state& s) {
   else if (s.final) {
     os << "Exit";
   } else {
+    if (s.non_action_symbol)
+      os << to_string(s.non_action_symbol->thread_id()) << "-";
     os << s.name();
   }
   return os;

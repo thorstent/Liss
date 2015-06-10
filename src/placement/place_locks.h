@@ -59,7 +59,7 @@ private:
   void result_to_locklist(const std::vector<std::vector<z3::expr>>& result, std::vector<std::pair<unsigned, abstraction::location >>& locks);
   
   // calculates the places to that need to be locked together
-  z3::expr locked_together(const synthesis::lock_symbols& locks_to_place);
+  std::vector< z3::expr > locked_together(const synthesis::lock_symbols& locks_to_place);
 
   z3::context ctx;  
   z3::expr ztrue = ctx.bool_val(true);

@@ -47,10 +47,7 @@ using namespace std;
 void actions::synthesis2::run(const cfg::program& program, clang::CompilerInstance& compiler)
 {
   placement::print_program pprogram(program);
-  
-  string file_name = main_filename;
-  pprogram.print_original(debug_folder + file_name);
-  
+    
   placement::placement_result result;
   bool success = synth_loop(program, result);
   
