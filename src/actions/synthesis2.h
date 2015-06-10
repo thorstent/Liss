@@ -24,7 +24,8 @@
 #include <Limi/results.h>
 #include "abstraction/symbol.h"
 
-#include "placement/lock_locations.h"
+#include "synthesis/trace_helpers.h"
+#include "placement/place_locks.h"
 
 namespace clang {
   class Rewriter;

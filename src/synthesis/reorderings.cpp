@@ -198,7 +198,7 @@ void reorderings::prepare_trace(reorderings::seperated_trace& strace)
 }
 
 
-dnf_constr reorderings::process_trace(const std::vector< abstraction::psymbol >& trace, const placement::lock_symbols& synthesised_locks)
+dnf_constr reorderings::process_trace(const std::vector< abstraction::psymbol >& trace, const synthesis::lock_symbols& synthesised_locks)
 {
   seperated_trace strace(program.identifiers().no_variables(), program.identifiers().no_conditionals(), program.no_threads(), ctx);
   split_trace(trace, strace);
@@ -537,7 +537,7 @@ std::vector<std::pair<const location*,const location*>> reorderings::find_lock_l
   return result;
 }
 
-void reorderings::synth_locks(reorderings::seperated_trace& strace, const placement::lock_symbols& synthesised_locks)
+void reorderings::synth_locks(reorderings::seperated_trace& strace, const synthesis::lock_symbols& synthesised_locks)
 {
   z3::expr& cnf = strace.synth_locks;
   for (const disj<std::vector<std::vector<abstraction::psymbol>>>& lockd : synthesised_locks) {

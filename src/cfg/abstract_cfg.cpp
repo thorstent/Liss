@@ -26,15 +26,6 @@
 #include <Limi/internal/helpers.h>
 #include <set>
 
-namespace std{
-  template <> struct hash <std::unordered_multiset<const abstraction::symbol*>> {
-    size_t operator()(const std::unordered_multiset<const abstraction::symbol*>& to_hash) const {
-      // this is a hack and will result in all hashed to collide, but that should be ok as long as there are only few elements in the set
-      return 0;
-    }
-  };
-}
-
 using namespace cfg;
 using namespace std;
 
@@ -44,7 +35,7 @@ std::ostream& cfg::operator<<(std::ostream& os, const state& s) {
   else if (s.final) {
     os << "Exit";
   } else {
-    os << s.name;
+    os << s.name();
   }
   return os;
 }
@@ -60,6 +51,13 @@ ostream& cfg::operator<<(ostream& os, const edge& e)
   return os;
 }
 
+bool edge::operator==(const edge& other) const {
+  return to==other.to;
+}
+
+bool edge::operator<(const edge& other) const {
+  return to<other.to;
+}
 
 abstract_cfg::abstract_cfg(const clang::FunctionDecl* fd, thread_id_type thread_id)
 : declaration(fd), thread_id(thread_id)
@@ -95,9 +93,9 @@ state_id_type abstract_cfg::add_state(const abstraction::symbol& symbol)
 state_id_type abstract_cfg::add_state(const string& name)
 {
   if (states.size()>=max_states) throw range_error("Maximum number of states reached");
-  states.emplace_back(states.size());
+  states.emplace_back(thread_id, states.size());
   edges.emplace_back();
-  states[states.size()-1].name = name;
+  states[states.size()-1].name(name);
   return states.size() - 1;
 }
 
@@ -169,9 +167,9 @@ void abstract_cfg::minimise(bool leave_function_states)
       parents.push_back(next);
       seen.insert(next);
       
-      set<std::pair<state_id_type,bool>, successors_pair_less> successors; // set of successors
-      
-      for (unsigned i = 0; i<edges[next].size();++i) {
+      //set<std::pair<state_id_type,bool>, successors_pair_less> successors; // set of successors
+      unsigned i;
+      for (i = 0; i<edges[next].size();++i) {
         edge edge_to = edges[next][i];
         state& succ = states[edge_to.to];
         if (!succ.action && !succ.final && remain.find(edge_to.to)==remain.end()) {
@@ -179,22 +177,25 @@ void abstract_cfg::minimise(bool leave_function_states)
           for (const edge& edge2 : get_successors(edge_to.to)) {
             edge new_edge(edge2);
             new_edge.tag = edge_to.tag;
-            edges[next].push_back(std::move(new_edge));
+            new_edge.in_betweeners.insert(new_edge.in_betweeners.begin(), edge_to.to);
+            new_edge.in_betweeners.insert(new_edge.in_betweeners.begin(), edge_to.in_betweeners.begin(), edge_to.in_betweeners.end());
+            edges[next].push_back(new_edge);
           }
-        } else {
-          auto newp = make_pair(edge_to.to, edge_to.tag!=nullptr);
-          successors.insert(make_pair(edge_to.to, edge_to.tag!=nullptr));
         }
       }
-      edges[next].clear();
-      // re-add the edges
-      for (std::pair<state_id_type,bool> succ : successors) {
-        frontier2.push_back(make_pair(succ.first,parents));
-        reward_t cost = parents.end() - find(parents.begin(), parents.end(), succ.first);
+      if (i > 0)
+        edges[next].erase(edges[next].begin(), edges[next].begin()+i-1);
+      std::sort(edges[next].begin(), edges[next].end());
+      edges[next].erase(unique(edges[next].begin(), edges[next].end()), edges[next].end());
+      // add information to the edges
+      for (i = 0; i<edges[next].size();++i) {
+        edge& e = edges[next][i];
+        frontier2.push_back(make_pair(e.to,parents));
+        reward_t cost = parents.end() - find(parents.begin(), parents.end(), e.to);
         bool back_edge = cost != 0;
-        add_edge(next, succ.first, back_edge, false, cost);
-        if (succ.second) {
-          tag_edge(next, edges[next].size()-1);
+        e.back_edge = back_edge;
+        if (e.tag) {
+          tag_edge(next, i);
         }
       }
     }
@@ -258,6 +259,7 @@ void abstract_cfg::compact()
     for (edge& e : edges[i]) {
       if (mapping[e.to]!=no_state) e.to = mapping[e.to];
       if (e.tag) e.tag->loc.state = i;
+      e.in_betweeners.clear();
     }
   }
 }

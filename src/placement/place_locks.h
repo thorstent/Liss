@@ -25,10 +25,17 @@
 #include <vector>
 #include "abstraction/location.h"
 #include "types.h"
-#include "placement/lock_locations.h"
+#include "synthesis/trace_helpers.h"
 
 namespace placement {
 
+  struct placement_result {
+    std::vector<std::pair<unsigned, abstraction::location >> locks_b; // before the instruction
+    std::vector<std::pair<unsigned, abstraction::location >> locks_a; // after the instruction
+    std::vector<std::pair<unsigned, abstraction::location >> unlocks_b; // before the instruction
+    std::vector<std::pair<unsigned, abstraction::location >> unlocks_a; // after the instruction
+  };
+  
 class place_locks
 {
 public:
@@ -43,7 +50,7 @@ public:
    * @param unlocks_placed ...
    * @return void
    */
-  bool find_locks(const lock_symbols& locks_to_place, placement_result& to_place);
+  bool find_locks(const synthesis::lock_symbols& locks_to_place, placement_result& to_place);
 private:
   void init_locks();
   void init_consistancy();
@@ -52,7 +59,7 @@ private:
   void result_to_locklist(const std::vector<std::vector<z3::expr>>& result, std::vector<std::pair<unsigned, abstraction::location >>& locks);
   
   // calculates the places to that need to be locked together
-  z3::expr locked_together(const placement::lock_symbols& locks_to_place);
+  z3::expr locked_together(const synthesis::lock_symbols& locks_to_place);
 
   z3::context ctx;  
   z3::expr ztrue = ctx.bool_val(true);

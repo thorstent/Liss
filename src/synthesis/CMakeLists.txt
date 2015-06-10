@@ -1,1 +1,1 @@
-add_library(synthesis synchronisation.cpp lock.cpp reorderings.cpp constraint.cpp location.cpp)
+add_library(synthesis synchronisation.cpp lock.cpp reorderings.cpp constraint.cpp location.cpp trace_helpers.cpp)

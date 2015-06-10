@@ -162,12 +162,12 @@ bool statement_visitor::TraverseCallExpr(CallExpr* s)
         end_state = cvisitor.exit_state();
         auto& es = thread.get_state(cvisitor.entry_state());
         es.return_state = cvisitor.exit_state();
-        es.name = "call " + name;
+        es.name("call " + name);
         es.lock_policy = lock_policy_t::before;
         es.lock_stmt = s;
         es.lock_function = function;
         auto& exs = thread.get_state(cvisitor.exit_state());
-        exs.name = "ret " + name;
+        exs.name("ret " + name);
         exs.lock_policy = lock_policy_t::after;
         exs.lock_stmt = s;
         exs.lock_function = function;

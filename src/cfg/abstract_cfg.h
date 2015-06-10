@@ -49,16 +49,20 @@ namespace cfg {
 struct state {
   state_id_type id;
   std::shared_ptr<abstraction::symbol> action;
+  std::shared_ptr<abstraction::symbol> non_action_symbol; // the symbol that is used to represent this state if no action occured
   bool final = false;
   bool non_det = false; // state branches non-deterministically
-  std::string name;
+  std::string name() const { return name_; };
+  void name(std::string newn) { name_ = newn; if (non_action_symbol) non_action_symbol->variable_name = newn; }
   state_id_type return_state = no_state; // if this is a function call, then it contains the position where the function call returns
   clang::Stmt* lock_stmt = nullptr; // the statement to place the lock around
   clang::Stmt* lock_function = nullptr; // the function body where the statement is inside
   lock_policy_t lock_policy; // where the locks can be placed
   state(state_id_type id, const abstraction::symbol& action) : id(id), action(std::make_shared<abstraction::symbol>(action)), lock_stmt(action.instr_stmt()),
   lock_function(action.function_stmt()), lock_policy(lock_policy_t::both) {}
-  state(state_id_type id) : id(id), action(nullptr), lock_policy(lock_policy_t::none) {}
+  state(thread_id_type thread_id, state_id_type id) : id(id), non_action_symbol(std::make_shared<abstraction::symbol>(thread_id, id)), lock_policy(lock_policy_t::none) {}
+private:
+  std::string name_;
 };
 
 std::ostream& operator<<(std::ostream& os, const state& s);
@@ -68,11 +72,10 @@ struct edge {
   std::shared_ptr<abstraction::symbol> tag = nullptr; // can be null
   state_id_type to;
   reward_t cost = 0; // back_edges have a cost for going back, all other edges have cost 0
+  std::vector<state_id_type> in_betweeners; // a list of states in between that has been removed by minimise
   edge(state_id_type to, bool back_edge, int cost) : to(to), back_edge(back_edge), cost(cost) {}
-  edge(edge&& other) = default;
-  edge& operator= (const edge& other) = default;
-  edge(const edge& other) : back_edge(other.back_edge), tag(other.tag?std::make_shared<abstraction::symbol>(*other.tag):nullptr), to(other.to),
-  cost(other.cost) {}
+  bool operator==(const edge& other) const;
+  bool operator<(const edge& other) const;
 };
 
 std::ostream& operator<<(std::ostream& os, const edge& e);
@@ -126,6 +129,11 @@ public:
     ret.insert(1); // default initial state
     return ret;
   }
+  /**
+   * @brief Gets a state
+   * 
+   * @param id The state id 1..no_states
+   */
   inline const state& get_state(state_id_type id) const { 
     if (id <= 0) throw std::invalid_argument("Id must be >0");
     return states[id];

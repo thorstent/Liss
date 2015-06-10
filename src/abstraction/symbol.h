@@ -100,6 +100,7 @@ struct symbol
   inline bool is_real_epsilon() const { return operation==op_class::epsilon; }
   
   symbol() : operation(op_class::epsilon) {}
+  symbol(thread_id_type thread_id, state_id_type state_id);
   symbol(op_class operation, std::string variable_name, variable_type variable, identifier_store& is, clang::Stmt* stmt, clang::Stmt* function);
   symbol(thread_id_type thread_id, state_id_type state_id, uint8_t branch);
   /**

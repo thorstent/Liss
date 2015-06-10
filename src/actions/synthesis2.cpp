@@ -97,7 +97,7 @@ bool actions::synthesis2::synth_loop(const cfg::program& program, placement::pla
   unsigned counter = 0;
   ::synthesis::reorderings reorder(program);
   ::synthesis::synchronisation synch(program);
-  placement::lock_symbols lock_symbols;
+  ::synthesis::lock_symbols lock_symbols;
   while (true) {
     auto langinc_start = chrono::steady_clock::now();
     auto start = chrono::steady_clock::now();
@@ -110,20 +110,23 @@ bool actions::synthesis2::synth_loop(const cfg::program& program, placement::pla
       cout << "Found no counter-example up to maximum bound; synthesis cannot proceed." << endl;
       return false;
     }
+    vector<abstraction::psymbol>& trace = result.counter_example;
+    ::synthesis::blow_up_trace(program, trace);
     if (verbosity >= 1) {
       result.print_long(debug, symbol_printer);
     }
     if (!result.included) {
       auto synth_start = chrono::steady_clock::now();
       
-      ::synthesis::dnf_constr bad_cond = reorder.process_trace(result.counter_example, lock_symbols);
+      ::synthesis::dnf_constr bad_cond = reorder.process_trace(trace, lock_symbols);
       if (verbosity>=1)
         debug << "Found constraints to eliminate bad traces" << endl;
       // synthesis of locks for these constraints
       ::synthesis::cnf_constr cnf1 = !bad_cond;
       cnf<::synthesis::lock> new_locks;
       synch.generate_sync(cnf1, new_locks);
-      placement::lock_symbols new_lock_symbols = placement::locks_to_symbols(new_locks, result.counter_example);
+      synthesis::lock_symbols new_lock_symbols = synthesis::locks_to_symbols(new_locks, trace);
+      ::synthesis::remove_preemption(new_lock_symbols);
       concurrent.add_forbidden_traces(new_lock_symbols);
       lock_symbols.insert(lock_symbols.end(), new_lock_symbols.begin(), new_lock_symbols.end());
       ++counter;

@@ -264,8 +264,9 @@ void place_locks::init_sameinstr()
   for (const cfg::abstract_cfg* thread : threads) {
     for (unsigned i = 1; i <= thread->no_states(); ++i) {
       z3::expr x = location_vector[t][i];
-      if (threads[t]->get_state(i).action)
-        instr_map[threads[t]->get_state(i).action->instr_stmt()].push_back(x);
+      const auto& act = threads[t]->get_state(i).action;
+      if (act && act->instr_stmt())
+        instr_map[act->instr_stmt()].push_back(x);
     }
     ++t;
   }
@@ -298,7 +299,7 @@ void place_locks::result_to_locklist(const vector<vector<z3::expr>>& result, vec
   }
 }
 
-z3::expr place_locks::locked_together(const lock_symbols& locks_to_place)
+z3::expr place_locks::locked_together(const synthesis::lock_symbols& locks_to_place)
 {
   z3::expr result = ztrue;
   for (const disj<vector< vector< abstraction::psymbol > >>& d : locks_to_place) {
@@ -312,17 +313,8 @@ z3::expr place_locks::locked_together(const lock_symbols& locks_to_place)
         for (const vector< abstraction::psymbol >& lplaces2 : lplaces) {
           for (unsigned i = 0; i < lplaces2.size(); ++i) {
             const abstraction::location& loc = lplaces2[i]->loc;
-            if (!lplaces2[i]->is_preemption_point()) {
-              z3::expr& loce = location_vector[loc.thread][loc.state];
-              e = e && inl(loce,l);
-              if (i!=0) { // only the first one may lock
-                e = e && !lock_b(loce,l);
-              }
-              if (i<lplaces2.size()-1) { // only the last one may unlock
-                e = e && !unlock_a(loce,l);
-              }
-              e = e && !lock_a(loce,l) && !unlock_b(loce,l);
-            }
+            z3::expr& loce = location_vector[loc.thread][loc.state];
+            e = e && inl(loce,l);
           }
         }
         one_lock = one_lock || e;
@@ -335,7 +327,7 @@ z3::expr place_locks::locked_together(const lock_symbols& locks_to_place)
 }
 
 
-bool place_locks::find_locks(const lock_symbols& locks_to_place, placement_result& to_place)
+bool place_locks::find_locks(const synthesis::lock_symbols& locks_to_place, placement_result& to_place)
 {
   // insert a lock for testing
   z3::solver slv(ctx);

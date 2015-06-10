@@ -276,7 +276,7 @@ inline void concurrent_automaton::next_single(const pcstate& state, concurrent_a
   }
 }
 
-void concurrent_automaton::add_forbidden_traces(const placement::lock_symbols& new_locks)
+void concurrent_automaton::add_forbidden_traces(const synthesis::lock_symbols& new_locks)
 {
   for (const disj<std::vector<std::vector<abstraction::psymbol>>>& lockd : new_locks) {
     // one of these locks needs to hold

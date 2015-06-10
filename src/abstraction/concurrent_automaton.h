@@ -30,7 +30,7 @@
 #include <boost/dynamic_bitset.hpp>
 #include "cfg/program.h"
 #include "cfg/automaton.h"
-#include "placement/lock_locations.h"
+#include "synthesis/trace_helpers.h"
 
 namespace abstraction {
   
@@ -59,7 +59,7 @@ namespace abstraction {
      */
     std::unordered_set<psymbol> successor_filter;
     
-    void add_forbidden_traces(const placement::lock_symbols& new_locks);
+    void add_forbidden_traces(const synthesis::lock_symbols& new_locks);
   private:
     std::vector<cfg::automaton> threads;
     std::vector<const cfg::abstract_cfg*> cfgs;

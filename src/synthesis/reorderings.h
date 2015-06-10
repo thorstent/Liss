@@ -29,7 +29,7 @@
 #include "cfg/program.h"
 #include "abstraction/concurrent_state.h" // for the printer
 #include <Limi/results.h>
-#include "placement/lock_locations.h"
+#include "synthesis/trace_helpers.h"
 
 namespace synthesis {
 
@@ -44,7 +44,7 @@ public:
    * @param synthesised_locks The locks we already found in prior rounds
    * @return 
    */
-  dnf_constr process_trace(const std::vector< abstraction::psymbol >& trace, const placement::lock_symbols& synthesised_locks);
+  dnf_constr process_trace(const std::vector< abstraction::psymbol >& trace, const synthesis::lock_symbols& synthesised_locks);
 private:
   const cfg::program& program;
   
@@ -85,7 +85,7 @@ private:
   const Limi::printer<abstraction::psymbol> symbol_printer;
   void prepare_trace(synthesis::reorderings::seperated_trace& strace);
   std::vector<std::pair<const location*,const location*>> find_lock_locs(reorderings::seperated_trace& strace, const std::vector<abstraction::psymbol>& locks);
-  void synth_locks(synthesis::reorderings::seperated_trace& strace, const placement::lock_symbols& synthesised_locks);
+  void synth_locks(synthesis::reorderings::seperated_trace& strace, const synthesis::lock_symbols& synthesised_locks);
   conj_constr wait_notify_order(const seperated_trace& strace, const z3::model& model);
 };
 }

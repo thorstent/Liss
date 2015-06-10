@@ -25,8 +25,9 @@
 #include "abstraction/location.h"
 #include "abstraction/symbol.h"
 #include "synthesis/lock.h"
+#include "cfg/program.h"
 
-namespace placement {
+namespace synthesis {
 
   /**
    * @brief This type describes a CNF of locks needed.
@@ -39,12 +40,17 @@ namespace placement {
   
   lock_symbols locks_to_symbols(const cnf<::synthesis::lock>& locks, const std::vector<abstraction::psymbol>& trace);
   
-  struct placement_result {
-    std::vector<std::pair<unsigned, abstraction::location >> locks_b; // before the instruction
-    std::vector<std::pair<unsigned, abstraction::location >> locks_a; // after the instruction
-    std::vector<std::pair<unsigned, abstraction::location >> unlocks_b; // before the instruction
-    std::vector<std::pair<unsigned, abstraction::location >> unlocks_a; // after the instruction
-  };
+  /**
+   * @brief Add symbols to the trace
+   * 
+   * The trace is based on the minimized automaton. This function adds the in-between states that are not in the minimized automaton.
+   */
+  void blow_up_trace(const cfg::program& program, std::vector<abstraction::psymbol>& trace);
+  
+  /**
+   * @brief Remove preemption points from the trace.
+   */
+  void remove_preemption(lock_symbols& locks);
 }
 
 #endif // PLACEMENT_LOCK_LOCATIONS_H

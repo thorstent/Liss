@@ -25,7 +25,7 @@
 #include <vector>
 #include <string>
 #include <unordered_set>
-#include "lock_locations.h"
+#include "place_locks.h"
 
 namespace clang {
   class Rewriter;

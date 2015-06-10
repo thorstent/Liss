@@ -76,6 +76,15 @@ operation(operation), variable_name(variable_name), variable(variable), stmt(stm
   line_no = is.source_manager.getPresumedLineNumber(loc);
 }
 
+symbol::symbol(thread_id_type thread_id, state_id_type state_id, uint8_t branch) : operation(op_class::tag), loc(thread_id, state_id), tag_branch(branch)
+{
+  
+}
+
+symbol::symbol(thread_id_type thread_id, state_id_type state_id) : operation(op_class::epsilon), loc(thread_id, state_id) {
+  
+}
+
 std::ostream& abstraction::operator<< (std::ostream &out, const abstraction::symbol &val) {
   val.operation;
   out << to_string(val.thread_id()) << "-";
@@ -95,10 +104,6 @@ std::ostream& abstraction::operator<< (std::ostream &out, const abstraction::sym
   return out;
 }
 
-symbol::symbol(thread_id_type thread_id, state_id_type state_id, uint8_t branch) : operation(op_class::tag), loc(thread_id, state_id), tag_branch(branch)
-{
-  
-}
 
 bool symbol::is_preemption_point() const
 {

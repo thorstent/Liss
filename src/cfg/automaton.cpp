@@ -80,7 +80,7 @@ void automaton::int_next_symbols(const state_id_type& state, Symbol_set& symbols
         action = thread_.get_state(e.to).action;
         if (reward==0) reward = 1;
       }
-      if (action != nullptr) 
+      if (action != nullptr)
         symbols.insert(reward_symbol(reward, action.get()));
     }
   } else {
