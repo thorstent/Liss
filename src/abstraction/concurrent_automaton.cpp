@@ -294,7 +294,7 @@ void concurrent_automaton::add_forbidden_traces(const synthesis::lock_symbols& n
               // state < 0 means after the state, > 0 before the state
               auto last = it2->end();
               --last;
-              for (auto pl = it2->begin(); pl != it2->end();) {
+              for (auto pl = it2->begin(); pl != it2->end(); ++pl) {
                 const location& loc2 = (*pl)->loc;
                 location negloc2 = loc2;
                 negloc2.state = -negloc2.state;

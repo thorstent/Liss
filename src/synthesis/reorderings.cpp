@@ -302,7 +302,15 @@ dnf_constr reorderings::process_trace(const std::vector< abstraction::psymbol >&
     conj_constr constraint = find_order(strace, model);
     conj_constr wnconstraint = wait_notify_order(strace, model);
     constraint.insert(constraint.end(), wnconstraint.begin(), wnconstraint.end());
-    min_unsat<constraint_atom>(slv_good_weak, constraint, [](const constraint_atom& ca)->z3::expr{return ca;});
+    if (!min_unsat<constraint_atom>(slv_good_weak, constraint, [](const constraint_atom& ca)->z3::expr{return ca;})) {
+      if (slv_bad.check()!=z3::sat) cerr << endl << endl << "SANITY: Constraints not powerful enough to force bad trace" << endl;
+      cerr << "Constraints: " << endl;
+      cerr << constraint << endl;
+      cerr << "Bad trace:" << endl;
+      print_trace(strace, model, cerr);
+      cerr << "Good trace:" << endl;
+      print_trace(strace, slv_good_weak.get_model(), cerr);
+    }
     assert (!constraint.empty());
     slv_bad.add(!make_constraint(ctx, constraint));
     bad_traces_int.push_back(constraint);
@@ -341,46 +349,53 @@ dnf_constr reorderings::process_trace(const std::vector< abstraction::psymbol >&
   return bad_traces;
 }
 
+// relate elements between one and two
+void find_order2(const z3::model& model, std::list<const location*> one, std::list<const location*> two, conj_constr& result) {
+  for (auto it = one.begin(); it != one.end(); ++it) {
+    for (auto it2 = two.begin(); it2 != two.end(); ++it2) {
+      if ((**it).thread_id() != (**it2).thread_id()) {
+        assert (model.eval(**it < **it2).get_bool() != model.eval(**it2 < **it).get_bool());
+        if (model.eval(**it < **it2).get_bool()) {
+          //cout << (**it < **it2) << model.eval(**it) << " < " << model.eval(**it2) << endl;
+          result.push_back(constraint_atom(**it,**it2));
+        }
+        else {
+          //cout << (**it2 < **it) << model.eval(**it2) << " < " << model.eval(**it) << endl;
+          result.push_back(constraint_atom(**it2,**it));
+        }
+      }
+    }
+  }
+}
+
 conj_constr reorderings::find_order(const seperated_trace& strace, const z3::model& model)
 {
   conj_constr result;
-  // get the assigned numbers:
-  
-  //cout << model << endl;
   
   for (variable_type i = 0; i < strace.reads.size(); ++i) {
     // reads should not collide with any write, enforce their order
-    for (auto it = strace.reads[i].begin(); it != strace.reads[i].end(); ++it) {
-      for (auto it2 = strace.writes[i].begin(); it2 != strace.writes[i].end(); ++it2) {
-        if ((**it).thread_id() != (**it2).thread_id()) {
-          assert (model.eval(**it < **it2).get_bool() != model.eval(**it2 < **it).get_bool());
-          if (model.eval(**it < **it2).get_bool()) {
-            //cout << (**it < **it2) << model.eval(**it) << " < " << model.eval(**it2) << endl;
-            result.push_back(constraint_atom(**it,**it2));
-          }
-          else {
-            //cout << (**it2 < **it) << model.eval(**it2) << " < " << model.eval(**it) << endl;
-            result.push_back(constraint_atom(**it2,**it));
-          }
-        }
-      }
-    }
+    find_order2(model, strace.reads[i], strace.writes[i], result);
     // writes should also not collide with each other
-    for (auto it = strace.writes[i].begin(); it != strace.writes[i].end(); ++it) {
-      for (auto it2 = strace.writes[i].begin(); it2 != strace.writes[i].end(); ++it2) {
-        if ((**it).thread_id() != (**it2).thread_id()) {
-          if (model.eval(**it < **it2).get_bool())
-            result.push_back(constraint_atom(**it,**it2));
-          else 
-            result.push_back(constraint_atom(**it2,**it));
-        }
-      }
-    }
+    find_order2(model, strace.writes[i], strace.writes[i], result);
   }
   
   return result;
 }
 
+conj_constr reorderings::wait_notify_order(const seperated_trace& strace, const z3::model& model)
+{
+  conj_constr result;
+  
+  for (variable_type i = 0; i < strace.waits.size(); ++i) {
+    find_order2(model, strace.waits[i], strace.resets[i], result);
+    find_order2(model, strace.waits[i], strace.notifies[i], result);
+    find_order2(model, strace.resets[i], strace.notifies[i], result);
+  }
+  
+  return result;
+}
+
+/*
 conj_constr reorderings::wait_notify_order(const reorderings::seperated_trace& strace, const z3::model& model)
 {
   typedef pair<const location*, int> loc_pair;
@@ -450,7 +465,7 @@ conj_constr reorderings::wait_notify_order(const reorderings::seperated_trace& s
     }
   }
   return result;
-}
+}*/
 
 
 void reorderings::print_trace(const reorderings::seperated_trace& strace, const z3::model& model, ostream& out)
@@ -521,11 +536,11 @@ std::vector<std::pair<const location*,const location*>> reorderings::find_lock_l
           const location* end = start;
           used[i] = true;
           auto itsy2 = itsy;
-          auto last = lock.end();
-          --last;
-          while (i+1 < thread.size() && itsy2 != last && equal_to<abstraction::psymbol>()(thread[i+1]->symbol, *(++itsy2))) {
+          ++itsy2;
+          // keep matching
+          while (i+1 < thread.size() && itsy2 != lock.end() && equal_to<abstraction::psymbol>()(thread[i+1]->symbol, *(itsy2))) {
             // the next symbol also matches
-            ++i;
+            ++i;++itsy2;
             used[i] = true;
             end = thread[i];
           }

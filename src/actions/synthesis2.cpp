@@ -47,16 +47,12 @@ using namespace std;
 void actions::synthesis2::run(const cfg::program& program, clang::CompilerInstance& compiler)
 {
   placement::print_program pprogram(program);
-  create_debug_folder();
   
   string file_name = main_filename;
-  file_name.replace(file_name.length()-2,2, ".start.c");
   pprogram.print_original(debug_folder + file_name);
   
   placement::placement_result result;
   bool success = synth_loop(program, result);
-  
-
   
   if (success) {
     pprogram.print_with_locks(result, output_file_code);

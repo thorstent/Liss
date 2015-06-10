@@ -70,7 +70,36 @@ void blow_up_trace(const cfg::program& program, std::vector<abstraction::psymbol
 void remove_from_list(lock_list& list) {
   auto master = list.begin();
   while (master != list.end()) {
-    
+    if ((*master)->is_preemption_point()) {
+      // remove epsilons before this point
+      if (master!=list.begin()) {
+        auto before = master;
+        --before;
+        for (;before != list.begin();--before) {
+          if ((*before)->operation==abstraction::op_class::epsilon) {
+            before = list.erase(before);
+          }
+        }
+        // for the first element
+        if ((*before)->operation==abstraction::op_class::epsilon) {
+          before = list.erase(before);
+        }
+      }
+      
+      // remove epsilons after this point
+      auto after = master;
+      after++;
+      for (;after != list.end();) {
+        if ((*after)->operation==abstraction::op_class::epsilon) {
+          after = list.erase(after);
+        } else
+          ++after;
+      }
+      
+      master = list.erase(master);
+    } else {
+      ++master;
+    }
   }
 }
 

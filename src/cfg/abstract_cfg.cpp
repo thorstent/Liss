@@ -133,12 +133,6 @@ state_id_type abstract_cfg::add_dummy_state()
   return add_state("Dummy");
 }
 
-struct successors_pair_less {
-  bool operator()(std::pair<state_id_type,bool> p1, std::pair<state_id_type,bool> p2) const {
-    return p1.first < p2.first;
-  }
-};
-
 void abstract_cfg::minimise(bool leave_function_states)
 {
   std::unordered_set<state_id_type> remain; // leave these states alone
@@ -167,7 +161,7 @@ void abstract_cfg::minimise(bool leave_function_states)
       parents.push_back(next);
       seen.insert(next);
       
-      //set<std::pair<state_id_type,bool>, successors_pair_less> successors; // set of successors
+      set<edge> successors; // set of successors
       unsigned i;
       for (i = 0; i<edges[next].size();++i) {
         edge edge_to = edges[next][i];
@@ -181,20 +175,21 @@ void abstract_cfg::minimise(bool leave_function_states)
             new_edge.in_betweeners.insert(new_edge.in_betweeners.begin(), edge_to.in_betweeners.begin(), edge_to.in_betweeners.end());
             edges[next].push_back(new_edge);
           }
+        } else {
+          successors.insert(edge_to);
         }
       }
-      if (i > 0)
-        edges[next].erase(edges[next].begin(), edges[next].begin()+i-1);
-      std::sort(edges[next].begin(), edges[next].end());
-      edges[next].erase(unique(edges[next].begin(), edges[next].end()), edges[next].end());
+      edges[next].clear();
       // add information to the edges
-      for (i = 0; i<edges[next].size();++i) {
-        edge& e = edges[next][i];
+      for (edge e : successors) {
         frontier2.push_back(make_pair(e.to,parents));
         reward_t cost = parents.end() - find(parents.begin(), parents.end(), e.to);
         bool back_edge = cost != 0;
         e.back_edge = back_edge;
-        if (e.tag) {
+        edges[next].push_back(e);
+      }
+      if (edges[next].size() > 1) {
+        for (unsigned i = 0; i < edges[next].size(); ++i) {
           tag_edge(next, i);
         }
       }
