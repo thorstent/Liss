@@ -67,7 +67,7 @@ void blow_up_trace(const cfg::program& program, std::vector<abstraction::psymbol
   }
 }
 
-void remove_from_list(std::vector<abstraction::psymbol>& list) {
+void remove_from_list(lock_list& list) {
   auto master = list.begin();
   while (master != list.end()) {
     

@@ -278,10 +278,10 @@ inline void concurrent_automaton::next_single(const pcstate& state, concurrent_a
 
 void concurrent_automaton::add_forbidden_traces(const synthesis::lock_symbols& new_locks)
 {
-  for (const disj<std::vector<std::vector<abstraction::psymbol>>>& lockd : new_locks) {
+  for (const disj<synthesis::lock_lists>& lockd : new_locks) {
     // one of these locks needs to hold
     locks.emplace_back(locks_size);
-    for (const std::vector<std::vector<abstraction::psymbol>>& lock : lockd) {
+    for (const synthesis::lock_lists& lock : lockd) {
       // one single lock
       locks.back().push_back(true);
       // define conflicts mutually between locations
@@ -292,15 +292,17 @@ void concurrent_automaton::add_forbidden_traces(const synthesis::lock_symbols& n
             // for size 1 there cannot be really a conflict because there are no states in between
             if (it!=it2 && it2->size()>1) {
               // state < 0 means after the state, > 0 before the state
-              for (unsigned i = 0; i < it2->size(); ++i) {
-                const location& loc2 = (*it2)[i]->loc;
+              auto last = it2->end();
+              --last;
+              for (auto pl = it2->begin(); pl != it2->end();) {
+                const location& loc2 = (*pl)->loc;
                 location negloc2 = loc2;
                 negloc2.state = -negloc2.state;
-                if (i!=0) {
+                if (pl != it2->begin()) {
                   // add the before location
                   conflict_map[sy].insert(make_pair(loc2,locks_size));
                 }
-                if (i!=it2->size()-1) {
+                if (pl != last) {
                   // add the after location
                   conflict_map[sy].insert(make_pair(negloc2,locks_size));
                 }

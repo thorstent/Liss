@@ -302,17 +302,17 @@ void place_locks::result_to_locklist(const vector<vector<z3::expr>>& result, vec
 z3::expr place_locks::locked_together(const synthesis::lock_symbols& locks_to_place)
 {
   z3::expr result = ztrue;
-  for (const disj<vector< vector< abstraction::psymbol > >>& d : locks_to_place) {
+  for (const disj<synthesis::lock_lists>& d : locks_to_place) {
     z3::expr di = zfalse;
     // add lock places
-    for (const vector< vector<abstraction::psymbol> >& lplaces : d) {
+    for (const synthesis::lock_lists& lplaces : d) {
       z3::expr one_lock = zfalse;
       for (z3::expr& l : lock_vector) {
         z3::expr e = ztrue;
         // all locations in the vector locked by lock l
-        for (const vector< abstraction::psymbol >& lplaces2 : lplaces) {
-          for (unsigned i = 0; i < lplaces2.size(); ++i) {
-            const abstraction::location& loc = lplaces2[i]->loc;
+        for (const synthesis::lock_list& lplaces2 : lplaces) {
+          for (const auto& pl : lplaces2) {
+            const abstraction::location& loc = pl->loc;
             z3::expr& loce = location_vector[loc.thread][loc.state];
             e = e && inl(loce,l);
           }

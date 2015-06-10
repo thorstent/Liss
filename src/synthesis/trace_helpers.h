@@ -36,7 +36,9 @@ namespace synthesis {
    * and for each place is a vector of locations inside that lock
    * 
    */  
-  using lock_symbols = cnf<std::vector<std::vector<abstraction::psymbol>>>;
+  using lock_list = std::list<abstraction::psymbol>;
+  using lock_lists = std::vector<lock_list>;
+  using lock_symbols = cnf<lock_lists>;
   
   lock_symbols locks_to_symbols(const cnf<::synthesis::lock>& locks, const std::vector<abstraction::psymbol>& trace);
   

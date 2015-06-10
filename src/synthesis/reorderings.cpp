@@ -506,7 +506,7 @@ void reorderings::split_trace(const vector< abstraction::psymbol >& trace, reord
   }
 }
 
-std::vector<std::pair<const location*,const location*>> reorderings::find_lock_locs(reorderings::seperated_trace& strace, const std::vector<abstraction::psymbol>& lock) {
+std::vector<std::pair<const location*,const location*>> reorderings::find_lock_locs(reorderings::seperated_trace& strace, const lock_list& lock) {
   std::vector<std::pair<const location*,const location*>> result;
   // here we find the subsets of the locations we are looking for
   if (lock.size()>1) {
@@ -521,9 +521,11 @@ std::vector<std::pair<const location*,const location*>> reorderings::find_lock_l
           const location* end = start;
           used[i] = true;
           auto itsy2 = itsy;
-          while (i+1 < thread.size() && itsy2+1 != lock.end() && equal_to<abstraction::psymbol>()(thread[i+1]->symbol, *(itsy2+1))) {
+          auto last = lock.end();
+          --last;
+          while (i+1 < thread.size() && itsy2 != last && equal_to<abstraction::psymbol>()(thread[i+1]->symbol, *(++itsy2))) {
             // the next symbol also matches
-            ++i;++itsy2;
+            ++i;
             used[i] = true;
             end = thread[i];
           }
@@ -540,11 +542,11 @@ std::vector<std::pair<const location*,const location*>> reorderings::find_lock_l
 void reorderings::synth_locks(reorderings::seperated_trace& strace, const synthesis::lock_symbols& synthesised_locks)
 {
   z3::expr& cnf = strace.synth_locks;
-  for (const disj<std::vector<std::vector<abstraction::psymbol>>>& lockd : synthesised_locks) {
+  for (const disj<lock_lists>& lockd : synthesised_locks) {
     // one of these locks needs to hold
     z3::expr disj = ctx.bool_val(false);
 
-    for (const std::vector<std::vector<abstraction::psymbol>>& lock : lockd) {
+    for (const lock_lists& lock : lockd) {
       // one single lock
       z3::expr locke = ctx.bool_val(true);
       // define conflicts mutually between locations
