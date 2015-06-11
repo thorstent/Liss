@@ -135,14 +135,13 @@ state_id_type abstract_cfg::add_dummy_state()
   return add_state("Dummy");
 }
 
-void abstract_cfg::minimise(bool leave_function_states)
+void abstract_cfg::minimise(bool leave_lockables)
 {
   std::unordered_set<state_id_type> remain; // leave these states alone
-  if (leave_function_states) {
+  if (leave_lockables) {
     for (unsigned i = 0; i <= no_states(); ++i) {
-      if (states[i].return_state != no_state) {
+      if (states[i].lock_stmt) {
         remain.insert(i);
-        remain.insert(states[i].return_state);
       }
     }
   }

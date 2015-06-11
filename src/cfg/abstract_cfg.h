@@ -113,9 +113,9 @@ public:
   /**
    * @brief Removes unneeded states from the CFG, leaving only the most important ones (those that have actions)
    * 
-   * @param leave_function_states means that the states representing function start and end points remain
+   * @param leave_lockables means that the states that can be locked remain
    */
-  void minimise(bool leave_function_states);
+  void minimise(bool leave_lockables);
   
   /**
    * @brief Ensures that the arrays are tightly packed
