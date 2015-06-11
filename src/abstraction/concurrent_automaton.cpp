@@ -288,26 +288,29 @@ void concurrent_automaton::add_forbidden_traces(const synthesis::lock_symbols& n
       for (auto it = lock.begin(); it!=lock.end(); ++it) {
         // each conflict in this vector is in conflict with all the other vectors
         for (const psymbol& sy : (*it)) {
-          for (auto it2 = lock.begin(); it2!=lock.end(); ++it2) {
-            // for size 1 there cannot be really a conflict because there are no states in between
-            if (it!=it2 && it2->size()>1) {
-              // state < 0 means after the state, > 0 before the state
-              auto last = it2->end();
-              --last;
-              for (auto pl = it2->begin(); pl != it2->end(); ++pl) {
-                const location& loc2 = (*pl)->loc;
-                location negloc2 = loc2;
-                negloc2.state = -negloc2.state;
-                if (pl != it2->begin()) {
-                  // add the before location
-                  conflict_map[sy].insert(make_pair(loc2,locks_size));
-                }
-                if (pl != last) {
-                  // add the after location
-                  conflict_map[sy].insert(make_pair(negloc2,locks_size));
+          if (sy->operation != op_class::epsilon) {
+            for (auto it2 = lock.begin(); it2!=lock.end(); ++it2) {
+              // for size 1 there cannot be really a conflict because there are no states in between
+              if (it!=it2 && it2->size()>1) {
+                // state < 0 means after the state, > 0 before the state
+                auto last = it2->end();
+                --last;
+                for (auto pl = it2->begin(); pl != it2->end(); ++pl) {
+                  if ((*pl)->operation != op_class::epsilon) {
+                    const location& loc2 = (*pl)->loc;
+                    location negloc2 = loc2;
+                    negloc2.state = -negloc2.state;
+                    if (pl != it2->begin()) {
+                      // add the before location
+                      conflict_map[sy].insert(make_pair(loc2,locks_size));
+                    }
+                    if (pl != last) {
+                      // add the after location
+                      conflict_map[sy].insert(make_pair(negloc2,locks_size));
+                    }
+                  }
                 }
               }
-              
             }
           }
         }

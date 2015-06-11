@@ -50,18 +50,29 @@ void print_program::place_text(Rewriter& rewriter, const cfg::state& state, cons
     rewriter.InsertText(start, "{", true, true);
     rewriter.InsertText(end, "}", true, true);    
   }
+  SourceLocation loc = !after ? state.lock_before : state.lock_after;
+  if(!rewriter.isRewritable(loc)) {
+    cerr << "Position not writable ";
+    SourceManager& source_manager = program.ast_context.getSourceManager();
+    const FileEntry* fileentry = source_manager.getFileEntryForID(source_manager.getFileID(loc));
+    assert (fileentry);
+    unsigned line_no = source_manager.getPresumedLineNumber(loc);
+    cerr << fileentry->getName() << ":" << line_no << endl;
+    assert(false);
+  }
   if(!after) {
-    SourceLocation loc = state.lock_before;
-    assert(rewriter.isRewritable(loc));
     rewriter.InsertText(loc, text + "\n", true, true);
   } else {
-    SourceLocation loc = state.lock_after;
-    assert(rewriter.isRewritable(loc));
     rewriter.InsertText(loc, "\n" + text, false, true);
   }
 }
 
 void print_program::place_locks(Rewriter& rewriter, const vector< pair< unsigned, abstraction::location > >& locks, const string name, bool after, unordered_set<Stmt*>& added_brace) {
+  for (pair< unsigned, abstraction::location > l : locks) {
+    string text =  name + "(" + lock_name + to_string(l.first) + ");";
+    const cfg::state& state = program.threads()[l.second.thread]->get_state(l.second.state);
+    place_text(rewriter, state, text, after, added_brace);
+  }
   /*for (pair< unsigned, abstraction::location > l : locks) {
     // find location
     
@@ -113,27 +124,27 @@ void print_program::place_lock_decl(Rewriter& rewriter, const std::unordered_set
   }
 }
 
-void print_program::remove_duplicates(vector< pair< unsigned, abstraction::location > >& locks) {
-  /*for (unsigned i = 0; i < locks.size(); ++i) {
+void print_program::remove_duplicates(vector< pair< unsigned, abstraction::location > >& locks, bool after) {
+  for (unsigned i = 0; i < locks.size(); ++i) {
     for (unsigned j = i+1; j < locks.size(); ++j) {
-      if (locks[i].first == locks[j].first) {
-        const auto& statei = program.minimised_threads()[locks[i].second.thread]->get_state(locks[i].second.state);
-        const auto& statej = program.minimised_threads()[locks[j].second.thread]->get_state(locks[j].second.state);
-        if (statei.lock_stmt == statej.lock_stmt) {
+      if (locks[i].first == locks[j].first) { // same lock
+        const auto& statei = program.threads()[locks[i].second.thread]->get_state(locks[i].second.state);
+        const auto& statej = program.threads()[locks[j].second.thread]->get_state(locks[j].second.state);
+        if (!after && statei.lock_before == statej.lock_before || after && statei.lock_after == statej.lock_after) {
           // these are actually refering to the same instruction
-          locks.erase(locks.begin()+j);
+          locks.erase(locks.begin()+j);--j;
         }
       }
     }
-  }*/
+  }
 }
 
 void print_program::print_with_locks(placement_result locks_to_place, const string& outname)
 {
-  remove_duplicates(locks_to_place.locks_a);
-  remove_duplicates(locks_to_place.locks_b);
-  remove_duplicates(locks_to_place.unlocks_a);
-  remove_duplicates(locks_to_place.unlocks_b);
+  remove_duplicates(locks_to_place.locks_a, true);
+  remove_duplicates(locks_to_place.locks_b, false);
+  remove_duplicates(locks_to_place.unlocks_a, true);
+  remove_duplicates(locks_to_place.unlocks_b, false);
   Rewriter rewriter(program.ast_context.getSourceManager(), program.ast_context.getLangOpts());
   
   unordered_set<Stmt*> added_brace;

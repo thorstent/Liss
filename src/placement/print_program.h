@@ -49,7 +49,7 @@ private:
   void place_locks(clang::Rewriter& rewriter, const std::vector< std::pair< unsigned, abstraction::location > >& locks, const std::string name, bool after, std::unordered_set<clang::Stmt*>& added_brace);
   void place_text(clang::Rewriter& rewriter, const cfg::state& state, const std::string& text, bool after, std::unordered_set<clang::Stmt*>& added_brace);
   void place_lock_decl(clang::Rewriter& rewriter, const std::unordered_set< unsigned int >& locks_in_use);
-  void remove_duplicates(std::vector< std::pair< unsigned, abstraction::location > >& locks);
+  void remove_duplicates(std::vector< std::pair< unsigned int, abstraction::location > >& locks, bool after);
   
   const cfg::program& program;
   

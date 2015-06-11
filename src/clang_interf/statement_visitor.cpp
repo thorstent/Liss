@@ -167,7 +167,6 @@ bool statement_visitor::TraverseCallExpr(CallExpr* s)
         add_successor(cvisitor.entry_state());
         end_state = cvisitor.exit_state();
         
-        
         state_id = thread.add_state("ret " + name);
         lock_locations(s, state_id, false, true);
         add_successor(state_id);
@@ -217,16 +216,21 @@ void statement_visitor::add_successor(state_id_type successor)
 
 void statement_visitor::lock_locations(Stmt* stmt, state_id_type state_id, bool allow_before, bool allow_after)
 {
-  clang::FileID id = context.getSourceManager().getFileID(stmt->getLocStart());
-  if (id==context.getSourceManager().getMainFileID()) { // otherwise no lock placements
+  SourceManager& source_manager = context.getSourceManager();
+  clang::FileID id = source_manager.getFileID(stmt->getLocStart());
+  if (id==source_manager.getMainFileID()) { // otherwise no lock placements
     
     parent_result parent = find_stmt_parent(stmt, function);
     if (parent.stmt_to_lock) {
       SourceLocation start = parent.stmt_to_lock->getLocStart();
       SourceLocation end = parent.stmt_to_lock->getLocEnd();
-      int offset = Lexer::MeasureTokenLength(end, context.getSourceManager(), context.getLangOpts());
+      int offset = Lexer::MeasureTokenLength(end, source_manager, context.getLangOpts());
       offset += 1;
       end = end.getLocWithOffset(offset);
+      
+      if (start.isMacroID() || end.isMacroID()) {
+        throw logic_error("Caught macro expansion");
+      }
       
       cfg::state& state = thread.get_state(state_id);
       if (allow_before)
