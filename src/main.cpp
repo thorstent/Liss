@@ -52,6 +52,7 @@ cl::list<actions::action_names> ActionList(cl::desc("Available Actions:"),
                                   clEnumValN(actions::action_names::synthesis, "synthesis"  , "Add synchronisation primitives to the code"),
                                   clEnumValN(actions::action_names::deadlock, "deadlock"  , "Check for deadlocks"),
                                   clEnumValN(actions::action_names::perf_test, "perf"  , "Verious performance tests"),
+                                  clEnumValN(actions::action_names::printlocks, "printlocks"  , "Print all lock positions in the code"),
                                 clEnumValEnd), cl::cat(LissCategory));
 
 cl::opt<int, true> Verbosity ("v", cl::desc("Set verbosity level"), cl::value_desc("verbosity"), cl::cat(LissCategory), cl::location(verbosity));

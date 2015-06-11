@@ -25,6 +25,7 @@
 #include "deadlock_check.h"
 #include "perf_test.h"
 #include "print_cfg.h"
+#include "print_locks.h"
 
 using namespace actions;
 using namespace std;
@@ -51,6 +52,8 @@ actions::actionp actions::create_action(action_names action){
       return make_shared<perf_test>();
     case action_names::printcfg:
       return make_shared<print_cfg>();
+    case action_names::printlocks:
+      return make_shared<print_locks>();
   }
   assert(false);
   return nullptr;

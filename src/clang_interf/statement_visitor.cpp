@@ -20,11 +20,12 @@
 #include "statement_visitor.h"
 #include <iostream>
 #include <clang/AST/ASTContext.h>
+#include <clang/Lex/Lexer.h>
 #include "abstraction/symbol.h"
 #include "parse_error.h"
 #include "cfg_visitor.h"
 #include "options.h"
-
+#include "clang_interf/clang_helpers.h"
 
 using namespace clang_interf;
 using namespace std;
@@ -45,7 +46,7 @@ bool statement_visitor::VisitDeclRefExpr(DeclRefExpr* stmt)
         variable_type var = identifier_store.insert_variable(variable);
         symbol action(access_type, variable, var, identifier_store, stmt, function);
         state_id_type next = thread.add_state(action);
-        check_mainfile(stmt, next);
+        lock_locations(stmt, next);
         add_successor(next);
       } else {
         last_nondet = true;
@@ -146,31 +147,31 @@ bool statement_visitor::TraverseCallExpr(CallExpr* s)
     action.assume = assume;
     action.synthesised = synthesised;
     state_id_type next = thread.add_state(action);
-    check_mainfile(s, next);
+    lock_locations(s, next);
     add_successor(next);
   } else {
     RecursiveASTVisitor::TraverseCallExpr(s);
     if (isa<FunctionDecl>(s->getCalleeDecl())) {
       FunctionDecl* callee = cast<FunctionDecl>(s->getCalleeDecl());
-      string name = callee->getNameInfo().getName().getAsString();
+      string name = callee->getNameInfo().getAsString();
       if (callee->hasBody()) {
+        // add call state
+        state_id_type state_id = thread.add_state("call " + name);
+        lock_locations(s, state_id, true, false);
+        add_successor(state_id);
+        
         Stmt* body = callee->getBody();
         std::unique_ptr<clang::CFG> cfg = CFG::buildCFG(callee, callee->getBody(), &context, clang::CFG::BuildOptions());
-        cfg_visitor cvisitor(context, thread, identifier_store, cfg->getExit());
-        cvisitor.process_block(cfg->getEntry(), body, no_state);
+        cfg_visitor cvisitor(context, thread, identifier_store, cfg->getExit(), name);
+        cvisitor.process(cfg->getEntry(), body);
         add_successor(cvisitor.entry_state());
         end_state = cvisitor.exit_state();
-        auto& es = thread.get_state(cvisitor.entry_state());
-        es.return_state = cvisitor.exit_state();
-        es.name("call " + name);
-        es.lock_policy = lock_policy_t::before;
-        es.lock_stmt = s;
-        es.lock_function = function;
-        auto& exs = thread.get_state(cvisitor.exit_state());
-        exs.name("ret " + name);
-        exs.lock_policy = lock_policy_t::after;
-        exs.lock_stmt = s;
-        exs.lock_function = function;
+        
+        
+        state_id = thread.add_state("ret " + name);
+        lock_locations(s, state_id, false, true);
+        add_successor(state_id);
+
       } else {
         cerr << "Ignoring function without body: " << name << endl;
       }
@@ -212,11 +213,28 @@ void statement_visitor::add_successor(state_id_type successor)
   end_state = successor;
 }
 
-void statement_visitor::check_mainfile(Stmt* stmt, state_id_type state)
+
+
+void statement_visitor::lock_locations(Stmt* stmt, state_id_type state_id, bool allow_before, bool allow_after)
 {
   clang::FileID id = context.getSourceManager().getFileID(stmt->getLocStart());
-  if (id!=context.getSourceManager().getMainFileID()) {
-    thread.get_state(state).lock_policy = lock_policy_t::none;
+  if (id==context.getSourceManager().getMainFileID()) { // otherwise no lock placements
+    
+    parent_result parent = find_stmt_parent(stmt, function);
+    if (parent.stmt_to_lock) {
+      SourceLocation start = parent.stmt_to_lock->getLocStart();
+      SourceLocation end = parent.stmt_to_lock->getLocEnd();
+      int offset = Lexer::MeasureTokenLength(end, context.getSourceManager(), context.getLangOpts());
+      offset += 1;
+      end = end.getLocWithOffset(offset);
+      
+      cfg::state& state = thread.get_state(state_id);
+      if (allow_before)
+        state.lock_before = start;
+      if (allow_after)
+        state.lock_after = end;
+      if (parent.braces_needed) state.braces_needed = parent.stmt_to_lock;
+    }
   }
 }
 

@@ -22,10 +22,38 @@
 #include <stdexcept>
 #include <clang/AST/ASTContext.h>
 #include <cassert>
+#include <clang/Lex/Lexer.h>
 
 using namespace clang_interf;
 using namespace std;
 using namespace clang;
+
+void cfg_visitor::process(const CFGBlock& block, Stmt* function)
+{
+  process_block(block, function, no_state);
+  add_locking_information(function);
+}
+
+void cfg_visitor::add_locking_information(Stmt* function)
+{
+  auto& es = thread.get_state(entry_state());
+  es.return_state = exit_state();
+  es.name("start " + name);
+  CompoundStmt* body = dyn_cast<CompoundStmt>(function);
+  assert(body);
+  SourceLocation start = body->getLocStart();
+  int offset = 1;
+  start = start.getLocWithOffset(offset);
+  es.lock_after = start;
+  
+  SourceLocation end = body->getLocEnd();
+  auto& exs = thread.get_state(exit_state());
+  exs.name("end " + name);
+  exs.lock_before = end;
+  
+}
+
+
 
 // parent_blocks is used to identify back_edges
 void cfg_visitor::process_block(const CFGBlock& block, clang::Stmt* function, state_id_type last_state, unordered_set<unsigned> parent_blocks)

@@ -77,7 +77,8 @@ private:
   std::string get_type_name(clang::DeclRefExpr* decl);
   clang::Stmt* function;
   std::unordered_set<const clang::Stmt*>& seen_stmt;
-  void check_mainfile(clang::Stmt* stmt, state_id_type state); // disable lock placement if not main file
+  void lock_locations(clang::Stmt* stmt, state_id_type state, bool allow_before = true, bool allow_after = true);
+
 };
 }
 

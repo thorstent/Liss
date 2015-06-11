@@ -23,9 +23,10 @@
 #include <clang/AST/ASTContext.h>
 #include <clang/Lex/Lexer.h>
 #include <clang/AST/Expr.h>
+#include "clang_interf/clang_helpers.h"
 
-#include <clang/AST/ParentMap.h>
 #include <iostream>
+#include <sstream>
 
 using namespace placement;
 using namespace std;
@@ -36,8 +37,32 @@ print_program::print_program(const cfg::program& program) : program(program)
 
 }
 
+void print_program::place_text(Rewriter& rewriter, const cfg::state& state, const string& text, bool after, unordered_set<Stmt*>& added_brace) {
+  if (state.braces_needed && added_brace.insert(state.braces_needed).second) {
+    SourceLocation start = state.braces_needed->getLocStart();
+    SourceLocation end = state.braces_needed->getLocEnd();
+    // MeasureTokenLength gets us past the last token, and adding 1 gets
+    // us past the ';'.
+    int offset = Lexer::MeasureTokenLength(end, rewriter.getSourceMgr(), rewriter.getLangOpts());
+    if (clang_interf::ends_semicolon(state.braces_needed)) offset += 1;
+    end = end.getLocWithOffset(offset);
+    // we need to add braces around the expression
+    rewriter.InsertText(start, "{", true, true);
+    rewriter.InsertText(end, "}", true, true);    
+  }
+  if(!after) {
+    SourceLocation loc = state.lock_before;
+    assert(rewriter.isRewritable(loc));
+    rewriter.InsertText(loc, text + "\n", true, true);
+  } else {
+    SourceLocation loc = state.lock_after;
+    assert(rewriter.isRewritable(loc));
+    rewriter.InsertText(loc, "\n" + text, false, true);
+  }
+}
+
 void print_program::place_locks(Rewriter& rewriter, const vector< pair< unsigned, abstraction::location > >& locks, const string name, bool after, unordered_set<Stmt*>& added_brace) {
-  for (pair< unsigned, abstraction::location > l : locks) {
+  /*for (pair< unsigned, abstraction::location > l : locks) {
     // find location
     
     const cfg::state& state = program.minimised_threads()[l.second.thread]->get_state(l.second.state);
@@ -61,7 +86,7 @@ void print_program::place_locks(Rewriter& rewriter, const vector< pair< unsigned
     } else {
       rewriter.InsertText(end, "\n" + name + "(" + lock_name + to_string(l.first) + ");", false, true);
     }
-  }
+  }*/
 }
 
 void print_program::place_lock_decl(Rewriter& rewriter, const std::unordered_set<unsigned>& locks_in_use)
@@ -89,7 +114,7 @@ void print_program::place_lock_decl(Rewriter& rewriter, const std::unordered_set
 }
 
 void print_program::remove_duplicates(vector< pair< unsigned, abstraction::location > >& locks) {
-  for (unsigned i = 0; i < locks.size(); ++i) {
+  /*for (unsigned i = 0; i < locks.size(); ++i) {
     for (unsigned j = i+1; j < locks.size(); ++j) {
       if (locks[i].first == locks[j].first) {
         const auto& statei = program.minimised_threads()[locks[i].second.thread]->get_state(locks[i].second.state);
@@ -100,7 +125,7 @@ void print_program::remove_duplicates(vector< pair< unsigned, abstraction::locat
         }
       }
     }
-  }
+  }*/
 }
 
 void print_program::print_with_locks(placement_result locks_to_place, const string& outname)
@@ -144,31 +169,30 @@ void print_program::print_original(const string& outname)
   outFile.close();
 }
 
-
-print_program::parent_result print_program::find_stmt_parent(Stmt* stmt, Stmt* function)
+void print_program::print_test_locations(const string& outname)
 {
-  ParentMap map(function);
-  bool ends_semicolon = true;
-  while (true) {
-    assert(stmt);
-    Stmt* parent = map.getParent(stmt);
-    if (isa<CompoundStmt>(parent)) {
-      return parent_result(stmt, false, ends_semicolon);
-    } else if (IfStmt* ifs = dyn_cast<IfStmt>(parent)) {
-      if (stmt!=ifs->getCond())
-        return parent_result(stmt, true, ends_semicolon);
-      ends_semicolon = false;
-    } else if (WhileStmt* whiles = dyn_cast<WhileStmt>(parent)) {
-      if (stmt!=whiles->getCond())
-        return parent_result(stmt, true, ends_semicolon);
-      ends_semicolon = false;
-    } else if (DoStmt* dos = dyn_cast<DoStmt>(parent)) {
-      if (stmt!=dos->getCond()) 
-        return parent_result(stmt, true, ends_semicolon);
-      ends_semicolon = true;
-    } else {
-      ends_semicolon = true;
+  Rewriter rewriter(program.ast_context.getSourceManager(), program.ast_context.getLangOpts());
+  unordered_set<Stmt*> added_brace;
+  
+  unordered_set<SourceLocation> before_lock, after_lock;
+  
+  for (const cfg::abstract_cfg* thread : program.threads()) {
+    for (unsigned i = 1; i <= thread->no_states(); ++i) {
+      const cfg::state& state = thread->get_state(i);
+      stringstream ss;
+      ss << state;
+      if (state.lock_before != SourceLocation() && before_lock.insert(state.lock_before).second)
+        place_text(rewriter, state, "before " + ss.str(), false, added_brace);
+      if (state.lock_after != SourceLocation() && after_lock.insert(state.lock_after).second)
+        place_text(rewriter, state, "after " + ss.str(), true, added_brace);
     }
-    stmt = parent;
   }
+  
+  // print out the program
+  std::error_code error_code;
+  llvm::raw_fd_ostream outFile(outname, error_code, llvm::sys::fs::F_None);
+  rewriter.getEditBuffer(program.ast_context.getSourceManager().getMainFileID()).write(outFile);
+  outFile.close();
 }
+
+

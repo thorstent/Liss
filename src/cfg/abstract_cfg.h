@@ -29,17 +29,21 @@
 #include "types.h"
 #include "abstraction/symbol.h"
 
+#include <clang/Basic/SourceLocation.h>
+
+namespace std {
+  template <>
+  struct hash<clang::SourceLocation> {
+    size_t operator()(const clang::SourceLocation& loc) const {
+      return loc.getRawEncoding();
+    }
+  };
+}
+
 namespace clang {
   class Stmt;
   class FunctionDecl;
 }
-
-enum class lock_policy_t {
-  none, // no locks allowed
-  before, // locks allowed before this state
-  after, // locks allowed after this state
-  both // locks allowed before and after
-};
 
 namespace cfg {
 
@@ -55,12 +59,10 @@ struct state {
   std::string name() const { return name_; };
   void name(std::string newn) { name_ = newn; if (non_action_symbol) non_action_symbol->variable_name = newn; }
   state_id_type return_state = no_state; // if this is a function call, then it contains the position where the function call returns
-  clang::Stmt* lock_stmt = nullptr; // the statement to place the lock around
-  clang::Stmt* lock_function = nullptr; // the function body where the statement is inside
-  lock_policy_t lock_policy; // where the locks can be placed
-  state(state_id_type id, const abstraction::symbol& action) : id(id), action(std::make_shared<abstraction::symbol>(action)), lock_stmt(action.instr_stmt()),
-  lock_function(action.function_stmt()), lock_policy(lock_policy_t::both) {}
-  state(thread_id_type thread_id, state_id_type id) : id(id), non_action_symbol(std::make_shared<abstraction::symbol>(thread_id, id)), lock_policy(lock_policy_t::none) {}
+  clang::SourceLocation lock_before, lock_after; // the place to put locks if this state can be locked
+  clang::Stmt* braces_needed = nullptr; // if braces need to be added before adding locks this points to the instruction
+  state(state_id_type id, const abstraction::symbol& action) : id(id), action(std::make_shared<abstraction::symbol>(action)) {}
+  state(thread_id_type thread_id, state_id_type id) : id(id), non_action_symbol(std::make_shared<abstraction::symbol>(thread_id, id)) {}
 private:
   std::string name_;
 };

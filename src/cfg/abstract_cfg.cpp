@@ -140,7 +140,7 @@ void abstract_cfg::minimise(bool leave_lockables)
   std::unordered_set<state_id_type> remain; // leave these states alone
   if (leave_lockables) {
     for (unsigned i = 0; i <= no_states(); ++i) {
-      if (states[i].lock_stmt) {
+      if (states[i].lock_before != clang::SourceLocation() || states[i].lock_after != clang::SourceLocation()) {
         remain.insert(i);
       }
     }

@@ -17,29 +17,30 @@
  * along with Liss.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ACTIONS_ACTION_BASE_H
-#define ACTIONS_ACTION_BASE_H
+#ifndef CLANG_INTERF_CLANG_HELPERS_H
+#define CLANG_INTERF_CLANG_HELPERS_H
 
-#include "cfg/program.h"
-
-#include <clang/Frontend/CompilerInstance.h>
-#include <memory>
-
-namespace actions {
-  
-  enum class action_names {
-    print, inclusion_test, synthesis, deadlock, perf_test, printtim, printcfg, printthreads, printlocks
-  };
-  
-  class action_base
-  {
-  public:
-    virtual void run(const cfg::program& program, clang::CompilerInstance& compiler) = 0;
-    virtual ~action_base() {}
-  };
-  
-  typedef std::shared_ptr<action_base> actionp;
-  actionp create_action(action_names action);
+namespace clang {
+  class Stmt;
 }
 
-#endif // ACTIONS_ACTION_BASE_H
+namespace clang_interf {
+  struct parent_result {
+    clang::Stmt* stmt_to_lock;
+    bool braces_needed;
+    parent_result(clang::Stmt* stmt_to_lock, bool braces_needed) : stmt_to_lock(stmt_to_lock),
+    braces_needed(braces_needed)  {}
+    parent_result() : stmt_to_lock(nullptr), braces_needed(false) {}
+  };
+  
+  /**
+   * @brief Finds the parent and if additional braces are needed
+   * 
+   * @returns stmt_to_lock may be null if lock placement is not allowed here
+   */
+  parent_result find_stmt_parent(clang::Stmt* stmt, clang::Stmt* function);
+  
+  bool ends_semicolon(const clang::Stmt* stmt);
+}
+
+#endif

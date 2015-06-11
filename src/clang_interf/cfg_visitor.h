@@ -37,8 +37,24 @@ class cfg_visitor
 public:
   typedef std::unordered_map<unsigned int,const state_id_type> block_map_t;
   cfg_visitor(clang::ASTContext& context, cfg::abstract_cfg& thread,
-              abstraction::identifier_store& identifier_store, const clang::CFGBlock& exit) :
-  context(context), thread(thread), identifier_store(identifier_store), exit_block(&exit) {}
+              abstraction::identifier_store& identifier_store, const clang::CFGBlock& exit, std::string name) :
+  context(context), thread(thread), identifier_store(identifier_store), exit_block(&exit), name(name) {}
+  
+  void process(const clang::CFGBlock& block, clang::Stmt* function);
+  
+  state_id_type exit_state();
+  state_id_type entry_state();
+  
+
+private:
+  clang::ASTContext& context;
+  cfg::abstract_cfg& thread;
+  abstraction::identifier_store& identifier_store;
+  block_map_t block_map;
+  state_id_type exit_state_ = no_state;
+  state_id_type entry_state_ = no_state;
+  const clang::CFGBlock* exit_block;
+  std::string name;
   
   /**
    * @brief ...
@@ -48,17 +64,10 @@ public:
    * @param parent_blocks The blocks already encountered on the way to this block
    */
   void process_block(const clang::CFGBlock& block, clang::Stmt* function, state_id_type last_state, std::unordered_set<unsigned> parent_blocks = std::unordered_set<unsigned>());
-  
-  state_id_type exit_state();
-  state_id_type entry_state();
-private:
-  clang::ASTContext& context;
-  cfg::abstract_cfg& thread;
-  abstraction::identifier_store& identifier_store;
-  block_map_t block_map;
-  state_id_type exit_state_ = no_state;
-  state_id_type entry_state_ = no_state;
-  const clang::CFGBlock* exit_block;
+  /**
+   * @brief Adds locking information to the exit and entry state
+   */
+  void add_locking_information(clang::Stmt* function);
 };
 }
 

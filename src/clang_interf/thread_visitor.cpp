@@ -32,13 +32,11 @@ using namespace std;
 void clang_interf::parse_thread(cfg::abstract_cfg& thread, abstraction::identifier_store& is, ASTContext& context)
 {
   std::unique_ptr<clang::CFG> cfg = CFG::buildCFG(thread.declaration, thread.declaration->getBody(), &context, clang::CFG::BuildOptions());
-  cfg_visitor visitor(context, thread, is, cfg->getExit());
+  cfg_visitor visitor(context, thread, is, cfg->getExit(), thread.declaration->getNameInfo().getAsString());
   //cfg->dump(context.getLangOpts(), false);
-  visitor.process_block(cfg->getEntry(), thread.declaration->getBody(), no_state);
+  visitor.process(cfg->getEntry(), thread.declaration->getBody());
   thread.mark_final(visitor.exit_state());
   thread.get_state(visitor.entry_state()).return_state = visitor.exit_state();
-  thread.get_state(visitor.entry_state()).name("initial");
-  thread.get_state(visitor.exit_state()).name("last");
 }
 
 
@@ -47,8 +45,7 @@ bool thread_visitor::TraverseFunctionDecl(FunctionDecl* fd)
   if (fd->hasBody()) {
     if (program.first_function.isInvalid())
       program.first_function = fd->getSourceRange().getBegin();
-    DeclarationName dn = fd->getNameInfo().getName();
-    std::string name = dn.getAsString();
+    std::string name = fd->getNameInfo().getAsString();
     
     if (cfg::program::is_thread_name(name)) {
       cfg::abstract_cfg* thread = new cfg::abstract_cfg(fd, program.no_threads());

@@ -21,6 +21,7 @@
 
 #include <string.h>
 #include <algorithm>
+#include <sstream>
 #include "options.h"
 #include "synthesis/z3_helpers.h"
 #include <Limi/internal/helpers.h>
@@ -192,11 +193,10 @@ void place_locks::init_consistancy()
       // forbid locking and unlock at non-locations
       for (z3::expr l : lock_vector) {
         const auto& s = thread->get_state(i);
-        if (!s.lock_stmt || s.lock_policy==lock_policy_t::none) {
-          cons_loc = cons_loc && !lock_a(x,l) && !lock_b(x,l) && !unlock_a(x,l) && !unlock_b(x,l);
-        } else if (s.lock_policy==lock_policy_t::after) {
+        if (s.lock_before == clang::SourceLocation()) {
           cons_loc = cons_loc && !lock_b(x,l) && !unlock_b(x,l);
-        } else if (s.lock_policy==lock_policy_t::before) {
+        }
+        if (s.lock_after == clang::SourceLocation()) {
           cons_loc = cons_loc && !lock_a(x,l) && !unlock_a(x,l);
         }
         cons_basic = cons_basic && (!lock_a(x,l) || !unlock_a(x,l)) && (!lock_b(x,l) || !unlock_b(x,l));
@@ -268,26 +268,39 @@ void place_locks::init_consistancy()
 // ensure that all positions refering to the same physical location have the same lock and unlock semantics
 void place_locks::init_sameinstr()
 {
-  unordered_map<clang::Stmt*,vector<z3::expr>> instr_map;
+  unordered_map<clang::SourceLocation,vector<z3::expr>> lock_before;
+  unordered_map<clang::SourceLocation,vector<z3::expr>> lock_after;
   // build a cache of instructions and their locations
   unsigned t = 0;
   for (const cfg::abstract_cfg* thread : threads) {
     for (unsigned i = 1; i <= thread->no_states(); ++i) {
       z3::expr x = location_vector[t][i];
-      clang::Stmt* s = threads[t]->get_state(i).lock_stmt;
-      if (s)
-        instr_map[s].push_back(x);
+      const cfg::state& s = threads[t]->get_state(i);
+      if (s.lock_after != clang::SourceLocation())
+        lock_after[s.lock_after].push_back(x);
+      if (s.lock_before != clang::SourceLocation())
+        lock_before[s.lock_before].push_back(x);
     }
     ++t;
   }
   // check which ones have more than one position
-  for (const auto& in : instr_map) {
+  for (const auto& in : lock_after) {
     const vector<z3::expr>& inv = in.second;
     if (inv.size()>1) {
       z3::expr first = inv[0];
       for (z3::expr& l : lock_vector) {
         for (unsigned i = 1; i < inv.size(); ++i) {
           cons_sameinstr = cons_sameinstr && lock_a(first,l) == lock_a(inv[i],l) && unlock_a(first,l) == unlock_a(inv[i],l);
+        }
+      }
+    }
+  }
+  for (const auto& in : lock_before) {
+    const vector<z3::expr>& inv = in.second;
+    if (inv.size()>1) {
+      z3::expr first = inv[0];
+      for (z3::expr& l : lock_vector) {
+        for (unsigned i = 1; i < inv.size(); ++i) {
           cons_sameinstr = cons_sameinstr && lock_b(first,l) == lock_b(inv[i],l) && unlock_b(first,l) == unlock_b(inv[i],l);
         }
       }

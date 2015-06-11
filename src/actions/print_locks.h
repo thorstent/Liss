@@ -17,29 +17,18 @@
  * along with Liss.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ACTIONS_ACTION_BASE_H
-#define ACTIONS_ACTION_BASE_H
+#ifndef ACTIONS_PRINT_LOCKS_H
+#define ACTIONS_PRINT_LOCKS_H
 
-#include "cfg/program.h"
-
-#include <clang/Frontend/CompilerInstance.h>
-#include <memory>
+#include "action_base.h"
 
 namespace actions {
-  
-  enum class action_names {
-    print, inclusion_test, synthesis, deadlock, perf_test, printtim, printcfg, printthreads, printlocks
-  };
-  
-  class action_base
-  {
-  public:
-    virtual void run(const cfg::program& program, clang::CompilerInstance& compiler) = 0;
-    virtual ~action_base() {}
-  };
-  
-  typedef std::shared_ptr<action_base> actionp;
-  actionp create_action(action_names action);
+
+class print_locks : public actions::action_base
+{
+public:
+    virtual void run(const cfg::program& program, clang::CompilerInstance& compiler);
+};
 }
 
-#endif // ACTIONS_ACTION_BASE_H
+#endif // ACTIONS_PRINT_LOCKS_H
