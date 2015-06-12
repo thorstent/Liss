@@ -11,7 +11,28 @@ not_in_array() {
     return 0
 }
 
-#echo Compiling ...
+deadlock() {
+    out=$(./liss "${1}" -v 1 -deadlock -- -Itests 2>&1 )
+    seq=$(echo "$out" | grep Sequential)
+    con=$(echo "$out" | grep Concurrent)
+    dead=""
+    if [[ "$seq" == *"Deadlock"* ]]; then
+      echo "Sequential deadlock"
+      dead="dead"
+    elif [[ "$seq" != *"No deadlock found"* ]]; then
+      echo "Deadlock detection failed"
+      dead="dead"
+    fi
+    if [[ "$con" == *"Deadlock"* ]]; then
+      echo "Concurrent deadlock"
+      dead="dead"
+    elif [[ "$con" != *"No deadlock found"* ]]; then
+      echo "Concurrent detection failed"
+      dead="dead"
+    fi
+}
+
+echo Compiling ...
 
 make > /dev/null
 
@@ -30,24 +51,7 @@ do
     output_file=${f/%.c/.complete.c}
     printf "| %30s " "$f"
     # check for deadlocks
-    out=$(./liss "$f" -v 1 -deadlock -- -Itests 2>&1 )
-    seq=$(echo "$out" | grep Sequential)
-    con=$(echo "$out" | grep Concurrent)
-    dead=""
-    if [[ "$seq" == *"Deadlock"* ]]; then
-      echo "Sequential deadlock"
-      dead="dead"
-    elif [[ "$seq" != *"No deadlock found"* ]]; then
-      echo "Deadlock detection failed"
-      dead="dead"
-    fi
-    if [[ "$con" == *"Deadlock"* ]]; then
-      echo "Concurrent deadlock"
-      dead="dead"
-    elif [[ "$con" != *"No deadlock found"* ]]; then
-      echo "Concurrent detection failed"
-      dead="dead"
-    fi
+    deadlock "$f"
     if [ -z "$dead" ]; then
       out=$(./liss "$f" -v 1 -synthesis -- -Itests 2>&1 | tee "$f.log")
       if [[ "$out" == *"SANITY"* ]]; then
@@ -66,6 +70,7 @@ do
 	      echo "Inclusion does not hold"
 	    fi
 	  fi
+	  deadlock "$output_file"
 	else
 	  echo "No output produced"
 	fi
