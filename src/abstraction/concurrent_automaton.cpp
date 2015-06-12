@@ -93,7 +93,7 @@ void concurrent_automaton::int_next_symbols(const pcstate& state, concurrent_aut
   }
 }
 
-void concurrent_automaton::int_successors(const pcstate& state, const psymbol& sigma, concurrent_automaton::State_set& successors) const
+void concurrent_automaton::int_successors_hist(const pcstate& state, const psymbol& sigma, const std::shared_ptr<Limi::counterexample_chain<psymbol>>& history, concurrent_automaton::State_set& successors) const
 {
   thread_id_type thread = sigma->thread_id();
   if (state->current != no_thread && state->current != static_cast<int>(thread)) return;
@@ -101,7 +101,7 @@ void concurrent_automaton::int_successors(const pcstate& state, const psymbol& s
   const cfg::automaton::State_set succs = threads[thread].successors(state->threads[thread], rs); // cost is not relevant here
   assert(!succs.empty());
   bool progress;
-  pcstate next = apply_symbol(state, sigma, progress);
+  pcstate next = apply_symbol(state, sigma, history, progress);
   
   if (next) {
     if (!progress) {
@@ -123,7 +123,7 @@ void concurrent_automaton::int_successors(const pcstate& state, const psymbol& s
   }
 }
 
-pcstate concurrent_automaton::apply_symbol(const pcstate& original_state, const psymbol& sigma, bool& progress) const
+pcstate concurrent_automaton::apply_symbol(const pcstate& original_state, const psymbol& sigma, const std::shared_ptr<Limi::counterexample_chain<psymbol>>& history, bool& progress) const
 {
   progress = true;
   
@@ -230,38 +230,58 @@ pcstate concurrent_automaton::apply_symbol(const pcstate& original_state, const 
       cloned_state->current = no_thread;
       break;
   }
-  if (!apply_bad_trace_dnf(cloned_state, sigma)) return nullptr;
+  if (history)
+    if (!apply_bad_trace_dnf(cloned_state, sigma, history)) return nullptr;
   return cloned_state;
 }
 
-bool concurrent_automaton::apply_bad_trace_dnf(pcstate& cloned_state, const psymbol& sigma) const
+bool concurrent_automaton::apply_bad_trace_dnf(pcstate& cloned_state, const psymbol& sigma, const std::shared_ptr<Limi::counterexample_chain<psymbol>>& history) const
 {
+  assert(history);
   auto it = conflict_map.find(sigma);
+  thread_id_type thread = sigma->thread_id();
   if (it!=conflict_map.end()) {
-    // we found a symbol that may have a conflict
-    // check if we are in a conflicting state
-    for (unsigned t = 0; t < cloned_state->length; ++t) {
-      if (t != sigma->thread_id()) {
-        location l(t,(*cloned_state)[t]);
-        //cout << sigma << "   " << l << endl;
-        auto it2 = it->second.find(l);
-        if (it2 != it->second.end()) {
-          uint16_t index = it2->second; // the lock that was violated
-          bool old = cloned_state->locksviolated.test(index);
-          cloned_state->locksviolated.set(index);
-          if (!old) {
-            // this bit was not set before
-            // check if we want to throw away this execution
-            for (const auto& bad : locks) {
-              // at least one of the conjuncts is fulfilled
-              if ((cloned_state->locksviolated & bad) == bad) {
-                return false;
+    const std::unordered_map<psymbol,std::unordered_map<psymbol,uint16_t>>& conflict = it->second;
+    
+    // find the precessor in the same thread and accumulate stuff in the middle
+    std::shared_ptr<Limi::counterexample_chain<psymbol>> hist = history;
+    psymbol pred = nullptr;
+    std::unordered_set<psymbol> betweeners;
+    while (hist) {
+      if (hist->current->thread_id() == thread) {
+        pred = hist->current;
+        break;
+      }
+      betweeners.insert(hist->current);
+      hist = hist->parent;
+    }
+    if (pred && !betweeners.empty()) {
+      // search if there is a conflict
+      auto it2 = conflict.find(pred);
+      if (it2 != conflict.end()) {
+        const std::unordered_map<psymbol,uint16_t>& between_map = it2->second;
+        // now search for the stuff in beween
+        for (psymbol sym : betweeners) {
+          auto itlock = between_map.find(sym);
+          if (itlock != between_map.end()) {
+            uint16_t index = itlock->second; // the lock that was violated
+            bool old = cloned_state->locksviolated.test(index);
+            cloned_state->locksviolated.set(index);
+            if (!old) {
+              // this bit was not set before
+              // check if we want to throw away this execution
+              for (const auto& bad : locks) {
+                // at least one of the conjuncts is fulfilled
+                if ((cloned_state->locksviolated & bad) == bad) {
+                  return false;
+                }
               }
             }
           }
         }
       }
     }
+    
   }
   return true;
 }
@@ -287,33 +307,31 @@ void concurrent_automaton::add_forbidden_traces(const synthesis::lock_symbols& n
       // define conflicts mutually between locations
       for (auto it = lock.begin(); it!=lock.end(); ++it) {
         // each conflict in this vector is in conflict with all the other vectors
-        for (const psymbol& sy : (*it)) {
-          if (sy->operation != op_class::epsilon) {
-            for (auto it2 = lock.begin(); it2!=lock.end(); ++it2) {
-              // for size 1 there cannot be really a conflict because there are no states in between
-              if (it!=it2 && it2->size()>1) {
-                // state < 0 means after the state, > 0 before the state
-                auto last = it2->end();
-                --last;
-                for (auto pl = it2->begin(); pl != it2->end(); ++pl) {
-                  if ((*pl)->operation != op_class::epsilon) {
-                    const location& loc2 = (*pl)->loc;
-                    location negloc2 = loc2;
-                    negloc2.state = -negloc2.state;
-                    if (pl != it2->begin()) {
-                      // add the before location
-                      conflict_map[sy].insert(make_pair(loc2,locks_size));
-                    }
-                    if (pl != last) {
-                      // add the after location
-                      conflict_map[sy].insert(make_pair(negloc2,locks_size));
+        psymbol pred = nullptr;
+        for (const psymbol& current : (*it)) {
+          if (current->operation != op_class::epsilon) {
+            if (pred) {
+              for (auto it2 = lock.begin(); it2!=lock.end(); ++it2) {
+                // for size 1 there cannot be really a conflict because there are no states in between
+                if (it!=it2) {
+                  // state < 0 means after the state, > 0 before the state
+                  auto last = it2->end();
+                  --last;
+                  for (auto pl = it2->begin(); pl != it2->end(); ++pl) {
+                    psymbol conflict = *pl;
+                    if (conflict->operation != op_class::epsilon) {
+                      // current -> pred -> conflict -> lock number
+                      conflict_map[current][pred].insert(make_pair(conflict,locks_size));
                     }
                   }
                 }
               }
-            }
-          }
+            } // if(pred)
+            pred = current;
+          } // for lock
         }
+        
+        
       }
       ++locks_size;
     }

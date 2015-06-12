@@ -41,7 +41,11 @@ namespace abstraction {
     
     void int_initial_states(State_set& states) const;
     
-    void int_successors(const pcstate& state, const psymbol& sigma, State_set& successors) const;
+    void int_successors_hist(const abstraction::pcstate& state, const abstraction::psymbol& sigma, const std::shared_ptr< Limi::counterexample_chain< abstraction::psymbol > >& history, Limi::automaton< abstraction::pcstate, abstraction::psymbol, abstraction::concurrent_automaton >::State_set& successors) const;
+    
+    inline void int_successors(const abstraction::pcstate& state, const abstraction::psymbol& sigma, Limi::automaton< abstraction::pcstate, abstraction::psymbol, abstraction::concurrent_automaton >::State_set& successors) const {
+      int_successors_hist(state, sigma, nullptr, successors);
+    }
     
     void int_next_symbols(const pcstate& state, Symbol_set& symbols) const;
     
@@ -73,7 +77,7 @@ namespace abstraction {
      * @param original_state The state we are coming from
      * @return abstraction::pcstate If it is possible to apply the symbol than this is a copy of the original state with the symbol applied, otherwise null
      */
-    pcstate apply_symbol(const pcstate& original_state, const psymbol& sigma, bool& progress) const;
+    pcstate apply_symbol(const abstraction::pcstate& original_state, const abstraction::psymbol& sigma, const std::shared_ptr< Limi::counterexample_chain< abstraction::psymbol > >& history, bool& progress) const;
     
     /**
      * @brief Apply happens-before constraints from the dnf
@@ -85,7 +89,7 @@ namespace abstraction {
      * @param cloned_state The state (will be changed to reflect which ones are hit)
      * @return true if this successor is allowed, false otherwise
      */
-    bool apply_bad_trace_dnf(pcstate& cloned_state, const psymbol& sigma) const;
+    bool apply_bad_trace_dnf(abstraction::pcstate& cloned_state, const abstraction::psymbol& sigma, const std::shared_ptr< Limi::counterexample_chain< abstraction::psymbol > >& history) const;
     void next_single(const pcstate& state, Symbol_set& symbols, unsigned thread) const;
     
     
@@ -93,7 +97,7 @@ namespace abstraction {
     std::vector<boost::dynamic_bitset<unsigned long >> locks; // these patterns match the locks
     // for a symbol it gives the places that are in conflict and if there is a conflict location
     // the index of which lock to tick off in the locks list above
-    std::unordered_map<psymbol,std::unordered_map<location,uint16_t>> conflict_map;
+    std::unordered_map<psymbol,std::unordered_map<psymbol,std::unordered_map<psymbol,uint16_t>>> conflict_map;
     unsigned locks_size = 0;
   };
 }
