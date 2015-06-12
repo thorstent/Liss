@@ -61,6 +61,7 @@ void i2c_hid_close ()
     int x;
     lock(l);
 
+    lock_s(synthlock_2);
     reset(open);
 
     if (nondet) {
@@ -71,6 +72,7 @@ void i2c_hid_close ()
     x = power_on;
     //assert (power_on == 0);
 
+    unlock_s(synthlock_2);
     unlock(l);
 }
 
@@ -85,11 +87,9 @@ void thread_open() {
 void thread_close() {
     while (nondet)
     {
-      lock_s(synthlock_2);
       assume(open);
       i2c_hid_close();
       yield();
-      unlock_s(synthlock_2);
     }
 }
 

@@ -26,7 +26,7 @@ void thread_1()
 // OS model
 void thread_3()
 {
-	wait_not(napi_poll);
+	assume_not(napi_poll);
   int x;
   x = shutdown;
 }
