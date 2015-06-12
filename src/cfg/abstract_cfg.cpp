@@ -171,7 +171,7 @@ void abstract_cfg::minimise(bool leave_lockables)
           // remove this successor
           for (const edge& edge2 : get_successors(edge_to.to)) {
             edge new_edge(edge2);
-            new_edge.tag = edge_to.tag;
+            if (!new_edge.tag) new_edge.tag = edge_to.tag;
             new_edge.in_betweeners.insert(new_edge.in_betweeners.begin(), edge_to.to);
             new_edge.in_betweeners.insert(new_edge.in_betweeners.begin(), edge_to.in_betweeners.begin(), edge_to.in_betweeners.end());
             edges[next].push_back(new_edge);
@@ -188,11 +188,7 @@ void abstract_cfg::minimise(bool leave_lockables)
         bool back_edge = cost != 0;
         e.back_edge = back_edge;
         edges[next].push_back(e);
-      }
-      if (edges[next].size() > 1) {
-        for (unsigned i = 0; i < edges[next].size(); ++i) {
-          tag_edge(next, i);
-        }
+        if (e.tag) tag_edge(next, edges[next].size()-1); // only tag those tagged before
       }
     }
   }
