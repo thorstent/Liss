@@ -44,8 +44,10 @@ void print_program::place_text(Rewriter& rewriter, const cfg::state& state, cons
     // MeasureTokenLength gets us past the last token, and adding 1 gets
     // us past the ';'.
     int offset = Lexer::MeasureTokenLength(end, rewriter.getSourceMgr(), rewriter.getLangOpts());
-    if (clang_interf::ends_semicolon(state.braces_needed)) offset += 1;
     end = end.getLocWithOffset(offset);
+    if (clang_interf::ends_semicolon(state.braces_needed)) {
+      end = clang_interf::findLocationAfterSemi(end, program.ast_context);
+    }
     // we need to add braces around the expression
     rewriter.InsertText(start, "{", true, true);
     rewriter.InsertText(end, "}", true, true);    

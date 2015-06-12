@@ -224,9 +224,14 @@ void statement_visitor::lock_locations(Stmt* stmt, state_id_type state_id, bool 
     if (parent.stmt_to_lock) {
       SourceLocation start = parent.stmt_to_lock->getLocStart();
       SourceLocation end = parent.stmt_to_lock->getLocEnd();
-      int offset = Lexer::MeasureTokenLength(end, source_manager, context.getLangOpts());
-      offset += 1;
-      end = end.getLocWithOffset(offset);
+      if (end.isMacroID()) {
+        end = source_manager.getExpansionRange(end).second;
+      }
+      if (start.isMacroID()) {
+        start = source_manager.getExpansionRange(start).first;
+      }
+      
+      end = findLocationAfterSemi(end, context);
       
       if (start.isMacroID() || end.isMacroID()) {
         throw logic_error("Caught macro expansion");

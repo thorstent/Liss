@@ -20,8 +20,11 @@
 #ifndef CLANG_INTERF_CLANG_HELPERS_H
 #define CLANG_INTERF_CLANG_HELPERS_H
 
+#include <clang/Basic/SourceLocation.h>
+
 namespace clang {
   class Stmt;
+  class ASTContext;
 }
 
 namespace clang_interf {
@@ -41,6 +44,12 @@ namespace clang_interf {
   parent_result find_stmt_parent(clang::Stmt* stmt, clang::Stmt* function);
   
   bool ends_semicolon(const clang::Stmt* stmt);
+  
+  clang::SourceLocation findLocationAfterSemi(clang::SourceLocation loc,
+                                              clang::ASTContext &Ctx, bool IsDecl = false);
+  clang::SourceLocation findSemiAfterLocation(clang::SourceLocation loc,
+                                              clang::ASTContext &Ctx,
+                                              bool IsDecl = false);
 }
 
 #endif
