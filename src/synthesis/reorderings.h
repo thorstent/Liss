@@ -86,6 +86,7 @@ private:
   const Limi::printer<abstraction::psymbol> symbol_printer;
   void prepare_trace(synthesis::reorderings::seperated_trace& strace);
   std::vector<std::pair<const location*,const location*>> find_lock_locs(reorderings::seperated_trace& strace, const lock_list& locks);
+  std::vector<const location*> find_locs(reorderings::seperated_trace& strace, const abstraction::psymbol& sym);
   void synth_locks(synthesis::reorderings::seperated_trace& strace, const synthesis::lock_symbols& synthesised_locks);
   conj_constr wait_notify_order(const seperated_trace& strace, const z3::model& model);
 };

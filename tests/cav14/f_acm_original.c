@@ -20,7 +20,6 @@
 #define WORKER  3
 
 // ensures atomic access to other variables
-lock_t synthlock_2;
 lock_t l; 
 
 // bsy flag.  No new request can be started when this is true
@@ -41,9 +40,7 @@ int  usb_ep_queue ();
 void acm_cdc_notify () {
   
   // 0. acquire lock
-  unlock_s(synthlock_2);
   lock(l);
-  lock_s(synthlock_2);
   
   // 1. if we are invoked to handle a pending request, clear the pending flag.
   reset(pending);
@@ -69,9 +66,7 @@ void acm_cdc_notify () {
     //assert (bsy);
     
     // 9.
-    unlock_s(synthlock_2);
     unlock(l);
-    lock_s(synthlock_2);
   }
 }
 
@@ -90,16 +85,12 @@ int usb_ep_queue () {
 
 // Client thread 1
 void thread_client1() {
-  lock_s(synthlock_2);
   acm_cdc_notify ();
-  unlock_s(synthlock_2);
 }
 
 // Client thread 2
 void thread_client2() {
-  lock_s(synthlock_2);
   acm_cdc_notify ();
-unlock_s(synthlock_2);
 }
 
 
@@ -107,19 +98,15 @@ unlock_s(synthlock_2);
 void thread_worker () {
   while (nondet) {
     // A.
-    lock_s(synthlock_2);
     assume (request);
-    unlock_s(synthlock_2);
     
     // B. not allowed to wait here
     //        assert (lock != request);
     lock(l);
     
     // C. handle the request and update state variables
-    lock_s(synthlock_2);
     bsy = 0;
     reset(request);
-    unlock_s(synthlock_2);
     
     // D.
     unlock(l);
@@ -129,9 +116,7 @@ void thread_worker () {
       // Without this yield, sequential semantics does not allow a preemption before next lock acquisition
       yield();
       assume(pending);
-      lock_s(synthlock_2);
       acm_cdc_notify();
-      unlock_s(synthlock_2);
     } else {
       yield();
       assume_not(pending);

@@ -482,6 +482,18 @@ std::vector<std::pair<const location*,const location*>> reorderings::find_lock_l
   return result;
 }
 
+// finds all locations of a symbol
+std::vector<const location*> reorderings::find_locs(reorderings::seperated_trace& strace, const abstraction::psymbol& sym) {
+  std::vector<const location*> result;
+  const std::vector<const location*>& thread = strace.threaded_trace[sym->thread_id()];
+  for (const location* loc : thread) {
+    if (equal_to<abstraction::psymbol>()(loc->symbol, sym)) {
+      result.push_back(loc);
+    }
+  }
+  return result;
+}
+
 void reorderings::synth_locks(reorderings::seperated_trace& strace, const synthesis::lock_symbols& synthesised_locks)
 {
   z3::expr& cnf = strace.synth_locks;
@@ -496,15 +508,16 @@ void reorderings::synth_locks(reorderings::seperated_trace& strace, const synthe
       for (auto it = lock.begin(); it!=lock.end(); ++it) {
         // each conflict in this vector is in conflict with all the other vectors
         std::vector<std::pair<const location*,const location*>> locs = find_lock_locs(strace, *it);
-        auto it2 = it+1;
-        for (; it2!=lock.end(); ++it2) {
-          if (it!=it2) {
-            std::vector<std::pair<const location*,const location*>> locs2 = find_lock_locs(strace, *it2);
-            for (const std::pair<const location*,const location*>& l : locs)
-              for (const std::pair<const location*,const location*>& l2 : locs2) {
-                locke = locke && (*l.first > *l2.second || *l.second < *l2.first);
+        for (auto it2 = lock.begin(); it2!=lock.end(); ++it2) {
+          if (it->front()->thread_id()!=it2->front()->thread_id()) {
+            for (const abstraction::psymbol& sym : *it2) {
+              std::vector<const location*> locs2 = find_locs(strace, sym);
+              for (const std::pair<const location*,const location*>& l : locs) {
+                for (const location* l2 : locs2) {
+                  locke = locke && (*l2 < *l.first || *l.second < *l2);
+                }
               }
-            
+            }
           }
         }
         

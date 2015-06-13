@@ -21,6 +21,7 @@
 #include <iostream>
 #include <clang/AST/ASTContext.h>
 #include <clang/Lex/Lexer.h>
+#include <clang/AST/Stmt.h>
 #include "abstraction/symbol.h"
 #include "parse_error.h"
 #include "cfg_visitor.h"
@@ -161,7 +162,21 @@ bool statement_visitor::TraverseCallExpr(CallExpr* s)
         add_successor(state_id);
         
         Stmt* body = callee->getBody();
-        std::unique_ptr<clang::CFG> cfg = CFG::buildCFG(callee, callee->getBody(), &context, clang::CFG::BuildOptions());
+        /*assert(isa<CompoundStmt>(body));
+        CompoundStmt* com = cast<CompoundStmt>(body);
+        Stmt** children = new Stmt*[com->size()+1];
+        unsigned i = 0;
+        for(Stmt* c : com->body()) {
+          children[i] = c;
+          ++i;
+        }
+        NullStmt* s = new (context) NullStmt(SourceLocation());
+        children[i] = s;++i;
+        com->setStmts(context, children, i);*/
+        clang::CFG::BuildOptions bo;
+        //bo.setAlwaysAdd(Stmt::NullStmtClass, true);
+        std::unique_ptr<clang::CFG> cfg = CFG::buildCFG(callee, callee->getBody(), &context, bo);
+        //cfg->dump(context.getLangOpts(), false);
         cfg_visitor cvisitor(context, thread, identifier_store, cfg->getExit(), name);
         cvisitor.process(cfg->getEntry(), body);
         add_successor(cvisitor.entry_state());

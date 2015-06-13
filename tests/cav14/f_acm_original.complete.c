@@ -20,6 +20,7 @@
 #define WORKER  3
 
 // ensures atomic access to other variables
+lock_t synthlock_2;
 lock_t l; 
 
 // bsy flag.  No new request can be started when this is true
@@ -37,44 +38,12 @@ void acm_cdc_notify ();
 int  usb_ep_queue ();
 
 // queue request
-void acm_cdc_notify1 () {
-
-    // 0. acquire lock
-    lock(l);
-
-    // 1. if we are invoked to handle a pending request, clear the pending flag.
-    reset(pending);
-
-    // 2.
-    if (!bsy) {
-        // 3. send request to worker thread
-        bsy = 1;
-
-        // 6.
-        unlock(l);
-        // 4.
-        if (usb_ep_queue() == -1) 
-            // 5.
-            bsy = 0;
-
-
-    } else {
-        // 7. if the worker thread is busy, mark request as pending
-        notify(pending);
-        // 8. catch potential race: request has been marked as pending, but it will never be executed,
-        //    as the worker thread has gone idle
-        //assert (bsy);
-
-        // 9.
-        unlock(l);
-    };
-}
-
-// queue request
-void acm_cdc_notify2 () {
+void acm_cdc_notify () {
   
   // 0. acquire lock
+  unlock_s(synthlock_2);
   lock(l);
+  lock_s(synthlock_2);
   
   // 1. if we are invoked to handle a pending request, clear the pending flag.
   reset(pending);
@@ -100,97 +69,75 @@ void acm_cdc_notify2 () {
     //assert (bsy);
     
     // 9.
+    unlock_s(synthlock_2);
     unlock(l);
-  };
-}
-
-// queue request
-void acm_cdc_notify3 () {
-  
-  // 0. acquire lock
-  lock(l);
-  
-  // 1. if we are invoked to handle a pending request, clear the pending flag.
-  reset(pending);
-  
-  // 2.
-  if (!bsy) {
-    // 3. send request to worker thread
-    bsy = 1;
-    
-    // 6.
-    unlock(l);
-    // 4.
-    if (usb_ep_queue() == -1) 
-      // 5.
-      bsy = 0;
-    
-    
-  } else {
-    // 7. if the worker thread is busy, mark request as pending
-    notify(pending);
-    // 8. catch potential race: request has been marked as pending, but it will never be executed,
-    //    as the worker thread has gone idle
-    //assert (bsy);
-    
-    // 9.
-    unlock(l);
-  };
+    lock_s(synthlock_2);
+  }
 }
 
 // attempt to submit a request to the worker thread; fail nondeterministically
 int usb_ep_queue () {
-    if (nondet) {
-        // i.
-        notify(request);
-        return 0;
-    } else {
-        // ii.
-        return -1;
-    };
-};
+  if (nondet) {
+    // i.
+    notify(request);
+    return 0;
+  } else {
+    // ii.
+    return -1;
+  }
+}
 
 
 // Client thread 1
 void thread_client1() {
-    acm_cdc_notify1 ();
+  lock_s(synthlock_2);
+  acm_cdc_notify ();
+  unlock_s(synthlock_2);
 }
 
 // Client thread 2
 void thread_client2() {
-    acm_cdc_notify2 ();
+  lock_s(synthlock_2);
+  acm_cdc_notify ();
+unlock_s(synthlock_2);
 }
 
 
 // Worker thread
 void thread_worker () {
-    while (nondet) {
-        // A.
-        assume (request);
-
-        // B. not allowed to wait here
-//        assert (lock != request);
-        lock(l);
-
-        // C. handle the request and update state variables
-        bsy = 0;
-        reset(request);
-
-        // D.
-        unlock(l);
-
-        // E. if there are more requests pending, schedule them now
-        if (nondet) {
-            // Without this yield, sequential semantics does not allow a preemption before next lock acquisition
-            yield();
-            assume(pending);
-            acm_cdc_notify3();
-        } else {
-            yield();
-            assume_not(pending);
-            //unlock(l);
-        };
-    };
+  while (nondet) {
+    // A.
+    lock_s(synthlock_2);
+    assume (request);
+    unlock_s(synthlock_2);
+    
+    // B. not allowed to wait here
+    //        assert (lock != request);
+    lock(l);
+    
+    // C. handle the request and update state variables
+    lock_s(synthlock_2);
+    bsy = 0;
+    reset(request);
+    unlock_s(synthlock_2);
+    
+    // D.
+    unlock(l);
+    
+    // E. if there are more requests pending, schedule them now
+    if (nondet) {
+      // Without this yield, sequential semantics does not allow a preemption before next lock acquisition
+      yield();
+      assume(pending);
+      lock_s(synthlock_2);
+      acm_cdc_notify();
+      unlock_s(synthlock_2);
+    } else {
+      yield();
+      assume_not(pending);
+      //unlock(l);
+    }
+  }
 }
 
 //void main () {

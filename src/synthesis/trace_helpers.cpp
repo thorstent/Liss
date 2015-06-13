@@ -67,39 +67,35 @@ void blow_up_trace(const cfg::program& program, std::vector<abstraction::psymbol
   }
 }
 
-void remove_from_list(lock_list& list) {
+// remove epsilon transitions from the beginning and the end
+void trim_list(lock_list& list) {
+  for (auto it = list.begin(); it != list.end() && (*it)->operation==abstraction::op_class::epsilon; ) {
+    it = list.erase(it);
+  }
+  // from the end
+  while (list.back()->operation == abstraction::op_class::epsilon) {
+    list.pop_back();
+  }
+}
+
+void split_list(const lock_list& list, vector<lock_list>& result) {
   auto master = list.begin();
+  auto last = list.begin();
   while (master != list.end()) {
     if ((*master)->is_preemption_point()) {
-      // remove epsilons before this point
-      if (master!=list.begin()) {
-        auto before = master;
-        --before;
-        for (;before != list.begin();--before) {
-          if ((*before)->operation==abstraction::op_class::epsilon) {
-            before = list.erase(before);
-          }
-        }
-        // for the first element
-        if ((*before)->operation==abstraction::op_class::epsilon) {
-          before = list.erase(before);
-        }
+      if (master != last) {
+        result.emplace_back(last, master);
+        trim_list(result.back());
+        if (result.back().empty()) result.pop_back();
       }
-      
-      // remove epsilons after this point
-      auto after = master;
-      after++;
-      for (;after != list.end();) {
-        if ((*after)->operation==abstraction::op_class::epsilon) {
-          after = list.erase(after);
-        } else
-          ++after;
-      }
-      
-      master = list.erase(master);
-    } else {
-      ++master;
+      last = master+1;
     }
+    ++master;
+  }
+  if (master != last) {
+    result.emplace_back(last, master);
+    trim_list(result.back());
+    if (result.back().empty()) result.pop_back();
   }
 }
 
@@ -107,14 +103,12 @@ void remove_preemption(lock_symbols& locks)
 {
   for (auto dis = locks.begin(); dis != locks.end();) { // disj<std::vector<std::vector<abstraction::psymbol>>>
     for (auto lock = dis->begin(); lock != dis->end(); ) { // std::vector<std::vector<abstraction::psymbol>>
-      for (auto list = lock->begin(); list != lock->end();) { // std::vector<abstraction::psymbol>
-        remove_from_list(*list);
-        // remove empty lock patterns
-        if (list->empty())
-          list = lock->erase(list);
-        else
-          ++list;
+      vector<lock_list> splitted;
+      for (auto list = lock->begin(); list != lock->end(); ++list) { // std::vector<abstraction::psymbol>
+        split_list(*list, splitted);
       }
+      lock->clear();
+      lock->insert(lock->end(), splitted.begin(), splitted.end());
       if (lock->size() <= 1) // a lock with only one side makes no sense
         lock = dis->erase(lock);
       else

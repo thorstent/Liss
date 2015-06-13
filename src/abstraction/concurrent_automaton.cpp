@@ -248,7 +248,7 @@ bool concurrent_automaton::apply_bad_trace_dnf(pcstate& cloned_state, const psym
     psymbol pred = nullptr;
     std::unordered_set<psymbol> betweeners;
     while (hist) {
-      if (hist->current->thread_id() == thread) {
+      if (hist->current->operation!=op_class::tag && hist->current->thread_id() == thread) {
         pred = hist->current;
         break;
       }
@@ -266,8 +266,8 @@ bool concurrent_automaton::apply_bad_trace_dnf(pcstate& cloned_state, const psym
           if (itlock != between_map.end()) {
             uint16_t index = itlock->second; // the lock that was violated
             bool old = cloned_state->locksviolated.test(index);
-            cloned_state->locksviolated.set(index);
             if (!old) {
+              cloned_state->locksviolated.set(index);
               // this bit was not set before
               // check if we want to throw away this execution
               for (const auto& bad : locks) {
@@ -313,7 +313,7 @@ void concurrent_automaton::add_forbidden_traces(const synthesis::lock_symbols& n
             if (pred) {
               for (auto it2 = lock.begin(); it2!=lock.end(); ++it2) {
                 // for size 1 there cannot be really a conflict because there are no states in between
-                if (it!=it2) {
+                if (it->front()->thread_id()!=it2->front()->thread_id()) {
                   // state < 0 means after the state, > 0 before the state
                   auto last = it2->end();
                   --last;
