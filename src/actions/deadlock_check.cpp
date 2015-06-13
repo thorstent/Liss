@@ -22,9 +22,10 @@
 #define DEBUG_PRINTING verbosity
 
 #include "options.h"
-#include <Limi/deadlock_algo.h>
+#include "automata/deadlock_algo.h"
 #include "abstraction/concurrent_automaton.h"
 #include <iostream>
+#include <chrono>
 
 
 using namespace actions;
@@ -38,16 +39,27 @@ bool actions::test_deadlock(const cfg::program& program, deadlock_result& result
 
 bool actions::test_deadlock(const abstraction::concurrent_automaton& automaton, deadlock_result& result)
 {
-  Limi::deadlock_algo<abstraction::pcstate,abstraction::psymbol,abstraction::concurrent_automaton> algo;
+  automata::deadlock_algo<abstraction::pcstate,abstraction::psymbol,abstraction::concurrent_automaton> algo;
   result = algo.run(automaton);
   return true;
 }
 
+void print_summary(chrono::milliseconds time) {
+  debug << "Deadlock check " << (double)time.count()/1000 << "s" << endl;
+  //cout.precision(1);
+  debug << " | " << (double)time.count()/1000 << "s | ";
+}
+
 void deadlock_check::run(const cfg::program& program, clang::CompilerInstance& compiler)
 {
+  auto start = chrono::steady_clock::now();
   test(program, false);
   test(program, true);  
+  
+  auto end = chrono::steady_clock::now();
+  print_summary(std::chrono::duration_cast<chrono::milliseconds>(end - start));  
 }
+
 
 void deadlock_check::test(const cfg::program& program, bool concurrent)
 {

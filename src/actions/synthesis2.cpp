@@ -63,6 +63,7 @@ unsigned iteration = 0;
 chrono::milliseconds langinc;
 chrono::milliseconds verification;
 chrono::milliseconds synthesis_time;
+chrono::milliseconds placement_time;
 void print_time(const chrono::steady_clock::time_point& start) {
   auto stop = chrono::steady_clock::now();
   chrono::milliseconds passed = std::chrono::duration_cast<chrono::milliseconds>(stop - start);
@@ -75,8 +76,9 @@ void actions::synthesis2::print_summary(const cfg::program& original_program) {
   debug << "Liss: " << (double)langinc.count()/1000 << "s" << endl;
   debug << "Verification: " << (double)verification.count()/1000 << "s" << endl;
   debug << "Synthesis: " << (double)synthesis_time.count()/1000 << "s" << endl;
+  debug << "Placement: " << (double)placement_time.count()/1000 << "s" << endl;
   //cout.precision(1);
-  debug << "| " << original_program.no_threads() << " | " << iteration << " | " << this->max_bound <<  " | " << (double)langinc.count()/1000 << "s | "  << (double)synthesis_time.count()/1000 << "s | " << (double)verification.count()/1000 << "s |";
+  debug << original_program.no_threads() << " | " << iteration << " | " << this->max_bound <<  " | " << (double)langinc.count()/1000 << "s | "  << (double)synthesis_time.count()/1000 << "s | " << (double)verification.count()/1000 << "s | " << (double)placement_time.count()/1000 << "s";
 }
 
 bool actions::synthesis2::synth_loop(const cfg::program& program, placement::placement_result& lock_result)
@@ -122,13 +124,16 @@ bool actions::synthesis2::synth_loop(const cfg::program& program, placement::pla
       ::synthesis::remove_preemption(new_lock_symbols);
       concurrent.add_forbidden_traces(new_lock_symbols);
       lock_symbols.insert(lock_symbols.end(), new_lock_symbols.begin(), new_lock_symbols.end());
+      auto synth_end = chrono::steady_clock::now();
       ++counter;
       print_time(start);
       langinc += std::chrono::duration_cast<chrono::milliseconds>(langinc_end - langinc_start);
+      synthesis_time += std::chrono::duration_cast<chrono::milliseconds>(synth_end - synth_start);
       debug << endl;
     } else {
       verification += std::chrono::duration_cast<chrono::milliseconds>(langinc_end - langinc_start);
-            
+      
+      auto placement_start = chrono::steady_clock::now();
       if (!lock_symbols.empty()) {
         placement::place_locks plocks(program);
         if (!plocks.find_locks(lock_symbols, lock_result)) {
@@ -136,6 +141,8 @@ bool actions::synthesis2::synth_loop(const cfg::program& program, placement::pla
           return false;
         }
       }
+      auto placement_end = chrono::steady_clock::now();
+      placement_time = std::chrono::duration_cast<chrono::milliseconds>(placement_end - placement_start);
       
       cout << "Synthesis was successful." << endl;
       print_summary(program);

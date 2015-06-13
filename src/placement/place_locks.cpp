@@ -119,7 +119,7 @@ place_locks::place_locks(const cfg::program& program) : threads(program.threads(
       if (verbosity >= 2) {
         stringstream ss;
         ss << thread->get_state(j);
-        name = ss.str();
+        name = ss.str() + "_" + name;
       }
       
       positions.push_back(name);
@@ -238,6 +238,11 @@ void place_locks::init_consistancy()
           inl_def = inl_def && inl(x,l) == lock_b(x,l);
           cons_unl = cons_unl && !unlock_b(x,l);
         }
+        // current one must be unlocked to lock after
+        cons_lo = cons_lo && implies(lock_a(x,l), (!inl(x,l)));
+        // to unlock the current one must have been locked
+        cons_unl = cons_unl && implies(unlock_a(x,l), (inl(x,l)));
+        
         // define that at join points locking has to agree
         if (predecessors[i].size()>1) {
           // for all precessors, either they all hold lock l or they don't
@@ -411,7 +416,7 @@ bool place_locks::find_locks(const synthesis::lock_symbols& locks_to_place, plac
     slv.pop();
     reduce = reduce/10;
   }
-  if (verbosity>=3) {
+  if (verbosity>=2) {
     print_func_interp(last_model, lock_b);
     print_func_interp(last_model, lock_a);
     print_func_interp(last_model, unlock_a);
