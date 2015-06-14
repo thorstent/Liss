@@ -30,6 +30,9 @@ deadlock() {
       echo "Concurrent detection failed"
       dead="dead"
     fi
+    if [ -z "$dead" ]; then
+      echo "$out" | grep '|' | tr -d '\n'
+    fi
 }
 
 echo Compiling ...
@@ -40,7 +43,7 @@ echo Running tests ...
 
 declare -a IGNORE=("tests/cav14/drbd_receiver.c" "tests/r8169.c")
 
-echo "| File | Threads | Iterations | max.Bound | Bug finding | Synthesis | Verification |"
+echo "| File | Deadlock check | Threads | Iterations | max.Bound | Bug finding | Synthesis | Verification | Placement | Deadlock check2 |"
 
 # delete complete files
 find tests -name '*.complete.c' -exec rm {} \;
@@ -58,7 +61,7 @@ do
 	echo SANITY: $f
       fi
       if [[ "$out" == *"Synthesis was successful"* ]]; then
-	echo "$out" | grep '|'
+	echo "$out" | grep '|' | tr -d '\n'
 	# check an output was produced
 	if [ -e "$output_file" ]; then
 	  # check output
@@ -81,7 +84,7 @@ do
 	echo Failed
       fi
     fi
-
+    echo
   fi
 done
 

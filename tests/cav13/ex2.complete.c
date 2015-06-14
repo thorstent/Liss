@@ -12,7 +12,7 @@ wants to start using the device. */
 
 /*OS model:*/
 
-lock_t synthlock_1;
+lock_t synthlock_0;
 conditional_t init_sem;
 int (*hw_start)() = 0;
 
@@ -27,20 +27,20 @@ void register_netdev()
 
 void rtl8169_open()
 {
-lock_s(synthlock_1);
+    lock_s(synthlock_0);
     (*hw_start)();
-    unlock_s(synthlock_1);
+unlock_s(synthlock_0);
 }
 
 
 
 void thread_1() {
     // 1
-    lock_s(synthlock_1);
+    lock_s(synthlock_0);
     register_netdev();
     // 2
     hw_start = &start_device;
-    unlock_s(synthlock_1);
+    unlock_s(synthlock_0);
 }
 
 void thread_2()

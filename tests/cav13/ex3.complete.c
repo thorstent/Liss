@@ -4,7 +4,7 @@
 
 #include <langinc.h>
 
-lock_t synthlock_1;
+lock_t synthlock_2;
 conditional_t napi_poll;
 int shutdown = 0;
 
@@ -22,10 +22,10 @@ void stuff1() {
 // driver entry point
 void thread_1()
 {
-/*(1)*/ lock_s(synthlock_1);
+/*(1)*/ lock_s(synthlock_2);
 stuff1();
-/*(2)*/ notify(napi_poll);
-unlock_s(synthlock_1); // disable NAPI loop
+/*(2)*/ notify(napi_poll); // disable NAPI loop
+unlock_s(synthlock_2);
 }
 
 /*Thread 2 (Shutdown thread)
@@ -66,10 +66,10 @@ void rtl8169_poll()
 // OS model
 void thread_3()
 {
-	lock_s(synthlock_1);
+lock_s(synthlock_2);
 	assume_not(napi_poll);
 	rtl8169_poll();
-unlock_s(synthlock_1);
+unlock_s(synthlock_2);
 }
 
 //void main() {

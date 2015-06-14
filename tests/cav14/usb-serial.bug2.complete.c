@@ -1,7 +1,8 @@
-#include <langinc.h>
+#include "langinc.h"
 
 /* framework variables */
 
+lock_t synthlock_0;
 int fw_tty_registered;
 int fw_tty_initialized;
 lock_t fw_tty_lock;
@@ -183,6 +184,8 @@ void usb_serial_disconnect () {
     
     if (nondet) {
         assume(port_tty_installed);
+        
+        assume_not (port_write_in_progress);
         //serial_hangup ();
         //serial_close ();
         lock_tty ();
@@ -190,7 +193,7 @@ void usb_serial_disconnect () {
         //x = drv_module_ref_cnt;
         x = dev_usb_serial_initialized;
         x = port_initialized;
-        wait_not (port_write_in_progress);
+
         port_tty_state = 0;
         reset(port_tty_installed);
 
@@ -200,11 +203,10 @@ void usb_serial_disconnect () {
         // end: serial_close
 
         unlock_tty ();
-
+        assume_not(port_work);
         //usb_serial_port_poison_urbs();
         //wake_up_interruptible(&port->port.delta_msr_wait);
 
-        wait_not(port_work);
         port_work_stop = 1;
         port_work_initialized = 0;
 
@@ -235,6 +237,7 @@ void usb_serial_device_probe () {
 }
 
 void usb_serial_device_remove () {
+lock_s(synthlock_0);
     int x;
     x = port_initialized;
     x = dev_usb_serial_initialized;
@@ -242,6 +245,7 @@ void usb_serial_device_remove () {
 
     
     /* make sure suspend/resume doesn't race against port_remove */
+    unlock_s(synthlock_0);
     dev_autopm++;
     
     reset(port_tty_registered);
@@ -279,10 +283,12 @@ void usb_serial_put () {
         
         /* Now that nothing is using the ports, they can be freed */
         lock_serial_bus();
+        lock_s(synthlock_0);
         reset(port_dev_registered);
         unlock_serial_bus();
-        wait_not (port_tty_registered);
+        assume_not (port_tty_registered);
         dev_usb_serial_initialized = -1;
+        unlock_s(synthlock_0);
         port_initialized = 0;
         reset(drv_module_ref_cnt);
         //drv_module_ref_cnt--;
@@ -389,7 +395,6 @@ void serial_install () {
             dev_usb_serial_initialized++;
             unlock_table ();
             try_module_get ();
-	    yield();
             if (/*drv_module_ref_cnt <= 0*/nondet) {
                 assume_not(drv_module_ref_cnt);
                 usb_serial_put ();
@@ -477,7 +482,7 @@ void thread_fw_module () {
 }
 
 void thread_usb_bus () {
-    wait (drv_usb_registered /*| drv_device_id_registered*/);
+    assume (drv_usb_registered /*| drv_device_id_registered*/);
     yield();
     usb_serial_probe ();
     yield();
@@ -495,36 +500,34 @@ void thread_usb_bus () {
 void thread_usb_cb () {
     int x;
     //while (drv_usb_registered != 0) {
-    if (nondet) {
         assume (write_urb_submitted/* | (drv_usb_registered == 0)*/);
         //assert (drv_usb_initialized);
         x = drv_usb_initialized;
         reset(write_urb_submitted);
         serial_write_callback();
-    }
+    //}
 }
 
 void thread_port_work () {
     int x;
     //while (port_work_active != 0) {
-    if (nondet) {
         assume (port_work /*| (port_work_stop == 1)*/);
-        x = port_initialized;
-        x = port_tty_state;
+        //x = port_initialized;
+        //x = port_tty_state;
         reset(port_write_in_progress);
         reset(port_work);
-    };
+    //};
 }
 
 void thread_serial_bus () {
     lock_serial_bus();
-    
     assume (port_dev_registered);
     usb_serial_device_probe ();
     unlock_serial_bus();
     
-    yield();
+    lock_s(synthlock_0);
     assume_not (port_dev_registered);
+    unlock_s(synthlock_0);
     lock_serial_bus();
     usb_serial_device_remove ();
     unlock_serial_bus();
@@ -532,7 +535,7 @@ void thread_serial_bus () {
 
 void thread_tty () {
     int x;
-    wait (drv_registered_with_serial_fw);
+    assume (drv_registered_with_serial_fw);
     serial_install ();
     yield();
     //while (port_tty_installed != 0) {
@@ -568,13 +571,12 @@ void thread_tty () {
 void thread_attribute () {
     try_module_get();
 
-    yield();
     if (/*drv_module_ref_cnt <= 0*/nondet) {
         assume_not(drv_module_ref_cnt);
         return;
     } else {
         assume(drv_module_ref_cnt);
-        wait (drv_registered_with_serial_fw);
+        assume (drv_registered_with_serial_fw);
         drv_device_id_registered = 1;
         //drv_module_ref_cnt--;
         reset(drv_module_ref_cnt);

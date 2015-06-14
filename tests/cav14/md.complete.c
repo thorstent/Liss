@@ -22,7 +22,7 @@
 
 #include <langinc.h>
 
-lock_t synthlock_2;
+lock_t synthlock_0;
 lock_t l;
 int sysfs_entry;
 conditional_t work;
@@ -48,12 +48,12 @@ void add_new_disk() {
     // putting the barrier here causes deadlock
 
     // S.disk removal must be finished by now
-    lock_s(synthlock_2);
+    lock_s(synthlock_0);
     int x = sysfs_entry;
     //assert (sysfs_entry == 0);
     // T.
     sysfs_entry = 1;
-    unlock_s(synthlock_2);
+    unlock_s(synthlock_0);
 
     // U.
     unlock(l);
@@ -92,9 +92,9 @@ void thread_md_misc_wq() {
     // a. wait for a work item to be queued
     wait(work);
     // b. remove sysfs entry
-    lock_s(synthlock_2);
+    lock_s(synthlock_0);
     sysfs_entry = 0;
-    unlock_s(synthlock_2);
+    unlock_s(synthlock_0);
 
     // c. under some circumstances, this code may need to take the lock
     if (nondet)  {

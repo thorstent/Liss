@@ -18,14 +18,14 @@ lock_s(synthlock_2);
     notify(open);
 
     x = power_on;
-    unlock_s(synthlock_2);
+unlock_s(synthlock_2);
 }
 
 void i2c_hid_close ()
 {
-lock_s(synthlock_2);
     int x;
 
+    lock_s(synthlock_2);
     reset(open);
 
     if (nondet) {
@@ -34,7 +34,7 @@ lock_s(synthlock_2);
     } 
 
     x = power_on;
-unlock_s(synthlock_2);
+    unlock_s(synthlock_2);
 }
 
 void thread_open() {

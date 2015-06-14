@@ -41,6 +41,6 @@ void thread_ioctl () {
         lock_s(synthlock_1);
     };
 
-    state = old_state; // critical point
-unlock_s(synthlock_1);
+    state = old_state;
+    unlock_s(synthlock_1); // critical point
 }

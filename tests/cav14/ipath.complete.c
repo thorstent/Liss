@@ -64,9 +64,9 @@ void thread_user () {
     // f. deallocate
     lock_s(synthlock_1);
     ipath_pd = (void *)0;
-    unlock_s(synthlock_1);
 
     // g.
+unlock_s(synthlock_1);
 }
 
 //void thread_checker() {

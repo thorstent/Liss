@@ -12,7 +12,7 @@
 #include <langinc.h>
 
 // List of registered devices.  Model one element only and use a flag to indicate when the list is empty.
-lock_t synthlock_0;
+lock_t synthlock_1;
 int devlist_nonempty;
 struct {
     // both fields must be set to valid values before registering the device
@@ -33,12 +33,12 @@ void thread_init() {
     devlist.vdev = 1;
 
     // 3. register vdev
-    lock_s(synthlock_0);
+    lock_s(synthlock_1);
     notify(registered);
 
     // 4. initialise vbi_dev
     devlist.vbi_dev = 1;
-    unlock_s(synthlock_0);
+    unlock_s(synthlock_1);
 
     // race in the above implementation: 1 -> 2 -> 3 -> A -> B -> C (assertion violation)
     // possible solution: reorder 2; 3; 4; 1; introduces new race: 2 -> 3 -> A (assertion violation)
@@ -52,14 +52,14 @@ void thread_client () {
     wait (registered);
 
     // A
-    lock_s(synthlock_0);
+    lock_s(synthlock_1);
     c1 = devlist_nonempty;
 
     // B
     c2 = (devlist.vdev != -1);
 
     // C
-    unlock_s(synthlock_0);
+    unlock_s(synthlock_1);
     c3 = (devlist.vbi_dev != -1);
 }
 
