@@ -97,8 +97,7 @@ void concurrent_automaton::int_successors_hist(const pcstate& state, const psymb
 {
   thread_id_type thread = sigma->thread_id();
   if (state->current != no_thread && state->current != static_cast<int>(thread)) return;
-  cfg::reward_symbol rs(0,sigma);
-  const cfg::automaton::State_set succs = threads[thread].successors(state->threads[thread], rs); // cost is not relevant here
+  const cfg::automaton::State_set succs = threads[thread].successors(state->threads[thread], sigma); // cost is not relevant here
   assert(!succs.empty());
   bool progress;
   pcstate next = apply_symbol(state, sigma, history, progress);
@@ -294,9 +293,9 @@ bool concurrent_automaton::apply_bad_trace_dnf(pcstate& cloned_state, const psym
 
 inline void concurrent_automaton::next_single(const pcstate& state, concurrent_automaton::Symbol_set& symbols, unsigned int thread) const
 {
-  for (const cfg::reward_symbol& s : threads[thread].next_symbols((*state)[thread])) {
-    if (successor_filter.empty() || s.symbol->is_epsilon() || successor_filter.find(s.symbol)!=successor_filter.end())
-    symbols.insert(s.symbol);
+  for (const abstraction::psymbol& s : threads[thread].next_symbols((*state)[thread])) {
+    if (successor_filter.empty() || s->is_epsilon() || successor_filter.find(s)!=successor_filter.end())
+    symbols.insert(s);
   }
 }
 

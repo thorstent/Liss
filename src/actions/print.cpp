@@ -43,7 +43,7 @@ void actions::print_program(const cfg::program& program, bool timbuk, bool only_
   create_debug_folder();
   short_symbol_printer symbol_printer;
   if (!timbuk) {
-    Limi::dot_printer<state_id_type, cfg::reward_symbol, cfg::automaton> pr;
+    Limi::dot_printer<state_id_type, abstraction::psymbol, cfg::automaton> pr;
     unsigned t = 0;
     for (const cfg::abstract_cfg* thread : program.minimised_threads()) {
       cfg::automaton automaton(*thread);

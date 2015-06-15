@@ -42,45 +42,25 @@ namespace cfg {
   private:
     const cfg::abstract_cfg& thread_;
   };
-  
-  struct reward_symbol {
-    mutable reward_t reward;
-    abstraction::psymbol symbol;
-    reward_symbol(reward_t cost, abstraction::psymbol symbol) : reward(cost), symbol(symbol) {}
-    inline bool operator==(const reward_symbol& other) const { return *symbol == *other.symbol; }
-  };
-  
-  inline std::ostream& operator<<(std::ostream& os, const reward_symbol& s) {
-    os << *s.symbol;
-    if (s.reward!=0) os << "(" << s.reward << ")";
-    return os;
-  }
 }
 
-namespace std {
-  template<> struct hash<cfg::reward_symbol> {
-    size_t operator()(const cfg::reward_symbol& cs) const {
-      return hash<abstraction::psymbol>()(cs.symbol);
-    }
-  };
-}
 
 namespace cfg {
 
-  class automaton : public Limi::automaton<state_id_type,reward_symbol,automaton> {
+  class automaton : public Limi::automaton<state_id_type,abstraction::psymbol,automaton> {
   public:
-    automaton(const abstract_cfg& thread, bool collapse_epsilon = false) : Limi::automaton<state_id_type,reward_symbol,automaton>(collapse_epsilon, false), thread_(thread) {}
+    automaton(const abstract_cfg& thread, bool collapse_epsilon = false) : Limi::automaton<state_id_type,abstraction::psymbol,automaton>(collapse_epsilon, false), thread_(thread) {}
     bool int_is_final_state(const state_id_type& state) const;
     
     void int_initial_states(State_set& states) const;
     
-    void int_successors(const state_id_type& state, const reward_symbol& sigma, State_set& successors) const;
+    void int_successors(const state_id_type& state, const abstraction::psymbol& sigma, State_set& successors) const;
     
     void int_next_symbols(const state_id_type& state, Symbol_set& symbols) const;
     
     inline Limi::printer_base<state_id_type>* int_state_printer() const { return new cfg::state_printer(thread_); }
     
-    inline bool int_is_epsilon(const reward_symbol& symbol) const { return symbol.symbol->is_epsilon(); }
+    inline bool int_is_epsilon(const abstraction::psymbol& symbol) const { return symbol->is_epsilon(); }
     
   private:  
     const abstract_cfg& thread_;

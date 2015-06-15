@@ -32,20 +32,15 @@ bool automaton::int_is_final_state(const state_id_type& state) const {
   return false;
 }
 
-void automaton::int_successors(const state_id_type& state, const reward_symbol& sigma, State_set& successors) const {
+void automaton::int_successors(const state_id_type& state, const abstraction::psymbol& sigma, State_set& successors) const {
   if (state<0) {
     // we are after this state, examine the successor edges
     // we are only after the state if there are several successors
     for (const edge& e : thread_.get_successors(state * -1)) {
-      if(std::equal_to<abstraction::psymbol>()(e.tag.get(), sigma.symbol)) {
-        reward_t reward = e.cost*-2;
-        sigma.reward = reward;
+      if(std::equal_to<abstraction::psymbol>()(e.tag.get(), sigma)) {
         successors.insert(e.to);
         break;
-      } else if(std::equal_to<abstraction::psymbol>()(thread_.get_state(e.to).action.get(), sigma.symbol)) {
-        reward_t reward = e.cost*-2;
-        if (reward==0) reward = 1;
-        sigma.reward = reward;
+      } else if(std::equal_to<abstraction::psymbol>()(thread_.get_state(e.to).action.get(), sigma)) {
         auto su = thread_.get_successors(e.to);
         if (su.size() == 1) 
           successors.insert(su.front().to);
@@ -56,14 +51,13 @@ void automaton::int_successors(const state_id_type& state, const reward_symbol& 
       }
     }
   } else {
-    if (std::equal_to<abstraction::psymbol>()(thread_.get_state(state).action.get(), sigma.symbol)) {
+    if (std::equal_to<abstraction::psymbol>()(thread_.get_state(state).action.get(), sigma)) {
       auto su = thread_.get_successors(state);
       if (su.size() == 1) {
         successors.insert(su.front().to);
       } else {
         successors.insert(state*-1);
       }
-      sigma.reward = 1;
     }
   }
 }
@@ -74,18 +68,16 @@ void automaton::int_next_symbols(const state_id_type& state, Symbol_set& symbols
     // we are only after the state if there are several successors
     for (const edge& e : thread_.get_successors(state * -1)) {
       //assert(e.tag != nullptr); 
-      const abstraction::symbol* action = e.tag.get();
-      reward_t reward = e.cost*-2;
+      abstraction::psymbol action = e.tag.get();
       if (action == nullptr) {
         action = thread_.get_state(e.to).action.get();
-        if (reward==0) reward = 1;
       }
       if (action != nullptr)
-        symbols.insert(reward_symbol(reward, action));
+        symbols.insert(action);
     }
   } else {
     if (thread_.get_state(state).action!=nullptr)
-      symbols.insert(reward_symbol(1,thread_.get_state(state).action.get()));
+      symbols.insert(thread_.get_state(state).action.get());
   }
 }
 
