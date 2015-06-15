@@ -47,9 +47,8 @@ namespace clang {
 
 namespace cfg {
 
-  class abstract_cfg;
+class abstract_cfg;
   
-//TODO: Remove distance if not needed
 struct state {
   inline state_id_type id() { assert(action||non_action_symbol); return action ? action->loc.state : non_action_symbol->loc.state; }
   void id(state_id_type new_id);

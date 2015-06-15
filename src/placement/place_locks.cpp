@@ -342,7 +342,6 @@ vector<z3::expr> place_locks::locked_together(const synthesis::lock_symbols& loc
           for (const auto& pl : lplaces2) {
             const abstraction::location& loc = pl->loc;
             z3::expr& loce = location_vector[loc.thread][loc.state];
-            cout << pl << " -- " << loce << endl;
             e = e && inl(loce,l);
           }
         }

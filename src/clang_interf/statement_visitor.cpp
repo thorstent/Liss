@@ -45,7 +45,7 @@ bool statement_visitor::VisitDeclRefExpr(DeclRefExpr* stmt)
         if (type_name == "lock_t" || type_name == "conditional_t")
           throw parse_error("Variable " + variable + " must not use type lock_t or conditional_t");
         variable_type var = identifier_store.insert_variable(variable);
-        symbol action(access_type, variable, var, identifier_store, stmt, function);
+        symbol action(access_type, variable, var, identifier_store, stmt);
         state_id_type next = thread.add_state(action);
         lock_locations(stmt, next);
         add_successor(next);
@@ -144,7 +144,7 @@ bool statement_visitor::TraverseCallExpr(CallExpr* s)
   }
   
   if (operation != abstraction::op_class::epsilon) {
-    symbol action(operation, var_name, var, identifier_store, s, function);
+    symbol action(operation, var_name, var, identifier_store, s);
     action.assume = assume;
     action.synthesised = synthesised;
     state_id_type next = thread.add_state(action);
