@@ -22,6 +22,7 @@
 
 #include "types.h"
 #include <vector>
+#include <ostream>
 #include "abstraction/location.h"
 #include "abstraction/symbol.h"
 #include "synthesis/lock.h"
@@ -40,19 +41,32 @@ namespace synthesis {
   using lock_lists = std::vector<lock_list>;
   using lock_symbols = cnf<lock_lists>;
   
+  
   lock_symbols locks_to_symbols(const cnf<::synthesis::lock>& locks, const std::vector<abstraction::psymbol>& trace);
   
   /**
-   * @brief Add symbols to the trace
+   * @brief Add symbols (function call/return) to the trace
    * 
    * The trace is based on the minimized automaton. This function adds the in-between states that are not in the minimized automaton.
    */
   void blow_up_trace(const cfg::program& program, std::vector<abstraction::psymbol>& trace);
   
   /**
-   * @brief Remove preemption points from the trace.
+   * @brief Add symbols (function call/return) to the locks
+   * 
+   * The trace is based on the minimized automaton. This function adds the in-between states that are not in the minimized automaton.
+   */
+  void blow_up_lock(const cfg::program& program, lock_symbols& locks);
+  
+  /**
+   * @brief Remove preemption points from the lock.
+   * 
+   * This will also split locks with preemption points in between
    */
   void remove_preemption(lock_symbols& locks);
 }
+
+
+std::ostream& operator<<(std::ostream& out, const synthesis::lock_lists& lock);
 
 #endif // PLACEMENT_LOCK_LOCATIONS_H

@@ -29,15 +29,47 @@
 using namespace cfg;
 using namespace std;
 
+state::state(state_id_type id, const abstraction::symbol& action) : action(std::make_shared<abstraction::symbol>(action)) { assert(this->action->loc.state == id); }
+state::state(thread_id_type thread_id, state_id_type id) : non_action_symbol(std::make_shared<abstraction::symbol>(thread_id, id)) {}
+
+void state::name(std::string newn) { 
+  if (non_action_symbol) { 
+    std::shared_ptr<abstraction::symbol> newp = make_shared<abstraction::symbol>(*non_action_symbol);
+    newp->variable_name = newn;
+    non_action_symbol = newp;
+  }
+}
+
+void state::id(state_id_type new_id) {
+  if (action) { 
+    std::shared_ptr<abstraction::symbol> newp = make_shared<abstraction::symbol>(*action);
+    newp->loc.state = new_id;
+    action = newp;
+  }
+  if (non_action_symbol) { 
+    std::shared_ptr<abstraction::symbol> newp = make_shared<abstraction::symbol>(*non_action_symbol);
+    newp->loc.state = new_id;
+    non_action_symbol = newp;
+  }
+}
+
+void edge::id(state_id_type new_id) {
+  if (tag) { 
+    std::shared_ptr<abstraction::symbol> newp = make_shared<abstraction::symbol>(*tag);
+    newp->loc.state = new_id;
+    tag = newp;
+  }
+}
+
 std::ostream& cfg::operator<<(std::ostream& os, const state& s) {
   if (s.action)
     os << s.action;
   else if (s.final) {
     os << "Exit";
   } else {
-    if (s.non_action_symbol)
-      os << to_string(s.non_action_symbol->thread_id()) << "-";
-    os << s.name();
+    assert (s.non_action_symbol);
+    os << to_string(s.non_action_symbol->thread_id()) << "-";
+    os << s.non_action_symbol->variable_name;
   }
   return os;
 }
@@ -69,26 +101,14 @@ abstract_cfg::abstract_cfg(const clang::FunctionDecl* fd, thread_id_type thread_
   name = dn.getAsString();
 }
 
-abstract_cfg::abstract_cfg(const abstract_cfg& other, bool deep) : abstract_cfg(other)
-{
-  if (deep) {
-    for (state& s : states)
-      s.action = s.action ? make_shared<abstraction::symbol>(*s.action) : nullptr;
-    for (auto& e : edges)
-      for (edge& e2 : e) {
-        e2.tag = e2.tag ? make_shared<abstraction::symbol>(*e2.tag) : nullptr;
-      }
-  }
-}
 
-
-state_id_type abstract_cfg::add_state(const abstraction::symbol& symbol)
+state_id_type abstract_cfg::add_state(abstraction::symbol symbol)
 {
   if (states.size()>=max_states) throw range_error("Maximum number of states reached");
+  symbol.loc.thread = thread_id;
+  symbol.loc.state = states.size() - 1;
   states.emplace_back(states.size(), symbol);
   edges.emplace_back();
-  states.back().action->loc.thread = thread_id;
-  states.back().action->loc.state = states.size() - 1;
   return states.size() - 1;
 }
 
@@ -228,9 +248,7 @@ void abstract_cfg::compact()
           edges[i] = std::move(edges[j]);
           active[j] = false;
           mapping[j] = i;
-          states[i].id = i;
-          if(states[i].action)
-            states[i].action->loc.state = i;
+          states[i].id(i);
           break;
         }
       }
@@ -250,7 +268,7 @@ void abstract_cfg::compact()
     }
     for (edge& e : edges[i]) {
       if (mapping[e.to]!=no_state) e.to = mapping[e.to];
-      if (e.tag) e.tag->loc.state = i;
+      e.id(i);
       e.in_betweeners.clear();
     }
   }

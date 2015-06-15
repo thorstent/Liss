@@ -112,7 +112,11 @@ void concurrent_automaton::int_successors_hist(const pcstate& state, const psymb
     bool first = true;
     for (const state_id_type& p : succs) {
       pcstate copy = first ? next : make_shared<concurrent_state>(*next); // copy needed if not first element
-      next->reward += rs.reward;
+      next->reward += 1;
+      // bound at 100
+      if (history && history->size()%100 == 0) {
+        next->reward =- 1000;
+      }
       copy->threads[thread] = p;
       //cout << threads[thread]->name(p) << " ";
       if (concurrent_ || threads[thread].is_final_state(p)) copy->current = no_thread;
@@ -309,7 +313,7 @@ void concurrent_automaton::add_forbidden_traces(const synthesis::lock_symbols& n
         // each conflict in this vector is in conflict with all the other vectors
         psymbol pred = nullptr;
         for (const psymbol& current : (*it)) {
-          if (current->operation != op_class::epsilon) {
+          if (!current->is_real_epsilon()) {
             if (pred) {
               for (auto it2 = lock.begin(); it2!=lock.end(); ++it2) {
                 // for size 1 there cannot be really a conflict because there are no states in between
@@ -319,7 +323,7 @@ void concurrent_automaton::add_forbidden_traces(const synthesis::lock_symbols& n
                   --last;
                   for (auto pl = it2->begin(); pl != it2->end(); ++pl) {
                     psymbol conflict = *pl;
-                    if (conflict->operation != op_class::epsilon) {
+                    if (!conflict->is_real_epsilon()) {
                       // current -> pred -> conflict -> lock number
                       conflict_map[current][pred].insert(make_pair(conflict,locks_size));
                     }

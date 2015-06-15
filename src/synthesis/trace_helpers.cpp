@@ -69,11 +69,11 @@ void blow_up_trace(const cfg::program& program, std::vector<abstraction::psymbol
 
 // remove epsilon transitions from the beginning and the end
 void trim_list(lock_list& list) {
-  for (auto it = list.begin(); it != list.end() && (*it)->operation==abstraction::op_class::epsilon; ) {
+  for (auto it = list.begin(); it != list.end() && (*it)->is_real_epsilon(); ) {
     it = list.erase(it);
   }
   // from the end
-  while (list.back()->operation == abstraction::op_class::epsilon) {
+  while (list.back()->is_real_epsilon()) {
     list.pop_back();
   }
 }
@@ -121,4 +121,25 @@ void remove_preemption(lock_symbols& locks)
   }
 }
 
+void blow_up_lock(const cfg::program& program, lock_symbols& locks) {
+  for (disj<lock_lists>& d : locks) {
+    for (lock_lists& l : d) {
+      for (lock_list& list : l) {
+        blow_up_trace(program, list);
+      }
+    }
+  }
+}
+}
+
+using namespace abstraction;
+
+std::ostream& operator<<(std::ostream& out, const synthesis::lock_lists& lock) {
+  for (const lock_list& l : lock) {
+    for (const abstraction::psymbol& sym : l) {
+      out << sym << endl;
+    }
+    out << "-------------------" << endl;
+  }
+  return out;
 }

@@ -106,7 +106,7 @@ bool actions::synthesis2::synth_loop(const cfg::program& program, placement::pla
       return false;
     }
     vector<abstraction::psymbol>& trace = result.counter_example;
-    ::synthesis::blow_up_trace(program, trace);
+    //::synthesis::blow_up_trace(program, trace);
     if (verbosity >= 1) {
       result.print_long(debug, symbol_printer);
     }
@@ -121,7 +121,9 @@ bool actions::synthesis2::synth_loop(const cfg::program& program, placement::pla
       cnf<::synthesis::lock> new_locks;
       synch.generate_sync(cnf1, new_locks);
       synthesis::lock_symbols new_lock_symbols = synthesis::locks_to_symbols(new_locks, trace);
+      cout << new_lock_symbols << endl;
       ::synthesis::remove_preemption(new_lock_symbols);
+      cout << new_lock_symbols << endl;
       concurrent.add_forbidden_traces(new_lock_symbols);
       lock_symbols.insert(lock_symbols.end(), new_lock_symbols.begin(), new_lock_symbols.end());
       auto synth_end = chrono::steady_clock::now();
@@ -135,6 +137,9 @@ bool actions::synthesis2::synth_loop(const cfg::program& program, placement::pla
       
       auto placement_start = chrono::steady_clock::now();
       if (!lock_symbols.empty()) {
+        // blow up the lock symbols
+        ::synthesis::blow_up_lock(program, lock_symbols);
+        cout << lock_symbols << endl;
         placement::place_locks plocks(program);
         if (!plocks.find_locks(lock_symbols, lock_result)) {
           cout << "Found no valid lock placement" << endl;

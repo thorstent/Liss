@@ -261,7 +261,7 @@ dnf_constr reorderings::process_trace(const std::vector< abstraction::psymbol >&
     }
     conj_constr constraint = find_order(strace, model);
     slv_good.add(!make_constraint(ctx, constraint));
-    if (verbosity >= 2) {
+    if (verbosity >= 3) {
       debug << "Found constraint: ";
       debug << constraint;
       debug << endl;
@@ -322,8 +322,10 @@ dnf_constr reorderings::process_trace(const std::vector< abstraction::psymbol >&
       debug << ": Found constraint: ";
       debug << constraint;
       debug << endl;
-      debug << "Trace:" << endl;
-      print_trace(strace, model, debug);
+      if (verbosity >= 3) {
+        debug << "Trace:" << endl;
+        print_trace(strace, model, debug);
+      }
     }
   }
   slv_bad.pop();

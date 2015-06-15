@@ -51,27 +51,27 @@ namespace cfg {
   
 //TODO: Remove distance if not needed
 struct state {
-  state_id_type id;
-  std::shared_ptr<abstraction::symbol> action;
-  std::shared_ptr<abstraction::symbol> non_action_symbol; // the symbol that is used to represent this state if no action occured
+  inline state_id_type id() { assert(action||non_action_symbol); return action ? action->loc.state : non_action_symbol->loc.state; }
+  void id(state_id_type new_id);
+  std::shared_ptr<const abstraction::symbol> action;
+  std::shared_ptr<const abstraction::symbol> non_action_symbol; // the symbol that is used to represent this state if no action occured
   bool final = false;
   bool non_det = false; // state branches non-deterministically
-  std::string name() const { return name_; };
-  void name(std::string newn) { name_ = newn; if (non_action_symbol) non_action_symbol->variable_name = newn; }
+  void name(std::string newn);
   state_id_type return_state = no_state; // if this is a function call, then it contains the position where the function call returns
   clang::SourceLocation lock_before, lock_after; // the place to put locks if this state can be locked
   clang::Stmt* braces_needed = nullptr; // if braces need to be added before adding locks this points to the instruction
-  state(state_id_type id, const abstraction::symbol& action) : id(id), action(std::make_shared<abstraction::symbol>(action)) {}
-  state(thread_id_type thread_id, state_id_type id) : id(id), non_action_symbol(std::make_shared<abstraction::symbol>(thread_id, id)) {}
+  state(state_id_type id, const abstraction::symbol& action);
+  state(thread_id_type thread_id, state_id_type id);
 private:
-  std::string name_;
 };
 
 std::ostream& operator<<(std::ostream& os, const state& s);
 
 struct edge {
+  void id(state_id_type new_id);
   bool back_edge = false; // this edge is the back-edge of a loop
-  std::shared_ptr<abstraction::symbol> tag = nullptr; // can be null
+  std::shared_ptr<const abstraction::symbol> tag = nullptr; // can be null
   state_id_type to;
   reward_t cost = 0; // back_edges have a cost for going back, all other edges have cost 0
   std::vector<state_id_type> in_betweeners; // a list of states in between that has been removed by minimise
@@ -88,16 +88,9 @@ class abstract_cfg
 public:
   abstract_cfg(const clang::FunctionDecl* fd, thread_id_type thread_id);
   abstract_cfg(const abstract_cfg& other) = default;
-  /**
-   * @brief Copy constructor with deep copy
-   * 
-   * @param other ...
-   * @param deep If true the symbols are duplicated
-   */
-  abstract_cfg(const abstract_cfg& other, bool deep);
   const clang::FunctionDecl* declaration; // just to have this around
   
-  state_id_type add_state(const abstraction::symbol& symbol);
+  state_id_type add_state(abstraction::symbol symbol);
   state_id_type add_state(const std::string& name);
   state_id_type add_dummy_state();
   //const std::shared_ptr<abstraction::symbol>& lookup_state(const clang::Stmt* stmt) const;

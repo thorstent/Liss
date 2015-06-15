@@ -44,7 +44,7 @@ namespace abstraction {
     state_id_type* threads;
     thread_id_type length;
     thread_id_type current = no_thread;
-    uint16_t reward = 0;
+    int16_t reward = 0;
     
     state_id_type& operator[] (const int i) {return threads[i];};
     const state_id_type& operator[] (const int i) const {return threads[i];};

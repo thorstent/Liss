@@ -74,14 +74,14 @@ void automaton::int_next_symbols(const state_id_type& state, Symbol_set& symbols
     // we are only after the state if there are several successors
     for (const edge& e : thread_.get_successors(state * -1)) {
       //assert(e.tag != nullptr); 
-      auto action = e.tag;
+      const abstraction::symbol* action = e.tag.get();
       reward_t reward = e.cost*-2;
       if (action == nullptr) {
-        action = thread_.get_state(e.to).action;
+        action = thread_.get_state(e.to).action.get();
         if (reward==0) reward = 1;
       }
       if (action != nullptr)
-        symbols.insert(reward_symbol(reward, action.get()));
+        symbols.insert(reward_symbol(reward, action));
     }
   } else {
     if (thread_.get_state(state).action!=nullptr)
