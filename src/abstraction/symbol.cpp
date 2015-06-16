@@ -113,10 +113,11 @@ bool symbol::is_preemption_point() const
     case abstraction::op_class::unlock:
     case abstraction::op_class::notify:
     case abstraction::op_class::reset:
-    case abstraction::op_class::yield:
     case abstraction::op_class::epsilon:
     case abstraction::op_class::tag:
       break;
+    case abstraction::op_class::yield:
+      return true;
     case abstraction::op_class::lock:
       return !synthesised;
     case abstraction::op_class::wait_reset:

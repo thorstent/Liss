@@ -416,7 +416,7 @@ bool place_locks::find_locks(const synthesis::lock_symbols& locks_to_place, plac
     slv.pop();
     reduce = reduce/10;
   }
-  if (verbosity>=3) {
+  if (verbosity>=2) {
     print_func_interp(last_model, lock_b);
     print_func_interp(last_model, lock_a);
     print_func_interp(last_model, unlock_a);

@@ -222,11 +222,9 @@ void usb_serial_disconnect () {
 }
 
 void usb_serial_device_probe () {
-unlock_s(synthlock_0);
     int x;
     x = port_initialized;
     //assert (dev_usb_serial_initialized>=0);
-    lock_s(synthlock_0);
     x = dev_usb_serial_initialized;
     dev_autopm++;
     
@@ -522,10 +520,10 @@ void thread_port_work () {
 void thread_serial_bus () {
     lock_serial_bus();
     assume (port_dev_registered);
-    lock_s(synthlock_0);
     usb_serial_device_probe ();
     unlock_serial_bus();
     
+    lock_s(synthlock_0);
     assume_not (port_dev_registered);
     unlock_s(synthlock_0);
     lock_serial_bus();

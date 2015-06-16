@@ -237,18 +237,18 @@ void usb_serial_device_probe () {
 }
 
 void usb_serial_device_remove () {
-lock_s(synthlock_0);
     int x;
+    lock_s(synthlock_0);
     x = port_initialized;
     x = dev_usb_serial_initialized;
     //assert (dev_usb_serial_initialized>=0);
 
     
     /* make sure suspend/resume doesn't race against port_remove */
-    unlock_s(synthlock_0);
     dev_autopm++;
     
     reset(port_tty_registered);
+    unlock_s(synthlock_0);
     
     //belkin_port_remove();
     

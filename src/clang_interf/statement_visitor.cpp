@@ -71,8 +71,39 @@ bool statement_visitor::TraverseBinAssign(BinaryOperator* stmt)
 bool statement_visitor::TraverseStmt(Stmt* s)
 {
   last_nondet = false;
-  if (seen_stmt.find(s) == seen_stmt.end())
-    return RecursiveASTVisitor::TraverseStmt(s);
+  if (seen_stmt.find(s) == seen_stmt.end()) {
+    if (!process_artificial(s))
+      return RecursiveASTVisitor::TraverseStmt(s);
+  }
+  return true;
+}
+
+bool statement_visitor::process_artificial(Stmt* s)
+{
+  // check if the statement is artificial
+  if (StringLiteral* str = dyn_cast_or_null<StringLiteral>(s)) {
+    if (const BuiltinType* typ = dyn_cast<BuiltinType>(str->getType().getTypePtr())) {
+      if (typ->getKind() == BuiltinType::UInt) {
+        string name = str->getString();
+        state_id_type state_id = thread.add_state(name);
+        lock_locations(s, state_id, true, true);
+        add_successor(state_id);
+        return true; 
+      }
+    }
+  }
+  return false;
+}
+
+
+bool statement_visitor::TraverseReturnStmt(clang::ReturnStmt* s) {
+  for (const auto& child : s->children()) {
+    TraverseStmt(child);
+  }
+  string name = function->getNameInfo().getAsString();
+  state_id_type state_id = thread.add_state("return " + name);
+  lock_locations(s, state_id, true, false);
+  add_successor(state_id);
   return true;
 }
 
@@ -157,35 +188,19 @@ bool statement_visitor::TraverseCallExpr(CallExpr* s)
       string name = callee->getNameInfo().getAsString();
       if (callee->hasBody()) {
         // add call state
-        state_id_type state_id = thread.add_state("call " + name);
-        lock_locations(s, state_id, true, false);
-        add_successor(state_id);
+        state_id_type state_start = thread.add_state("call " + name);
+        lock_locations(s, state_start, true, false);
+        add_successor(state_start);
         
-        Stmt* body = callee->getBody();
-        /*assert(isa<CompoundStmt>(body));
-        CompoundStmt* com = cast<CompoundStmt>(body);
-        Stmt** children = new Stmt*[com->size()+1];
-        unsigned i = 0;
-        for(Stmt* c : com->body()) {
-          children[i] = c;
-          ++i;
-        }
-        NullStmt* s = new (context) NullStmt(SourceLocation());
-        children[i] = s;++i;
-        com->setStmts(context, children, i);*/
-        clang::CFG::BuildOptions bo;
-        //bo.setAlwaysAdd(Stmt::NullStmtClass, true);
-        std::unique_ptr<clang::CFG> cfg = CFG::buildCFG(callee, callee->getBody(), &context, bo);
-        //cfg->dump(context.getLangOpts(), false);
-        cfg_visitor cvisitor(context, thread, identifier_store, cfg->getExit(), name);
-        cvisitor.process(cfg->getEntry(), body);
+        cfg_visitor cvisitor = cfg_visitor::process_function(context, thread, identifier_store, callee);
         add_successor(cvisitor.entry_state());
         end_state = cvisitor.exit_state();
         
-        state_id = thread.add_state("ret " + name);
+        state_id_type state_id = thread.add_state("ret " + name);
         lock_locations(s, state_id, false, true);
         add_successor(state_id);
-
+        
+        thread.get_state(state_start).return_state = state_id;
       } else {
         cerr << "Ignoring function without body: " << name << endl;
       }
@@ -227,38 +242,42 @@ void statement_visitor::add_successor(state_id_type successor)
   end_state = successor;
 }
 
-
-
 void statement_visitor::lock_locations(Stmt* stmt, state_id_type state_id, bool allow_before, bool allow_after)
 {
   SourceManager& source_manager = context.getSourceManager();
-  clang::FileID id = source_manager.getFileID(stmt->getLocStart());
-  if (id==source_manager.getMainFileID()) { // otherwise no lock placements
     
-    parent_result parent = find_stmt_parent(stmt, function);
-    if (parent.stmt_to_lock) {
-      SourceLocation start = parent.stmt_to_lock->getLocStart();
-      SourceLocation end = parent.stmt_to_lock->getLocEnd();
-      if (end.isMacroID()) {
-        end = source_manager.getExpansionRange(end).second;
-      }
-      if (start.isMacroID()) {
-        start = source_manager.getExpansionRange(start).first;
-      }
-      
-      end = findLocationAfterSemi(end, context);
-      
-      if (start.isMacroID() || end.isMacroID()) {
-        throw logic_error("Caught macro expansion");
-      }
-      
-      cfg::state& state = thread.get_state(state_id);
-      if (allow_before)
-        state.lock_before = start;
-      if (allow_after)
-        state.lock_after = end;
-      if (parent.braces_needed) state.braces_needed = parent.stmt_to_lock;
+  parent_result parent = find_stmt_parent(stmt, function->getBody());
+  if (parent.stmt_to_lock) {
+    SourceLocation start = parent.stmt_to_lock->getLocStart();
+    SourceLocation end = parent.stmt_to_lock->getLocEnd();
+    if (end.isMacroID()) {
+      end = source_manager.getExpansionRange(end).second;
     }
+    if (start.isMacroID()) {
+      start = source_manager.getExpansionRange(start).first;
+    }
+    
+    if (end.isValid()) {
+      SourceLocation end_new = findLocationAfterSemi(end, context);
+      if (end_new.isValid()) end = end_new;
+    }
+    
+    if (start.isMacroID() || end.isMacroID()) {
+      throw logic_error("Caught macro expansion");
+    }
+    
+    if (start.isValid() || end.isValid()) {
+      clang::FileID id = start.isValid() ? source_manager.getFileID(start) : source_manager.getFileID(end);
+        if (id==source_manager.getMainFileID()) { // otherwise no lock placements
+        cfg::state& state = thread.get_state(state_id);
+        if (allow_before)
+          state.lock_before = start;
+        if (allow_after)
+          state.lock_after = end;
+        if (parent.braces_needed) state.braces_needed = parent.stmt_to_lock;
+      }
+    }
+    
   }
 }
 

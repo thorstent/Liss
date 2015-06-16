@@ -49,7 +49,7 @@ namespace synthesis {
    * 
    * The trace is based on the minimized automaton. This function adds the in-between states that are not in the minimized automaton.
    */
-  void blow_up_trace(const cfg::program& program, std::vector<abstraction::psymbol>& trace);
+  void blow_up_trace(const cfg::program& program, std::vector< abstraction::psymbol >& trace);
   
   /**
    * @brief Add symbols (function call/return) to the locks

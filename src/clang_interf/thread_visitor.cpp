@@ -32,9 +32,7 @@ using namespace std;
 void clang_interf::parse_thread(cfg::abstract_cfg& thread, abstraction::identifier_store& is, ASTContext& context)
 {
   std::unique_ptr<clang::CFG> cfg = CFG::buildCFG(thread.declaration, thread.declaration->getBody(), &context, clang::CFG::BuildOptions());
-  cfg_visitor visitor(context, thread, is, cfg->getExit(), thread.declaration->getNameInfo().getAsString());
-  //cfg->dump(context.getLangOpts(), false);
-  visitor.process(cfg->getEntry(), thread.declaration->getBody());
+  cfg_visitor visitor = cfg_visitor::process_function(context, thread, is, thread.declaration);
   thread.mark_final(visitor.exit_state());
   thread.get_state(visitor.entry_state()).return_state = visitor.exit_state();
 }

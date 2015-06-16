@@ -106,7 +106,7 @@ state_id_type abstract_cfg::add_state(abstraction::symbol symbol)
 {
   if (states.size()>=max_states) throw range_error("Maximum number of states reached");
   symbol.loc.thread = thread_id;
-  symbol.loc.state = states.size() - 1;
+  symbol.loc.state = states.size();
   states.emplace_back(states.size(), symbol);
   edges.emplace_back();
   return states.size() - 1;

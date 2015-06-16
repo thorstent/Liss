@@ -43,7 +43,7 @@ public:
   statement_visitor(clang::ASTContext& context, cfg::abstract_cfg& thread,
                     abstraction::identifier_store& identifier_store,
                     std::unordered_set<const clang::Stmt*>& seen_stmt,
-                    clang::Stmt* function, bool writer = false) :
+                    const clang::FunctionDecl* function, bool writer = false) :
                     context(context), thread(thread), identifier_store(identifier_store),
                     access_type(writer ? abstraction::op_class::write : abstraction::op_class::read),
                     function(function), seen_stmt(seen_stmt) {}
@@ -56,6 +56,8 @@ public:
   
   bool TraverseCallExpr(clang::CallExpr* s);
   bool TraverseStmt(clang::Stmt* s);
+  
+  bool TraverseReturnStmt(clang::ReturnStmt* s);
   
   state_id_type last_state();
   state_id_type first_state();
@@ -75,10 +77,16 @@ private:
 
   void add_successor(state_id_type successor);
   std::string get_type_name(clang::DeclRefExpr* decl);
-  clang::Stmt* function;
+  const clang::FunctionDecl* function;
   std::unordered_set<const clang::Stmt*>& seen_stmt;
   void lock_locations(clang::Stmt* stmt, state_id_type state, bool allow_before = true, bool allow_after = true);
 
+  /**
+   * @brief Check if the statement is artificial (inserted into the CFG)
+   * 
+   * @return true if artificial
+   */
+  bool process_artificial(clang::Stmt* s);
 };
 }
 

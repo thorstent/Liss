@@ -39,7 +39,6 @@ int  usb_ep_queue ();
 
 // queue request
 void acm_cdc_notify () {
-unlock_s(synthlock_1);
   
   // 0. acquire lock
   lock(l);
@@ -69,10 +68,9 @@ unlock_s(synthlock_1);
     //assert (bsy);
     
     // 9.
-    unlock_s(synthlock_1);
     unlock(l);
-    lock_s(synthlock_1);
   }
+unlock_s(synthlock_1);
 }
 
 // attempt to submit a request to the worker thread; fail nondeterministically
@@ -90,16 +88,12 @@ int usb_ep_queue () {
 
 // Client thread 1
 void thread_client1() {
-lock_s(synthlock_1);
   acm_cdc_notify ();
-  unlock_s(synthlock_1);
 }
 
 // Client thread 2
 void thread_client2() {
-  lock_s(synthlock_1);
   acm_cdc_notify ();
-unlock_s(synthlock_1);
 }
 
 
@@ -109,19 +103,19 @@ void thread_worker () {
     // A.
     lock_s(synthlock_1);
     assume (request);
+    unlock_s(synthlock_1);
     
     // B. not allowed to wait here
     //        assert (lock != request);
-    unlock_s(synthlock_1);
     lock(l);
     
     // C. handle the request and update state variables
     lock_s(synthlock_1);
     bsy = 0;
     reset(request);
-    unlock_s(synthlock_1);
     
     // D.
+    unlock_s(synthlock_1);
     unlock(l);
     
     // E. if there are more requests pending, schedule them now
@@ -129,9 +123,7 @@ void thread_worker () {
       // Without this yield, sequential semantics does not allow a preemption before next lock acquisition
       yield();
       assume(pending);
-      lock_s(synthlock_1);
       acm_cdc_notify();
-      unlock_s(synthlock_1);
     } else {
       yield();
       assume_not(pending);

@@ -1,12 +1,12 @@
 #include "langinc.h"
 
-lock_t synthlock_2;
+lock_t synthlock_1;
 lock_t l;
 conditional_t open;
 int power_on = 0;
 
 void i2c_hid_open() {
-lock_s(synthlock_2);
+lock_s(synthlock_1);
     int x;
 
     if (nondet) {
@@ -18,14 +18,13 @@ lock_s(synthlock_2);
     notify(open);
 
     x = power_on;
-unlock_s(synthlock_2);
+    unlock_s(synthlock_1);
 }
 
 void i2c_hid_close ()
 {
     int x;
 
-    lock_s(synthlock_2);
     reset(open);
 
     if (nondet) {
@@ -34,7 +33,6 @@ void i2c_hid_close ()
     } 
 
     x = power_on;
-    unlock_s(synthlock_2);
 }
 
 void thread_open() {
@@ -48,8 +46,10 @@ void thread_open() {
 void thread_close() {
     while (nondet)
     {
+      lock_s(synthlock_1);
       assume(open);
       i2c_hid_close();
+      unlock_s(synthlock_1);
       yield();
     }
 }

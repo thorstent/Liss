@@ -23,40 +23,59 @@
 #include <clang/AST/ASTContext.h>
 #include <cassert>
 #include <clang/Lex/Lexer.h>
+#include <iostream>
 
 using namespace clang_interf;
 using namespace std;
 using namespace clang;
 
-void cfg_visitor::process(const CFGBlock& block, Stmt* function)
+void cfg_visitor::process(const CFGBlock& block)
 {
-  process_block(block, function, no_state);
-  add_locking_information(function);
+  process_block(block, no_state);
 }
 
-void cfg_visitor::add_locking_information(Stmt* function)
+// inject an artifical element into the CFG
+Stmt* make_artificial(ASTContext& context, string name, SourceLocation loc_start, SourceLocation loc_end) {
+  BuiltinType* ch = new BuiltinType(BuiltinType::UInt);
+  SourceLocation startend[] = { loc_start, loc_end };
+  StringLiteral* str = StringLiteral::Create(context, name, StringLiteral::Ascii, false, QualType(ch, 0), startend , 2);
+  return str;
+}
+
+cfg_visitor cfg_visitor::process_function(ASTContext& context, cfg::abstract_cfg& thread, abstraction::identifier_store& identifier_store, const clang::FunctionDecl* callee)
 {
-  auto& es = thread.get_state(entry_state());
-  es.return_state = exit_state();
-  es.name("start " + name);
-  CompoundStmt* body = dyn_cast<CompoundStmt>(function);
-  assert(body);
-  SourceLocation start = body->getLocStart();
-  int offset = 1;
-  start = start.getLocWithOffset(offset);
-  es.lock_after = start;
-  
-  SourceLocation end = body->getLocEnd();
-  auto& exs = thread.get_state(exit_state());
-  exs.name("end " + name);
-  exs.lock_before = end;
-  
+  Stmt* body = callee->getBody();
+  string name = callee->getNameInfo().getAsString();
+  assert(isa<CompoundStmt>(body));
+  CompoundStmt* com = cast<CompoundStmt>(body);
+  Stmt** children = new Stmt*[com->size()+2];
+  unsigned i = 0;
+  // function start
+  Stmt* s = make_artificial(context, "start " + name, SourceLocation(), body->getLocStart().getLocWithOffset(1));
+  children[i] = s;++i;
+  for(Stmt* c : com->body()) {
+    children[i] = c;
+    ++i;
+  }
+  // function end
+  s = make_artificial(context, "end " + name, body->getLocEnd(), SourceLocation());
+  children[i] = s;++i;
+  com->setStmts(context, children, i);
+  clang::CFG::BuildOptions bo;
+  std::unique_ptr<clang::CFG> cfg = CFG::buildCFG(callee, callee->getBody(), &context, bo);
+  //cout << name << endl;
+  //cfg->dump(context.getLangOpts(), false);
+  cfg_visitor cvisitor(context, thread, identifier_store, cfg->getExit(), callee);
+  cvisitor.process(cfg->getEntry());
+  // restore original
+  com->setStmts(context, &children[1], i-2);
+  return cvisitor;
 }
 
 
 
 // parent_blocks is used to identify back_edges
-void cfg_visitor::process_block(const CFGBlock& block, clang::Stmt* function, state_id_type last_state, unordered_set<unsigned> parent_blocks)
+void cfg_visitor::process_block(const CFGBlock& block, state_id_type last_state, unordered_set<unsigned> parent_blocks)
 {
   unordered_set<const Stmt*> seen_stmt;
   
@@ -117,7 +136,7 @@ void cfg_visitor::process_block(const CFGBlock& block, clang::Stmt* function, st
     for (auto it = block.succ_begin(); it != block.succ_end(); ++it) {
       const CFGBlock* succ_block = it->getReachableBlock();
       if (succ_block) {
-        process_block(*succ_block, function, last_state, parent_blocks);
+        process_block(*succ_block, last_state, parent_blocks);
       }
     }
     
