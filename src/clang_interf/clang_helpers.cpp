@@ -61,6 +61,8 @@ namespace clang_interf {
           return parent_result();
       } else if (isa<ReturnStmt>(parent)) {
         return parent_result();
+      } else if (isa<LabelStmt>(parent)) {
+        return parent_result(stmt, false);
       }
       stmt = parent;
     }
