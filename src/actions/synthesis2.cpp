@@ -124,6 +124,10 @@ bool actions::synthesis2::synth_loop(const cfg::program& program, placement::pla
       //cout << new_lock_symbols << endl;
       ::synthesis::remove_preemption(new_lock_symbols);
       cout << new_lock_symbols << endl;
+      if (new_lock_symbols.empty()) {
+        cout << "Found no more locks." << endl;
+        return true;
+      }
       concurrent.add_forbidden_traces(new_lock_symbols);
       lock_symbols.insert(lock_symbols.end(), new_lock_symbols.begin(), new_lock_symbols.end());
       auto synth_end = chrono::steady_clock::now();

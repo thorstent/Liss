@@ -113,7 +113,7 @@ void concurrent_automaton::int_successors_hist(const pcstate& state, const psymb
       pcstate copy = first ? next : make_shared<concurrent_state>(*next); // copy needed if not first element
       next->reward += 1;
       // bound at 100
-      if (history && history->size()%100 == 0) {
+      if (history && history->size()%400 == 0) {
         next->reward =- 1000;
       }
       copy->threads[thread] = p;

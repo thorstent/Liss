@@ -44,11 +44,11 @@ void add_new_disk() {
 
     // R. lock mutex
     lock(l);
+    lock_s(synthlock_0);
 
     // putting the barrier here causes deadlock
 
     // S.disk removal must be finished by now
-    lock_s(synthlock_0);
     int x = sysfs_entry;
     //assert (sysfs_entry == 0);
     // T.

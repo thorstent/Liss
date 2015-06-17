@@ -15,8 +15,8 @@ int shutdown = 0;
 // driver entry point
 void thread_1()
 {
-/*(1)*/ lock_s(synthlock_0);
-shutdown = 1;
+lock_s(synthlock_0);
+/*(1)*/ shutdown = 1;
 /*(2)*/ notify(napi_poll); // disable NAPI loop
 unlock_s(synthlock_0);
 }
@@ -29,7 +29,7 @@ unlock_s(synthlock_0);
 // OS model
 void thread_3()
 {
-lock_s(synthlock_0);
+	lock_s(synthlock_0);
 	assume_not(napi_poll);
   int x;
   x = shutdown;

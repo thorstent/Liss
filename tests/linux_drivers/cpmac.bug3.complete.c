@@ -24,7 +24,7 @@
 
 #define pr_err(format, ...) {}
 
-lock_t synthlock_0;
+lock_t synthlock_2;
 conditional_t cond_irq_can_happen;
 
 int ar7_gpio_disable(unsigned gpio) {
@@ -1255,7 +1255,7 @@ static int cpmac_probe()
 //	spin_lock_init(&priv->cplock);
 //	spin_lock_init(&priv->rx_lock);
 //	priv->dev = dev;
-	unlock_s(synthlock_0);
+	unlock_s(synthlock_2);
 	ring_size = 64;
 	//msg_enable = netif_msg_init(debug_level, 0xff);
 	memcpy(netdev.dev_addr, pdata.dev_addr, sizeof(pdata.dev_addr));
@@ -1276,7 +1276,7 @@ static int cpmac_probe()
 //	}
 
 	rc = register_netdev();
-	lock_s(synthlock_0);
+	lock_s(synthlock_2);
 //	if (rc) {
 //		//dev_err(&pdev->dev, "Could not register net device\n");
 //		goto fail;
@@ -1316,7 +1316,7 @@ static int cpmac_remove()
 //
 int cpmac_init(void)
 {
-lock_s(synthlock_0);
+lock_s(synthlock_2);
 	u32 mask;
 	int i, res;
 
@@ -1348,9 +1348,9 @@ lock_s(synthlock_0);
 	cpmac_mdio_reset();
 
 	for (i = 0; i < 300; i++) {
-		unlock_s(synthlock_0);
+		unlock_s(synthlock_2);
 		mask = cpmac_read(CPMAC_MDIO_ALIVE);
-		lock_s(synthlock_0);
+		lock_s(synthlock_2);
 		if (mask)
 			break;
 		else
@@ -1373,9 +1373,9 @@ lock_s(synthlock_0);
         // ***
         
 	if (nondet) {
-                unlock_s(synthlock_0);
+                unlock_s(synthlock_2);
                 assume_not (cond_platform_driver_registered);
-                lock_s(synthlock_0);
+                lock_s(synthlock_2);
 		goto fail_cpmac;
         };
         assume (cond_platform_driver_registered);
@@ -1388,11 +1388,11 @@ fail_cpmac:
 fail_mii:
 	iounmap(cpmac_mii.priv);
 
+unlock_s(synthlock_2);
 fail_alloc:
 //	mdiobus_free(cpmac_mii);
 
 	return res;
-unlock_s(synthlock_0);
 }
 
 void cpmac_exit(void)
@@ -1422,10 +1422,10 @@ void thread_init_exit()
 
 void thread_probe_remove () {
     if (nondet) {
-        lock_s(synthlock_0);
+        lock_s(synthlock_2);
         assume(cond_platform_driver_registered);
         cpmac_probe();
-        unlock_s(synthlock_0);
+        unlock_s(synthlock_2);
         if (nondet) {
             assume(netdev_registered);
             yield();

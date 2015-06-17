@@ -16,3 +16,5 @@ callgrind.*
 *.start.c
 
 .z3-trace
+
+/Liss.tar*

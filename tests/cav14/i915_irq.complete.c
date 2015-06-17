@@ -10,7 +10,7 @@
 
 #include "langinc.h"
 
-lock_t synthlock_2;
+lock_t synthlock_0;
 unsigned int irq_status;
 unsigned int irq_enable;
 
@@ -21,13 +21,13 @@ void thread_i915_enable_vblank() {
     unsigned int tmp; 
 
     // 1.
-    lock_s(synthlock_2);
+    lock_s(synthlock_0);
     tmp = irq_status;
     // 2.
     irq_status = (tmp | EN_MASK) & (~STAT_MASK);
     // 3.
     irq_enable = 1;
-    unlock_s(synthlock_2);
+    unlock_s(synthlock_0);
 
     // 4.
 //    assert (((irq_enable == 1) && (irq_status & EN_MASK)) || 
@@ -35,16 +35,16 @@ void thread_i915_enable_vblank() {
 }
 
 void thread_i915_disable_vblank() {
+lock_s(synthlock_0);
     unsigned int tmp;
 
     // a.
-    lock_s(synthlock_2);
     irq_enable = 0;
     // b.
     tmp = irq_status;
     // c.
     irq_status = tmp & (~EN_MASK) & (~STAT_MASK);
-    unlock_s(synthlock_2);
+    unlock_s(synthlock_0);
 
     // d.
 //    assert (((irq_enable == 1) && (irq_status & EN_MASK)) || 

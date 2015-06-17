@@ -9,7 +9,7 @@ There are 2 state variables involved in this example:
 
 #include <langinc.h>
 
-lock_t synthlock_2;
+lock_t synthlock_0;
 conditional_t IntrMask;
 int intr_mask;
 int handled;
@@ -18,15 +18,15 @@ void thread_1() /*(interrupt thread):*/
 {
     /* In harware: wait for interrupts to become enabled */
     wait(IntrMask);
-    lock_s(synthlock_2);
+    lock_s(synthlock_0);
 
     /* Software interrupt handler */
     if (intr_mask == 1) {
         /* handle interrupt */
-        unlock_s(synthlock_2);
+        unlock_s(synthlock_0);
         handled = 1;
     } else {
-		unlock_s(synthlock_2);
+		unlock_s(synthlock_0);
 		handled = 0;
 	}
 	
@@ -35,11 +35,11 @@ void thread_1() /*(interrupt thread):*/
 
 void thread_2() /*(delayed interrupt handled):*/
 {
-lock_s(synthlock_2);
+lock_s(synthlock_0);
         /* enable interrupts */
 /*(!)*/     notify(IntrMask);
 /*(!!)*/    intr_mask = 1;
-unlock_s(synthlock_2);
+unlock_s(synthlock_0);
 }
 
 //main() {

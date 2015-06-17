@@ -80,7 +80,7 @@ private:
   };
   
   void split_trace(const std::vector< abstraction::psymbol >& trace, synthesis::reorderings::seperated_trace& strace);
-  conj_constr find_order(const seperated_trace& strace, const z3::model& model);
+  conj_constr find_order(const synthesis::reorderings::seperated_trace& strace, const z3::model& model, bool wait_notify);
   void print_trace(const seperated_trace& strace, const z3::model& model, std::ostream& out);
   z3::context ctx;
   const Limi::printer<abstraction::psymbol> symbol_printer;
@@ -88,7 +88,7 @@ private:
   std::vector<std::pair<const location*,const location*>> find_lock_locs(reorderings::seperated_trace& strace, const lock_list& locks);
   std::vector<const location*> find_locs(reorderings::seperated_trace& strace, const abstraction::psymbol& sym);
   void synth_locks(synthesis::reorderings::seperated_trace& strace, const synthesis::lock_symbols& synthesised_locks);
-  conj_constr wait_notify_order(const seperated_trace& strace, const z3::model& model);
+    void wait_notify_order(const synthesis::reorderings::seperated_trace& strace, const z3::model& model, synthesis::conj_constr& result);
 };
 }
 

@@ -5,7 +5,7 @@ BUILD = build
 BUILDDIR = $(PWD)/$(BUILD)
 SRCDIR = $(PWD)/src
 
-all : release
+all : release_asserts
 
 .PHONY : release debug clean
 

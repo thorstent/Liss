@@ -24,7 +24,6 @@
 
 #define pr_err(format, ...) {}
 
-lock_t synthlock_0;
 conditional_t cond_irq_can_happen;
 
 int ar7_gpio_disable(unsigned gpio) {
@@ -643,7 +642,6 @@ static struct mii_bus cpmac_mii;
 
 static int cpmac_start_xmit(struct sk_buff *skb)
 {
-lock_s(synthlock_0);
 	int queue, len, ret;
 	//struct cpmac_desc *desc;
 	//struct cpmac_priv *priv = netdev_priv(dev);
@@ -672,10 +670,8 @@ lock_s(synthlock_0);
                     ret = NETDEV_TX_BUSY;
             } else {
 
-                unlock_s(synthlock_0);
                 spin_lock(cplock);
                 spin_unlock(cplock);
-                lock_s(synthlock_0);
                 desc_ring[queue].dataflags = CPMAC_SOP | CPMAC_EOP | CPMAC_OWN;
                 desc_ring[queue].skb = skb;
                 desc_ring[queue].data_mapping = dma_map_single(skb->data, len,
@@ -696,7 +692,6 @@ lock_s(synthlock_0);
         }
         // ***
         
-        unlock_s(synthlock_0);
         return ret;
 }
 
@@ -708,9 +703,7 @@ static void cpmac_end_xmit(int queue)
 //	desc = desc_ring[queue];
 	cpmac_write(CPMAC_TX_ACK(queue), (u32)desc_ring[queue].mapping);
 	if (likely(desc_ring[queue].skb)) {
-		unlock_s(synthlock_0);
 		spin_lock(cplock);
-		lock_s(synthlock_0);
 		netdev.stats.tx_packets++;
 		netdev.stats.tx_bytes += desc_ring[queue].skb->len;
 		spin_unlock(cplock);
@@ -725,12 +718,10 @@ static void cpmac_end_xmit(int queue)
 		desc_ring[queue].skb = NULL;
 		//if (__netif_subqueue_stopped(dev, queue))
 			netif_wake_subqueue();
-			unlock_s(synthlock_0);
 	} else {
 //		if (netif_msg_tx_err(priv) && net_ratelimit())
 //			netdev_warn(dev, "end_xmit: spurious interrupt\n");
 		//if (__netif_subqueue_stopped(dev, queue))
-			unlock_s(synthlock_0);
 			netif_wake_subqueue();
 	}
 }
@@ -906,8 +897,7 @@ static irqreturn_t cpmac_irq(int irq)
 //		netdev_dbg(dev, "interrupt status: 0x%08x\n", status);
 
 	if (status & MAC_INT_TX)
-		{cpmac_end_xmit((status & 7));
-		lock_s(synthlock_0);}
+		cpmac_end_xmit((status & 7));
 
 	if (status & MAC_INT_RX) {
 		queue = (status >> 8) & 7;
@@ -920,7 +910,6 @@ static irqreturn_t cpmac_irq(int irq)
 
 	//cpmac_write(CPMAC_MAC_EOI_VECTOR, 0);
         reset(cond_irq_can_happen);
-        unlock_s(synthlock_0);
 
         // TODO
 //	if (unlikely(status & (MAC_INT_HOST | MAC_INT_STATUS)))
@@ -1477,7 +1466,6 @@ void thread_open_close () {
 void thread_irq () {
     while (nondet) {
         lock(irq_running_lock);
-        lock_s(synthlock_0);
         assume (cond_irq_can_happen);
         assume (cond_irq_enabled);
         cpmac_irq(nondet);

@@ -83,8 +83,8 @@ void thread_ioctl () {
     //assert (state != INCONSISTENT);
     // C.
     old_state = state;
-    lock_s(synthlock_1);
     // D.
+    lock_s(synthlock_1);
     state = INCONSISTENT;
 
     // J.

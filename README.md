@@ -1,32 +1,30 @@
 Liss (Language Inclusion-based Synchronisation Synthesis)
 =======
 
-Liss is the implementation that accompanies our paper [1]. It is a synthesis tool that is given a concurrent C program and will insert synchronisation primitives until the behaviour of the concurrent version of the program is identical to the sequential version. It is currently a research prototype.
-
-
-[1] Pavol Cerny, Edmund C. Clarke, Thomas A. Henzinger, Arjun Radhakrishna, Leonid Ryzhyk, Roopsha Samanta, Thorsten Tarrach. From Non-preemptive to Preemptive Scheduling using Synchronization Synthesis. In CAV 2015
+This is the version of Liss for our POPL submission.
 
 Compiling Liss
 ==============
 
-Cloning the GIT
+Obtaining the source code
 ---------------
 
-When cloning this GIT repository the submodules need to be initialised as well. Use
+The source is hosted [here](Liss.tar.gz).
 
-	git clone --recursive https://github.com/thorstent/Liss.git
-
-If you already cloned Liss you can initialise the submodules by running
-
-	git submodule update --init --recursive
-
-Dependencies
+Compiling
 ------------
 
 As dependencies LLVM/Clang 3.6 and Boost are required. Under **Ubuntu Vivid Vervet (15.04)** necessary dependencies can be installed with
 
 	sudo apt-get install git g++ cmake libboost-filesystem-dev libboost-system-dev 
 	sudo apt-get install clang-3.6 libclang-3.6-dev libz-dev libedit-dev
+
+Liss can then be compiled as follows:
+
+	tar -xf Liss.tar.gz
+	cd liss
+	make
+
 
 <a name="tests"></a>Test cases in the archive
 -------------------------
@@ -36,13 +34,9 @@ The `tests` folder contains our test cases. `CAV13` and `CAV14` are test cases f
 | File extension | Meaning |
 |----------------|---------|
 | .c             | This is the test file that serves as input to Liss. |
-| .start.c       | This is the input file printed by Liss after it was parsed. This is useful because when Liss prints C code the code may not be formatted exactly like the input. |
-| .complete.c    | This is the file with the synthesised synchronisation primitives. The changes can be easily visualised by diffing this file with the .start.c file. |
-| .log           | The log file contains various debug output produced by Liss, among other things the fixes applied in each iteration. |
+| .complete.c    | This is the file with the synthesised synchronisation primitives. The changes can be easily visualised by diffing this file with the .c file. |
 
-The .output folder generated for each example contains a C file with the code after each iteration. It also contains dot graphs of the automata of each thread. The complete automaton is not printed by default as it too large for any reasonable program. It can be generated with the print option.
-
-How to generate these files is described [below](#synth). The .complete files are also checked into the repository.
+The .complete.c files can be regenerated as described [below](#synth).
 
 Source code
 -----------
@@ -55,7 +49,7 @@ Running
 <a name="synth"></a>./run_synth.sh
 --------------
 
-The `./run_synth.sh` script will run all the tests. It produces the output files described [above](#tests).
+The `./run_synth.sh` script will run all the tests. It produces the output files described [above](#tests) and in addition a log file with some detailed information.
 
 Command Line
 ------------
