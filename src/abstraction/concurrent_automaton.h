@@ -89,15 +89,34 @@ namespace abstraction {
      * @param cloned_state The state (will be changed to reflect which ones are hit)
      * @return true if this successor is allowed, false otherwise
      */
-    bool apply_bad_trace_dnf(abstraction::pcstate& cloned_state, const abstraction::psymbol& sigma, const std::shared_ptr< Limi::counterexample_chain< abstraction::psymbol > >& history) const;
+    bool apply_bad_trace_dnf(abstraction::pcstate& cloned_state, const abstraction::psymbol& sigma) const;
+    /**
+     * @brief Tick of the lock in the cloned state.
+     * 
+     * Also checks if now any disjunct of locks is violated
+
+     * @return false if the lock is violated
+     */
+    bool tick_lock(abstraction::pcstate& cloned_state, unsigned lock) const;
     void next_single(const pcstate& state, Symbol_set& symbols, unsigned thread) const;
     
+    /** A conflict
+     * means that between past and next there happens a conflicting instruction
+     */
+    struct conflict_info {
+      psymbol next;
+      std::unordered_set<psymbol> conflict;
+      inline thread_id_type next_thread() const { return next->thread_id(); }
+      inline thread_id_type conflict_thread() const { return (*conflict.begin())->thread_id(); }
+      unsigned lock_id; // the lock that 
+      conflict_info(std::unordered_set<psymbol> conflict, psymbol next, unsigned lock_id) : next(next), conflict(conflict), lock_id(lock_id) {}
+    };
+    
+    std::vector<conflict_info> conflicts;
+    std::unordered_multimap<psymbol, unsigned> conflict_map;
     
     // locks are represented in a dnf
-    std::vector<boost::dynamic_bitset<unsigned long >> locks; // these patterns match the locks
-    // for a symbol it gives the places that are in conflict and if there is a conflict location
-    // the index of which lock to tick off in the locks list above
-    std::unordered_map<psymbol,std::unordered_map<psymbol,std::unordered_map<psymbol,uint16_t>>> conflict_map;
+    std::vector<boost::dynamic_bitset<unsigned>> locks; // these patterns match the locks
     unsigned locks_size = 0;
   };
 }

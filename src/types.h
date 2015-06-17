@@ -23,6 +23,7 @@
 #include <cstdint>
 #include <vector>
 #include <ostream>
+#include <stdexcept>
 
 typedef int16_t state_id_type; // a negative number means we already passed that state, a positive number means we are before that state
 typedef int16_t reward_t;
@@ -138,5 +139,38 @@ std::ostream& operator<<(std::ostream& out, const cnf<atom>& c) {
   }
   return out;
 }
+
+template<typename integer>
+struct tagged_int {
+  inline void set() { if (invalid()) throw std::logic_error("Value is invalid"); data = data | (mask); }
+  inline void clear() { if (invalid()) throw std::logic_error("Value is invalid"); data = data & ~(mask); }
+  inline void set(bool value) { if (invalid()) throw std::logic_error("Value is invalid"); if (value) set(); else clear(); }
+  inline bool test() const { if (invalid()) throw std::logic_error("Value is invalid"); return data & (mask); }
+  inline bool valid() const { return data != invalid_;}
+  inline bool invalid() const { return data == invalid_; }
+  inline integer payload() const { 
+    if (invalid()) throw std::logic_error("Value is invalid");
+    return data & ~(mask); 
+  }
+  inline void payload(integer value) { 
+    if (value > max_payload) throw std::range_error("To high value for payload");
+    data = (data & (mask)) | value;
+  }
+  inline tagged_int() : data(invalid) { }
+  inline explicit tagged_int(integer i) { payload(i); }
+  inline operator integer() { if (invalid()) throw std::logic_error("Value is invalid"); return payload(); } const
+  inline bool operator==(const tagged_int& other) const { return data == other.data; }
+  inline bool operator!=(const tagged_int& other) const { return data != other.data; }
+  inline bool operator<(const tagged_int& other) const { return data < other.data; }
+private:
+  integer data = 0;
+  constexpr static integer mask = ((integer)(1U)) << (sizeof(integer)*4-1);
+  constexpr static integer invalid_ = -1;
+public:
+  constexpr static integer max_payload = (~mask)-1;
+};
+
+using tagged_int16 = tagged_int<uint16_t>;
+
 
 #endif 

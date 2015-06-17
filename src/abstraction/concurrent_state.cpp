@@ -28,7 +28,7 @@ length(no_threads), locksviolated(dnf_size)
 }
 
 concurrent_state::concurrent_state(const concurrent_state& other) : threads(new state_id_type[other.length]), length(other.length), current(other.current), 
-conditionals(other.conditionals), locks(other.locks), reward(other.reward), locksviolated(other.locksviolated)
+conditionals(other.conditionals), locks(other.locks), reward(other.reward), locksviolated(other.locksviolated), conflicts(other.conflicts)
 {
   for (thread_id_type i = 0; i<length; ++i) {
     threads[i] = other.threads[i];
@@ -36,7 +36,7 @@ conditionals(other.conditionals), locks(other.locks), reward(other.reward), lock
 }
 
 concurrent_state::concurrent_state(concurrent_state&& other) : length(other.length), current(other.current),
-conditionals(std::move(other.conditionals)), locks(std::move(other.locks)), locksviolated(std::move(other.locksviolated))
+conditionals(std::move(other.conditionals)), locks(std::move(other.locks)), locksviolated(std::move(other.locksviolated)), conflicts(move(other.conflicts))
 {
   threads = other.threads;
   other.threads = nullptr;
@@ -64,6 +64,8 @@ concurrent_state& concurrent_state::operator=(const concurrent_state& other)
   
   locksviolated = other.locksviolated;
   
+  conflicts = other.conflicts;
+  
   return *this;
 }
 
@@ -84,6 +86,8 @@ concurrent_state& concurrent_state::operator=(concurrent_state&& other)
   
   locksviolated = std::move(other.locksviolated);
   
+  conflicts = move(other.conflicts);
+  
   return *this;
 }
 
@@ -103,6 +107,7 @@ bool concurrent_state::operator==(const concurrent_state& other) const
   if (locks != other.locks) return false;
   if (current != other.current) return false;
   if (locksviolated != other.locksviolated) return false;
+  if (conflicts != other.conflicts) return false;
   return true;
 }
 
@@ -146,7 +151,6 @@ void Limi::printer< abstraction::pcstate >::print(const pcstate& state, std::ost
   }
   if (!first)
     out << "]";
-  out << "(" << state->reward << ")";
 }
 
 std::ostream& abstraction::operator<<(std::ostream &out, const concurrent_state& s) {

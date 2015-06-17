@@ -30,9 +30,9 @@ extern std::string output_file_code;
 extern std::string start_file_code;
 extern std::string output_file_log;
 extern std::string main_filename;
-const bool assumes_allow_switch = false;
+constexpr bool assumes_allow_switch = false;
 
-const bool condyield_is_always_yield = true;
+constexpr bool condyield_is_always_yield = true;
 
 void create_debug_folder();
 

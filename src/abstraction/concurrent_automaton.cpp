@@ -233,63 +233,82 @@ pcstate concurrent_automaton::apply_symbol(const pcstate& original_state, const 
       cloned_state->current = no_thread;
       break;
   }
-  if (history)
-    if (!apply_bad_trace_dnf(cloned_state, sigma, history)) return nullptr;
+  if (!apply_bad_trace_dnf(cloned_state, sigma)) return nullptr;
   return cloned_state;
 }
 
-bool concurrent_automaton::apply_bad_trace_dnf(pcstate& cloned_state, const psymbol& sigma, const std::shared_ptr<Limi::counterexample_chain<psymbol>>& history) const
+bool concurrent_automaton::tick_lock(pcstate& cloned_state, unsigned int lock) const
 {
-  assert(history);
-  auto it = conflict_map.find(sigma);
-  thread_id_type thread = sigma->thread_id();
-  if (it!=conflict_map.end()) {
-    const std::unordered_map<psymbol,std::unordered_map<psymbol,uint16_t>>& conflict = it->second;
-    
-    // find the precessor in the same thread and accumulate stuff in the middle
-    std::shared_ptr<Limi::counterexample_chain<psymbol>> hist = history;
-    psymbol pred = nullptr;
-    std::unordered_set<psymbol> betweeners;
-    while (hist) {
-      if (hist->current->operation!=op_class::tag && hist->current->thread_id() == thread) {
-        pred = hist->current;
-        break;
+  bool old = cloned_state->locksviolated.test(lock);
+  if (!old) {
+    cloned_state->locksviolated.set(lock);
+    // this bit was not set before
+    // check if we want to throw away this execution
+    for (const auto& bad : locks) {
+      // at least one of the conjuncts is fulfilled
+      if ((cloned_state->locksviolated & bad) == bad) {
+        // print
+        return false;
       }
-      betweeners.insert(hist->current);
-      hist = hist->parent;
     }
-    if (pred && !betweeners.empty()) {
-      // search if there is a conflict
-      auto it2 = conflict.find(pred);
-      if (it2 != conflict.end()) {
-        const std::unordered_map<psymbol,uint16_t>& between_map = it2->second;
-        // now search for the stuff in beween
-        for (psymbol sym : betweeners) {
-          auto itlock = between_map.find(sym);
-          if (itlock != between_map.end()) {
-            uint16_t index = itlock->second; // the lock that was violated
-            bool old = cloned_state->locksviolated.test(index);
-            if (!old) {
-              cloned_state->locksviolated.set(index);
-              // this bit was not set before
-              // check if we want to throw away this execution
-              for (const auto& bad : locks) {
-                // at least one of the conjuncts is fulfilled
-                if ((cloned_state->locksviolated & bad) == bad) {
-                  // print
-                  /*cout << "Deleted trace" << endl;
-                  Limi::internal::print_vector(history->to_vector(), cout);
-                  cout << " " << sigma << endl;*/
-                  return false;
-                }
-              }
-            }
-          }
+  }
+  return true;
+}
+
+
+/** How the conflicts work: sigma is the current symbol, thread is the thread of sigma
+ * 1. Check existing conflicts. They fall into two categories, first check those which have not seen the conflict (clean)
+ *    a) if conflict.conflict == sigma, then replace by tagged conflict (meaning we saw the conflict)
+ *    b) else if thread == next_thread remove from set
+ * 2. Check those who saw the conflict (tagged)
+ *    a) if conflict.next == sigma, mark lock violated and remove from set
+ *    b) else if thread == next_thread remove from set
+ * 3. Check for new conflicts:
+ *    a) if sigma in conflict_map add conflict
+ */
+
+bool concurrent_automaton::apply_bad_trace_dnf(pcstate& cloned_state, const psymbol& sigma) const
+{
+  // we don't deal with tags
+  if (sigma->is_real_epsilon() || sigma->operation == op_class::tag)
+    return true;
+  
+  thread_id_type thread = sigma->thread_id();
+  // check existing conflicts
+  for (auto itc = cloned_state->conflicts.begin(); itc != cloned_state->conflicts.end();) {
+    const conflict_t& c = *itc;
+    const conflict_info& ci = conflicts[c.payload()];
+    bool del = false; // delete
+    if (!c.test()) {
+      // have not seen the conflict yet
+      if (ci.next_thread() == thread) {
+        // no longer valid
+        del = true;
+      } else if (ci.conflict.find(sigma) != ci.conflict.end()) {
+        // escalate to conflict
+        del = true;
+        conflict_t c_ = c;
+        c_.set();
+        cloned_state->conflicts.insert(c_);
+      }
+    } else {
+      // we are already in a conflict
+      if (ci.next_thread() == thread) {
+        // no longer needed
+        del = true;
+        if (equal_to<psymbol>()(sigma, ci.next)) {
+          return tick_lock(cloned_state, ci.lock_id);
         }
       }
     }
-    
+    if (del)
+      itc = cloned_state->conflicts.erase(itc);
+    else
+      ++itc;
   }
+  // maybe this is a new conflict
+  auto range = conflict_map.equal_range(sigma);
+  for_each(range.first, range.second, [&cloned_state](const unordered_multimap<psymbol, unsigned>::value_type& c){cloned_state->conflicts.insert(conflict_t(c.second));});
   return true;
 }
 
@@ -319,17 +338,21 @@ void concurrent_automaton::add_forbidden_traces(const synthesis::lock_symbols& n
           if (!current->is_real_epsilon()) {
             if (pred) {
               for (auto it2 = lock.begin(); it2!=lock.end(); ++it2) {
-                // for size 1 there cannot be really a conflict because there are no states in between
+                // locks talking about the same thread are ignored
                 if (it->front()->thread_id()!=it2->front()->thread_id()) {
-                  // state < 0 means after the state, > 0 before the state
                   auto last = it2->end();
                   --last;
+                  // create a list of conflicting symbols
+                  std::unordered_set<psymbol> conflicting;
                   for (auto pl = it2->begin(); pl != it2->end(); ++pl) {
                     psymbol conflict = *pl;
                     if (!conflict->is_real_epsilon()) {
-                      // current -> pred -> conflict -> lock number
-                      conflict_map[current][pred].insert(make_pair(conflict,locks_size));
+                      conflicting.insert(conflict);
                     }
+                  }
+                  if (!conflicting.empty()) {
+                    conflicts.emplace_back(conflicting, current, locks_size);
+                    conflict_map.insert(make_pair(pred, conflicts.size()-1));
                   }
                 }
               }

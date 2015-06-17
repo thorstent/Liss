@@ -24,6 +24,7 @@
 #include <Limi/internal/helpers.h>
 #include <functional>
 #include <bitset>
+#include <set>
 #include <memory>
 #include <ostream>
 #include <boost/dynamic_bitset.hpp>
@@ -31,6 +32,8 @@
 #include "cfg/automaton.h"
 
 namespace abstraction {
+  
+  using conflict_t = tagged_int16;
   
   struct concurrent_state {
     concurrent_state(unsigned no_threads, unsigned dnf_size);
@@ -53,7 +56,10 @@ namespace abstraction {
     std::bitset<max_locks> locks; // bit is set if lock is taken
     
     // locks that have been violated (refering to synthesised locks that are inserted on the fly)
-    boost::dynamic_bitset<unsigned long> locksviolated;
+    boost::dynamic_bitset<unsigned> locksviolated;
+    
+    // see concurrent automata class
+    std::set<conflict_t> conflicts;
     
     bool operator==(const concurrent_state &other) const;
     inline bool operator<(const concurrent_state &other) const {
