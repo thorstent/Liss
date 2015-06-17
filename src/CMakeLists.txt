@@ -59,7 +59,6 @@ add_executable(liss options.cpp main.cpp types.cpp "${CMAKE_CURRENT_BINARY_DIR}/
 #add_precompiled_header(langinc pch.h
 #       FORCEINCLUDE)
 
-target_link_libraries(liss actions synthesis z3 clang_interf placement cfg abstraction ${Boost_LIBRARIES} -fopenmp ${CLANG_LIBS} ${LLVM_LIBRARIES} ${LLVM_LDFLAGS})
+target_link_libraries(liss actions synthesis clang_interf placement cfg abstraction -Wl,-Bstatic z3 rt ${Boost_LIBRARIES} -fopenmp ${CLANG_LIBS} ${LLVM_LIBRARIES} ${LLVM_LDFLAGS})
 
-#add_executable(test_antichain tests/antichain.cpp)
 

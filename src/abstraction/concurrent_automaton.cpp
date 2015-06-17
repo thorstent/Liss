@@ -276,6 +276,10 @@ bool concurrent_automaton::apply_bad_trace_dnf(pcstate& cloned_state, const psym
               for (const auto& bad : locks) {
                 // at least one of the conjuncts is fulfilled
                 if ((cloned_state->locksviolated & bad) == bad) {
+                  // print
+                  /*cout << "Deleted trace" << endl;
+                  Limi::internal::print_vector(history->to_vector(), cout);
+                  cout << " " << sigma << endl;*/
                   return false;
                 }
               }
@@ -295,7 +299,7 @@ inline void concurrent_automaton::next_single(const pcstate& state, concurrent_a
 {
   for (const abstraction::psymbol& s : threads[thread].next_symbols((*state)[thread])) {
     if (successor_filter.empty() || s->is_epsilon() || successor_filter.find(s)!=successor_filter.end())
-    symbols.insert(s);
+      symbols.insert(s);
   }
 }
 

@@ -82,7 +82,7 @@ void reorderings::prepare_trace(reorderings::seperated_trace& strace)
       // deal with other operations
       switch(loc->symbol->operation) {
         case abstraction::op_class::lock: {
-            seq_condition = false;
+            seq_condition = loc->symbol->synthesised;
             lockings[var].push_back(lock_pair(loc, nullptr));
           }
           break;

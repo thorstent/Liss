@@ -38,28 +38,26 @@ using namespace actions;
 using namespace std;
 
 Limi::inclusion_result< abstraction::psymbol > check_trace(std::vector<abstraction::psymbol> trace,
-                                                                const abstraction::concurrent_automaton& sequential,
+                                                                abstraction::concurrent_automaton& sequential,
                                                                 const Limi::printer_base< abstraction::psymbol >& symbol_printer
 ) {
   Limi::list_automaton<abstraction::psymbol> check_concurrent(trace.begin(), trace.end(), symbol_printer);
-  
-  abstraction::concurrent_automaton seq2(sequential);
-  seq2.use_cache = false;
   
   unsigned bound = 0;
   for (const abstraction::psymbol sy : trace) {
     if (!sy->is_epsilon()) {
       ++bound;
-      seq2.successor_filter.insert(sy);
+      sequential.successor_filter.insert(sy);
     }
   }
   if (bound > 10) bound = (bound / 2) + 1; // only half is needed
-  Limi::antichain_algo_ind<unsigned,abstraction::pcstate,abstraction::psymbol,Limi::list_automaton<abstraction::psymbol>,abstraction::concurrent_automaton> algo_check(check_concurrent, seq2, trace.size());
+  Limi::antichain_algo_ind<unsigned,abstraction::pcstate,abstraction::psymbol,Limi::list_automaton<abstraction::psymbol>,abstraction::concurrent_automaton> algo_check(check_concurrent, sequential, trace.size());
   inclusion_result res = algo_check.run();
   /*cout << "---->" << endl;
   res.print_long(cout, symbol_printer);
   cout << "<----" << endl;*/
   assert (!res.bound_hit);
+  sequential.successor_filter.clear();
   return res;
 }
 
@@ -71,7 +69,7 @@ void actions::filter_result(inclusion_result& result) {
   result.filter_trace([](const abstraction::psymbol& sym){return sym->tag_branch!=-1;});
 }
 
-bool actions::test_inclusion(const abstraction::concurrent_automaton& sequential, const abstraction::concurrent_automaton& concurrent, inclusion_result& result)
+bool actions::test_inclusion(abstraction::concurrent_automaton& sequential, const abstraction::concurrent_automaton& concurrent, inclusion_result& result)
 {
   /*Limi::antichain_algo_ind<abstraction::pcstate,abstraction::pcstate,abstraction::psymbol,abstraction::concurrent_automaton,abstraction::concurrent_automaton> algo3(concurrent, sequential, 4);
   auto res3 = algo3.run();

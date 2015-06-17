@@ -121,7 +121,7 @@ bool actions::synthesis2::synth_loop(const cfg::program& program, placement::pla
       cnf<::synthesis::lock> new_locks;
       synch.generate_sync(cnf1, new_locks);
       synthesis::lock_symbols new_lock_symbols = synthesis::locks_to_symbols(new_locks, trace);
-      cout << new_lock_symbols << endl;
+      //cout << new_lock_symbols << endl;
       ::synthesis::remove_preemption(new_lock_symbols);
       cout << new_lock_symbols << endl;
       concurrent.add_forbidden_traces(new_lock_symbols);
@@ -139,7 +139,7 @@ bool actions::synthesis2::synth_loop(const cfg::program& program, placement::pla
       if (!lock_symbols.empty()) {
         // blow up the lock symbols
         ::synthesis::blow_up_lock(program, lock_symbols);
-        cout << lock_symbols << endl;
+        //cout << lock_symbols << endl;
         placement::place_locks plocks(program);
         if (!plocks.find_locks(lock_symbols, lock_result)) {
           cout << "Found no valid lock placement" << endl;
