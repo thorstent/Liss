@@ -51,12 +51,14 @@ Limi::inclusion_result< abstraction::psymbol > check_trace(std::vector<abstracti
     }
   }
   if (bound > 10) bound = (bound / 2) + 1; // only half is needed
+  sequential.use_cache = false;
   Limi::antichain_algo_ind<Limi::list_automaton<abstraction::psymbol>,abstraction::concurrent_automaton> algo_check(check_concurrent, sequential, trace.size());
   inclusion_result res = algo_check.run();
   /*cout << "---->" << endl;
   res.print_long(cout, symbol_printer);
   cout << "<----" << endl;*/
   assert (!res.bound_hit);
+  sequential.use_cache = true;
   sequential.successor_filter.clear();
   return res;
 }

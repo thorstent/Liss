@@ -164,10 +164,10 @@ struct tagged_int {
   inline bool operator<(const tagged_int& other) const { return data < other.data; }
 private:
   integer data = 0;
-  constexpr static integer mask = ((integer)(1U)) << (sizeof(integer)*4-1);
+  constexpr static integer mask = ((integer)(1U)) << (sizeof(integer)*8-1);
   constexpr static integer invalid_ = -1;
 public:
-  constexpr static integer max_payload = (~mask)-1;
+  constexpr static integer max_payload = (mask)-2;
 };
 
 using tagged_int16 = tagged_int<uint16_t>;

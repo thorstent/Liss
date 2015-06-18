@@ -18,6 +18,7 @@
  */
 
 #include "trace_helpers.h"
+#include <algorithm>
 
 using namespace synthesis;
 using namespace std;
@@ -128,6 +129,55 @@ void blow_up_lock(const cfg::program& program, lock_symbols& locks) {
         blow_up_trace(program, list);
       }
     }
+  }
+}
+
+// test if l1 is a sub_vector of l2
+bool sub_vector(lock_list& l1, lock_list& l2) {
+  if (l1.size() > l2.size()) return false;
+  if (l1.front()->thread_id() != l2.front()->thread_id()) return false;
+  auto it = search(l2.begin(), l2.end(), l1.begin(), l1.end());
+  return it != l2.end();
+}
+
+// if l1 is included in l2 return true
+bool test_duplicate(lock_lists& l1, lock_lists& l2) {
+  // assume there are only two lists
+  if (l1.size()==2 && l2.size()==2) {
+    lock_list l1a = l1.front();
+    lock_list l1b = l1.back();
+    lock_list l2a = l2.front();
+    lock_list l2b = l2.back();
+    if (sub_vector(l1a,l2a) && sub_vector(l1b,l2b) || sub_vector(l1a,l2b) && sub_vector(l1b,l2a))
+      return true;
+  }
+  return false;
+}
+
+void remove_duplicates(lock_symbols& locks) {
+  for (auto it = locks.begin(); it != locks.end(); ) {
+    bool del = false;
+    disj<lock_lists>& d = *it;
+    if (d.size() == 1) {
+      lock_lists& dl = d.front();
+      for (auto it2 = locks.begin(); it2 != locks.end(); ++it2) {
+        if (it != it2) {
+          disj<lock_lists>& d2 = *it2;
+          if (d2.size() == 1) {
+            lock_lists& dl2 = d2.front();
+            // remove dl if it is included in dl2
+            if (test_duplicate(dl, dl2)) {
+              del = true;
+              break;
+            }
+          }
+        }
+      }
+    }
+    if (del)
+      it = locks.erase(it);
+    else
+      ++it;
   }
 }
 }

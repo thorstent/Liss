@@ -278,6 +278,7 @@ bool concurrent_automaton::apply_bad_trace_dnf(pcstate& cloned_state, const psym
   // check existing conflicts
   for (auto itc = cloned_state->conflicts.begin(); itc != cloned_state->conflicts.end();) {
     const conflict_t& c = *itc;
+    assert(c.payload() < conflicts.size());
     const conflict_info& ci = conflicts[c.payload()];
     bool del = false; // delete
     if (!c.test()) {
@@ -296,10 +297,12 @@ bool concurrent_automaton::apply_bad_trace_dnf(pcstate& cloned_state, const psym
       // we are already in a conflict
       if (ci.next_thread() == thread) {
         // no longer needed
-        del = true;
         if (equal_to<psymbol>()(sigma, ci.next)) {
-          return tick_lock(cloned_state, ci.lock_id);
+          if (!tick_lock(cloned_state, ci.lock_id)) {
+            return false;
+          } // otherwise continue to tick off other locks
         }
+        del = true;
       }
     }
     if (del)

@@ -123,6 +123,7 @@ bool actions::synthesis2::synth_loop(const cfg::program& program, placement::pla
       synthesis::lock_symbols new_lock_symbols = synthesis::locks_to_symbols(new_locks, trace);
       //cout << new_lock_symbols << endl;
       ::synthesis::remove_preemption(new_lock_symbols);
+      ::synthesis::remove_duplicates(new_lock_symbols);
       cout << new_lock_symbols << endl;
       if (new_lock_symbols.empty()) {
         cout << "Found no more locks." << endl;

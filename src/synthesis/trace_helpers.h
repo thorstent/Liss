@@ -64,6 +64,11 @@ namespace synthesis {
    * This will also split locks with preemption points in between
    */
   void remove_preemption(lock_symbols& locks);
+  
+  /**
+   * @brief A very simple algorithm that removes duplicates between locks
+   */
+  void remove_duplicates(lock_symbols& locks);
 }
 
 
