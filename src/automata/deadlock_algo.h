@@ -30,6 +30,7 @@
 #include <iostream>
 #include "results.h"
 #include <Limi/internal/helpers.h>
+#include <Limi/results.h>
 
 namespace automata {
   

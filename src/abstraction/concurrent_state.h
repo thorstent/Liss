@@ -47,7 +47,6 @@ namespace abstraction {
     state_id_type* threads;
     thread_id_type length;
     thread_id_type current = no_thread;
-    int16_t reward = 0;
     
     state_id_type& operator[] (const int i) {return threads[i];};
     const state_id_type& operator[] (const int i) const {return threads[i];};
@@ -62,15 +61,7 @@ namespace abstraction {
     std::set<conflict_t> conflicts;
     
     bool operator==(const concurrent_state &other) const;
-    inline bool operator<(const concurrent_state &other) const {
-      if (reward != other.reward)
-        return reward < other.reward;
-      for (unsigned i = 0; i<length; i++) {
-        if (operator[](i) != other[i])
-          return operator[](i) < other[i];
-      }
-      return false;
-    }
+    
   };
   
   typedef std::shared_ptr<concurrent_state> pcstate;
@@ -96,11 +87,6 @@ namespace std {
   template<> struct equal_to<abstraction::pcstate> {
     inline bool operator()(const abstraction::pcstate& a, const abstraction::pcstate& b) const {
       return equal_to<abstraction::concurrent_state>()(*a,*b);
-    }
-  };
-  template<> struct less<abstraction::pcstate> {
-    inline bool operator()(const abstraction::pcstate& a, const abstraction::pcstate& b) const {
-      return less<abstraction::concurrent_state>()(*a,*b);
     }
   };
 }

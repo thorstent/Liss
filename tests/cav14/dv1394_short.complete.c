@@ -1,6 +1,6 @@
 #include <langinc.h>
 
-lock_t synthlock_1;
+lock_t synthlock_2;
 lock_t mtx;
 lock_t sem;
 
@@ -12,12 +12,12 @@ void thread_mmap () {
     vm_consistent = 0;
 
     lock(mtx);
-    lock_s(synthlock_1);
+    lock_s(synthlock_2);
     state = 3;
     state = 1;
     state = 3;
     state = 2;
-    unlock_s(synthlock_1);
+    unlock_s(synthlock_2);
     unlock(mtx);
 	
     vm_consistent = 1;
@@ -29,18 +29,18 @@ void thread_ioctl () {
 
     lock(mtx);
     old_state = state;
-    lock_s(synthlock_1);
+    lock_s(synthlock_2);
     state = 3;
     unlock(mtx);
     
     // preemption point (because nondet)
     if (nondet) {
-        unlock_s(synthlock_1);
+        unlock_s(synthlock_2);
         lock(sem);
         unlock(sem);
-        lock_s(synthlock_1);
+        lock_s(synthlock_2);
     };
 
-    state = old_state;
-    unlock_s(synthlock_1); // critical point
+    state = old_state; // critical point
+unlock_s(synthlock_2);
 }

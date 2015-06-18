@@ -93,14 +93,14 @@ void concurrent_automaton::int_next_symbols(const pcstate& state, concurrent_aut
   }
 }
 
-void concurrent_automaton::int_successors_hist(const pcstate& state, const psymbol& sigma, const std::shared_ptr<Limi::counterexample_chain<psymbol>>& history, concurrent_automaton::State_set& successors) const
+void concurrent_automaton::int_successors(const pcstate& state, const psymbol& sigma, concurrent_automaton::State_set& successors) const
 {
   thread_id_type thread = sigma->thread_id();
   if (state->current != no_thread && state->current != static_cast<int>(thread)) return;
   const cfg::automaton::State_set succs = threads[thread].successors(state->threads[thread], sigma); // cost is not relevant here
   assert(!succs.empty());
   bool progress;
-  pcstate next = apply_symbol(state, sigma, history, progress);
+  pcstate next = apply_symbol(state, sigma, progress);
   
   if (next) {
     if (!progress) {
@@ -111,11 +111,6 @@ void concurrent_automaton::int_successors_hist(const pcstate& state, const psymb
     bool first = true;
     for (const state_id_type& p : succs) {
       pcstate copy = first ? next : make_shared<concurrent_state>(*next); // copy needed if not first element
-      next->reward += 1;
-      // bound at 100
-      if (history && history->size()%400 == 0) {
-        next->reward =- 1000;
-      }
       copy->threads[thread] = p;
       //cout << threads[thread]->name(p) << " ";
       if (concurrent_ || threads[thread].is_final_state(p)) copy->current = no_thread;
@@ -127,7 +122,7 @@ void concurrent_automaton::int_successors_hist(const pcstate& state, const psymb
   }
 }
 
-pcstate concurrent_automaton::apply_symbol(const pcstate& original_state, const psymbol& sigma, const std::shared_ptr<Limi::counterexample_chain<psymbol>>& history, bool& progress) const
+pcstate concurrent_automaton::apply_symbol(const pcstate& original_state, const psymbol& sigma, bool& progress) const
 {
   progress = true;
   
@@ -238,8 +233,10 @@ pcstate concurrent_automaton::apply_symbol(const pcstate& original_state, const 
   return cloned_state;
 }
 
-bool concurrent_automaton::tick_lock(pcstate& cloned_state, unsigned int lock) const
+bool concurrent_automaton::tick_lock(pcstate& cloned_state, int lock) const
 {
+  // in this case, the lock is violated immediatelly
+  if (lock==-1) return false;
   bool old = cloned_state->locksviolated.test(lock);
   if (!old) {
     cloned_state->locksviolated.set(lock);
@@ -345,10 +342,11 @@ void concurrent_automaton::add_forbidden_traces(const synthesis::lock_symbols& n
 {
   for (const disj<synthesis::lock_lists>& lockd : new_locks) {
     // one of these locks needs to hold
-    locks.emplace_back(locks_size);
+    bool multiple = lockd.size()>1; // if multiple then we need to create a bitmask
+    if (multiple) locks.emplace_back(locks_size);
     for (const synthesis::lock_lists& lock : lockd) {
       // one single lock
-      locks.back().push_back(true);
+      if (multiple) locks.back().push_back(true);
       // define conflicts mutually between locations
       for (auto it = lock.begin(); it!=lock.end(); ++it) {
         // each conflict in this vector is in conflict with all the other vectors
@@ -370,7 +368,7 @@ void concurrent_automaton::add_forbidden_traces(const synthesis::lock_symbols& n
                     }
                   }
                   if (!conflicting.empty()) {
-                    conflicts.emplace_back(conflicting, current, locks_size);
+                    conflicts.emplace_back(conflicting, current, multiple ? locks_size : -1);
                     conflict_map.insert(make_pair(pred, conflicts.size()-1));
                   }
                 }
@@ -382,7 +380,7 @@ void concurrent_automaton::add_forbidden_traces(const synthesis::lock_symbols& n
         
         
       }
-      ++locks_size;
+      if (multiple) ++locks_size;
     }
   }
   

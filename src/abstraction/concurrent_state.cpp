@@ -28,7 +28,7 @@ length(no_threads), locksviolated(dnf_size)
 }
 
 concurrent_state::concurrent_state(const concurrent_state& other) : threads(new state_id_type[other.length]), length(other.length), current(other.current), 
-conditionals(other.conditionals), locks(other.locks), reward(other.reward), locksviolated(other.locksviolated), conflicts(other.conflicts)
+conditionals(other.conditionals), locks(other.locks), locksviolated(other.locksviolated), conflicts(other.conflicts)
 {
   for (thread_id_type i = 0; i<length; ++i) {
     threads[i] = other.threads[i];
@@ -60,7 +60,6 @@ concurrent_state& concurrent_state::operator=(const concurrent_state& other)
   for (thread_id_type i = 0; i<length; ++i) {
     threads[i] = other.threads[i];
   }
-  reward = other.reward;
   
   locksviolated = other.locksviolated;
   
@@ -81,8 +80,6 @@ concurrent_state& concurrent_state::operator=(concurrent_state&& other)
   
   threads = other.threads;
   other.threads = nullptr;
-  
-  reward = other.reward;
   
   locksviolated = std::move(other.locksviolated);
   

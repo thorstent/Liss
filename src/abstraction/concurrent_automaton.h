@@ -49,11 +49,7 @@ namespace abstraction {
     
     void int_initial_states(State_set& states) const;
     
-    void int_successors_hist(const abstraction::pcstate& state, const abstraction::psymbol& sigma, const std::shared_ptr< Limi::counterexample_chain< abstraction::psymbol > >& history, Limi::automaton< abstraction::pcstate, abstraction::psymbol, abstraction::concurrent_automaton >::State_set& successors) const;
-    
-    inline void int_successors(const abstraction::pcstate& state, const abstraction::psymbol& sigma, Limi::automaton< abstraction::pcstate, abstraction::psymbol, abstraction::concurrent_automaton >::State_set& successors) const {
-      int_successors_hist(state, sigma, nullptr, successors);
-    }
+    void int_successors(const abstraction::pcstate& state, const abstraction::psymbol& sigma, Limi::automaton< abstraction::pcstate, abstraction::psymbol, abstraction::concurrent_automaton >::State_set& successors) const;
     
     void int_next_symbols(const pcstate& state, Symbol_set& symbols) const;
     
@@ -86,7 +82,7 @@ namespace abstraction {
      * @param original_state The state we are coming from
      * @return abstraction::pcstate If it is possible to apply the symbol than this is a copy of the original state with the symbol applied, otherwise null
      */
-    pcstate apply_symbol(const abstraction::pcstate& original_state, const abstraction::psymbol& sigma, const std::shared_ptr< Limi::counterexample_chain< abstraction::psymbol > >& history, bool& progress) const;
+    pcstate apply_symbol(const abstraction::pcstate& original_state, const abstraction::psymbol& sigma, bool& progress) const;
     
     /**
      * @brief Adds successors for final states that cannot proceed
@@ -116,7 +112,7 @@ namespace abstraction {
 
      * @return false if the lock is violated
      */
-    bool tick_lock(abstraction::pcstate& cloned_state, unsigned lock) const;
+    bool tick_lock(abstraction::pcstate& cloned_state, int lock) const;
     void next_single(const abstraction::pcstate& state, Limi::automaton< abstraction::pcstate, abstraction::psymbol, abstraction::concurrent_automaton >::Symbol_set& symbols, thread_id_type thread) const;
     
     /** A conflict
@@ -127,7 +123,7 @@ namespace abstraction {
       std::unordered_set<psymbol> conflict;
       inline thread_id_type next_thread() const { return next->thread_id(); }
       inline thread_id_type conflict_thread() const { return (*conflict.begin())->thread_id(); }
-      unsigned lock_id; // the lock that 
+      int lock_id; // the lock that should be ticked (if -1 then terminate right away)
       conflict_info(std::unordered_set<psymbol> conflict, psymbol next, unsigned lock_id) : next(next), conflict(conflict), lock_id(lock_id) {}
     };
     
