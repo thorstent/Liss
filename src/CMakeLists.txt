@@ -4,7 +4,7 @@ set (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake")
 project(Liss)
 include(GetGitRevisionDescription)
 
-set(CMAKE_CXX_FLAGS_RELEASEASSERT "-O3")
+set(CMAKE_CXX_FLAGS_RELEASEASSERT "-O3 -g")
 
 include_directories("${PROJECT_SOURCE_DIR}")
 

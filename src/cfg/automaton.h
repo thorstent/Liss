@@ -31,13 +31,16 @@ namespace cfg {
   struct state_printer : Limi::printer_base<state_id_type> {
     state_printer(const cfg::abstract_cfg& thread) : thread_(thread) {}
     virtual void print(const state_id_type& state, std::ostream& out) const override {
+      if (state==no_state) {
+        out << "no state";
+      } else {
       if (state<0) {
         out << "a";
         out << thread_.get_state(state*-1);
       } else {
         //out << "b";
         out << thread_.get_state(state);
-      }
+      }}
     }
   private:
     const cfg::abstract_cfg& thread_;

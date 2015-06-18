@@ -33,7 +33,7 @@ using namespace std;
 
 bool actions::test_deadlock(const cfg::program& program, deadlock_result& result, bool concurrent)
 {
-  abstraction::concurrent_automaton automaton(program, concurrent, false);
+  abstraction::concurrent_automaton automaton(program, concurrent, false, true);
   return test_deadlock(automaton, result);
 }
 
@@ -67,7 +67,7 @@ void deadlock_check::test(const cfg::program& program, bool concurrent)
   if (verbosity>=1) { debug << "Testing ";
   if (concurrent) debug << "concurrent"; else debug << "sequential";
   debug << " automaton" << endl; }
-  abstraction::concurrent_automaton automaton(program, concurrent, false);
+  abstraction::concurrent_automaton automaton(program, concurrent, false, true);
   test_deadlock(automaton, result);
   if (concurrent) cout << "Concurrent"; else cout << "Sequential";
   cout << " automaton: ";

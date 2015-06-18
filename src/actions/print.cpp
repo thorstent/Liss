@@ -54,7 +54,7 @@ void actions::print_program(const cfg::program& program, bool timbuk, bool only_
     }
     
     if (!only_threads) {
-      abstraction::concurrent_automaton automaton(program, true);
+      abstraction::concurrent_automaton automaton(program, true, false);
       Limi::dot_printer<abstraction::pcstate, abstraction::psymbol, abstraction::concurrent_automaton> pr;
       pr.print_dot(automaton, debug_folder + prefix + "program_con.dot");
       abstraction::concurrent_automaton automaton2(program, false);

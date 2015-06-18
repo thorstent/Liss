@@ -296,7 +296,10 @@ dnf_constr reorderings::process_trace(const std::vector< abstraction::psymbol >&
   // find constraints
   slv_good.push();
   slv_good.add(original_trace_gen_expr);
-  if (slv_good.check()==z3::sat) cerr << endl << endl << "SANITY: Original trace is equivalent to valid sequential trace" << endl;
+  if (slv_good.check()==z3::sat) {
+    cerr << endl << endl << "SANITY: Original trace is equivalent to valid sequential trace" << endl;
+    print_trace(strace, slv_good.get_model(), cerr);
+  }
   slv_good.pop();
 #endif
   

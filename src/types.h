@@ -27,12 +27,12 @@
 
 typedef int16_t state_id_type; // a negative number means we already passed that state, a positive number means we are before that state
 typedef int16_t reward_t;
-const state_id_type no_state = 0;
-const unsigned max_states = INT16_MAX;
+constexpr state_id_type no_state = 0;
+constexpr unsigned max_states = INT16_MAX;
 
-const unsigned max_variables = UINT16_MAX;
-const unsigned max_locks = 64;
-const unsigned max_conditionals = 64; 
+constexpr unsigned max_variables = UINT16_MAX;
+constexpr unsigned max_locks = 64;
+constexpr unsigned max_conditionals = 64; 
 
 typedef uint16_t variable_type;
 typedef uint8_t lock_type;
@@ -40,8 +40,8 @@ typedef uint8_t conditional_type;
 
 
 typedef int8_t thread_id_type;
-const unsigned max_threads = INT8_MAX;
-const thread_id_type no_thread = -1;
+constexpr unsigned max_threads = INT8_MAX;
+constexpr thread_id_type no_thread = -1;
 
 /**
  * DNFs and CNFs

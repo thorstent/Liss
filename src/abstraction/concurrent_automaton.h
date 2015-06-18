@@ -36,7 +36,15 @@ namespace abstraction {
   
   class concurrent_automaton : public Limi::automaton<pcstate,psymbol,concurrent_automaton> {
   public:
-    concurrent_automaton(const cfg::program& program, bool concurrent, bool collapse_epsilon = false);
+    /**
+     * @brief ...
+     * 
+     * @param program ...
+     * @param concurrent ...
+     * @param collapse_epsilon ...
+     * @param deadlock_automaton If true every exit state is split, it may continue or terminate
+     */
+    concurrent_automaton(const cfg::program& program, bool concurrent, bool collapse_epsilon = false, bool deadlock_automaton = false);
     bool int_is_final_state(const pcstate& state) const;
     
     void int_initial_states(State_set& states) const;
@@ -69,6 +77,7 @@ namespace abstraction {
     std::vector<const cfg::abstract_cfg*> cfgs;
     const abstraction::identifier_store& identifier_store_;
     bool concurrent_;
+    bool deadlock_; // deadlock automaton
 
     /**
      * @brief Applies a symbol to a state
@@ -78,6 +87,16 @@ namespace abstraction {
      * @return abstraction::pcstate If it is possible to apply the symbol than this is a copy of the original state with the symbol applied, otherwise null
      */
     pcstate apply_symbol(const abstraction::pcstate& original_state, const abstraction::psymbol& sigma, const std::shared_ptr< Limi::counterexample_chain< abstraction::psymbol > >& history, bool& progress) const;
+    
+    /**
+     * @brief Adds successors for final states that cannot proceed
+     * 
+     * @param cloned_state ...
+     * @param thread The thread that was advanced
+     * @param successors ...
+     * @return void
+     */
+    void deadlock_states(const abstraction::pcstate& cloned_state, thread_id_type thread, Limi::automaton< abstraction::pcstate, abstraction::psymbol, abstraction::concurrent_automaton >::State_set& successors) const;
     
     /**
      * @brief Apply happens-before constraints from the dnf
@@ -98,7 +117,7 @@ namespace abstraction {
      * @return false if the lock is violated
      */
     bool tick_lock(abstraction::pcstate& cloned_state, unsigned lock) const;
-    void next_single(const pcstate& state, Symbol_set& symbols, unsigned thread) const;
+    void next_single(const abstraction::pcstate& state, Limi::automaton< abstraction::pcstate, abstraction::psymbol, abstraction::concurrent_automaton >::Symbol_set& symbols, thread_id_type thread) const;
     
     /** A conflict
      * means that between past and next there happens a conflicting instruction

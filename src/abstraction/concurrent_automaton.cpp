@@ -28,10 +28,10 @@ using namespace std;
 
 using namespace abstraction;
 
-concurrent_automaton::concurrent_automaton(const cfg::program& program, bool concurrent, bool collapse_epsilon) : 
+concurrent_automaton::concurrent_automaton(const cfg::program& program, bool concurrent, bool collapse_epsilon, bool deadlock_automaton) : 
 Limi::automaton<pcstate,psymbol,concurrent_automaton>(collapse_epsilon),
 identifier_store_(program.identifiers()),
-concurrent_(concurrent)
+concurrent_(concurrent), deadlock_(deadlock_automaton)
 {
   for (const cfg::abstract_cfg* thread : program.minimised_threads()) {
     cfgs.push_back(thread);
@@ -43,7 +43,7 @@ concurrent_(concurrent)
 bool concurrent_automaton::int_is_final_state(const pcstate& state) const
 {
   for (thread_id_type i = 0; i<state->length; ++i) {
-    if (!threads[i].is_final_state((*state)[i]))
+    if ((*state)[i]!=no_state && !threads[i].is_final_state((*state)[i]))
       return false;
   }
   return true;
@@ -120,6 +120,7 @@ void concurrent_automaton::int_successors_hist(const pcstate& state, const psymb
       //cout << threads[thread]->name(p) << " ";
       if (concurrent_ || threads[thread].is_final_state(p)) copy->current = no_thread;
       successors.insert(copy);
+      deadlock_states(copy, thread, successors);
       first = false;
     }
     //cout << successors.size() << endl;
@@ -314,13 +315,28 @@ bool concurrent_automaton::apply_bad_trace_dnf(pcstate& cloned_state, const psym
 
 
 
-inline void concurrent_automaton::next_single(const pcstate& state, concurrent_automaton::Symbol_set& symbols, unsigned int thread) const
+inline void concurrent_automaton::next_single(const pcstate& state, concurrent_automaton::Symbol_set& symbols, thread_id_type thread) const
 {
-  for (const abstraction::psymbol& s : threads[thread].next_symbols((*state)[thread])) {
-    if (successor_filter.empty() || s->is_epsilon() || successor_filter.find(s)!=successor_filter.end())
-      symbols.insert(s);
+  if ((*state)[thread]!=no_state) {
+    for (const abstraction::psymbol& s : threads[thread].next_symbols((*state)[thread])) {
+      if (successor_filter.empty() || s->is_epsilon() || successor_filter.find(s)!=successor_filter.end())
+        symbols.insert(s);
+    }
   }
 }
+
+void concurrent_automaton::deadlock_states(const pcstate& cloned_state, thread_id_type thread, Limi::automaton< pcstate, psymbol, concurrent_automaton >::State_set& successors) const
+{
+  if (deadlock_) {
+    state_id_type state = (*cloned_state)[thread];
+    if (threads[thread].is_final_state(state)) {
+      shared_ptr<concurrent_state> dup = make_shared<concurrent_state>(*cloned_state);
+      (*dup)[thread] = no_state;
+      successors.insert(dup);
+    }
+  }
+}
+
 
 void concurrent_automaton::add_forbidden_traces(const synthesis::lock_symbols& new_locks)
 {

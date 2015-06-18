@@ -51,7 +51,7 @@ Limi::inclusion_result< abstraction::psymbol > check_trace(std::vector<abstracti
     }
   }
   if (bound > 10) bound = (bound / 2) + 1; // only half is needed
-  Limi::antichain_algo_ind<unsigned,abstraction::pcstate,abstraction::psymbol,Limi::list_automaton<abstraction::psymbol>,abstraction::concurrent_automaton> algo_check(check_concurrent, sequential, trace.size());
+  Limi::antichain_algo_ind<Limi::list_automaton<abstraction::psymbol>,abstraction::concurrent_automaton> algo_check(check_concurrent, sequential, trace.size());
   inclusion_result res = algo_check.run();
   /*cout << "---->" << endl;
   res.print_long(cout, symbol_printer);
@@ -94,7 +94,7 @@ bool actions::test_inclusion(abstraction::concurrent_automaton& sequential, cons
   exit(5);*/
   
   unsigned bound = 1;
-  Limi::antichain_algo_ind<abstraction::pcstate,abstraction::pcstate,abstraction::psymbol,abstraction::concurrent_automaton,abstraction::concurrent_automaton> algo(concurrent, sequential, bound);
+  Limi::antichain_algo_ind<abstraction::concurrent_automaton,abstraction::concurrent_automaton> algo(concurrent, sequential, bound);
   while (bound <= max_bound) {
     result = algo.run();
     if (result.included) {
