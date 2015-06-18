@@ -23,18 +23,98 @@
 #include <Limi/automaton.h>
 #include <vector>
 #include "concurrent_automaton.h"
+#include <Limi/results.h>
 
 namespace abstraction {
   using com_symbol = uint16_t;
   using com_state = uint32_t;
+  
   template <class Symbol>
   struct compressed_automaton_independence {
     compressed_automaton_independence(const std::vector<Symbol>& translation_table) : translation_table(translation_table) {}
     inline bool operator()(const com_symbol& a, const com_symbol& b) const {
+      assert (a < translation_table.size());
+      assert (b < translation_table.size());
       return Limi::independence<Symbol>()(translation_table[a],translation_table[b]);
     }
   private:
     const std::vector<Symbol>& translation_table;
+  };
+  
+  template <class Symbol>
+  struct compressed_automaton_printer : public Limi::printer_base<com_symbol> {
+    compressed_automaton_printer(const std::vector<Symbol>& translation_table) : translation_table(translation_table) {}
+    inline virtual void print(const com_symbol& symbol, std::ostream& out) const {
+      out << translation_table[symbol];
+    }
+  private:
+    const std::vector<Symbol>& translation_table;
+  };
+  
+  
+  // wrapper automaton that translates the symbols
+  template <class Implementation>
+  class wrapper_automaton : public Limi::automaton<typename Implementation::State_,com_symbol,wrapper_automaton<Implementation>> {
+  public:
+    using Symbol = typename Implementation::Symbol_;
+    using State = typename Implementation::State_;
+    using State_set = typename Implementation::State_set;
+    using Symbol_set = std::unordered_set<com_symbol>;
+    wrapper_automaton(const Implementation& inner, std::unordered_map<Symbol,com_symbol>& symbol_map, std::vector<Symbol>& symbol_translation) :
+    Limi::automaton<typename Implementation::State_,com_symbol,wrapper_automaton<Implementation>>(false, false, inner.no_epsilon_produced), inner(inner), symbol_map(symbol_map), symbol_translation(symbol_translation) {}
+    
+    inline bool int_is_final_state(const State& state) const {
+      return inner.is_final_state(state);
+    }
+    
+    inline void int_initial_states(State_set& states) const { inner.initial_states(states); }
+    
+    inline void int_successors(const State& state, const com_symbol& sigma, State_set& successors) const {
+      assert (sigma<symbol_translation.size());
+      inner.successors(state, symbol_translation[sigma], successors);
+    }
+    
+    void int_next_symbols(const State& state, Symbol_set& symbols) const {
+      typename Implementation::Symbol_set syminner;
+      inner.next_symbols(state, syminner);
+      for (const auto& s : syminner) {
+        auto it = symbol_map.find(s);
+        com_symbol sy;
+        if (it==symbol_map.end()) 
+          sy = add_symbol(s);
+        else
+          sy = it->second;
+        symbols.insert(sy);
+      }
+    }
+    
+    inline Limi::printer_base<com_symbol>* int_symbol_printer() const { return new compressed_automaton_printer<Symbol>(symbol_translation); }
+    
+    inline Limi::printer_base<State>* int_state_printer() const { return inner.int_state_printer(); }
+        
+    inline bool int_is_epsilon(const com_symbol& symbol) const { assert (symbol<symbol_translation.size()); return inner.is_epsilon(symbol_translation[symbol]); }
+    
+    Limi::inclusion_result<Symbol> translate_result(const Limi::inclusion_result<com_symbol>& oldres) const {
+      Limi::inclusion_result<Symbol> result;
+      result.included = oldres.included;
+      result.bound_hit = oldres.bound_hit;
+      result.max_bound = oldres.max_bound;
+      for (com_symbol s : oldres.counter_example ) {
+        result.counter_example.push_back(symbol_translation[s]);
+      }
+      return result;
+    }
+  private:
+    const Implementation& inner;
+    std::unordered_map<Symbol,com_symbol>& symbol_map;
+    std::vector<Symbol>& symbol_translation;
+    
+    com_symbol add_symbol(const Symbol& symbol) const {
+      com_symbol s = symbol_translation.size();
+      symbol_translation.push_back(symbol);
+      symbol_map.insert(std::make_pair(symbol, s));
+      return s;
+    }
   };
 
   template <class Symbol>
@@ -58,20 +138,35 @@ namespace abstraction {
     
     void int_next_symbols(const com_state& state, Symbol_set& symbols) const {
       for (const auto& it : transitions[state]) {
-        symbols.insert(it.first);
+        if (successor_filter.empty() || int_is_epsilon(it.first) || successor_filter.find(it.first)!=successor_filter.end()) {
+          symbols.insert(it.first);
+        }
       }
     }
     
-    inline Limi::printer_base<com_symbol>* int_symbol_printer() const { return new printer(symbol_translation); }
+    inline Limi::printer_base<com_symbol>* int_symbol_printer() const { return new compressed_automaton_printer<Symbol>(symbol_translation); }
     
-    inline bool int_is_epsilon(const com_symbol& symbol) const { return epsilon[symbol]; }
+    inline bool int_is_epsilon(const com_symbol& symbol) const { assert(symbol<epsilon.size()); return epsilon[symbol]; }
     
     friend compressed_automaton<abstraction::psymbol> from_concurrent_automaton(const concurrent_automaton& ca);
     friend compressed_automaton<abstraction::psymbol> from_concurrent_automaton(const concurrent_automaton& ca, const compressed_automaton<abstraction::psymbol>& concurrent);
     
-    compressed_automaton_independence<Symbol> get_independence() {
-      return compressed_automaton_independence<Symbol>(symbol_translation);
+    template <class Implementation>
+    wrapper_automaton<Implementation> get_wrapper(const Implementation& inner) {
+      return wrapper_automaton<Implementation>(inner, symbol_map, symbol_translation);
     }
+    
+    compressed_automaton_independence<Symbol>& get_independence() {
+      return independence_;
+    }
+    
+    /**
+     * @brief This set gives a set of allowed non-epsilon successors
+     * 
+     * It is used during verification of a trace
+     * 
+     */
+    std::unordered_set<com_symbol> successor_filter;
   private:
     // variables
     State_set initial_states;
@@ -80,18 +175,12 @@ namespace abstraction {
     std::vector<Symbol> symbol_translation;
     std::vector<std::unordered_map<com_symbol,std::vector<com_state>>> transitions; // a pair of symbol and successor for that symbol
     
-    struct printer : public Limi::printer_base<com_symbol> {
-      printer(const std::vector<Symbol>& translation_table) : translation_table(translation_table) {}
-      inline virtual void print(const com_symbol& symbol, std::ostream& out) const {
-        out << translation_table[symbol];
-      }
-    private:
-      const std::vector<Symbol>& translation_table;
-    };
+    std::unordered_map<Symbol,com_symbol> symbol_map;
+    
+    compressed_automaton_independence<Symbol> independence_ = compressed_automaton_independence<Symbol>(symbol_translation);
   };
   compressed_automaton<abstraction::psymbol> from_concurrent_automaton(const concurrent_automaton& ca);
   compressed_automaton<abstraction::psymbol> from_concurrent_automaton(const concurrent_automaton& ca, const compressed_automaton<abstraction::psymbol>& concurrent);
-
 
 }
 

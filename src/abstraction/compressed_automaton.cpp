@@ -42,7 +42,7 @@ compressed_automaton< psymbol > abstraction::from_concurrent_automaton(const con
   
   // internal maps
   std::unordered_map<pcstate, com_state> states;
-  std::unordered_map<psymbol, com_symbol> symbols;
+  std::unordered_map<psymbol, com_symbol>& symbols = result.symbol_map;
   for (unsigned i = 0; i < result.symbol_translation.size(); ++i) {
     symbols.insert(make_pair(result.symbol_translation[i],i));
   }

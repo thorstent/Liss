@@ -84,7 +84,11 @@ void actions::synthesis2::print_summary(const cfg::program& original_program) {
 bool actions::synthesis2::synth_loop(const cfg::program& program, placement::placement_result& lock_result)
 {
   Limi::printer<abstraction::psymbol> symbol_printer;
+  if (verbosity>=1) debug << "Building sequential automaton" << endl;
   abstraction::concurrent_automaton sequential(program, false, true);
+  sequential.use_cache = false;
+  abstraction::compressed_automaton<abstraction::psymbol> compressed_sequential = abstraction::from_concurrent_automaton(sequential);
+  
   abstraction::concurrent_automaton concurrent(program, true, false);
   concurrent.use_cache = false; // do not use cache as it interfers with disallowing bad traces
 
@@ -98,7 +102,7 @@ bool actions::synthesis2::synth_loop(const cfg::program& program, placement::pla
     auto start = chrono::steady_clock::now();
     // do language inclusion test
     Limi::inclusion_result<abstraction::psymbol> result;
-    bool success = test_inclusion(sequential, concurrent, result);
+    bool success = test_inclusion(compressed_sequential, concurrent, result);
     this->max_bound = max(result.max_bound,this->max_bound);
     auto langinc_end = chrono::steady_clock::now();
     if (!success) {
