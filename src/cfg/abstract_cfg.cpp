@@ -168,18 +168,18 @@ void abstract_cfg::minimise(bool leave_lockables)
   std::unordered_set<state_id_type> seen;
   
   // add the current set of initial states to the frontier
-  std::deque<pair<state_id_type,vector<state_id_type>>> frontier2;
-  frontier2.push_back(make_pair(1,vector<state_id_type>()));
+  std::deque<pair<state_id_type,unordered_set<state_id_type>>> frontier2;
+  frontier2.push_back(make_pair(1,unordered_set<state_id_type>()));
   
   // check if the successor of every state is good, otherwise replace with successor of successor
   while (!frontier2.empty()) {
-    pair<state_id_type,vector<state_id_type>> nextp = frontier2.front();
+    pair<state_id_type,unordered_set<state_id_type>> nextp = frontier2.front();
     state_id_type next = nextp.first;
     assert(states[next].action || states[next].final || next == 1 || remain.find(next)!=remain.end());
-    vector<state_id_type> parents = nextp.second;
+    unordered_set<state_id_type> parents = nextp.second;
     frontier2.pop_front();
     if (seen.find(next) == seen.end()) {
-      parents.push_back(next);
+      parents.insert(next);
       seen.insert(next);
       
       set<edge> successors; // set of successors
@@ -204,11 +204,38 @@ void abstract_cfg::minimise(bool leave_lockables)
       // add information to the edges
       for (edge e : successors) {
         frontier2.push_back(make_pair(e.to,parents));
-        reward_t cost = parents.end() - find(parents.begin(), parents.end(), e.to);
-        bool back_edge = cost != 0;
+        bool back_edge = parents.find(e.to) != parents.end();
         e.back_edge = back_edge;
         edges[next].push_back(e);
         if (e.tag) tag_edge(next, edges[next].size()-1); // only tag those tagged before
+      }
+    }
+  }
+  
+  // do a better cost calculation
+  // reset distance
+  for (state& s : states) s.distance = 0;
+  std::deque<state_id_type> frontier;
+  frontier.push_back(1);
+  while (!frontier.empty()) {
+    state_id_type next = frontier.front();
+    frontier.pop_front();
+    state& s = states[next];
+    for (edge e : edges[next]) {
+      if (!e.back_edge) { 
+        frontier.push_back(e.to);
+        state& to = states[e.to];
+        to.distance = max<reward_t>(to.distance, s.distance+1);
+      }
+    }
+  }
+  // calculate cost of back edges correctly now
+  for (unsigned i = 1; i <= no_states(); ++i) {
+    state& s = states[i];
+    for (edge& e : edges[i]) {
+      if (e.back_edge) {
+        state& to = states[e.to];
+        e.cost = s.distance - to.distance + 1;
       }
     }
   }

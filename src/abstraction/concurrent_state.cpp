@@ -99,6 +99,7 @@ concurrent_state::~concurrent_state()
 
 bool concurrent_state::operator==(const concurrent_state& other) const
 {
+  if (&other == this) return true;
   if (length!=other.length) return false;
   for (thread_id_type i = 0; i<length; ++i) {
     if (!std::equal_to<state_id_type>()(threads[i],other.threads[i])) return false;
@@ -110,6 +111,22 @@ bool concurrent_state::operator==(const concurrent_state& other) const
   if (conflicts != other.conflicts) return false;
   return true;
 }
+
+bool concurrent_state::operator<(const concurrent_state& other) const
+{
+  if (reward != other.reward)
+    return reward < other.reward;
+  /*for (unsigned i = 0; i<length; i++) {
+    if (operator[](i) != other[i])
+      return operator[](i) < other[i];
+  }
+  /*size_t hash = std::hash<concurrent_state>()(*this);
+  size_t hasho = std::hash<concurrent_state>()(other);
+  if (hash!=hasho) return hash < hasho;
+  assert(false);*/
+  return false;
+}
+
 
 std::size_t std::hash< abstraction::concurrent_state >::operator()(const concurrent_state& val) const
 {

@@ -62,15 +62,7 @@ namespace abstraction {
     std::set<conflict_t> conflicts;
     
     bool operator==(const concurrent_state &other) const;
-    inline bool operator<(const concurrent_state &other) const {
-      if (reward != other.reward)
-        return reward < other.reward;
-      for (unsigned i = 0; i<length; i++) {
-        if (operator[](i) != other[i])
-          return operator[](i) < other[i];
-      }
-      return false;
-    }
+    bool operator<(const concurrent_state &other) const;
   };
   
   typedef std::shared_ptr<concurrent_state> pcstate;

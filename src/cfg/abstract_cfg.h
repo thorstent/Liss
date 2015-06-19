@@ -62,6 +62,7 @@ struct state {
   clang::Stmt* braces_needed = nullptr; // if braces need to be added before adding locks this points to the instruction
   state(state_id_type id, const abstraction::symbol& action);
   state(thread_id_type thread_id, state_id_type id);
+  reward_t distance = 0; // max distance from initial state (no back edges)
 private:
 };
 
