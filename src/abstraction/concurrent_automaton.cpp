@@ -43,7 +43,7 @@ concurrent_(concurrent), deadlock_(deadlock_automaton)
 bool concurrent_automaton::int_is_final_state(const pcstate& state) const
 {
   for (thread_id_type i = 0; i<state->length; ++i) {
-    if ((*state)[i]!=no_state && !threads[i].is_final_state((*state)[i]))
+    if ((*state)[i]!=no_state && !threads[i].is_final_state(cfg::reward_state((*state)[i])))
       return false;
   }
   return true;
@@ -57,18 +57,18 @@ void concurrent_automaton::int_initial_states(concurrent_automaton::State_set& s
     State_set duplicates = states;
     states.clear();
     bool first = true;
-    for (const state_id_type& init : threads[i].initial_states()) {
+    for (const cfg::reward_state& init : threads[i].initial_states()) {
 
       if (first) {
         for (const pcstate& s : duplicates) {
           shared_ptr<concurrent_state> dup = make_shared<concurrent_state>(*s);
-          dup->threads[i] = init;
+          dup->threads[i] = init.state;
           states.insert(dup);
         }
       } else {
         for (const pcstate& s : duplicates) {
           shared_ptr<concurrent_state> dup = make_shared<concurrent_state>(*s);
-          dup->threads[i] = init;
+          dup->threads[i] = init.state;
           states.insert(dup);
         }
       }
@@ -97,21 +97,23 @@ void concurrent_automaton::int_successors(const pcstate& state, const psymbol& s
 {
   thread_id_type thread = sigma->thread_id();
   if (state->current != no_thread && state->current != static_cast<int>(thread)) return;
-  const cfg::automaton::State_set succs = threads[thread].successors(state->threads[thread], sigma); // cost is not relevant here
+  const cfg::automaton::State_set succs = threads[thread].successors(cfg::reward_state(state->threads[thread]), sigma); // cost is not relevant here
   assert(!succs.empty());
   bool progress;
   pcstate next = apply_symbol(state, sigma, progress);
   
   if (next) {
+    assert (progress || !concurrent_);
     if (!progress) {
       successors.insert(next);
       return;
     }
     //cout << threads[thread]->name(next->threads[thread]) << " -> ";
     bool first = true;
-    for (const state_id_type& p : succs) {
+    for (const cfg::reward_state& p : succs) {
+      next->reward += p.reward;
       pcstate copy = first ? next : make_shared<concurrent_state>(*next); // copy needed if not first element
-      copy->threads[thread] = p;
+      copy->threads[thread] = p.state;
       //cout << threads[thread]->name(p) << " ";
       if (concurrent_ || threads[thread].is_final_state(p)) copy->current = no_thread;
       successors.insert(copy);
@@ -318,7 +320,7 @@ bool concurrent_automaton::apply_bad_trace_dnf(pcstate& cloned_state, const psym
 inline void concurrent_automaton::next_single(const pcstate& state, concurrent_automaton::Symbol_set& symbols, thread_id_type thread) const
 {
   if ((*state)[thread]!=no_state) {
-    for (const abstraction::psymbol& s : threads[thread].next_symbols((*state)[thread])) {
+    for (const abstraction::psymbol& s : threads[thread].next_symbols(cfg::reward_state((*state)[thread]))) {
       if (successor_filter.empty() || s->is_epsilon() || successor_filter.find(s)!=successor_filter.end())
         symbols.insert(s);
     }
@@ -329,7 +331,7 @@ void concurrent_automaton::deadlock_states(const pcstate& cloned_state, thread_i
 {
   if (deadlock_) {
     state_id_type state = (*cloned_state)[thread];
-    if (threads[thread].is_final_state(state)) {
+    if (threads[thread].is_final_state(cfg::reward_state(state))) {
       shared_ptr<concurrent_state> dup = make_shared<concurrent_state>(*cloned_state);
       (*dup)[thread] = no_state;
       successors.insert(dup);
