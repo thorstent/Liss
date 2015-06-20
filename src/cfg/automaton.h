@@ -77,11 +77,11 @@ namespace cfg {
     automaton(const abstract_cfg& thread, bool collapse_epsilon = false) : Limi::automaton<reward_state,abstraction::psymbol,automaton>(collapse_epsilon, false), thread_(thread) {}
     bool int_is_final_state(const reward_state& state) const;
     
-    void int_initial_states(State_set& states) const;
+    void int_initial_states(State_vector& states) const;
     
-    void int_successors(const reward_state& state, const abstraction::psymbol& sigma, State_set& successors) const;
+    void int_successors(const reward_state& state, const abstraction::psymbol& sigma, State_vector& successors) const;
     
-    void int_next_symbols(const reward_state& state, Symbol_set& symbols) const;
+    void int_next_symbols(const reward_state& state, Symbol_vector& symbols) const;
     
     inline Limi::printer_base<reward_state>* int_state_printer() const { return new cfg::state_printer(thread_); }
     

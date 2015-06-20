@@ -52,7 +52,7 @@ compressed_automaton< psymbol > abstraction::from_concurrent_automaton(const con
   
   for (const pcstate& s : ca.initial_states()) {
     com_state sid = states.size();
-    result.initial_states.insert(sid);
+    result.initial_states.push_back(sid);
     frontier.push(s);
     states.insert(make_pair(s, sid));
     result.final.push_back(false);

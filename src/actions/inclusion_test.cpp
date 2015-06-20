@@ -136,7 +136,7 @@ bool actions::test_inclusion(abstraction::compressed_automaton<abstraction::psym
       if (verbosity>=3) {
         result.print_long(debug, sequential.symbol_printer());
       }
-      result = algo.run();
+      //result = algo.run();
     }
     algo.increase_bound(++bound);
     if (verbosity>=1 && bound <= max_bound)

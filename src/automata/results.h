@@ -61,7 +61,7 @@ namespace automata {
      * superset of the symbols that actually procduce successors using \ref Limi::automaton::int_successors().
      * 
      */
-    std::unordered_set<Symbol> impossible_successors;
+    std::vector<Symbol> impossible_successors;
     /**
      * @brief A list of symbols that lead to \ref dead_state.
      * 

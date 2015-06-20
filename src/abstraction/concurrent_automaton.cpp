@@ -49,40 +49,25 @@ bool concurrent_automaton::int_is_final_state(const pcstate& state) const
   return true;
 }
 
-void concurrent_automaton::int_initial_states(concurrent_automaton::State_set& states) const
+void concurrent_automaton::int_initial_states(concurrent_automaton::State_vector& states) const
 {
-  states.insert(make_shared<concurrent_state>(threads.size(), locks_size));
+  states.push_back(make_shared<concurrent_state>(threads.size(), locks_size));
   thread_id_type length = threads.size();
   for (thread_id_type i = 0; i<length; ++i) {
-    State_set duplicates = states;
+    State_vector duplicates = states;
     states.clear();
-    bool first = true;
     for (const cfg::reward_state& init : threads[i].initial_states()) {
 
-      if (first) {
         for (const pcstate& s : duplicates) {
           shared_ptr<concurrent_state> dup = make_shared<concurrent_state>(*s);
           dup->threads[i] = init.state;
-          states.insert(dup);
+          states.push_back(dup);
         }
-      } else {
-        for (const pcstate& s : duplicates) {
-          shared_ptr<concurrent_state> dup = make_shared<concurrent_state>(*s);
-          dup->threads[i] = init.state;
-          states.insert(dup);
-        }
-      }
-      first = false;
     }
-  }
-  State_set duplicates = states;
-  states.clear();
-  for (pcstate s : duplicates) {
-    states.insert(s);
   }
 }
 
-void concurrent_automaton::int_next_symbols(const pcstate& state, concurrent_automaton::Symbol_set& symbols) const
+void concurrent_automaton::int_next_symbols(const pcstate& state, concurrent_automaton::Symbol_vector& symbols) const
 {
   if (state->current == -1) {
     for (thread_id_type i = 0; i<state->length; ++i) {
@@ -93,11 +78,11 @@ void concurrent_automaton::int_next_symbols(const pcstate& state, concurrent_aut
   }
 }
 
-void concurrent_automaton::int_successors(const pcstate& state, const psymbol& sigma, concurrent_automaton::State_set& successors) const
+void concurrent_automaton::int_successors(const pcstate& state, const psymbol& sigma, concurrent_automaton::State_vector& successors) const
 {
   thread_id_type thread = sigma->thread_id();
   if (state->current != no_thread && state->current != static_cast<int>(thread)) return;
-  const cfg::automaton::State_set succs = threads[thread].successors(cfg::reward_state(state->threads[thread]), sigma); // cost is not relevant here
+  const cfg::automaton::State_vector succs = threads[thread].successors(cfg::reward_state(state->threads[thread]), sigma); // cost is not relevant here
   assert(!succs.empty());
   bool progress;
   pcstate next = apply_symbol(state, sigma, progress);
@@ -105,7 +90,7 @@ void concurrent_automaton::int_successors(const pcstate& state, const psymbol& s
   if (next) {
     assert (progress || !concurrent_);
     if (!progress) {
-      successors.insert(next);
+      successors.push_back(next);
       return;
     }
     //cout << threads[thread]->name(next->threads[thread]) << " -> ";
@@ -116,7 +101,7 @@ void concurrent_automaton::int_successors(const pcstate& state, const psymbol& s
       copy->threads[thread] = p.state;
       //cout << threads[thread]->name(p) << " ";
       if (concurrent_ || threads[thread].is_final_state(p)) copy->current = no_thread;
-      successors.insert(copy);
+      successors.push_back(copy);
       deadlock_states(copy, thread, successors);
       first = false;
     }
@@ -317,24 +302,24 @@ bool concurrent_automaton::apply_bad_trace_dnf(pcstate& cloned_state, const psym
 
 
 
-inline void concurrent_automaton::next_single(const pcstate& state, concurrent_automaton::Symbol_set& symbols, thread_id_type thread) const
+inline void concurrent_automaton::next_single(const pcstate& state, concurrent_automaton::Symbol_vector& symbols, thread_id_type thread) const
 {
   if ((*state)[thread]!=no_state) {
     for (const abstraction::psymbol& s : threads[thread].next_symbols(cfg::reward_state((*state)[thread]))) {
       if (successor_filter.empty() || s->is_epsilon() || successor_filter.find(s)!=successor_filter.end())
-        symbols.insert(s);
+        symbols.push_back(s);
     }
   }
 }
 
-void concurrent_automaton::deadlock_states(const pcstate& cloned_state, thread_id_type thread, Limi::automaton< pcstate, psymbol, concurrent_automaton >::State_set& successors) const
+void concurrent_automaton::deadlock_states(const pcstate& cloned_state, thread_id_type thread, State_vector& successors) const
 {
   if (deadlock_) {
     state_id_type state = (*cloned_state)[thread];
     if (threads[thread].is_final_state(cfg::reward_state(state))) {
       shared_ptr<concurrent_state> dup = make_shared<concurrent_state>(*cloned_state);
       (*dup)[thread] = no_state;
-      successors.insert(dup);
+      successors.push_back(dup);
     }
   }
 }

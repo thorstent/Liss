@@ -49,6 +49,8 @@ namespace automata {
     typedef std::shared_ptr<counter_chain> pcounter_chain;
     typedef std::unordered_set<State> State_set;
     typedef std::unordered_set<Symbol> Symbol_set;
+    typedef std::vector<State> State_vector;
+    typedef std::vector<Symbol> Symbol_vector;
     typedef Limi::automaton<State, Symbol, Implementation> Automaton;
     
     struct frontier_item {
@@ -60,7 +62,7 @@ namespace automata {
       pcounter_chain cex_chain;
     };
     
-    std::deque<frontier_item> initial_states_conv(const std::unordered_set<State>& states) {
+    std::deque<frontier_item> initial_states_conv(const std::vector<State>& states) {
       std::deque< frontier_item > result;
       for(State state : states) {
         frontier_item p(state);
@@ -82,11 +84,11 @@ namespace automata {
     deadlock_result<Symbol,State> run(const Automaton& automaton)
     {
       
-      std::unordered_set<State> initial_states = automaton.initial_states();
-      std::unordered_set<State> reachable; // a list of reachable states
+      State_vector initial_states = automaton.initial_states();
+      State_set reachable; // a list of reachable states
       std::deque<frontier_item> frontier = initial_states_conv(initial_states);
-      std::unordered_map<State,std::unordered_set<State>> predecessor_map;
-      std::unordered_set<State> final_states;
+      std::unordered_map<State,State_set> predecessor_map;
+      State_set final_states;
       
       deadlock_result<Symbol,State> result;
       result.deadlock_found = false;
@@ -110,11 +112,11 @@ namespace automata {
             final_states.insert(current.s);
           bool has_successors = false;
           bool one_assumes = false;
-          Symbol_set next_symbols = automaton.next_symbols(current.s);
+          Symbol_vector next_symbols = automaton.next_symbols(current.s);
           for (Symbol sigma : next_symbols) {
             // TODO Fix this (piercing throuh the template)
             one_assumes = one_assumes || sigma->assume;
-            State_set states = automaton.successors(current.s, sigma);
+            State_vector states = automaton.successors(current.s, sigma);
             
             for (State state : states) {
               frontier_item next(state, current.cex_chain, sigma);

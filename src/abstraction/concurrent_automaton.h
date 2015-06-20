@@ -47,11 +47,11 @@ namespace abstraction {
     concurrent_automaton(const cfg::program& program, bool concurrent, bool collapse_epsilon = false, bool deadlock_automaton = false);
     bool int_is_final_state(const pcstate& state) const;
     
-    void int_initial_states(State_set& states) const;
+    void int_initial_states(State_vector& states) const;
     
-    void int_successors(const abstraction::pcstate& state, const abstraction::psymbol& sigma, Limi::automaton< abstraction::pcstate, abstraction::psymbol, abstraction::concurrent_automaton >::State_set& successors) const;
+    void int_successors(const abstraction::pcstate& state, const abstraction::psymbol& sigma, State_vector& successors) const;
     
-    void int_next_symbols(const pcstate& state, Symbol_set& symbols) const;
+    void int_next_symbols(const pcstate& state, Symbol_vector& symbols) const;
     
     inline Limi::printer_base<pcstate>* int_state_printer() const { return new Limi::printer<pcstate>(threads, identifier_store_); }
     
@@ -92,7 +92,7 @@ namespace abstraction {
      * @param successors ...
      * @return void
      */
-    void deadlock_states(const abstraction::pcstate& cloned_state, thread_id_type thread, Limi::automaton< abstraction::pcstate, abstraction::psymbol, abstraction::concurrent_automaton >::State_set& successors) const;
+    void deadlock_states(const abstraction::pcstate& cloned_state, thread_id_type thread, State_vector& successors) const;
     
     /**
      * @brief Apply happens-before constraints from the dnf
@@ -113,7 +113,7 @@ namespace abstraction {
      * @return false if the lock is violated
      */
     bool tick_lock(abstraction::pcstate& cloned_state, int lock) const;
-    void next_single(const abstraction::pcstate& state, Limi::automaton< abstraction::pcstate, abstraction::psymbol, abstraction::concurrent_automaton >::Symbol_set& symbols, thread_id_type thread) const;
+    void next_single(const abstraction::pcstate& state, Symbol_vector& symbols, thread_id_type thread) const;
     
     /** A conflict
      * means that between past and next there happens a conflicting instruction

@@ -58,8 +58,8 @@ namespace abstraction {
   public:
     using Symbol = typename Implementation::Symbol_;
     using State = typename Implementation::State_;
-    using State_set = typename Implementation::State_set;
-    using Symbol_set = std::unordered_set<com_symbol>;
+    using State_vector = typename Implementation::State_vector;
+    using Symbol_vector = std::vector<com_symbol>;
     wrapper_automaton(const Implementation& inner, std::unordered_map<Symbol,com_symbol>& symbol_map, std::vector<Symbol>& symbol_translation) :
     Limi::automaton<typename Implementation::State_,com_symbol,wrapper_automaton<Implementation>>(false, false, inner.no_epsilon_produced), inner(inner), symbol_map(symbol_map), symbol_translation(symbol_translation) {}
     
@@ -67,15 +67,15 @@ namespace abstraction {
       return inner.is_final_state(state);
     }
     
-    inline void int_initial_states(State_set& states) const { inner.initial_states(states); }
+    inline void int_initial_states(State_vector& states) const { inner.initial_states(states); }
     
-    inline void int_successors(const State& state, const com_symbol& sigma, State_set& successors) const {
+    inline void int_successors(const State& state, const com_symbol& sigma, State_vector& successors) const {
       assert (sigma<symbol_translation.size());
       inner.successors(state, symbol_translation[sigma], successors);
     }
     
-    void int_next_symbols(const State& state, Symbol_set& symbols) const {
-      typename Implementation::Symbol_set syminner;
+    void int_next_symbols(const State& state, Symbol_vector& symbols) const {
+      typename Implementation::Symbol_vector syminner;
       inner.next_symbols(state, syminner);
       for (const auto& s : syminner) {
         auto it = symbol_map.find(s);
@@ -84,7 +84,7 @@ namespace abstraction {
           sy = add_symbol(s);
         else
           sy = it->second;
-        symbols.insert(sy);
+        symbols.push_back(sy);
       }
     }
     
@@ -120,26 +120,26 @@ namespace abstraction {
   template <class Symbol>
   class compressed_automaton : public Limi::automaton<com_state,com_symbol,compressed_automaton<Symbol>> {
   public:
-    using State_set = std::unordered_set<com_state>;
-    using Symbol_set = std::unordered_set<com_symbol>;
+    using State_vector = std::vector<com_state>;
+    using Symbol_vector = std::vector<com_symbol>;
     compressed_automaton() : Limi::automaton<com_state,com_symbol,compressed_automaton<Symbol>>(false, false, true) {}
     inline bool int_is_final_state(const com_state& state) const {
       return final[state];
     }
     
-    inline void int_initial_states(State_set& states) const { states.insert(initial_states.begin(), initial_states.end()); }
+    inline void int_initial_states(State_vector& states) const { states.insert(states.end(), initial_states.begin(), initial_states.end()); }
     
-    inline void int_successors(const com_state& state, const com_symbol& sigma, State_set& successors) const {
+    inline void int_successors(const com_state& state, const com_symbol& sigma, State_vector& successors) const {
       auto it = transitions[state].find(sigma);
       if (it != transitions[state].end())
-        successors.insert(it->second.begin(), it->second.end());
+        successors.insert(successors.end(), it->second.begin(), it->second.end());
       assert(successors.size()>0);
     }
     
-    void int_next_symbols(const com_state& state, Symbol_set& symbols) const {
+    void int_next_symbols(const com_state& state, Symbol_vector& symbols) const {
       for (const auto& it : transitions[state]) {
         if (successor_filter.empty() || int_is_epsilon(it.first) || successor_filter.find(it.first)!=successor_filter.end()) {
-          symbols.insert(it.first);
+          symbols.push_back(it.first);
         }
       }
     }
@@ -169,7 +169,7 @@ namespace abstraction {
     std::unordered_set<com_symbol> successor_filter;
   private:
     // variables
-    State_set initial_states;
+    State_vector initial_states;
     std::vector<bool> final;
     std::vector<bool> epsilon;
     std::vector<Symbol> symbol_translation;
