@@ -29,11 +29,21 @@
 
 namespace placement {
 
+  enum class lock_type {
+    lock, unlock
+  };
+  
+  enum class position_type {
+    before, after
+  };
+  
   struct placement_result {
-    std::vector<std::pair<unsigned, abstraction::location >> locks_b; // before the instruction
-    std::vector<std::pair<unsigned, abstraction::location >> locks_a; // after the instruction
-    std::vector<std::pair<unsigned, abstraction::location >> unlocks_b; // before the instruction
-    std::vector<std::pair<unsigned, abstraction::location >> unlocks_a; // after the instruction
+    unsigned lock;
+    lock_type lock_t;
+    position_type position;
+    abstraction::location location;
+    placement_result(unsigned lock, lock_type lock_t, position_type position, abstraction::location location) : lock(lock), lock_t(lock_t), 
+    position(position), location(location) {}
   };
   
 class place_locks
@@ -50,7 +60,7 @@ public:
    * @param unlocks_placed ...
    * @return void
    */
-  bool find_locks(const synthesis::lock_symbols& locks_to_place, placement_result& to_place);
+  bool find_locks(const synthesis::lock_symbols& locks_to_place, std::vector<placement_result>& to_place);
 private:
   void init_locks();
   void init_consistancy();

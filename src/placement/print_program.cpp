@@ -67,37 +67,11 @@ void print_program::place_text(Rewriter& rewriter, const cfg::state& state, cons
   }
 }
 
-void print_program::place_locks(Rewriter& rewriter, const vector< pair< unsigned, abstraction::location > >& locks, const string name, bool after, unordered_set<Stmt*>& added_brace) {
-  for (pair< unsigned, abstraction::location > l : locks) {
-    string text =  name + "(" + lock_name + to_string(l.first) + ");";
-    const cfg::state& state = program.threads()[l.second.thread]->get_state(l.second.state);
-    place_text(rewriter, state, text, after, added_brace);
-  }
-  /*for (pair< unsigned, abstraction::location > l : locks) {
-    // find location
-    
-    const cfg::state& state = program.minimised_threads()[l.second.thread]->get_state(l.second.state);
-    parent_result parent = find_stmt_parent(state.lock_stmt, state.lock_function);
-    SourceLocation start = parent.stmt_to_lock->getLocStart();
-    SourceLocation end = parent.stmt_to_lock->getLocEnd();
-    
-    // MeasureTokenLength gets us past the last token, and adding 1 gets
-    // us past the ';'.
-    int offset = Lexer::MeasureTokenLength(end, rewriter.getSourceMgr(), rewriter.getLangOpts());
-    if (parent.ends_semicolon) offset += 1;
-    end = end.getLocWithOffset(offset);
-    if (parent.braces_needed && added_brace.insert(parent.stmt_to_lock).second) {
-      // we need to add braces around the expression
-      rewriter.InsertText(start, "{", true, true);
-      rewriter.InsertText(end, "}", true, true);
-    }
-    assert(rewriter.isRewritable(start));
-    if(!after) {
-      rewriter.InsertText(start, name + "(" + lock_name + to_string(l.first) + ");\n", true, true);
-    } else {
-      rewriter.InsertText(end, "\n" + name + "(" + lock_name + to_string(l.first) + ");", false, true);
-    }
-  }*/
+void print_program::place_locks(Rewriter& rewriter, const placement_result& lock, unordered_set<Stmt*>& added_brace) {
+  string name = lock.lock_t==lock_type::lock ? lock_instr : unlock_instr;
+  string text =  name + "(" + lock_name + to_string(lock.lock) + ");";
+  const cfg::state& state = program.threads()[lock.location.thread]->get_state(lock.location.state);
+  place_text(rewriter, state, text, lock.position == position_type::after, added_brace);
 }
 
 void print_program::place_lock_decl(Rewriter& rewriter, const std::unordered_set<unsigned>& locks_in_use)
@@ -124,13 +98,13 @@ void print_program::place_lock_decl(Rewriter& rewriter, const std::unordered_set
   }
 }
 
-void print_program::remove_duplicates(vector< pair< unsigned, abstraction::location > >& locks, bool after) {
+void print_program::remove_duplicates(std::vector<placement_result>& locks) {
   for (unsigned i = 0; i < locks.size(); ++i) {
     for (unsigned j = i+1; j < locks.size(); ++j) {
-      if (locks[i].first == locks[j].first) { // same lock
-        const auto& statei = program.threads()[locks[i].second.thread]->get_state(locks[i].second.state);
-        const auto& statej = program.threads()[locks[j].second.thread]->get_state(locks[j].second.state);
-        if (!after && statei.lock_before == statej.lock_before || after && statei.lock_after == statej.lock_after) {
+      if (locks[i].lock == locks[j].lock && locks[i].lock_t == locks[j].lock_t && locks[i].position == locks[j].position) { // same lock
+        const auto& statei = program.threads()[locks[i].location.thread]->get_state(locks[i].location.state);
+        const auto& statej = program.threads()[locks[j].location.thread]->get_state(locks[j].location.state);
+        if (locks[i].position == position_type::before && statei.lock_before == statej.lock_before || locks[i].position == position_type::after && statei.lock_after == statej.lock_after) {
           // these are actually refering to the same instruction
           locks.erase(locks.begin()+j);--j;
         }
@@ -139,27 +113,26 @@ void print_program::remove_duplicates(vector< pair< unsigned, abstraction::locat
   }
 }
 
-void print_program::print_with_locks(placement_result locks_to_place, const string& outname)
+void print_program::print_with_locks(std::vector<placement_result> locks_to_place, const string& outname)
 {
-  remove_duplicates(locks_to_place.locks_a, true);
-  remove_duplicates(locks_to_place.locks_b, false);
-  remove_duplicates(locks_to_place.unlocks_a, true);
-  remove_duplicates(locks_to_place.unlocks_b, false);
+  remove_duplicates(locks_to_place);
+  
   Rewriter rewriter(program.ast_context.getSourceManager(), program.ast_context.getLangOpts());
   
   unordered_set<Stmt*> added_brace;
-  place_locks(rewriter, locks_to_place.locks_b, lock_instr, false, added_brace);
-  place_locks(rewriter, locks_to_place.locks_a, lock_instr, true, added_brace);
-  place_locks(rewriter, locks_to_place.unlocks_b, unlock_instr, false, added_brace);
-  place_locks(rewriter, locks_to_place.unlocks_a, unlock_instr, true, added_brace);
-  
   std::unordered_set<unsigned> locks_in_use;
-  for (const pair< unsigned, abstraction::location >& lock : locks_to_place.locks_a) {
-    locks_in_use.insert(lock.first);
+  sort(locks_to_place.begin(), locks_to_place.end(), [](const placement_result& a, const placement_result& b){ return a.lock < b.lock;});
+  // before in the order of the lock, after in the reverse order
+  for (auto it = locks_to_place.begin(); it != locks_to_place.end(); ++it) {
+    locks_in_use.insert(it->lock);
+    if (it->position == position_type::before)
+      place_locks(rewriter, *it, added_brace);
   }
-  for (const pair< unsigned, abstraction::location >& lock : locks_to_place.locks_b) {
-    locks_in_use.insert(lock.first);
+  for (auto it = locks_to_place.rbegin(); it != locks_to_place.rend(); ++it) {
+    if (it->position == position_type::after)
+      place_locks(rewriter, *it, added_brace);
   }
+  
   place_lock_decl(rewriter, locks_in_use);
   
   // print out the program

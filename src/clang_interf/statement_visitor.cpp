@@ -236,6 +236,14 @@ void statement_visitor::add_successor(state_id_type successor)
 {
   if (end_state != no_state) {
     thread.add_edge(end_state, successor);
+    // check if the locking makes sense (this could be a problem if two are in the same instruction)
+    cfg::state& prev = thread.get_state(end_state);
+    cfg::state& next = thread.get_state(successor);
+    if (prev.lock_after == next.lock_after) {
+      // these are part of the same statement
+      prev.lock_after = SourceLocation();
+      next.lock_before = SourceLocation();
+    }
   } else {
     start_state = successor;
   }

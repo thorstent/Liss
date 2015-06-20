@@ -355,7 +355,7 @@ vector<z3::expr> place_locks::locked_together(const synthesis::lock_symbols& loc
 }
 
 
-bool place_locks::find_locks(const synthesis::lock_symbols& locks_to_place, placement_result& to_place)
+bool place_locks::find_locks(const synthesis::lock_symbols& locks_to_place, std::vector<placement_result>& to_place)
 {
   // insert a lock for testing
   z3::solver slv(ctx);
@@ -426,25 +426,34 @@ bool place_locks::find_locks(const synthesis::lock_symbols& locks_to_place, plac
   if (verbosity>=1)
     debug << "Final cost: " << last_model.eval(cost) << endl;
 
+  vector<pair<unsigned, abstraction::location>> locklist;
   vector<vector<z3::expr>> result;
   z3::expr elsee = func_result(last_model, lock_a, result);
   assert ((Z3_ast)elsee == zfalse);
-  result_to_locklist(result, to_place.locks_a);
+  result_to_locklist(result, locklist);
+  for (const pair<unsigned, abstraction::location>& lock : locklist)
+    to_place.emplace_back(lock.first, lock_type::lock, position_type::after, lock.second);
   
-  result.clear();
+  result.clear(); locklist.clear();
   elsee = func_result(last_model, lock_b, result);
   assert ((Z3_ast)elsee == zfalse);
-  result_to_locklist(result, to_place.locks_b);
+  result_to_locklist(result, locklist);
+  for (const pair<unsigned, abstraction::location>& lock : locklist)
+    to_place.emplace_back(lock.first, lock_type::lock, position_type::before, lock.second);
   
-  result.clear();
+  result.clear(); locklist.clear();
   elsee = func_result(last_model, unlock_a, result);
   assert ((Z3_ast)elsee == zfalse);
-  result_to_locklist(result, to_place.unlocks_a);
+  result_to_locklist(result, locklist);
+  for (const pair<unsigned, abstraction::location>& lock : locklist)
+    to_place.emplace_back(lock.first, lock_type::unlock, position_type::after, lock.second);
   
-  result.clear();
+  result.clear(); locklist.clear();
   elsee = func_result(last_model, unlock_b, result);
   assert ((Z3_ast)elsee == zfalse);
-  result_to_locklist(result, to_place.unlocks_b);
+  result_to_locklist(result, locklist);
+  for (const pair<unsigned, abstraction::location>& lock : locklist)
+    to_place.emplace_back(lock.first, lock_type::unlock, position_type::before, lock.second);
   return true;
 }
 

@@ -48,7 +48,7 @@ void actions::synthesis2::run(const cfg::program& program, clang::CompilerInstan
 {
   placement::print_program pprogram(program);
     
-  placement::placement_result result;
+  std::vector<placement::placement_result> result;
   bool success = synth_loop(program, result);
   
   if (success) {
@@ -81,7 +81,7 @@ void actions::synthesis2::print_summary(const cfg::program& original_program) {
   debug << original_program.no_threads() << " | " << iteration << " | " << this->max_bound <<  " | " << (double)langinc.count()/1000 << "s | "  << (double)synthesis_time.count()/1000 << "s | " << (double)verification.count()/1000 << "s | " << (double)placement_time.count()/1000 << "s";
 }
 
-bool actions::synthesis2::synth_loop(const cfg::program& program, placement::placement_result& lock_result)
+bool actions::synthesis2::synth_loop(const cfg::program& program, std::vector<placement::placement_result>& lock_result)
 {
   Limi::printer<abstraction::psymbol> symbol_printer;
   if (verbosity>=1) debug << "Building sequential automaton" << endl;
