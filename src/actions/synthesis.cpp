@@ -39,6 +39,10 @@
 #include <fstream>
 #include <algorithm>
 
+#include <stdio.h>
+#include <sys/time.h>
+#include <sys/resource.h>
+
 using namespace clang;
 using namespace std;
 
@@ -66,6 +70,12 @@ void actions::synthesis::run(const cfg::program& program, clang::CompilerInstanc
     result.print_long(file_out, symbol_printer);
     file_out.close();
   }
+}
+
+long get_max_mem() {
+  struct rusage rusage;
+  getrusage( RUSAGE_SELF, &rusage );
+  return rusage.ru_maxrss;
 }
 
 void actions::synthesis::print_code(const cfg::program& program, string directory, string filename)
@@ -122,8 +132,10 @@ void actions::synthesis::print_summary(const cfg::program& original_program) {
   debug << "Liss: " << (double)langinc.count()/1000 << "s" << endl;
   debug << "Verification: " << (double)verification.count()/1000 << "s" << endl;
   debug << "Synthesis: " << (double)synthesis_time.count()/1000 << "s" << endl;
+  double max_mem = get_max_mem()/1024;
+  debug << "Memory: " << max_mem << "MB" << endl;
   //cout.precision(1);
-  debug << "| " << original_program.no_threads() << " | " << iteration << " | " << this->max_bound <<  " | " << (double)langinc.count()/1000 << "s | "  << (double)synthesis_time.count()/1000 << "s | " << (double)verification.count()/1000 << "s |";
+  debug << "| " << original_program.no_threads() << " | " << iteration << " | " << this->max_bound <<  " | " << (double)langinc.count()/1000 << "s | "  << (double)synthesis_time.count()/1000 << "s | " << (double)verification.count()/1000 << "s | " << max_mem << "MB |";
 }
 
 

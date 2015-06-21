@@ -19,7 +19,7 @@ echo Running tests ...
 
 declare -a IGNORE=("tests/cav14/drbd_receiver.c" "tests/r8169.c")
 
-echo "| File | Threads | Iterations | max.Bound | Bug finding | Synthesis | Verification |"
+echo "| File | Threads | Iterations | max.Bound | Bug finding | Synthesis | Verification | Max Mem. |"
 
 for f in tests/cav13/*.c tests/cav14/*.c tests/linux_drivers/*.c
 do
