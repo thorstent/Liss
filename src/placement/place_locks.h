@@ -46,6 +46,10 @@ namespace placement {
     position(position), location(location) {}
   };
   
+  enum class cost_type {
+    absolute_minimum
+  };
+  
 class place_locks
 {
 public:
@@ -60,11 +64,13 @@ public:
    * @param unlocks_placed ...
    * @return void
    */
-  bool find_locks(const synthesis::lock_symbols& locks_to_place, std::vector<placement_result>& to_place);
+  bool find_locks(const synthesis::lock_symbols& locks_to_place, std::vector<placement_result>& to_place, cost_type cost_function);
 private:
   void init_locks();
   void init_consistancy();
   void init_sameinstr();
+  
+  std::vector<std::pair<z3::expr, unsigned>> cost_model(cost_type cost_function);
   
   void result_to_locklist(const std::vector<std::vector<z3::expr>>& result, std::vector<std::pair<unsigned, abstraction::location >>& locks);
   
@@ -86,10 +92,7 @@ private:
   z3::func_decl unlock_b = z3::func_decl(ctx); // unlock before
   z3::func_decl lock_a = z3::func_decl(ctx); // lock after
   z3::func_decl unlock_a = z3::func_decl(ctx); // lock before
-  
-  z3::expr cost = ctx.int_const("cost");
-  z3::expr cost_def = ztrue;
-  
+    
   z3::func_decl inl = z3::func_decl(ctx);
   z3::expr inl_def = ztrue;
   

@@ -180,7 +180,6 @@ void place_locks::init_locks()
 
 void place_locks::init_consistancy()
 {
-  z3::expr cost_sum = ctx.int_val(0);
   // predecessor rule
   unsigned t = 0;
   for (const cfg::abstract_cfg* thread : threads) {
@@ -258,15 +257,11 @@ void place_locks::init_consistancy()
         
         // no unlocking if not locked
         cons_unl = cons_unl && implies(unlock_a(x,l), inl(x,l));
-        // define cost
-        cost_sum = cost_sum + z3::ite(inl(x,l),ctx.int_val(1),ctx.int_val(0));
       }
     
     }
     ++t;
   }
-
-  cost_def = cost == cost_sum;
   
 }
 
@@ -354,13 +349,31 @@ vector<z3::expr> place_locks::locked_together(const synthesis::lock_symbols& loc
   return result;
 }
 
+vector< std::pair< z3::expr, unsigned int > > place_locks::cost_model(cost_type cost_function)
+{
+  vector< std::pair< z3::expr, unsigned int > > result;
+  unsigned t = 0;
+  for (const cfg::abstract_cfg* thread : threads) {
+    for (unsigned i = 1; i <= thread->no_states(); ++i) {
+      z3::expr x = location_vector[t][i];
+      // for all locks
+      for (z3::expr& l : lock_vector) {
+        result.emplace_back(make_pair(!inl(x,l), 1));
+      }
+    }
+    ++t;
+  }
+  return result;
+}
 
-bool place_locks::find_locks(const synthesis::lock_symbols& locks_to_place, std::vector<placement_result>& to_place)
+
+bool place_locks::find_locks(const synthesis::lock_symbols& locks_to_place, std::vector<placement_result>& to_place, cost_type cost_function)
 {
   // insert a lock for testing
-  z3::solver slv(ctx);
+  z3::optimize slv(ctx);
+  
+  // hard constraints
   slv.add(inl_def);
-  slv.add(cost_def);
   
   slv.add(cons_loc);
   slv.add(cons_basic);
@@ -378,15 +391,26 @@ bool place_locks::find_locks(const synthesis::lock_symbols& locks_to_place, std:
     debug << endl;
   }
   
-  slv.push();
   for (z3::expr& e : locking)
     slv.add(e);
   
+  // get cost model model
+  std::vector<std::pair<z3::expr, unsigned>> costs = cost_model(cost_function);
+  for (const std::pair<z3::expr, unsigned>& c : costs)
+    slv.add(c.first, c.second);
+  
   if (verbosity > 1)
     debug << "Starting lock placement" << endl;
+    
+  z3::check_result res = slv.check();
+  if (res != z3::sat) {
+    return false;
+  }
+    
+  z3::model model = slv.get_model();
   
-  z3::check_result last_res = slv.check();
-  if (last_res != z3::sat)  {
+  //z3::check_result last_res = slv.check();
+  /*if (last_res != z3::sat)  {
     if (verbosity>=1) {
       slv.pop();
       synthesis::min_unsat(slv, locking);
@@ -395,61 +419,44 @@ bool place_locks::find_locks(const synthesis::lock_symbols& locks_to_place, std:
       debug << endl;
     }
     return false;
-  }
-  z3::model last_model = slv.get_model();
-  // try and reduce cost
-  int reduce = 100;
-  z3::expr c = last_model.eval(cost);
-  while (reduce > 0) {
-    do {
-      slv.push();
-      slv.add(cost <= (c-ctx.int_val(reduce)));
-      last_res = slv.check();
-      if (verbosity>=2) {
-        debug << "Cost: " << c << endl;
-      }
-      if (last_res == z3::sat) {
-        last_model = slv.get_model();
-        c = last_model.eval(cost);
-      }
-    } while(last_res==z3::sat);
-    slv.pop();
-    reduce = reduce/10;
-  }
+  }*/
+  
+  
+  
   if (verbosity>=2) {
-    print_func_interp(last_model, lock_b);
-    print_func_interp(last_model, lock_a);
-    print_func_interp(last_model, unlock_a);
-    print_func_interp(last_model, unlock_b);
-    print_func_interp(last_model, inl);
+    print_func_interp(model, lock_b);
+    print_func_interp(model, lock_a);
+    print_func_interp(model, unlock_a);
+    print_func_interp(model, unlock_b);
+    print_func_interp(model, inl);
   }
-  if (verbosity>=1)
-    debug << "Final cost: " << last_model.eval(cost) << endl;
+  /*if (verbosity>=1)
+    debug << "Final cost: " << model.eval(cost) << endl;*/
 
   vector<pair<unsigned, abstraction::location>> locklist;
   vector<vector<z3::expr>> result;
-  z3::expr elsee = func_result(last_model, lock_a, result);
+  z3::expr elsee = func_result(model, lock_a, result);
   assert ((Z3_ast)elsee == zfalse);
   result_to_locklist(result, locklist);
   for (const pair<unsigned, abstraction::location>& lock : locklist)
     to_place.emplace_back(lock.first, lock_type::lock, position_type::after, lock.second);
   
   result.clear(); locklist.clear();
-  elsee = func_result(last_model, lock_b, result);
+  elsee = func_result(model, lock_b, result);
   assert ((Z3_ast)elsee == zfalse);
   result_to_locklist(result, locklist);
   for (const pair<unsigned, abstraction::location>& lock : locklist)
     to_place.emplace_back(lock.first, lock_type::lock, position_type::before, lock.second);
   
   result.clear(); locklist.clear();
-  elsee = func_result(last_model, unlock_a, result);
+  elsee = func_result(model, unlock_a, result);
   assert ((Z3_ast)elsee == zfalse);
   result_to_locklist(result, locklist);
   for (const pair<unsigned, abstraction::location>& lock : locklist)
     to_place.emplace_back(lock.first, lock_type::unlock, position_type::after, lock.second);
   
   result.clear(); locklist.clear();
-  elsee = func_result(last_model, unlock_b, result);
+  elsee = func_result(model, unlock_b, result);
   assert ((Z3_ast)elsee == zfalse);
   result_to_locklist(result, locklist);
   for (const pair<unsigned, abstraction::location>& lock : locklist)

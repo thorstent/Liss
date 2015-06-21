@@ -41,6 +41,10 @@
 #include "placement/place_locks.h"
 #include "placement/print_program.h"
 
+#include <stdio.h>
+#include <sys/time.h>
+#include <sys/resource.h>
+
 using namespace clang;
 using namespace std;
 
@@ -57,6 +61,12 @@ void actions::synthesis2::run(const cfg::program& program, clang::CompilerInstan
   } else {
 
   }
+}
+
+long get_max_mem() {
+  struct rusage rusage;
+  getrusage( RUSAGE_SELF, &rusage );
+  return rusage.ru_maxrss;
 }
 
 unsigned iteration = 0;
@@ -77,8 +87,10 @@ void actions::synthesis2::print_summary(const cfg::program& original_program) {
   debug << "Verification: " << (double)verification.count()/1000 << "s" << endl;
   debug << "Synthesis: " << (double)synthesis_time.count()/1000 << "s" << endl;
   debug << "Placement: " << (double)placement_time.count()/1000 << "s" << endl;
+  double max_mem = get_max_mem()/1024;
+  debug << "Memory: " << max_mem << "MB" << endl;
   //cout.precision(1);
-  debug << original_program.no_threads() << " | " << iteration << " | " << this->max_bound <<  " | " << (double)langinc.count()/1000 << "s | "  << (double)synthesis_time.count()/1000 << "s | " << (double)verification.count()/1000 << "s | " << (double)placement_time.count()/1000 << "s";
+  debug << original_program.no_threads() << " | " << iteration << " | " << this->max_bound <<  " | " << (double)langinc.count()/1000 << "s | "  << (double)synthesis_time.count()/1000 << "s | " << (double)verification.count()/1000 << "s | " << (double)placement_time.count()/1000 << "s | " << max_mem << "MB";
 }
 
 bool actions::synthesis2::synth_loop(const cfg::program& program, std::vector<placement::placement_result>& lock_result)
@@ -150,7 +162,7 @@ bool actions::synthesis2::synth_loop(const cfg::program& program, std::vector<pl
         ::synthesis::blow_up_lock(program, lock_symbols);
         //cout << lock_symbols << endl;
         placement::place_locks plocks(program);
-        if (!plocks.find_locks(lock_symbols, lock_result)) {
+        if (!plocks.find_locks(lock_symbols, lock_result, placement::cost_type::absolute_minimum)) {
           cout << "Found no valid lock placement" << endl;
           return false;
         }
