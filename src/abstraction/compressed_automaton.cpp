@@ -33,8 +33,6 @@ compressed_automaton< psymbol > abstraction::from_concurrent_automaton(const con
 
 compressed_automaton< psymbol > abstraction::from_concurrent_automaton(const concurrent_automaton& ca, const compressed_automaton<abstraction::psymbol>& concurrent)
 {
-  bool before_cache = ca.use_cache;
-  ca.use_cache = false;
   compressed_automaton<psymbol> result;
   bool nondet = false;
   result.symbol_translation = concurrent.symbol_translation;
@@ -110,7 +108,6 @@ compressed_automaton< psymbol > abstraction::from_concurrent_automaton(const con
     else debug << "Deterministic automaton" << endl;
   }
   
-  ca.use_cache = before_cache;
   return result;
 }
 

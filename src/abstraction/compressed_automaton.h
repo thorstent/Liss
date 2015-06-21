@@ -61,7 +61,7 @@ namespace abstraction {
     using State_vector = typename Implementation::State_vector;
     using Symbol_vector = std::vector<com_symbol>;
     wrapper_automaton(const Implementation& inner, std::unordered_map<Symbol,com_symbol>& symbol_map, std::vector<Symbol>& symbol_translation) :
-    Limi::automaton<typename Implementation::State_,com_symbol,wrapper_automaton<Implementation>>(false, false, inner.no_epsilon_produced), inner(inner), symbol_map(symbol_map), symbol_translation(symbol_translation) {}
+    Limi::automaton<typename Implementation::State_,com_symbol,wrapper_automaton<Implementation>>(false, inner.no_epsilon_produced), inner(inner), symbol_map(symbol_map), symbol_translation(symbol_translation) {}
     
     inline bool int_is_final_state(const State& state) const {
       return inner.is_final_state(state);
@@ -122,7 +122,7 @@ namespace abstraction {
   public:
     using State_vector = std::vector<com_state>;
     using Symbol_vector = std::vector<com_symbol>;
-    compressed_automaton() : Limi::automaton<com_state,com_symbol,compressed_automaton<Symbol>>(false, false, true) {}
+    compressed_automaton() : Limi::automaton<com_state,com_symbol,compressed_automaton<Symbol>>(false, true) {}
     inline bool int_is_final_state(const com_state& state) const {
       return final[state];
     }

@@ -74,7 +74,7 @@ namespace cfg {
 
   class automaton : public Limi::automaton<reward_state,abstraction::psymbol,automaton> {
   public:
-    automaton(const abstract_cfg& thread, bool collapse_epsilon = false) : Limi::automaton<reward_state,abstraction::psymbol,automaton>(collapse_epsilon, false), thread_(thread) {}
+    automaton(const abstract_cfg& thread, bool collapse_epsilon = false) : Limi::automaton<reward_state,abstraction::psymbol,automaton>(collapse_epsilon), thread_(thread) {}
     bool int_is_final_state(const reward_state& state) const;
     
     void int_initial_states(State_vector& states) const;

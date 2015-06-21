@@ -153,7 +153,6 @@ bool actions::test_inclusion(const cfg::program& sequential_program, const cfg::
 {
   
   abstraction::concurrent_automaton sequential(sequential_program, false, true);
-  sequential.use_cache = false;
   abstraction::compressed_automaton<abstraction::psymbol> compressed_sequential = abstraction::from_concurrent_automaton(sequential);
   abstraction::concurrent_automaton concurrent(concurrent_program, true, false);
   return test_inclusion(compressed_sequential, concurrent, result);

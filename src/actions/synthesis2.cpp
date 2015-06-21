@@ -98,12 +98,9 @@ bool actions::synthesis2::synth_loop(const cfg::program& program, std::vector<pl
   Limi::printer<abstraction::psymbol> symbol_printer;
   if (verbosity>=1) debug << "Building sequential automaton" << endl;
   abstraction::concurrent_automaton sequential(program, false, true);
-  sequential.use_cache = false;
   abstraction::compressed_automaton<abstraction::psymbol> compressed_sequential = abstraction::from_concurrent_automaton(sequential);
   
   abstraction::concurrent_automaton concurrent(program, true, false);
-  concurrent.use_cache = false; // do not use cache as it interfers with disallowing bad traces
-
   
   unsigned counter = 0;
   ::synthesis::reorderings reorder(program);
