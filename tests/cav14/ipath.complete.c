@@ -18,7 +18,7 @@
 
 #include  <langinc.h>
 
-lock_t synthlock_1;
+lock_t synthlock_0;
 void * ipath_pd;
 lock_t l; // spinlock does not allow blocking
 int block;  // indicates that a potentially blocking operation is in progress
@@ -28,7 +28,7 @@ void thread_irq () {
 
     // 1.
     lock(l);
-    lock_s(synthlock_1);
+    lock_s(synthlock_0);
 
     // 2. check that ipath_pd is not NULL
     if (ipath_pd) {
@@ -38,7 +38,7 @@ void thread_irq () {
     };
 
     // 4.
-    unlock_s(synthlock_1);
+    unlock_s(synthlock_0);
     unlock(l);
 }
 
@@ -62,11 +62,11 @@ void thread_user () {
     };
         
     // f. deallocate
-    lock_s(synthlock_1);
+    lock_s(synthlock_0);
     ipath_pd = (void *)0;
+    unlock_s(synthlock_0);
 
     // g.
-unlock_s(synthlock_1);
 }
 
 //void thread_checker() {

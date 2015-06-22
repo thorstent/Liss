@@ -92,14 +92,13 @@ int main(int argc, const char **argv) {
   }
   string file = OptionsParser.getSourcePathList().front();
   boost::filesystem::path file_path(file);
+  main_file_path = file_path.string();
   file_path = boost::filesystem::absolute(file_path);
   if (!boost::filesystem::exists(file_path)) {
     cerr << "File " << file_path << " not found!" << endl;
     return 1;
   }
   main_filename = file_path.filename().string();
-  output_file_code = file_path.string();
-  output_file_code.replace(output_file_code.length()-2,2, ".complete.c");
   start_file_code = file_path.string();
   start_file_code.replace(start_file_code.length()-2,2, ".start.c");
   output_file_log = file_path.string();

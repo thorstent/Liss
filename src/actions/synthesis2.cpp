@@ -51,13 +51,22 @@ using namespace std;
 void actions::synthesis2::run(const cfg::program& program, clang::CompilerInstance& compiler)
 {
   placement::print_program pprogram(program);
-    
+      
   std::vector<placement::placement_result> result;
-  bool success = synth_loop(program, result);
+  
+  // strategies we want to test
+  vector<placement::cost_type> strategies = { placement::cost_type::absolute_minimum, placement::cost_type::small_locks };
+  
+  bool success = synth_loop(program, strategies, result);
   
   if (success) {
-    pprogram.print_with_locks(result, output_file_code);
-    
+    cout << "Lock statistics:" << endl;
+    cout <<         "---------------" << endl;
+    for (unsigned i = 0; i < strategies.size(); ++i) {
+      pprogram.print_with_locks(result[i].locks, output_file_code(placement::short_name(strategies[i])));
+      cout << "Strategy " << (i+1) << ": " << strategies[i] << ":" << endl;
+      cout << result[i].statistics << endl;
+    }    
   } else {
 
   }
@@ -80,7 +89,7 @@ void print_time(const chrono::steady_clock::time_point& start) {
   debug << "TIME - " <<  "Iteration " + to_string(++iteration) << ": " << (double)passed.count()/1000 << "s" << endl;
 }
 
-void actions::synthesis2::print_summary(const cfg::program& original_program) {
+void actions::synthesis2::print_summary(const cfg::program& original_program, unsigned conflicts) {
   debug << "Threads: " << original_program.no_threads() << endl;
   debug << "Iterations: " << iteration << endl;
   debug << "Liss: " << (double)langinc.count()/1000 << "s" << endl;
@@ -89,11 +98,12 @@ void actions::synthesis2::print_summary(const cfg::program& original_program) {
   debug << "Placement: " << (double)placement_time.count()/1000 << "s" << endl;
   double max_mem = get_max_mem()/1024;
   debug << "Memory: " << max_mem << "MB" << endl;
+  debug << "Total number of conflicts found: " << conflicts << endl;
   //cout.precision(1);
-  debug << original_program.no_threads() << " | " << iteration << " | " << this->max_bound <<  " | " << (double)langinc.count()/1000 << "s | "  << (double)synthesis_time.count()/1000 << "s | " << (double)verification.count()/1000 << "s | " << (double)placement_time.count()/1000 << "s | " << max_mem << "MB";
+  debug << original_program.no_threads() << " | " << iteration << " | " << this->max_bound <<  " | " << (double)langinc.count()/1000 << "s | "  << (double)synthesis_time.count()/1000 << "s | " << (double)verification.count()/1000 << "s | " << (double)placement_time.count()/1000 << "s | " << max_mem << "MB" << endl;
 }
 
-bool actions::synthesis2::synth_loop(const cfg::program& program, std::vector<placement::placement_result>& lock_result)
+bool actions::synthesis2::synth_loop(const cfg::program& program, const std::vector<placement::cost_type>& cost_function, std::vector<placement::placement_result>& lock_result)
 {
   Limi::printer<abstraction::psymbol> symbol_printer;
   if (verbosity>=1) debug << "Building sequential automaton" << endl;
@@ -159,7 +169,7 @@ bool actions::synthesis2::synth_loop(const cfg::program& program, std::vector<pl
         ::synthesis::blow_up_lock(program, lock_symbols);
         //cout << lock_symbols << endl;
         placement::place_locks plocks(program);
-        if (!plocks.find_locks(lock_symbols, lock_result, placement::cost_type::absolute_minimum)) {
+        if (!plocks.find_locks(lock_symbols, cost_function, lock_result)) {
           cout << "Found no valid lock placement" << endl;
           return false;
         }
@@ -168,7 +178,7 @@ bool actions::synthesis2::synth_loop(const cfg::program& program, std::vector<pl
       placement_time = std::chrono::duration_cast<chrono::milliseconds>(placement_end - placement_start);
       
       cout << "Synthesis was successful." << endl;
-      print_summary(program);
+      print_summary(program, lock_symbols.size());
       return true;
     }
   }

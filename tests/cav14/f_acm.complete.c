@@ -101,9 +101,7 @@ void thread_client2() {
 void thread_worker () {
   while (nondet) {
     // A.
-    lock_s(synthlock_1);
     assume (request);
-    unlock_s(synthlock_1);
     
     // B. not allowed to wait here
     //        assert (lock != request);

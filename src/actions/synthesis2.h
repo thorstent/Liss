@@ -40,9 +40,9 @@ class synthesis2 : public actions::action_base
 public:
   virtual void run(const cfg::program& program, clang::CompilerInstance& compiler) override;
 private:
-  bool synth_loop(const cfg::program& program, std::vector<placement::placement_result>& locks);
+  bool synth_loop(const cfg::program& program, const std::vector<placement::cost_type>& cost_function, std::vector<placement::placement_result>& lock_result);
   unsigned max_bound; // maximum bound during the verification run
-  void print_summary(const cfg::program& original_program);
+  void print_summary(const cfg::program& original_program, unsigned int conflicts);
 };
 }
 

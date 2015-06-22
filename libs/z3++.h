@@ -225,6 +225,7 @@ namespace z3 {
         expr constant(symbol const & name, sort const & s);
         expr constant(char const * name, sort const & s);
         expr fresh_constant(char const * name, sort const & s);
+        expr fresh_constant(const std::string& name, sort const & s);
 
         expr bool_const(char const * name);
         expr int_const(char const * name);
@@ -1781,6 +1782,9 @@ namespace z3 {
       Z3_ast r = Z3_mk_fresh_const(m_ctx, name, s);
       check_error();
       return expr(*this, r);
+    }
+    inline expr context::fresh_constant(const std::string& name, sort const & s) {
+      return fresh_constant(name.c_str(), s);
     }
     inline expr context::constant(char const * name, sort const & s) { return constant(str_symbol(name), s); }
     inline expr context::bool_const(char const * name) { return constant(name, bool_sort()); }

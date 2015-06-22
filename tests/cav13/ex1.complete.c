@@ -35,9 +35,9 @@ void thread_1() /*(interrupt thread):*/
 
 void thread_2() /*(delayed interrupt handled):*/
 {
-lock_s(synthlock_0);
         /* enable interrupts */
-/*(!)*/     notify(IntrMask);
+/*(!)*/     lock_s(synthlock_0);
+notify(IntrMask);
 /*(!!)*/    intr_mask = 1;
 unlock_s(synthlock_0);
 }

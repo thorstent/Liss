@@ -47,10 +47,13 @@ echo "| File | Deadlock check | Threads | Iterations | max.Bound | Bug finding |
 
 # delete complete files
 find tests -name '*.complete.c' -exec rm {} \;
+find tests -name '*.absmin.c' -exec rm {} \;
+find tests -name '*.small.c' -exec rm {} \;
+find tests -name '*.log' -exec rm {} \;
 
 for f in tests/*.c tests/cav13/*.c tests/cav14/*.c tests/linux_drivers/*.c
 do
-  if [[ "$f" != *".complete.c" ]] && not_in_array IGNORE "$f"; then
+  if [[ "$f" != *".locksv1.c" ]] && not_in_array IGNORE "$f"; then
     output_file=${f/%.c/.complete.c}
     printf "| %30s " "$f"
     # check for deadlocks
@@ -60,8 +63,8 @@ do
       if [[ "$out" == *"SANITY"* ]]; then
 	echo SANITY: $f
       fi
+      echo "$out" | grep '|' | tr -d '\n'
       if [[ "$out" == *"Synthesis was successful"* ]]; then
-	echo "$out" | grep '|' | tr -d '\n'
 	# check an output was produced
 	if [ -e "$output_file" ]; then
 	  # check output

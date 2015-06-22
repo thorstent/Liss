@@ -67,7 +67,7 @@ void print_program::place_text(Rewriter& rewriter, const cfg::state& state, cons
   }
 }
 
-void print_program::place_locks(Rewriter& rewriter, const placement_result& lock, unordered_set<Stmt*>& added_brace) {
+void print_program::place_locks(Rewriter& rewriter, const single_placement& lock, unordered_set<Stmt*>& added_brace) {
   string name = lock.lock_t==lock_type::lock ? lock_instr : unlock_instr;
   string text =  name + "(" + lock_name + to_string(lock.lock) + ");";
   const cfg::state& state = program.threads()[lock.location.thread]->get_state(lock.location.state);
@@ -98,30 +98,13 @@ void print_program::place_lock_decl(Rewriter& rewriter, const std::unordered_set
   }
 }
 
-void print_program::remove_duplicates(std::vector<placement_result>& locks) {
-  for (unsigned i = 0; i < locks.size(); ++i) {
-    for (unsigned j = i+1; j < locks.size(); ++j) {
-      if (locks[i].lock == locks[j].lock && locks[i].lock_t == locks[j].lock_t && locks[i].position == locks[j].position) { // same lock
-        const auto& statei = program.threads()[locks[i].location.thread]->get_state(locks[i].location.state);
-        const auto& statej = program.threads()[locks[j].location.thread]->get_state(locks[j].location.state);
-        if (locks[i].position == position_type::before && statei.lock_before == statej.lock_before || locks[i].position == position_type::after && statei.lock_after == statej.lock_after) {
-          // these are actually refering to the same instruction
-          locks.erase(locks.begin()+j);--j;
-        }
-      }
-    }
-  }
-}
-
-void print_program::print_with_locks(std::vector<placement_result> locks_to_place, const string& outname)
-{
-  remove_duplicates(locks_to_place);
-  
+void print_program::print_with_locks(std::vector<single_placement> locks_to_place, const string& outname)
+{  
   Rewriter rewriter(program.ast_context.getSourceManager(), program.ast_context.getLangOpts());
   
   unordered_set<Stmt*> added_brace;
   std::unordered_set<unsigned> locks_in_use;
-  sort(locks_to_place.begin(), locks_to_place.end(), [](const placement_result& a, const placement_result& b){ return a.lock < b.lock;});
+  sort(locks_to_place.begin(), locks_to_place.end(), [](const single_placement& a, const single_placement& b){ return a.lock < b.lock;});
   // before in the order of the lock, after in the reverse order
   for (auto it = locks_to_place.begin(); it != locks_to_place.end(); ++it) {
     locks_in_use.insert(it->lock);

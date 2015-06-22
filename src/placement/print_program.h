@@ -43,13 +43,12 @@ public:
    * @brief Prints the program with all locations where locks are allowed
    */  
   void print_test_locations(const std::string& outname);
-  void print_with_locks(std::vector<placement_result> locks_to_place, const std::string& outname);
+  void print_with_locks(std::vector<single_placement> locks_to_place, const std::string& outname);
 private:
   
-  void place_locks(clang::Rewriter& rewriter, const placement_result& lock, std::unordered_set<clang::Stmt*>& added_brace);
+  void place_locks(clang::Rewriter& rewriter, const single_placement& lock, std::unordered_set<clang::Stmt*>& added_brace);
   void place_text(clang::Rewriter& rewriter, const cfg::state& state, const std::string& text, bool after, std::unordered_set<clang::Stmt*>& added_brace);
   void place_lock_decl(clang::Rewriter& rewriter, const std::unordered_set< unsigned int >& locks_in_use);
-  void remove_duplicates(std::vector<placement_result>& locks);
   
   const cfg::program& program;
   

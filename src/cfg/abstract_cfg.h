@@ -63,6 +63,7 @@ struct state {
   state(state_id_type id, const abstraction::symbol& action);
   state(thread_id_type thread_id, state_id_type id);
   reward_t distance = 0; // max distance from initial state (no back edges)
+  inline bool is_dummy() const { return static_cast<bool>(non_action_symbol); }
 private:
 };
 

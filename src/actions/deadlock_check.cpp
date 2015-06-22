@@ -47,7 +47,7 @@ bool actions::test_deadlock(const abstraction::concurrent_automaton& automaton, 
 void print_summary(chrono::milliseconds time) {
   debug << "Deadlock check " << (double)time.count()/1000 << "s" << endl;
   //cout.precision(1);
-  debug << " | " << (double)time.count()/1000 << "s | ";
+  debug << " | " << (double)time.count()/1000 << "s | " << endl;
 }
 
 void deadlock_check::run(const cfg::program& program, clang::CompilerInstance& compiler)

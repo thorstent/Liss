@@ -18,3 +18,4 @@ callgrind.*
 .z3-trace
 
 /Liss.tar*
+/tests/*.c

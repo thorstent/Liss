@@ -22,8 +22,8 @@ void stuff1() {
 // driver entry point
 void thread_1()
 {
-lock_s(synthlock_2);
-/*(1)*/ stuff1();
+/*(1)*/ lock_s(synthlock_2);
+stuff1();
 /*(2)*/ notify(napi_poll);
 unlock_s(synthlock_2); // disable NAPI loop
 }

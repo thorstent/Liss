@@ -1,0 +1,23 @@
+Compiling ...
+Running tests ...
+| File | Deadlock check | Threads | Iterations | max.Bound | Bug finding | Synthesis | Verification | Placement | Deadlock check2 |
+|                  tests/test2.c  | 0s | 3 | 2 | 1 | 0s | 0.052s | 0s | 0.009s | 31MB | 0s | 
+|                   tests/test.c  | 0s | 2 | 0 | 1 | 0s | 0s | 0s | 0s | 15MB | 0s | 
+|              tests/cav13/ex1.c  | 0s | 2 | 1 | 1 | 0s | 0.023s | 0s | 0.006s | 29MB | 0s | 
+|              tests/cav13/ex2.c  | 0s | 2 | 1 | 1 | 0s | 0.024s | 0s | 0.011s | 29MB | 0s | 
+|              tests/cav13/ex3.c  | 0s | 3 | 1 | 1 | 0s | 0.022s | 0s | 0.03s | 29MB | 0s | 
+|        tests/cav13/ex3_simpl.c  | 0s | 2 | 1 | 1 | 0s | 0.022s | 0s | 0.006s | 29MB | 0s | 
+|              tests/cav13/ex5.c  | 0s | 2 | 4 | 1 | 0s | 0.141s | 0s | 0.019s | 33MB | 0s | 
+|        tests/cav13/ex5_short.c  | 0s | 2 | 4 | 1 | 0s | 0.131s | 0s | 0.018s | 32MB | 0s | 
+|           tests/cav14/dv1394.c  | 0s | 2 | 2 | 1 | 0s | 0.08s | 0s | 0.015s | 32MB | 0s | 
+|     tests/cav14/dv1394_short.c  | 0s | 2 | 2 | 1 | 0s | 0.078s | 0s | 0.015s | 32MB | 0s | 
+|           tests/cav14/em28xx.c  | 0s | 2 | 1 | 1 | 0s | 0.025s | 0s | 0.008s | 30MB | 0s | 
+|            tests/cav14/f_acm.c  | 0.007s | 3 | 6 | 1 | 0.013s | 0.301s | 0.012s | 0.121s | 36MB | 0.006s | 
+|   tests/cav14/f_acm_original.c  | 0.01s | 3 | 6 | 1 | 0.013s | 0.309s | 0.012s | 0.121s | 36MB | 0.005s | 
+|         tests/cav14/i915_irq.c  | 0s | 2 | 1 | 1 | 0s | 0.029s | 0s | 0.008s | 29MB | 0s | 
+|            tests/cav14/ipath.c  | 0s | 2 | 1 | 3 | 0s | 0.027s | 0s | 0.008s | 30MB | 0s | 
+|          tests/cav14/iwl3945.c  | 0s | 3 | 0 | 1 | 0s | 0s | 0s | 0s | 15MB | 0s | 
+|            tests/cav14/lc-rc.c  | 0s | 4 | 0 | 1 | 0s | 0s | 0s | 0s | 15MB | 0s | 
+|               tests/cav14/md.c  | 0s | 3 | 1 | 1 | 0s | 0.027s | 0s | 0.012s | 30MB | 0s | 
+|         tests/cav14/myri10ge.c  | 0.004s | 4 | 0 | 3 | 0s | 0s | 0.004s | 0s | 16MB | 0.004s | 
+|  tests/cav14/usb-serial.bug1.c 
