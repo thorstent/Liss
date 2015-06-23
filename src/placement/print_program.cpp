@@ -106,8 +106,14 @@ void print_program::print_with_locks(std::vector<single_placement> locks_to_plac
   std::unordered_set<unsigned> locks_in_use;
   sort(locks_to_place.begin(), locks_to_place.end(), [](const single_placement& a, const single_placement& b){ return a.lock < b.lock;});
   // before in the order of the lock, after in the reverse order
+  for (auto it = locks_to_place.rbegin(); it != locks_to_place.rend(); ++it) {
+    locks_in_use.insert(it->lock);
+    if (it->position == position_type::before)
+      place_locks(rewriter, *it, added_brace);
+  }
   for (auto it = locks_to_place.begin(); it != locks_to_place.end(); ++it) {
     locks_in_use.insert(it->lock);
+    if (it->position == position_type::after)
       place_locks(rewriter, *it, added_brace);
   }
   

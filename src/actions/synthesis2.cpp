@@ -52,24 +52,41 @@ void actions::synthesis2::run(const cfg::program& program, clang::CompilerInstan
 {
   placement::print_program pprogram(program);
       
-  std::vector<placement::placement_result> result;
+  ::synthesis::lock_symbols lock_symbols;
   
   // strategies we want to test
-  vector<placement::cost_type> strategies = { placement::cost_type::absolute_minimum, placement::cost_type::small_locks };
+  vector<placement::cost_type> cost_functions = { placement::cost_type::absolute_minimum, placement::cost_type::small_locks, placement::cost_type::coarse };
   
-  bool success = synth_loop(program, strategies, result);
+  bool success = synth_loop(program, lock_symbols);
   
   if (success) {
-    cout << "Lock statistics:" << endl;
-    cout <<         "---------------" << endl;
-    for (unsigned i = 0; i < strategies.size(); ++i) {
-      pprogram.print_with_locks(result[i].locks, output_file_code(placement::short_name(strategies[i])));
-      cout << "Strategy " << (i+1) << ": " << strategies[i] << ":" << endl;
-      cout << result[i].statistics << endl;
-    }    
-  } else {
-
+    if (!lock_symbols.empty()) {
+      cout << "Lock statistics:" << endl;
+      cout << "---------------" << endl;
+      // blow up the lock symbols
+      ::synthesis::blow_up_lock(program, lock_symbols);
+      placement::place_locks plocks(program);
+      unsigned i = 0;
+      for (placement::cost_type cf : cost_functions) {
+        ++i;
+        auto placement_start = chrono::steady_clock::now();
+        placement::placement_result lock_result;
+        if (!plocks.find_locks(lock_symbols, cf, lock_result)) {
+          cout << "Found no valid lock placement" << endl;
+          return;
+        } 
+        auto placement_end = chrono::steady_clock::now();
+        auto time = std::chrono::duration_cast<chrono::milliseconds>(placement_end - placement_start);
+        // print statistics
+        cout << "Cost function " << (i+1) << ": " << cf << ":" << endl;
+        cout << lock_result.statistics;
+        cout << "Time for this cost function: " << (double)time.count()/1000 << "s" << endl << endl;
+        pprogram.print_with_locks(lock_result.locks, output_file_code(placement::short_name(cf)));
+      }
+    }
+    
   }
+
 }
 
 long get_max_mem() {
@@ -95,15 +112,15 @@ void actions::synthesis2::print_summary(const cfg::program& original_program, un
   debug << "Liss: " << (double)langinc.count()/1000 << "s" << endl;
   debug << "Verification: " << (double)verification.count()/1000 << "s" << endl;
   debug << "Synthesis: " << (double)synthesis_time.count()/1000 << "s" << endl;
-  debug << "Placement: " << (double)placement_time.count()/1000 << "s" << endl;
+  double total = (double)langinc.count()/1000 + (double)verification.count()/1000 + (double)synthesis_time.count()/1000;
   double max_mem = get_max_mem()/1024;
   debug << "Memory: " << max_mem << "MB" << endl;
   debug << "Total number of conflicts found: " << conflicts << endl;
   //cout.precision(1);
-  debug << original_program.no_threads() << " | " << iteration << " | " << this->max_bound <<  " | " << (double)langinc.count()/1000 << "s | "  << (double)synthesis_time.count()/1000 << "s | " << (double)verification.count()/1000 << "s | " << (double)placement_time.count()/1000 << "s | " << max_mem << "MB" << endl;
+  debug << original_program.no_threads() << " | " << iteration << " | " << this->max_bound <<  " | " << (double)langinc.count()/1000 << "s | "  << (double)synthesis_time.count()/1000 << "s | " << (double)verification.count()/1000 << "s | " << total << "s | " << max_mem << "MB" << endl;
 }
 
-bool actions::synthesis2::synth_loop(const cfg::program& program, const std::vector<placement::cost_type>& cost_function, std::vector<placement::placement_result>& lock_result)
+bool actions::synthesis2::synth_loop(const cfg::program& program, ::synthesis::lock_symbols& lock_symbols)
 {
   Limi::printer<abstraction::psymbol> symbol_printer;
   if (verbosity>=1) debug << "Building sequential automaton" << endl;
@@ -115,7 +132,6 @@ bool actions::synthesis2::synth_loop(const cfg::program& program, const std::vec
   unsigned counter = 0;
   ::synthesis::reorderings reorder(program);
   ::synthesis::synchronisation synch(program);
-  ::synthesis::lock_symbols lock_symbols;
   while (true) {
     auto langinc_start = chrono::steady_clock::now();
     auto start = chrono::steady_clock::now();
@@ -147,7 +163,8 @@ bool actions::synthesis2::synth_loop(const cfg::program& program, const std::vec
       //cout << new_lock_symbols << endl;
       ::synthesis::remove_preemption(new_lock_symbols);
       ::synthesis::remove_duplicates(new_lock_symbols);
-      cout << new_lock_symbols << endl;
+      if (verbosity >= 1)
+        debug << new_lock_symbols << endl;
       if (new_lock_symbols.empty()) {
         cout << "Found no more locks." << endl;
         return true;
@@ -163,19 +180,6 @@ bool actions::synthesis2::synth_loop(const cfg::program& program, const std::vec
     } else {
       verification += std::chrono::duration_cast<chrono::milliseconds>(langinc_end - langinc_start);
       
-      auto placement_start = chrono::steady_clock::now();
-      if (!lock_symbols.empty()) {
-        // blow up the lock symbols
-        ::synthesis::blow_up_lock(program, lock_symbols);
-        //cout << lock_symbols << endl;
-        placement::place_locks plocks(program);
-        if (!plocks.find_locks(lock_symbols, cost_function, lock_result)) {
-          cout << "Found no valid lock placement" << endl;
-          return false;
-        }
-      }
-      auto placement_end = chrono::steady_clock::now();
-      placement_time = std::chrono::duration_cast<chrono::milliseconds>(placement_end - placement_start);
       
       cout << "Synthesis was successful." << endl;
       print_summary(program, lock_symbols.size());

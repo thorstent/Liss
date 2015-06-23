@@ -40,7 +40,14 @@ class synthesis2 : public actions::action_base
 public:
   virtual void run(const cfg::program& program, clang::CompilerInstance& compiler) override;
 private:
-  bool synth_loop(const cfg::program& program, const std::vector<placement::cost_type>& cost_function, std::vector<placement::placement_result>& lock_result);
+  /**
+   * @brief Determines the conflicts in the program
+   * 
+   * @param program The input program
+   * @param conflicts a CNF of conflicts found (empty if input program correct)
+   * @return true if successful, false if language inclusion check or conflict finding failed
+   */
+  bool synth_loop(const cfg::program& program, synthesis::lock_symbols& conflicts);
   unsigned max_bound; // maximum bound during the verification run
   void print_summary(const cfg::program& original_program, unsigned int conflicts);
 };

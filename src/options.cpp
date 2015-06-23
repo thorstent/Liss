@@ -23,6 +23,7 @@
 #include <boost/filesystem.hpp>
 
 int verbosity = 0;
+unsigned lock_limit = 6; // 6 is the default
 unsigned max_bound = 20;
 std::ostream& debug = std::cout;
 std::string debug_folder;

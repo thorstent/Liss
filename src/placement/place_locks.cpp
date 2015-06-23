@@ -36,6 +36,8 @@ namespace placement {
         return out << "Absolute minimum of instructions inside a lock";
       case cost_type::small_locks:
         return out << "Smallest locks";
+      case cost_type::coarse:
+        return out << "Coarse locks";
     }
     return out;
   }
@@ -46,6 +48,8 @@ namespace placement {
         return "absmin";
       case cost_type::small_locks:
         return "small";
+      case cost_type::coarse:
+        return "coarse";
     }
     return "";
   }
@@ -172,14 +176,7 @@ place_locks::place_locks(const cfg::program& program) : threads(program.threads(
   }
   assert(index == consts.size());
   
-  // lock and unlock functions
-  lock_a = ctx.function("lock_a", locations, locks, ctx.bool_sort());
-  unlock_a = ctx.function("unlock_a", locations, locks, ctx.bool_sort());
-  lock_b = ctx.function("lock_b", locations, locks, ctx.bool_sort());
-  unlock_b = ctx.function("unlock_b", locations, locks, ctx.bool_sort());
-  
-  inl = ctx.function("inl", locations, locks, ctx.bool_sort());
-  
+   
   // build a cache of instructions and their locations
   unsigned t = 0;
   for (const cfg::abstract_cfg* thread : threads) {
@@ -195,23 +192,25 @@ place_locks::place_locks(const cfg::program& program) : threads(program.threads(
   }
 }
 
-void place_locks::lock_order(locking_constraints& lc, unsigned lock, z3::expr location, z3::expr predecessor) {
-  z3::expr l = ctx.int_val(lock);
-  for (unsigned il = 0; il <= lock; ++il) {
-    z3::expr lb = ctx.int_val(il);
-    lc.cons_lockorder = lc.cons_lockorder && implies(lock_b(location,l), (!inl(predecessor,lb) && !lock_a(predecessor,lb)));
+void place_locks::lock_order(locking_constraints& lc, const z3::expr& lock, z3::expr location, z3::expr predecessor) {
+  for (auto it = lc.lock_vector.begin(); (Z3_ast)(*it) != lock; ++it) {
+    assert (it != lc.lock_vector.end());
+    const z3::expr& lb = *it;
+    lc.cons_lockorder = lc.cons_lockorder && implies(lc.lock_b(location,lock), (!lc.inl(predecessor,lb) && !lc.lock_a(predecessor,lb)));
   }
+  lc.cons_lockorder = lc.cons_lockorder && implies(lc.lock_b(location,lock), (!lc.inl(predecessor,lock) && !lc.lock_a(predecessor,lock)));
 }
 
-void place_locks::lock_order(locking_constraints& lc, unsigned lock, z3::expr location) {
-  z3::expr l = ctx.int_val(lock);
-  for (unsigned il = 0; il <= lock; ++il) {
-    z3::expr lb = ctx.int_val(il);
-    lc.cons_lockorder = lc.cons_lockorder && implies(lock_a(location,l), (!inl(location,lb)));
+void place_locks::lock_order(locking_constraints& lc, const z3::expr& lock, z3::expr location) {
+  for (auto it = lc.lock_vector.begin(); (Z3_ast)(*it) != lock; ++it) {
+    assert (it != lc.lock_vector.end());
+    const z3::expr& lb = *it;
+    lc.cons_lockorder = lc.cons_lockorder && implies(lc.lock_a(location,lock), (!lc.inl(location,lb)));
   }
+  lc.cons_lockorder = lc.cons_lockorder && implies(lc.lock_a(location,lock), (!lc.inl(location,lock)));
 }
 
-void place_locks::lock_consistancy(locking_constraints& lc, unsigned from_lock, unsigned to_lock)
+void place_locks::lock_consistancy(locking_constraints& lc)
 {
   // predecessor rule
   unsigned t = 0;
@@ -223,19 +222,18 @@ void place_locks::lock_consistancy(locking_constraints& lc, unsigned from_lock, 
     for (unsigned i = 1; i <= thread->no_states(); ++i) {
       const z3::expr& x = location_vector[t][i];
       // forbid locking and unlock at non-locations
-      for (unsigned il = from_lock; il <= to_lock; ++il) {
-        z3::expr l = ctx.int_val(il);
+      for (z3::expr l : lc.lock_vector) {
         const auto& s = thread->get_state(i);
         if (s.lock_before == clang::SourceLocation()) {
-          lc.cons_loc = lc.cons_loc && !lock_b(x,l) && !unlock_b(x,l);
+          lc.cons_loc = lc.cons_loc && !lc.lock_b(x,l) && !lc.unlock_b(x,l);
         }
         if (s.lock_after == clang::SourceLocation()) {
-          lc.cons_loc = lc.cons_loc && !lock_a(x,l) && !unlock_a(x,l);
+          lc.cons_loc = lc.cons_loc && !lc.lock_a(x,l) && !lc.unlock_a(x,l);
         }
-        lc.cons_basic = lc.cons_basic && (!lock_a(x,l) || !unlock_a(x,l)) && (!lock_b(x,l) || !unlock_b(x,l));
+        lc.cons_basic = lc.cons_basic && (!lc.lock_a(x,l) || !lc.unlock_a(x,l)) && (!lc.lock_b(x,l) || !lc.unlock_b(x,l));
         if (s.action && s.action->is_preemption_point()) {
           // not allowed to lock a preemption point
-          lc.cons_preemption = lc.cons_preemption && !inl(x,l);
+          lc.cons_preemption = lc.cons_preemption && !lc.inl(x,l);
         }
       }
       // gather predecessor list
@@ -249,33 +247,32 @@ void place_locks::lock_consistancy(locking_constraints& lc, unsigned from_lock, 
     for (unsigned i = 1; i <= thread->no_states(); ++i) {
       z3::expr x = location_vector[t][i];
       // for all locks
-      for (unsigned il = from_lock; il <= to_lock; ++il) {
-        z3::expr l = ctx.int_val(il);
+      for (z3::expr l : lc.lock_vector) {
         // ensure that function returns hold the same locks as function call positions
         if (thread->get_state(i).return_state != no_state) {
-          lc.cons_functions = lc.cons_functions && inl(x,l) == inl(location_vector[t][thread->get_state(i).return_state],l);
+          lc.cons_functions = lc.cons_functions && lc.inl(x,l) == lc.inl(location_vector[t][thread->get_state(i).return_state],l);
         }
         // define inl in terms of the predecessors
         if (predecessors_forward[i].size()>=1) {
           auto it = predecessors_forward[i].begin();
           state_id_type first_pred = *it;
           z3::expr pred_x = location_vector[t][first_pred];
-          lc.inl_def = lc.inl_def && inl(x,l) == (lock_b(x,l) || (!unlock_b(x,l) && (inle(pred_x,l))));
+          lc.inl_def = lc.inl_def && lc.inl(x,l) == (lc.lock_b(x,l) || (!lc.unlock_b(x,l) && (lc.inle(pred_x,l))));
           for (; it != predecessors[i].end(); ++it) {
             // all predecessors need to be unlocked to lock in the next step (unlock right before does not count) [for all lower locks]
-            lock_order(lc, il, x, location_vector[t][*it]);
+            lock_order(lc, l, x, location_vector[t][*it]);
             // to unlock before the predecessor needs to be locked (locking right before does not count)
-            lc.cons_unl = lc.cons_unl && implies(unlock_b(x,l), (inl(location_vector[t][*it],l) && !unlock_a(location_vector[t][*it],l)));
+            lc.cons_unl = lc.cons_unl && implies(lc.unlock_b(x,l), (lc.inl(location_vector[t][*it],l) && !lc.unlock_a(location_vector[t][*it],l)));
           }
         } else {
           // there is no predecessor
-          lc.inl_def = lc.inl_def && inl(x,l) == lock_b(x,l);
-          lc.cons_unl = lc.cons_unl && !unlock_b(x,l);
+          lc.inl_def = lc.inl_def && lc.inl(x,l) == lc.lock_b(x,l);
+          lc.cons_unl = lc.cons_unl && !lc.unlock_b(x,l);
         }
         // current one must be unlocked to lock after
-        lock_order(lc, il, x);
+        lock_order(lc, l, x);
         // to unlock the current one must have been locked
-        lc.cons_unl = lc.cons_unl && implies(unlock_a(x,l), (inl(x,l)));
+        lc.cons_unl = lc.cons_unl && implies(lc.unlock_a(x,l), (lc.inl(x,l)));
         
         // define that at join points locking has to agree
         if (predecessors[i].size()>1) {
@@ -285,13 +282,13 @@ void place_locks::lock_consistancy(locking_constraints& lc, unsigned from_lock, 
           state_id_type first_pred = *it;
           for (++it; it != predecessors[i].end(); ++it) {
             state_id_type pred = *it;
-            all_equal = all_equal && (inle(location_vector[t][first_pred],l) == inle(location_vector[t][pred],l));
+            all_equal = all_equal && (lc.inle(location_vector[t][first_pred],l) == lc.inle(location_vector[t][pred],l));
           }
           lc.cons_join = lc.cons_join && (all_equal);
         }
         
         // no unlocking if not locked
-        lc.cons_unl = lc.cons_unl && implies(unlock_a(x,l), inl(x,l));
+        lc.cons_unl = lc.cons_unl && implies(lc.unlock_a(x,l), lc.inl(x,l));
       }
     
     }
@@ -301,7 +298,7 @@ void place_locks::lock_consistancy(locking_constraints& lc, unsigned from_lock, 
 }
 
 // ensure that all positions refering to the same physical location have the same lock and unlock semantics
-void place_locks::lock_sameinstr(locking_constraints& lc, unsigned from_lock, unsigned to_lock)
+void place_locks::lock_sameinstr(locking_constraints& lc)
 {
 
   // check which ones have more than one position
@@ -309,10 +306,9 @@ void place_locks::lock_sameinstr(locking_constraints& lc, unsigned from_lock, un
     const vector<z3::expr>& inv = in.second;
     if (inv.size()>1) {
       z3::expr first = inv[0];
-      for (unsigned il = from_lock; il <= to_lock; ++il) {
-        z3::expr l = ctx.int_val(il);
+      for (z3::expr l : lc.lock_vector) {
         for (unsigned i = 1; i < inv.size(); ++i) {
-          lc.cons_sameinstr = lc.cons_sameinstr && lock_a(first,l) == lock_a(inv[i],l) && unlock_a(first,l) == unlock_a(inv[i],l);
+          lc.cons_sameinstr = lc.cons_sameinstr && lc.lock_a(first,l) == lc.lock_a(inv[i],l) && lc.unlock_a(first,l) == lc.unlock_a(inv[i],l);
         }
       }
     }
@@ -321,10 +317,9 @@ void place_locks::lock_sameinstr(locking_constraints& lc, unsigned from_lock, un
     const vector<z3::expr>& inv = in.second;
     if (inv.size()>1) {
       z3::expr first = inv[0];
-      for (unsigned il = from_lock; il <= to_lock; ++il) {
-        z3::expr l = ctx.int_val(il);
+      for (z3::expr l : lc.lock_vector) {
         for (unsigned i = 1; i < inv.size(); ++i) {
-          lc.cons_sameinstr = lc.cons_sameinstr && lock_b(first,l) == lock_b(inv[i],l) && unlock_b(first,l) == unlock_b(inv[i],l);
+          lc.cons_sameinstr = lc.cons_sameinstr && lc.lock_b(first,l) == lc.lock_b(inv[i],l) && lc.unlock_b(first,l) == lc.unlock_b(inv[i],l);
         }
       }
     }
@@ -333,12 +328,11 @@ void place_locks::lock_sameinstr(locking_constraints& lc, unsigned from_lock, un
 
 
 
-vector<pair<z3::expr,z3::expr>> place_locks::locked_together(const synthesis::lock_symbols& locks_to_place)
+void place_locks::locked_together(z3::optimize& slv, locking_constraints& lc, const synthesis::lock_symbols& locks_to_place)
 {
-  vector<pair<z3::expr,z3::expr>> result;
   unsigned lock = 0;
   for (const disj<synthesis::lock_lists>& d : locks_to_place) {
-    z3::expr lock_id = ctx.fresh_constant("lock" + to_string(lock), ctx.int_sort());
+    z3::expr lock_id = ctx.fresh_constant("lock" + to_string(lock), lc.locks);
     z3::expr di = zfalse;
     // add lock places
     for (const synthesis::lock_lists& lplaces : d) {
@@ -349,45 +343,30 @@ vector<pair<z3::expr,z3::expr>> place_locks::locked_together(const synthesis::lo
         for (const auto& pl : lplaces2) {
           const abstraction::location& loc = pl->loc;
           z3::expr& loce = location_vector[loc.thread][loc.state];
-          e = e && inl(loce,lock_id);
+          e = e && lc.inl(loce,lock_id);
         }
       }
       di = di || e;
     }
-    result.push_back(make_pair(lock_id, di));
+    lc.lock_ids.push_back(lock_id);
+    slv.add(di);
     ++lock;
   }
-  return result;
 }
 
 
-void place_locks::result_to_locklist(const vector<vector<z3::expr>>& result, vector<pair<unsigned, abstraction::location >>& locks) {
+void place_locks::result_to_locklist(locking_constraints& lc, const vector<vector<z3::expr>>& result, vector<pair<unsigned, abstraction::location >>& locks) {
   for (const vector<z3::expr>& r : result) {
     z3::expr lock = r[1];
     z3::expr loc = r[0];
     assert((Z3_ast)(r[2])==ztrue);
     int llock;
-    bool res = lock.get_int(llock);
-    assert(res);
+    auto it = lc.lock_map.find(lock);
+    assert(it != lc.lock_map.end());
+    llock = it->second;
     auto lloc = location_map.find(loc);
     assert (lloc != location_map.end());
     locks.push_back(make_pair(llock,lloc->second));
-  }
-}
-
-void place_locks::cost_model(z3::optimize& slv, cost_type cost_function, unsigned from_lock, unsigned to_lock)
-{
-  unsigned t = 0;
-  for (const cfg::abstract_cfg* thread : threads) {
-    for (unsigned i = 1; i <= thread->no_states(); ++i) {
-      z3::expr x = location_vector[t][i];
-      // for all locks
-      for (unsigned il = from_lock; il <= to_lock; ++il) {
-        z3::expr l = ctx.int_val(il);
-        slv.add(!inl(x,l), 1);
-      }
-    }
-    ++t;
   }
 }
 
@@ -406,12 +385,14 @@ bool same_instructions(const synthesis::lock_lists& a, const synthesis::lock_lis
     }
   }
   // at least one thread must differ for it to make sense to ask for different thread
+  unsigned violations = 0;
   for (unsigned t = 0; t < threads; ++t) {
-    if (a_threads[t].empty() != b_threads.empty())
+    if (a_threads[t].empty() != b_threads[t].empty())
       return false;
-    if (!a_threads[t].empty() && !b_threads.empty() && Limi::internal::set_intersection_empty(a_threads[t], b_threads[t]))
-      return false;
+    if (!a_threads[t].empty() && !b_threads[t].empty() && Limi::internal::set_intersection_empty(a_threads[t], b_threads[t]))
+      ++violations;
   }
+  if (violations >= 1) return false; // both places have to not overlap
   return true;
 }
 
@@ -425,9 +406,56 @@ bool same_instructions(const disj<synthesis::lock_lists>& a, const disj<synthesi
   return false;
 }
 
-void place_locks::cost_model_locks(z3::optimize& slv, cost_type cost_function, const synthesis::lock_symbols& locks_to_place, const vector< z3::expr > lock_ids)
+void place_locks::cost_model(z3::optimize& slv, locking_constraints& lc, cost_type cost_function, const synthesis::lock_symbols& locks_to_place)
 {
-  assert (lock_ids.size() == locks_to_place.size());
+  unsigned t = 0;
+  for (const cfg::abstract_cfg* thread : threads) {
+    for (unsigned i = 1; i <= thread->no_states(); ++i) {
+      z3::expr x = location_vector[t][i];
+      // for all locks
+      for (z3::expr l : lc.lock_vector) {
+        slv.add(!lc.inl(x,l), 1);
+      }
+    }
+    ++t;
+  }
+  assert (lc.lock_ids.size() == locks_to_place.size());
+  switch (cost_function) {
+    case cost_type::absolute_minimum:
+      // the condition above is enough
+      break;
+    case cost_type::small_locks: 
+      // ask it to keep different locks for different conflicts
+      // for preformance reasons we only seperate some of the conflicts
+      for (unsigned i = 0; i < locks_to_place.size(); ++i) {
+        for (unsigned j = 0; j < locks_to_place.size(); ++j) {
+          if (j!=i) {
+            const disj<synthesis::lock_lists>& a = locks_to_place[i];
+            const disj<synthesis::lock_lists>& b = locks_to_place[j];
+            if (!same_instructions(a,b, threads.size())) {
+              // we prefer different locks
+              slv.add(lc.lock_ids[i]!=lc.lock_ids[j], 100);
+              //cout << (lc.lock_ids[i]!=lc.lock_ids[j]) << endl;
+            }
+          } // end if (j!=i)
+        }
+      }
+      break;
+    case cost_type::coarse:
+      t = 0;
+      for (const cfg::abstract_cfg* thread : threads) {
+        for (unsigned i = 1; i <= thread->no_states(); ++i) {
+          z3::expr x = location_vector[t][i];
+          // for all locks
+          for (z3::expr l : lc.lock_vector) {
+            slv.add(!lc.lock_b(x,l), 10);
+            slv.add(!lc.lock_a(x,l), 10);
+          }
+        }
+        ++t;
+      }
+      break;
+  }
   if (cost_function == cost_type::small_locks) {
     // find conflicts that do not talk about the same instructions
     for (unsigned i = 0; i < locks_to_place.size(); ++i) {
@@ -437,7 +465,8 @@ void place_locks::cost_model_locks(z3::optimize& slv, cost_type cost_function, c
           const disj<synthesis::lock_lists>& b = locks_to_place[j];
           if (!same_instructions(a,b, threads.size())) {
             // we prefer different locks
-            slv.add(lock_ids[i]!=lock_ids[j], 100);
+            slv.add(lc.lock_ids[i]!=lc.lock_ids[j], 100);
+            //cout << (lc.lock_ids[i]!=lc.lock_ids[j]) << endl;
           }
         } // end if (j!=i)
       }
@@ -445,13 +474,37 @@ void place_locks::cost_model_locks(z3::optimize& slv, cost_type cost_function, c
   }
 }
 
-
-void place_locks::add_constraints(z3::optimize& slv, cost_type cost_function, unsigned int from_lock, unsigned int to_lock)
+void place_locks::init_locks(place_locks::locking_constraints& lc, unsigned max_lock)
 {
-  locking_constraints lc(ctx);
+  vector<string> lock_names;
+  for (unsigned i = 0; i<max_lock; ++i) {
+    string name = "lock_" + to_string(i);
+    lock_names.push_back(name);
+  }
+  z3::func_decl_vector consts(ctx);
+  z3::func_decl_vector ts(ctx);
+  lc.locks = ctx.enumeration_sort("locks", lock_names, consts, ts);
   
-  lock_consistancy(lc, from_lock, to_lock);
-  lock_sameinstr(lc, from_lock, to_lock);
+  for (unsigned index = 0; index < lock_names.size(); ++index) {
+    z3::expr ex = consts[index]();
+    lc.lock_vector.push_back(ex);
+    lc.lock_map.insert(make_pair(ex,index));
+  }
+  
+  // lock and unlock functions
+  lc.lock_a = ctx.function("lock_a", locations, lc.locks, ctx.bool_sort());
+  lc.unlock_a = ctx.function("unlock_a", locations, lc.locks, ctx.bool_sort());
+  lc.lock_b = ctx.function("lock_b", locations, lc.locks, ctx.bool_sort());
+  lc.unlock_b = ctx.function("unlock_b", locations, lc.locks, ctx.bool_sort());
+  
+  lc.inl = ctx.function("inl", locations, lc.locks, ctx.bool_sort());
+  
+}
+
+void place_locks::add_constraints(z3::optimize& slv, locking_constraints& lc)
+{  
+  lock_consistancy(lc);
+  lock_sameinstr(lc);
   
   // hard constraints
   slv.add(lc.inl_def);
@@ -466,7 +519,6 @@ void place_locks::add_constraints(z3::optimize& slv, cost_type cost_function, un
   slv.add(lc.cons_preemption);
   slv.add(lc.cons_lockorder);
   
-  cost_model(slv, cost_function, from_lock, to_lock);
 }
 
 void place_locks::remove_duplicates(std::vector<single_placement>& locks) {
@@ -484,44 +536,24 @@ void place_locks::remove_duplicates(std::vector<single_placement>& locks) {
   }
 }
 
-bool place_locks::minsmt(z3::optimize& slv, const synthesis::lock_symbols& locks_to_place, cost_type cost_function, placement_result& presult) {
+bool place_locks::find_locks(const synthesis::lock_symbols& locks_to_place, cost_type cost_function, placement_result& presult) {
   // get cost model model
   vector<single_placement>& to_place = presult.locks;
   
+  // TODO: make this a user input
+  unsigned max_locks = min<unsigned>(lock_limit, locks_to_place.size()); // don't allow more locks than conflicts though
   
   if (verbosity >= 1)
     debug << "Starting lock placement for " << short_name(cost_function) << endl;
   
-  slv.push();
+  z3::optimize slv(ctx);
  
-  add_constraints(slv, cost_function, 0, 2);
+  locking_constraints lc(ctx);
+  init_locks(lc, max_locks);
+  locked_together(slv, lc, locks_to_place);
+  add_constraints(slv, lc);
   
-  vector<pair<z3::expr,z3::expr>> locking = locked_together(locks_to_place);
-  /*if (verbosity>=3) {
-    debug << "Locking:" << endl;
-    Limi::internal::print_vector(locking, debug);
-    debug << endl;
-  }*/
-  
-  vector<z3::expr> lock_ids;
-  for (const pair<z3::expr,z3::expr>& e : locking) {
-    slv.add(e.second);
-    lock_ids.push_back(e.first);
-  }
-  
-  cost_model_locks(slv, cost_function, locks_to_place, lock_ids);
-  
-  // restrict locks (only positive)
-  for (z3::expr& e : lock_ids) {
-    slv.add(e >= ctx.int_val(0));
-  }
-  
-  slv.push();
-  
-  // restrict locks
-  for (z3::expr& e : lock_ids) {
-    slv.add(e <= ctx.int_val(2));
-  }
+  cost_model(slv, lc, cost_function, locks_to_place);
   
   z3::check_result res = slv.check();
   if (res != z3::sat) {
@@ -531,11 +563,11 @@ bool place_locks::minsmt(z3::optimize& slv, const synthesis::lock_symbols& locks
   z3::model model = slv.get_model();
   
   if (verbosity>=2) {
-    print_func_interp(model, lock_b);
-    print_func_interp(model, lock_a);
-    print_func_interp(model, unlock_a);
-    print_func_interp(model, unlock_b);
-    print_func_interp(model, inl);
+    print_func_interp(model, lc.lock_b);
+    print_func_interp(model, lc.lock_a);
+    print_func_interp(model, lc.unlock_a);
+    print_func_interp(model, lc.unlock_b);
+    print_func_interp(model, lc.inl);
   }
   
   vector<pair<unsigned, abstraction::location>> lock_before;
@@ -543,62 +575,46 @@ bool place_locks::minsmt(z3::optimize& slv, const synthesis::lock_symbols& locks
   vector<pair<unsigned, abstraction::location>> unlock_before;
   vector<pair<unsigned, abstraction::location>> unlock_after;
   vector<vector<z3::expr>> result;
-  z3::expr elsee = func_result(model, lock_a, result);
+  z3::expr elsee = func_result(model, lc.lock_a, result);
   assert ((Z3_ast)elsee == zfalse);
-  result_to_locklist(result, lock_after);
+  result_to_locklist(lc, result, lock_after);
   for (const pair<unsigned, abstraction::location>& lock : lock_after)
     to_place.emplace_back(lock.first, lock_type::lock, position_type::after, lock.second);
   
   result.clear();
-  elsee = func_result(model, lock_b, result);
+  elsee = func_result(model, lc.lock_b, result);
   assert ((Z3_ast)elsee == zfalse);
-  result_to_locklist(result, lock_before);
+  result_to_locklist(lc, result, lock_before);
   for (const pair<unsigned, abstraction::location>& lock : lock_before)
     to_place.emplace_back(lock.first, lock_type::lock, position_type::before, lock.second);
   
   result.clear();
-  elsee = func_result(model, unlock_a, result);
+  elsee = func_result(model, lc.unlock_a, result);
   assert ((Z3_ast)elsee == zfalse);
-  result_to_locklist(result, unlock_after);
+  result_to_locklist(lc, result, unlock_after);
   for (const pair<unsigned, abstraction::location>& lock : unlock_after)
     to_place.emplace_back(lock.first, lock_type::unlock, position_type::after, lock.second);
   
   result.clear();
-  elsee = func_result(model, unlock_b, result);
+  elsee = func_result(model, lc.unlock_b, result);
   assert ((Z3_ast)elsee == zfalse);
-  result_to_locklist(result, unlock_before);
+  result_to_locklist(lc, result, unlock_before);
   for (const pair<unsigned, abstraction::location>& lock : unlock_before)
     to_place.emplace_back(lock.first, lock_type::unlock, position_type::before, lock.second);
   
   remove_duplicates(to_place);
   
-  presult.statistics = get_statistics(to_place, model);
+  presult.statistics = get_statistics(to_place, model, lc);
   
-  slv.pop();
-  slv.pop();
   return true;
 }
 
-bool place_locks::find_locks(const synthesis::lock_symbols& locks_to_place, const vector< cost_type >& cost_function, vector< placement_result >& to_place)
-{
-  // insert a lock for testing
-  z3::optimize slv(ctx);
-  
-  for (cost_type cost : cost_function) {
-    to_place.emplace_back();
-    if (!minsmt(slv, locks_to_place, cost, to_place.back())) {
-      return false;
-    }
-  }
-  return true;
-}
-
-z3::expr place_locks::inle(const z3::expr& x, const z3::expr& l)
+z3::expr place_locks::locking_constraints::inle(const z3::expr& x, const z3::expr& l)
 {
   return inl(x,l) && !unlock_a(x,l) || lock_a(x,l);
 }
 
-lock_statistics place_locks::get_statistics(vector<single_placement>& to_lock, z3::model& model)
+lock_statistics place_locks::get_statistics(vector<single_placement>& to_lock, z3::model& model, const locking_constraints& lc)
 {
   lock_statistics result;
   
@@ -619,9 +635,8 @@ lock_statistics place_locks::get_statistics(vector<single_placement>& to_lock, z
     for (unsigned j = 1; j <= thread->no_states(); ++j) {
       if (!thread->get_state(j).is_dummy()) {
         bool locked = false;
-        for (unsigned il : locks) {
-          z3::expr l = ctx.int_val(il);
-          if (model.eval(inl(location_vector[t][j], l)).get_bool()) {
+        for (z3::expr l : lc.lock_vector) {
+          if (model.eval(lc.inl(location_vector[t][j], l)).get_bool()) {
             locked = true;
             break;
           }            
