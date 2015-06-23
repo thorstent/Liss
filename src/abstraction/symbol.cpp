@@ -69,7 +69,7 @@ std::ostream& abstraction::operator<< (std::ostream& out, const abstraction::op_
 
 
 symbol::symbol(op_class operation, string variable_name, variable_type variable, identifier_store& is, clang::Stmt* stmt) :
-operation(operation), variable_name(variable_name), variable(variable) {
+operation(operation), variable_name(variable_name), variable(variable), stmt(stmt) {
   clang::SourceLocation loc = is.source_manager.getFileLoc(stmt->getLocStart());
   fileentry = is.source_manager.getFileEntryForID(is.source_manager.getFileID(loc));
   assert (fileentry);

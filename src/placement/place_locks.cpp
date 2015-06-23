@@ -372,27 +372,28 @@ void place_locks::result_to_locklist(locking_constraints& lc, const vector<vecto
 
 bool same_instructions(const synthesis::lock_lists& a, const synthesis::lock_lists& b, unsigned threads) {
   // first merge the instructions for each thread in a vector
-  vector<unordered_set<abstraction::psymbol>> a_threads(threads);
-  vector<unordered_set<abstraction::psymbol>> b_threads(threads);
+  vector<unordered_set<clang::Stmt*>> a_threads(threads);
+  vector<unordered_set<clang::Stmt*>> b_threads(threads);
   for (const synthesis::lock_list& al : a) {
     for (const abstraction::psymbol& s : al) {
-      a_threads[s->thread_id()].insert(s);
+      if (s->stmt) a_threads[s->thread_id()].insert(s->stmt);
     }
   }
   for (const synthesis::lock_list& bl : b) {
     for (const abstraction::psymbol& s : bl) {
-      b_threads[s->thread_id()].insert(s);
+      if (s->stmt) b_threads[s->thread_id()].insert(s->stmt);
     }
   }
   // at least one thread must differ for it to make sense to ask for different thread
   unsigned violations = 0;
-  for (unsigned t = 0; t < threads; ++t) {
-    if (a_threads[t].empty() != b_threads[t].empty())
-      return false;
-    if (!a_threads[t].empty() && !b_threads[t].empty() && Limi::internal::set_intersection_empty(a_threads[t], b_threads[t]))
-      ++violations;
+  for (unsigned t1 = 0; t1 < threads; ++t1) {
+    for (unsigned t2 = 0; t2 < threads; ++t2) {
+      if (!a_threads[t1].empty() && !b_threads[t2].empty()) {
+        if (Limi::internal::set_intersection_empty(a_threads[t1], b_threads[t2])) ++violations;
+      }
+    }
   }
-  if (violations >= 1) return false; // both places have to not overlap
+  if (violations > 2) return false; // 2 violations would be normal
   return true;
 }
 

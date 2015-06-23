@@ -94,7 +94,11 @@ struct symbol
    */
   bool synthesised = false;
   
-  
+  /**
+   * @brief The statement that identifies this symbol
+   * 
+   */
+  clang::Stmt* stmt = nullptr;
   
   inline bool is_epsilon() const { return operation!=op_class::read && operation!=op_class::write && operation!=op_class::tag; }
   inline bool is_real_epsilon() const { return operation==op_class::epsilon; }
@@ -121,9 +125,6 @@ struct symbol
   }
   
   friend std::ostream& operator<< (std::ostream &out, const abstraction::symbol &val);
-private:
-  clang::Stmt* stmt = nullptr;
-  clang::Stmt* function = nullptr;
 };
 
 typedef const symbol*  psymbol;

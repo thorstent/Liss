@@ -168,33 +168,35 @@ void abstract_cfg::minimise(bool leave_lockables)
   std::unordered_set<state_id_type> seen;
   
   // add the current set of initial states to the frontier
-  std::deque<pair<state_id_type,unordered_set<state_id_type>>> frontier2;
-  frontier2.push_back(make_pair(1,unordered_set<state_id_type>()));
+  std::deque<state_id_type> frontier2;
+  frontier2.push_back(1);
   
   // check if the successor of every state is good, otherwise replace with successor of successor
   while (!frontier2.empty()) {
-    pair<state_id_type,unordered_set<state_id_type>> nextp = frontier2.front();
-    state_id_type next = nextp.first;
+    state_id_type next = frontier2.front();
     assert(states[next].action || states[next].final || next == 1 || remain.find(next)!=remain.end());
-    unordered_set<state_id_type> parents = nextp.second;
+
     frontier2.pop_front();
     if (seen.find(next) == seen.end()) {
-      parents.insert(next);
       seen.insert(next);
-      
       set<edge> successors; // set of successors
+      
+      std::unordered_set<state_id_type> seen_inner; // to prevent infinite loops
       unsigned i;
       for (i = 0; i<edges[next].size();++i) {
         edge edge_to = edges[next][i];
         state& succ = states[edge_to.to];
+        seen_inner.insert(edge_to.to);        
         if (!succ.action && !succ.final && remain.find(edge_to.to)==remain.end()) {
           // remove this successor
           for (const edge& edge2 : get_successors(edge_to.to)) {
-            edge new_edge(edge2);
-            if (!new_edge.tag) new_edge.tag = edge_to.tag;
-            new_edge.in_betweeners.insert(new_edge.in_betweeners.begin(), edge_to.to);
-            new_edge.in_betweeners.insert(new_edge.in_betweeners.begin(), edge_to.in_betweeners.begin(), edge_to.in_betweeners.end());
-            edges[next].push_back(new_edge);
+            if (seen_inner.find(edge2.to) == seen_inner.end()) {
+              edge new_edge(edge2);
+              if (!new_edge.tag) new_edge.tag = edge_to.tag;
+              new_edge.in_betweeners.insert(new_edge.in_betweeners.begin(), edge_to.to);
+              new_edge.in_betweeners.insert(new_edge.in_betweeners.begin(), edge_to.in_betweeners.begin(), edge_to.in_betweeners.end());
+              edges[next].push_back(new_edge);
+            }
           }
         } else {
           successors.insert(edge_to);
@@ -203,9 +205,8 @@ void abstract_cfg::minimise(bool leave_lockables)
       edges[next].clear();
       // add information to the edges
       for (edge e : successors) {
-        frontier2.push_back(make_pair(e.to,parents));
-        bool back_edge = parents.find(e.to) != parents.end();
-        e.back_edge = back_edge;
+        e.back_edge = false; // will be set to true below
+        frontier2.push_back(e.to);
         edges[next].push_back(e);
         if (e.tag) tag_edge(next, edges[next].size()-1); // only tag those tagged before
       }
@@ -215,17 +216,23 @@ void abstract_cfg::minimise(bool leave_lockables)
   // do a better cost calculation
   // reset distance
   for (state& s : states) s.distance = 0;
-  std::deque<state_id_type> frontier;
-  frontier.push_back(1);
+  std::deque<pair<state_id_type,unordered_set<state_id_type>>> frontier;
+  frontier.push_back(make_pair(1,unordered_set<state_id_type>()));
   while (!frontier.empty()) {
-    state_id_type next = frontier.front();
+    pair<state_id_type,unordered_set<state_id_type>>& nextp = frontier.front();
+    unordered_set<state_id_type> parents = nextp.second;
+    state_id_type next = nextp.first;
     frontier.pop_front();
+    parents.insert(next);
     state& s = states[next];
-    for (edge e : edges[next]) {
-      if (!e.back_edge) { 
-        frontier.push_back(e.to);
+    for (edge& e : edges[next]) {
+      bool back_edge = parents.find(e.to) != parents.end();
+      if (!back_edge) { 
+        frontier.push_back(make_pair(e.to,parents));
         state& to = states[e.to];
         to.distance = max<reward_t>(to.distance, s.distance+1);
+      } else {
+        e.back_edge = true;
       }
     }
   }
