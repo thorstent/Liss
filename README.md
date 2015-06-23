@@ -34,7 +34,12 @@ The `tests` folder contains our test cases. `CAV13` and `CAV14` are test cases f
 | File extension | Meaning |
 |----------------|---------|
 | .c             | This is the test file that serves as input to Liss. |
-| .complete.c    | This is the file with the synthesised synchronisation primitives. The changes can be easily visualised by diffing this file with the .c file. |
+| .absmin.c      | This is the file with the synthesised synchronisation primitives using the absolute minimum cost function. |
+| .small.c       | This is the file with the synthesised synchronisation primitives using the smalled locks cost function. |
+| .coarse.c      | This is the file with the synthesised synchronisation primitives using the coarse cost function. |
+| .locksv1.c     | This are the locks that were placed by Lissv1. |
+
+The changes can be easily visualised by diffing these files.
 
 The .complete.c files can be regenerated as described [below](#synth).
 
@@ -68,6 +73,13 @@ In the place of `-inclusion` any of the following actions may be used:
 | `-synthesis` | Invoke the synthesis and output a fixed file. Use the deadlock switch to find out if deadlocks were created by the synthesis. |
 | `-deadlock`  | Test for potential deadlocks and output a trace if one is found.                                         |
 | `-print`     | Output a .dot file with the non-preemptive and preemptive automaton (only useful for small programs).        |
+
+There are two additional command line switches of interest:
+
+| Switch       | Description                                                                                              |
+|--------------|----------------------------------------------------------------------------------------------------------|
+| `-bound`     | The maximum bound for the bounded language inclusion (having a high number has no performance penalty, but it could take long before the algorithm gives up) |
+| `-locklimit` | The maximum number of locks that can be synthesised (heavy performance penalty for increasing this). |
 
 Common error messages
 ------

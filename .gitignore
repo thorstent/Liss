@@ -3,7 +3,6 @@
 /website/
 
 *.dot
-*.log
 
 _custom.kdev4
 
@@ -19,3 +18,10 @@ callgrind.*
 
 /Liss.tar*
 /tests/*.c
+
+*.old.log
+*.new.log
+*.old.c.log
+*.new.c.log
+output.log
+problems.txt
