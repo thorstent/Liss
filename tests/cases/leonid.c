@@ -1,5 +1,7 @@
 #define _GNU_SOURCE
 
+#include "langinc.h"
+
 #include <pthread.h>
 #include <stdio.h>
 #include <stdatomic.h>
@@ -7,17 +9,22 @@
 
 atomic_ushort contention_counter = 0;
 
-long ncontended;
-long nfalse;
-long niter;
+#define ncontended 1000l
+#define nfalse 1000l
+#define niter 1000l
 pthread_mutex_t l;
 int coarse;
 
-volatile long v;
+volatile long v, w;
 
 static void work1() {
     int i;
-    for (i = 0; i < 10; i++, v++);
+    for (i = 0; i < 10; i++, v=v+1);
+}
+
+static void work3() {
+    int i;
+    for (i = 0; i < 10; i++, w=w+1);
 }
 
 static void work2() {
@@ -26,61 +33,72 @@ static void work2() {
     for (i = 0; i < 10; i++, u++);
 }
 
-static void lock () {
+/*static void lock () {
     atomic_fetch_add(&contention_counter, 1);
-/*    tracepoint(memcached, lock);*/
-    pthread_mutex_lock(&l);
-}
+*//*    tracepoint(memcached, lock);*/
+    /*pthread_mutex_lock(&l);
+}*/
 
-static void unlock () {
+/*static void unlock () {
     pthread_mutex_unlock(&l);
     atomic_fetch_sub(&contention_counter, 1);
-/*    tracepoint(memcached, unlock);*/
-}
+*//*    tracepoint(memcached, unlock);*/
+//}
 
-long ndelay = 1000;
+#define ndelay 1000
 
 static void delay () {
     long i;
-    for (i = 0; i < ndelay; i++, work2());
+    for (i = 0; i < ndelay; i++) {work2();}
 }
 
 static void* worker_thread_coarse(void*arg) {
     long i;
     long j;
     for (j = 0; j < niter; j++) {
-        lock();
+        //lock();
         //tracepoint(memcached, begin, "c");
         //tracepoint(memcached, contention, atomic_load(&contention_counter));
-        for (i = 0; i < ncontended; i++, work1());
-        for (i = 0; i < nfalse; i++, work2());
-        for (i = 0; i < ncontended; i++, work1());
-        for (i = 0; i < nfalse; i++, work2());
+        for (i = 0; i < ncontended; i++) { work1(); }
+        for (i = 0; i < nfalse; i++) {work2();}
+        for (i = 0; i < ncontended; i++) {work3();}
+        for (i = 0; i < nfalse; i++) {work2();}
         //tracepoint(memcached, end, "c");
-        unlock();
+        //unlock();
         delay ();
     };
     pthread_exit(NULL);
+}
+
+void thread_1() {
+  int arg;
+  worker_thread_coarse(&arg);
+}
+
+
+void thread_2() {
+  int arg;
+  worker_thread_coarse(&arg);
 }
 
 static void* worker_thread_fine(void*arg) {
     long i;
     long j;
     for (j = 0; j < niter; j++) {
-        lock();
+        //lock();
         //tracepoint(memcached, begin, "c");
         for (i = 0; i < ncontended; i++, work1());
         //tracepoint(memcached, end, "c");
         //tracepoint(memcached, contention, atomic_load(&contention_counter));
-        unlock();
+        //unlock();
 
         for (i = 0; i < nfalse; i++, work2());
 
-        lock();
+        //lock();
         //tracepoint(memcached, begin, "c");
         for (i = 0; i < ncontended; i++, work1());
         //tracepoint(memcached, end, "c");
-        unlock();
+        //unlock();
 
         for (i = 0; i < nfalse; i++, work2());
         delay();
@@ -115,9 +133,9 @@ int main(int argc, char* argv[]) {
         usage(argv);
         exit(-1);
     };
-    niter      = atoi(argv[3]);
-    ncontended = atoi(argv[4]);
-    nfalse     = atoi(argv[5]);
+    //niter      = atoi(argv[3]);
+    //ncontended = atoi(argv[4]);
+    //nfalse     = atoi(argv[5]);
     printf("Test run with %i threads, %s locking, %ld iterations, %ld racing cycles, %ld independent cycles\n", 
                             nthreads, locking   , niter        , ncontended      , nfalse);
 

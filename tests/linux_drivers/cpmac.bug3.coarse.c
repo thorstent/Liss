@@ -24,7 +24,7 @@
 
 #define pr_err(format, ...) {}
 
-lock_t synthlock_1;
+lock_t synthlock_3;
 conditional_t cond_irq_can_happen;
 
 int ar7_gpio_disable(unsigned gpio) {
@@ -665,7 +665,6 @@ static int cpmac_start_xmit(struct sk_buff *skb)
 		return NETDEV_TX_BUSY;
 	}
 
-	unlock_s(synthlock_1);
 	spin_lock(cplock);
 	spin_unlock(cplock);
 	desc_ring[queue].dataflags = CPMAC_SOP | CPMAC_EOP | CPMAC_OWN;
@@ -685,7 +684,6 @@ static int cpmac_start_xmit(struct sk_buff *skb)
         //cpmac_write(CPMAC_TX_PTR(queue), (u32)desc_ring[queue].mapping);
         notify(cond_irq_can_happen);
 
-	lock_s(synthlock_1);
 	return NETDEV_TX_OK;
 }
 
@@ -701,9 +699,6 @@ static void cpmac_end_xmit(int queue)
 		netdev.stats.tx_packets++;
 		netdev.stats.tx_bytes += desc_ring[queue].skb->len;
 		spin_unlock(cplock);
-		lock_s(synthlock_1);
-                // FIX: move the following line to location labelled with *** below
-		netif_wake_subqueue();
 		dma_unmap_single(desc_ring[queue].data_mapping, desc_ring[queue].skb->len,
 				 DMA_TO_DEVICE);
 
@@ -713,11 +708,8 @@ static void cpmac_end_xmit(int queue)
 
 		dev_kfree_skb_irq(desc_ring[queue].skb);
 		desc_ring[queue].skb = NULL;
-		unlock_s(synthlock_1);
-
-                //**
-                
 		//if (__netif_subqueue_stopped(dev, queue))
+			netif_wake_subqueue();
 	} else {
 //		if (netif_msg_tx_err(priv) && net_ratelimit())
 //			netdev_warn(dev, "end_xmit: spurious interrupt\n");
@@ -1283,10 +1275,10 @@ static int cpmac_probe()
 //	}
 
 	rc = register_netdev();
-	if (rc) {
-		//dev_err(&pdev->dev, "Could not register net device\n");
-		goto fail;
-	}
+//	if (rc) {
+//		//dev_err(&pdev->dev, "Could not register net device\n");
+//		goto fail;
+//	}
 
 //	if (netif_msg_probe(priv)) {
 //		dev_info(&pdev->dev, "regs: %p, irq: %d, phy: %s, "
@@ -1322,9 +1314,12 @@ static int cpmac_remove()
 //
 int cpmac_init(void)
 {
+lock_s(synthlock_3);
 	u32 mask;
 	int i, res;
 
+        // BUG: move this line to the *** location below        
+	res = platform_driver_register();
 //	cpmac_mii = mdiobus_alloc();
 //	if (cpmac_mii == NULL)
 //		return -ENOMEM;
@@ -1339,7 +1334,7 @@ int cpmac_init(void)
 	if (!cpmac_mii.priv) {
 		pr_err("Can't ioremap mdio registers\n");
 		res = -ENXIO;
-		goto fail_alloc;
+		//goto fail_alloc;
 	}
 
 	ar7_gpio_disable(26);
@@ -1371,20 +1366,22 @@ int cpmac_init(void)
 	//if (res)
 	//	goto fail_mii;
 
-	res = platform_driver_register();
+        // ***
+        
 	if (nondet) {
                 assume_not (cond_platform_driver_registered);
 		goto fail_cpmac;
         };
         assume (cond_platform_driver_registered);
 
-	return 0;
+//	return 0;
 
 fail_cpmac:
 	//mdiobus_unregister();
 
 fail_mii:
 	iounmap(cpmac_mii.priv);
+	unlock_s(synthlock_3);
 
 fail_alloc:
 //	mdiobus_free(cpmac_mii);
@@ -1419,13 +1416,16 @@ void thread_init_exit()
 
 void thread_probe_remove () {
     if (nondet) {
+        lock_s(synthlock_3);
         assume(cond_platform_driver_registered);
         cpmac_probe();
         if (nondet) {
+            unlock_s(synthlock_3);
             assume(netdev_registered);
             yield();
             cpmac_remove();
         } else {
+            unlock_s(synthlock_3);
             assume_not(netdev_registered);
         }
     };
@@ -1492,11 +1492,9 @@ void thread_send() {
         yield();
         notify(send_in_progress);
         if (nondet) {
-            lock_s(synthlock_1);
             assume(send_enabled);
             assume(netdev_running);
             cpmac_start_xmit((struct sk_buff *)((addr_t)nondet));
-            unlock_s(synthlock_1);
         };
         reset(send_in_progress);
     }

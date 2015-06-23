@@ -643,50 +643,61 @@ static struct mii_bus cpmac_mii;
 
 static int cpmac_start_xmit(struct sk_buff *skb)
 {
-	int queue, len;
+	int queue, len, ret;
 	//struct cpmac_desc *desc;
 	//struct cpmac_priv *priv = netdev_priv(dev);
 
 	//if (unlikely(atomic_read(reset_pending)))
 	//	return NETDEV_TX_BUSY;
 
-	if (unlikely(skb_padto(skb, ETH_ZLEN)))
-		return NETDEV_TX_OK;
 
-	len = max(skb->len, ETH_ZLEN);
-	//queue = skb_get_queue_mapping(skb);
-	netif_stop_subqueue(/*queue*/);
-
-	//desc = &desc_ring[queue];
-	if (unlikely(desc_ring[queue].dataflags & CPMAC_OWN)) {
-//		if (netif_msg_tx_err(priv) && net_ratelimit())
-//			netdev_warn(dev, "tx dma ring full\n");
-
-		return NETDEV_TX_BUSY;
-	}
-
-	unlock_s(synthlock_1);
-	spin_lock(cplock);
-	spin_unlock(cplock);
-	desc_ring[queue].dataflags = CPMAC_SOP | CPMAC_EOP | CPMAC_OWN;
-	desc_ring[queue].skb = skb;
-	desc_ring[queue].data_mapping = dma_map_single(skb->data, len,
-					    DMA_TO_DEVICE);
-	desc_ring[queue].hw_data = (u32)desc_ring[queue].data_mapping;
-	desc_ring[queue].datalen = len;
-	desc_ring[queue].buflen = len;
-//	if (unlikely(netif_msg_tx_queued(priv)))
-//		netdev_dbg(dev, "sending 0x%p, len=%d\n", skb, skb->len);
-//	if (unlikely(netif_msg_hw(priv)))
-//		cpmac_dump_desc(dev, &desc_ring[queue]);
-//	if (unlikely(netif_msg_pktdata(priv)))
-//		cpmac_dump_skb(dev, skb);
-	
         //cpmac_write(CPMAC_TX_PTR(queue), (u32)desc_ring[queue].mapping);
+
+        // BUG: move this line to the  *** location below
+        lock_s(synthlock_1);
         notify(cond_irq_can_happen);
 
-	lock_s(synthlock_1);
-	return NETDEV_TX_OK;
+	if (unlikely(skb_padto(skb, ETH_ZLEN))) {
+            ret = NETDEV_TX_OK;
+        } else {
+            len = max(skb->len, ETH_ZLEN);
+            //queue = skb_get_queue_mapping(skb);
+            netif_stop_subqueue(/*queue*/);
+
+            //desc = &desc_ring[queue];
+            if (unlikely(desc_ring[queue].dataflags & CPMAC_OWN)) {
+    //		if (netif_msg_tx_err(priv) && net_ratelimit())
+    //			netdev_warn(dev, "tx dma ring full\n");
+
+                    ret = NETDEV_TX_BUSY;
+            } else {
+
+                unlock_s(synthlock_1);
+                spin_lock(cplock);
+                spin_unlock(cplock);
+                lock_s(synthlock_1);
+                desc_ring[queue].dataflags = CPMAC_SOP | CPMAC_EOP | CPMAC_OWN;
+                desc_ring[queue].skb = skb;
+                desc_ring[queue].data_mapping = dma_map_single(skb->data, len,
+                                                    DMA_TO_DEVICE);
+                desc_ring[queue].hw_data = (u32)desc_ring[queue].data_mapping;
+                desc_ring[queue].datalen = len;
+                desc_ring[queue].buflen = len;
+        //	if (unlikely(netif_msg_tx_queued(priv)))
+        //		netdev_dbg(dev, "sending 0x%p, len=%d\n", skb, skb->len);
+        //	if (unlikely(netif_msg_hw(priv)))
+        //		cpmac_dump_desc(dev, &desc_ring[queue]);
+        //	if (unlikely(netif_msg_pktdata(priv)))
+        //		cpmac_dump_skb(dev, skb);
+	
+
+                ret = NETDEV_TX_OK;
+            }
+        }
+        // ***
+        
+        unlock_s(synthlock_1);
+        return ret;
 }
 
 static void cpmac_end_xmit(int queue)
@@ -697,13 +708,12 @@ static void cpmac_end_xmit(int queue)
 //	desc = desc_ring[queue];
 	cpmac_write(CPMAC_TX_ACK(queue), (u32)desc_ring[queue].mapping);
 	if (likely(desc_ring[queue].skb)) {
+		unlock_s(synthlock_1);
 		spin_lock(cplock);
+		lock_s(synthlock_1);
 		netdev.stats.tx_packets++;
 		netdev.stats.tx_bytes += desc_ring[queue].skb->len;
 		spin_unlock(cplock);
-		lock_s(synthlock_1);
-                // FIX: move the following line to location labelled with *** below
-		netif_wake_subqueue();
 		dma_unmap_single(desc_ring[queue].data_mapping, desc_ring[queue].skb->len,
 				 DMA_TO_DEVICE);
 
@@ -713,11 +723,8 @@ static void cpmac_end_xmit(int queue)
 
 		dev_kfree_skb_irq(desc_ring[queue].skb);
 		desc_ring[queue].skb = NULL;
-		unlock_s(synthlock_1);
-
-                //**
-                
 		//if (__netif_subqueue_stopped(dev, queue))
+			netif_wake_subqueue();
 	} else {
 //		if (netif_msg_tx_err(priv) && net_ratelimit())
 //			netdev_warn(dev, "end_xmit: spurious interrupt\n");
@@ -1283,10 +1290,10 @@ static int cpmac_probe()
 //	}
 
 	rc = register_netdev();
-	if (rc) {
-		//dev_err(&pdev->dev, "Could not register net device\n");
-		goto fail;
-	}
+//	if (rc) {
+//		//dev_err(&pdev->dev, "Could not register net device\n");
+//		goto fail;
+//	}
 
 //	if (netif_msg_probe(priv)) {
 //		dev_info(&pdev->dev, "regs: %p, irq: %d, phy: %s, "
@@ -1466,9 +1473,11 @@ void thread_open_close () {
 void thread_irq () {
     while (nondet) {
         lock(irq_running_lock);
+        lock_s(synthlock_1);
         assume (cond_irq_can_happen);
         assume (cond_irq_enabled);
         cpmac_irq(nondet);
+        unlock_s(synthlock_1);
         unlock(irq_running_lock);
         yield();
     }
@@ -1492,11 +1501,9 @@ void thread_send() {
         yield();
         notify(send_in_progress);
         if (nondet) {
-            lock_s(synthlock_1);
             assume(send_enabled);
             assume(netdev_running);
             cpmac_start_xmit((struct sk_buff *)((addr_t)nondet));
-            unlock_s(synthlock_1);
         };
         reset(send_in_progress);
     }

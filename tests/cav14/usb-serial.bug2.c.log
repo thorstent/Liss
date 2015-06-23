@@ -1,0 +1,359 @@
+Running actions
+Building sequential automaton
+2987 rounds; seen states: 2756; transitions: 15202
+Found candidate ... Checking if truely a counter-example(size=138)
+63 rounds; seen states: 63; transitions: 62
+Not Included; bound
+0-w(fw_tty_initialized)[usb-serial.bug2.c:60]
+0-w(fw_tty_registered)[usb-serial.bug2.c:61]
+0-lo(fw_table_lock)[usb-serial.bug2.c:75]
+0-w(drv_usb_initialized)[usb-serial.bug2.c:323]
+0-no(drv_usb_registered)[usb-serial.bug2.c:324]
+0-r(fw_driver_list_consistent)[usb-serial.bug2.c:328]
+0-w(fw_driver_list_consistent)[usb-serial.bug2.c:329]
+0-w(drv_registered_with_usb_fw)[usb-serial.bug2.c:330]
+0-w(fw_driver_list_consistent)[usb-serial.bug2.c:331]
+0-no(drv_registered_with_serial_fw)[usb-serial.bug2.c:333]
+0-un(fw_table_lock)[usb-serial.bug2.c:79]
+0-w(drv_id_table)[usb-serial.bug2.c:337]
+1-wa(drv_usb_registered)[usb-serial.bug2.c:480]
+1-yi[usb-serial.bug2.c:481]
+1-lo(fw_table_lock)[usb-serial.bug2.c:75]
+1-r(fw_driver_list_consistent)[usb-serial.bug2.c:118]
+1-r(drv_registered_with_usb_fw)[usb-serial.bug2.c:119]
+4-lo(fw_serial_bus_lock)[usb-serial.bug2.c:83]
+5-wa(drv_registered_with_serial_fw)[usb-serial.bug2.c:531]
+6-no(drv_module_ref_cnt)[usb-serial.bug2.c:301]
+6-wa(drv_module_ref_cnt)[usb-serial.bug2.c:571]
+6-wa(drv_registered_with_serial_fw)[usb-serial.bug2.c:572]
+6-w(drv_device_id_registered)[usb-serial.bug2.c:573]
+6-rs(drv_module_ref_cnt)[usb-serial.bug2.c:575]
+1-no(drv_module_ref_cnt)[usb-serial.bug2.c:301]
+1-wa(drv_module_ref_cnt)[usb-serial.bug2.c:131]
+1-r(drv_usb_initialized)[usb-serial.bug2.c:134]
+1-un(fw_table_lock)[usb-serial.bug2.c:79]
+1-w(dev_usb_serial_initialized)[usb-serial.bug2.c:139]
+1-no(dev_disconnected)[usb-serial.bug2.c:149]
+1-lo(fw_table_lock)[usb-serial.bug2.c:75]
+1-r(fw_idr_consistent)[usb-serial.bug2.c:154]
+1-w(fw_idr_consistent)[usb-serial.bug2.c:155]
+1-no(port_idr_registered)[usb-serial.bug2.c:156]
+1-w(fw_idr_consistent)[usb-serial.bug2.c:157]
+1-un(fw_table_lock)[usb-serial.bug2.c:79]
+1-w(port_work_initialized)[usb-serial.bug2.c:161]
+1-w(port_initialized)[usb-serial.bug2.c:162]
+1-no(port_dev_registered)[usb-serial.bug2.c:163]
+1-rs(dev_disconnected)[usb-serial.bug2.c:164]
+1-yi[usb-serial.bug2.c:483]
+1-wa(port_dev_registered)[usb-serial.bug2.c:488]
+4-wa(port_dev_registered)[usb-serial.bug2.c:519]
+4-r(port_initialized)[usb-serial.bug2.c:226]
+4-r(dev_usb_serial_initialized)[usb-serial.bug2.c:228]
+4-r(dev_autopm)[usb-serial.bug2.c:229]
+4-no(port_tty_registered)[usb-serial.bug2.c:233]
+4-r(dev_autopm)[usb-serial.bug2.c:235]
+4-un(fw_serial_bus_lock)[usb-serial.bug2.c:87]
+5-lo(fw_table_lock)[usb-serial.bug2.c:75]
+5-wa(port_idr_registered)[usb-serial.bug2.c:378]
+5-lo(dev_disc_lock)[usb-serial.bug2.c:107]
+5-wn(dev_disconnected)[usb-serial.bug2.c:386]
+5-r(port_initialized)[usb-serial.bug2.c:387]
+5-r(dev_usb_serial_initialized)[usb-serial.bug2.c:389]
+5-r(dev_usb_serial_initialized)[usb-serial.bug2.c:390]
+5-un(fw_table_lock)[usb-serial.bug2.c:79]
+5-no(drv_module_ref_cnt)[usb-serial.bug2.c:301]
+5-wa(drv_module_ref_cnt)[usb-serial.bug2.c:399]
+5-r(dev_autopm)[usb-serial.bug2.c:400]
+5-w(port_tty_state)[usb-serial.bug2.c:401]
+5-no(port_tty_installed)[usb-serial.bug2.c:402]
+5-un(dev_disc_lock)[usb-serial.bug2.c:111]
+1-lo(dev_disc_lock)[usb-serial.bug2.c:107]
+1-no(dev_disconnected)[usb-serial.bug2.c:177]
+1-un(dev_disc_lock)[usb-serial.bug2.c:111]
+1-r(dev_usb_serial_initialized)[usb-serial.bug2.c:181]
+1-r(port_initialized)[usb-serial.bug2.c:182]
+1-wa(port_tty_installed)[usb-serial.bug2.c:185]
+1-wn(port_write_in_progress)[usb-serial.bug2.c:187]
+5-yi[usb-serial.bug2.c:533]
+5-lo(fw_tty_lock)[usb-serial.bug2.c:91]
+5-wa(port_tty_installed)[usb-serial.bug2.c:537]
+5-no(port_write_in_progress)[usb-serial.bug2.c:538]
+5-r(port_initialized)[usb-serial.bug2.c:540]
+5-r(dev_usb_serial_initialized)[usb-serial.bug2.c:541]
+5-r(port_tty_state)[usb-serial.bug2.c:542]
+5-lo(port_lock)[usb-serial.bug2.c:99]
+5-r(port_consistent)[usb-serial.bug2.c:544]
+5-w(port_consistent)[usb-serial.bug2.c:545]
+5-w(port_consistent)[usb-serial.bug2.c:546]
+5-un(port_lock)[usb-serial.bug2.c:103]
+5-wn(write_urb_submitted)[usb-serial.bug2.c:550]
+5-no(write_urb_submitted)[usb-serial.bug2.c:551]
+2-wa(write_urb_submitted)[usb-serial.bug2.c:498]
+2-r(drv_usb_initialized)[usb-serial.bug2.c:500]
+2-rs(write_urb_submitted)[usb-serial.bug2.c:501]
+2-r(port_initialized)[usb-serial.bug2.c:448]
+2-lo(port_lock)[usb-serial.bug2.c:99]
+2-r(port_consistent)[usb-serial.bug2.c:450]
+2-w(port_consistent)[usb-serial.bug2.c:451]
+2-w(port_consistent)[usb-serial.bug2.c:452]
+2-un(port_lock)[usb-serial.bug2.c:103]
+2-r(port_work_initialized)[usb-serial.bug2.c:454]
+2-no(port_work)[usb-serial.bug2.c:455]
+3-wa(port_work)[usb-serial.bug2.c:509]
+3-rs(port_write_in_progress)[usb-serial.bug2.c:512]
+3-rs(port_work)[usb-serial.bug2.c:513]
+5-un(fw_tty_lock)[usb-serial.bug2.c:95]
+1-lo(fw_tty_lock)[usb-serial.bug2.c:91]
+1-r(dev_usb_serial_initialized)[usb-serial.bug2.c:193]
+1-r(port_initialized)[usb-serial.bug2.c:194]
+1-w(port_tty_state)[usb-serial.bug2.c:196]
+1-rs(port_tty_installed)[usb-serial.bug2.c:197]
+1-rs(drv_module_ref_cnt)[usb-serial.bug2.c:200]
+1-r(dev_usb_serial_initialized)[usb-serial.bug2.c:262]
+1-r(dev_usb_serial_initialized)[usb-serial.bug2.c:263]
+1-wa(port_idr_registered)[usb-serial.bug2.c:270]
+1-lo(fw_table_lock)[usb-serial.bug2.c:75]
+1-r(fw_idr_consistent)[usb-serial.bug2.c:272]
+1-w(fw_idr_consistent)[usb-serial.bug2.c:273]
+1-rs(port_idr_registered)[usb-serial.bug2.c:274]
+1-w(fw_idr_consistent)[usb-serial.bug2.c:275]
+1-un(fw_table_lock)[usb-serial.bug2.c:79]
+1-lo(fw_serial_bus_lock)[usb-serial.bug2.c:83]
+1-rs(port_dev_registered)[usb-serial.bug2.c:283]
+1-un(fw_serial_bus_lock)[usb-serial.bug2.c:87]
+4-wn(port_dev_registered)[usb-serial.bug2.c:523]
+4-lo(fw_serial_bus_lock)[usb-serial.bug2.c:83]
+4-r(port_initialized)[usb-serial.bug2.c:240]
+4-r(dev_usb_serial_initialized)[usb-serial.bug2.c:241]
+4-r(dev_autopm)[usb-serial.bug2.c:246]
+4-rs(port_tty_registered)[usb-serial.bug2.c:248]
+1-wn(port_tty_registered)[usb-serial.bug2.c:285]
+1-w(dev_usb_serial_initialized)[usb-serial.bug2.c:286]
+1-w(port_initialized)[usb-serial.bug2.c:287]
+1-rs(drv_module_ref_cnt)[usb-serial.bug2.c:288]
+1-un(fw_tty_lock)[usb-serial.bug2.c:95]
+1-wn(port_work)[usb-serial.bug2.c:205]
+1-w(port_work_stop)[usb-serial.bug2.c:209]
+1-w(port_work_initialized)[usb-serial.bug2.c:210]
+1-r(dev_usb_serial_initialized)[usb-serial.bug2.c:262]
+1-r(dev_usb_serial_initialized)[usb-serial.bug2.c:263]
+4-r(dev_autopm)[usb-serial.bug2.c:252]
+4-un(fw_serial_bus_lock)[usb-serial.bug2.c:87]
+Find all sequential traces
+Find concurrent traces that are not sequential
+All bad traces: 
+(*) 4-r(dev_usb_serial_initialized)[usb-serial.bug2.c:241] < 1-w(dev_usb_serial_initialized)[usb-serial.bug2.c:286] /\ 1-rs(port_dev_registered)[usb-serial.bug2.c:283] < 4-wn(port_dev_registered)[usb-serial.bug2.c:523]
+Found constraints to eliminate bad traces
+Locks inferred: 
+l1 (4-wn(port_dev_registered)[usb-serial.bug2.c:523]-4-r(dev_usb_serial_initialized)[usb-serial.bug2.c:241], 1-rs(port_dev_registered)[usb-serial.bug2.c:283]-1-w(dev_usb_serial_initialized)[usb-serial.bug2.c:286])
+4-wn(port_dev_registered)[usb-serial.bug2.c:523]
+-------------------
+4-r(port_initialized)[usb-serial.bug2.c:240]
+4-r(dev_usb_serial_initialized)[usb-serial.bug2.c:241]
+-------------------
+1-rs(port_dev_registered)[usb-serial.bug2.c:283]
+1-un(fw_serial_bus_lock)[usb-serial.bug2.c:87]
+1-wn(port_tty_registered)[usb-serial.bug2.c:285]
+1-w(dev_usb_serial_initialized)[usb-serial.bug2.c:286]
+-------------------
+
+
+TIME - Iteration 1: 0.201s
+
+2614 rounds; seen states: 2371; transitions: 13349
+Found candidate ... Checking if truely a counter-example(size=138)
+63 rounds; seen states: 63; transitions: 62
+Not Included; bound
+0-w(fw_tty_initialized)[usb-serial.bug2.c:60]
+0-w(fw_tty_registered)[usb-serial.bug2.c:61]
+0-lo(fw_table_lock)[usb-serial.bug2.c:75]
+0-w(drv_usb_initialized)[usb-serial.bug2.c:323]
+0-no(drv_usb_registered)[usb-serial.bug2.c:324]
+0-r(fw_driver_list_consistent)[usb-serial.bug2.c:328]
+0-w(fw_driver_list_consistent)[usb-serial.bug2.c:329]
+0-w(drv_registered_with_usb_fw)[usb-serial.bug2.c:330]
+0-w(fw_driver_list_consistent)[usb-serial.bug2.c:331]
+0-no(drv_registered_with_serial_fw)[usb-serial.bug2.c:333]
+0-un(fw_table_lock)[usb-serial.bug2.c:79]
+0-w(drv_id_table)[usb-serial.bug2.c:337]
+1-wa(drv_usb_registered)[usb-serial.bug2.c:480]
+1-yi[usb-serial.bug2.c:481]
+1-lo(fw_table_lock)[usb-serial.bug2.c:75]
+1-r(fw_driver_list_consistent)[usb-serial.bug2.c:118]
+1-r(drv_registered_with_usb_fw)[usb-serial.bug2.c:119]
+4-lo(fw_serial_bus_lock)[usb-serial.bug2.c:83]
+5-wa(drv_registered_with_serial_fw)[usb-serial.bug2.c:531]
+6-no(drv_module_ref_cnt)[usb-serial.bug2.c:301]
+6-wa(drv_module_ref_cnt)[usb-serial.bug2.c:571]
+6-wa(drv_registered_with_serial_fw)[usb-serial.bug2.c:572]
+6-w(drv_device_id_registered)[usb-serial.bug2.c:573]
+6-rs(drv_module_ref_cnt)[usb-serial.bug2.c:575]
+1-no(drv_module_ref_cnt)[usb-serial.bug2.c:301]
+1-wa(drv_module_ref_cnt)[usb-serial.bug2.c:131]
+1-r(drv_usb_initialized)[usb-serial.bug2.c:134]
+1-un(fw_table_lock)[usb-serial.bug2.c:79]
+1-w(dev_usb_serial_initialized)[usb-serial.bug2.c:139]
+1-no(dev_disconnected)[usb-serial.bug2.c:149]
+1-lo(fw_table_lock)[usb-serial.bug2.c:75]
+1-r(fw_idr_consistent)[usb-serial.bug2.c:154]
+1-w(fw_idr_consistent)[usb-serial.bug2.c:155]
+1-no(port_idr_registered)[usb-serial.bug2.c:156]
+1-w(fw_idr_consistent)[usb-serial.bug2.c:157]
+1-un(fw_table_lock)[usb-serial.bug2.c:79]
+1-w(port_work_initialized)[usb-serial.bug2.c:161]
+1-w(port_initialized)[usb-serial.bug2.c:162]
+1-no(port_dev_registered)[usb-serial.bug2.c:163]
+1-rs(dev_disconnected)[usb-serial.bug2.c:164]
+1-yi[usb-serial.bug2.c:483]
+1-wa(port_dev_registered)[usb-serial.bug2.c:488]
+4-wa(port_dev_registered)[usb-serial.bug2.c:519]
+4-r(port_initialized)[usb-serial.bug2.c:226]
+4-r(dev_usb_serial_initialized)[usb-serial.bug2.c:228]
+4-r(dev_autopm)[usb-serial.bug2.c:229]
+4-no(port_tty_registered)[usb-serial.bug2.c:233]
+4-r(dev_autopm)[usb-serial.bug2.c:235]
+4-un(fw_serial_bus_lock)[usb-serial.bug2.c:87]
+5-lo(fw_table_lock)[usb-serial.bug2.c:75]
+5-wa(port_idr_registered)[usb-serial.bug2.c:378]
+5-lo(dev_disc_lock)[usb-serial.bug2.c:107]
+5-wn(dev_disconnected)[usb-serial.bug2.c:386]
+5-r(port_initialized)[usb-serial.bug2.c:387]
+5-r(dev_usb_serial_initialized)[usb-serial.bug2.c:389]
+5-r(dev_usb_serial_initialized)[usb-serial.bug2.c:390]
+5-un(fw_table_lock)[usb-serial.bug2.c:79]
+5-no(drv_module_ref_cnt)[usb-serial.bug2.c:301]
+5-wa(drv_module_ref_cnt)[usb-serial.bug2.c:399]
+5-r(dev_autopm)[usb-serial.bug2.c:400]
+5-w(port_tty_state)[usb-serial.bug2.c:401]
+5-no(port_tty_installed)[usb-serial.bug2.c:402]
+5-un(dev_disc_lock)[usb-serial.bug2.c:111]
+1-lo(dev_disc_lock)[usb-serial.bug2.c:107]
+1-no(dev_disconnected)[usb-serial.bug2.c:177]
+1-un(dev_disc_lock)[usb-serial.bug2.c:111]
+1-r(dev_usb_serial_initialized)[usb-serial.bug2.c:181]
+1-r(port_initialized)[usb-serial.bug2.c:182]
+1-wa(port_tty_installed)[usb-serial.bug2.c:185]
+1-wn(port_write_in_progress)[usb-serial.bug2.c:187]
+5-yi[usb-serial.bug2.c:533]
+5-lo(fw_tty_lock)[usb-serial.bug2.c:91]
+5-wa(port_tty_installed)[usb-serial.bug2.c:537]
+5-no(port_write_in_progress)[usb-serial.bug2.c:538]
+5-r(port_initialized)[usb-serial.bug2.c:540]
+5-r(dev_usb_serial_initialized)[usb-serial.bug2.c:541]
+5-r(port_tty_state)[usb-serial.bug2.c:542]
+5-lo(port_lock)[usb-serial.bug2.c:99]
+5-r(port_consistent)[usb-serial.bug2.c:544]
+5-w(port_consistent)[usb-serial.bug2.c:545]
+5-w(port_consistent)[usb-serial.bug2.c:546]
+5-un(port_lock)[usb-serial.bug2.c:103]
+5-wn(write_urb_submitted)[usb-serial.bug2.c:550]
+5-no(write_urb_submitted)[usb-serial.bug2.c:551]
+2-wa(write_urb_submitted)[usb-serial.bug2.c:498]
+2-r(drv_usb_initialized)[usb-serial.bug2.c:500]
+2-rs(write_urb_submitted)[usb-serial.bug2.c:501]
+2-r(port_initialized)[usb-serial.bug2.c:448]
+2-lo(port_lock)[usb-serial.bug2.c:99]
+2-r(port_consistent)[usb-serial.bug2.c:450]
+2-w(port_consistent)[usb-serial.bug2.c:451]
+2-w(port_consistent)[usb-serial.bug2.c:452]
+2-un(port_lock)[usb-serial.bug2.c:103]
+2-r(port_work_initialized)[usb-serial.bug2.c:454]
+2-no(port_work)[usb-serial.bug2.c:455]
+3-wa(port_work)[usb-serial.bug2.c:509]
+3-rs(port_write_in_progress)[usb-serial.bug2.c:512]
+3-rs(port_work)[usb-serial.bug2.c:513]
+5-un(fw_tty_lock)[usb-serial.bug2.c:95]
+1-lo(fw_tty_lock)[usb-serial.bug2.c:91]
+1-r(dev_usb_serial_initialized)[usb-serial.bug2.c:193]
+1-r(port_initialized)[usb-serial.bug2.c:194]
+1-w(port_tty_state)[usb-serial.bug2.c:196]
+1-rs(port_tty_installed)[usb-serial.bug2.c:197]
+1-rs(drv_module_ref_cnt)[usb-serial.bug2.c:200]
+1-r(dev_usb_serial_initialized)[usb-serial.bug2.c:262]
+1-r(dev_usb_serial_initialized)[usb-serial.bug2.c:263]
+1-un(fw_tty_lock)[usb-serial.bug2.c:95]
+1-wn(port_work)[usb-serial.bug2.c:205]
+1-w(port_work_stop)[usb-serial.bug2.c:209]
+1-w(port_work_initialized)[usb-serial.bug2.c:210]
+1-r(dev_usb_serial_initialized)[usb-serial.bug2.c:262]
+1-r(dev_usb_serial_initialized)[usb-serial.bug2.c:263]
+1-wa(port_idr_registered)[usb-serial.bug2.c:270]
+1-lo(fw_table_lock)[usb-serial.bug2.c:75]
+1-r(fw_idr_consistent)[usb-serial.bug2.c:272]
+1-w(fw_idr_consistent)[usb-serial.bug2.c:273]
+1-rs(port_idr_registered)[usb-serial.bug2.c:274]
+1-w(fw_idr_consistent)[usb-serial.bug2.c:275]
+1-un(fw_table_lock)[usb-serial.bug2.c:79]
+1-lo(fw_serial_bus_lock)[usb-serial.bug2.c:83]
+1-rs(port_dev_registered)[usb-serial.bug2.c:283]
+1-un(fw_serial_bus_lock)[usb-serial.bug2.c:87]
+4-wn(port_dev_registered)[usb-serial.bug2.c:523]
+4-lo(fw_serial_bus_lock)[usb-serial.bug2.c:83]
+4-r(port_initialized)[usb-serial.bug2.c:240]
+4-r(dev_usb_serial_initialized)[usb-serial.bug2.c:241]
+4-r(dev_autopm)[usb-serial.bug2.c:246]
+4-rs(port_tty_registered)[usb-serial.bug2.c:248]
+1-wn(port_tty_registered)[usb-serial.bug2.c:285]
+1-w(dev_usb_serial_initialized)[usb-serial.bug2.c:286]
+1-w(port_initialized)[usb-serial.bug2.c:287]
+1-rs(drv_module_ref_cnt)[usb-serial.bug2.c:288]
+4-r(dev_autopm)[usb-serial.bug2.c:252]
+4-un(fw_serial_bus_lock)[usb-serial.bug2.c:87]
+Find all sequential traces
+Find concurrent traces that are not sequential
+All bad traces: 
+(*) 4-r(dev_usb_serial_initialized)[usb-serial.bug2.c:241] < 1-w(dev_usb_serial_initialized)[usb-serial.bug2.c:286] /\ 1-rs(port_dev_registered)[usb-serial.bug2.c:283] < 4-wn(port_dev_registered)[usb-serial.bug2.c:523]
+Found constraints to eliminate bad traces
+Locks inferred: 
+l2 (4-wn(port_dev_registered)[usb-serial.bug2.c:523]-4-r(dev_usb_serial_initialized)[usb-serial.bug2.c:241], 1-rs(port_dev_registered)[usb-serial.bug2.c:283]-1-w(dev_usb_serial_initialized)[usb-serial.bug2.c:286])
+4-wn(port_dev_registered)[usb-serial.bug2.c:523]
+-------------------
+4-r(port_initialized)[usb-serial.bug2.c:240]
+4-r(dev_usb_serial_initialized)[usb-serial.bug2.c:241]
+-------------------
+1-rs(port_dev_registered)[usb-serial.bug2.c:283]
+1-un(fw_serial_bus_lock)[usb-serial.bug2.c:87]
+1-wn(port_tty_registered)[usb-serial.bug2.c:285]
+1-w(dev_usb_serial_initialized)[usb-serial.bug2.c:286]
+-------------------
+
+
+TIME - Iteration 2: 0.191s
+
+397099 rounds; seen states: 257778; transitions: 2276983
+Included
+Synthesis was successful.
+Threads: 7
+Iterations: 2
+Liss: 0.058s
+Verification: 4.096s
+Synthesis: 0.332s
+Memory: 176MB
+Total number of conflicts found: 2
+7 | 2 | 1 | 0.058s | 0.332s | 4.096s | 4.486s | 176MB
+Lock statistics:
+---------------
+Starting lock placement for absmin
+Cost function 2: Absolute minimum of instructions inside a lock:
+Number of locks used: 1
+Number of lock operations: 3
+Number of unlock operations: 3
+Number of abstract instructions inside a lock: 15
+Time for this cost function: 0.429s
+
+Starting lock placement for small
+Cost function 3: Smallest locks:
+Number of locks used: 1
+Number of lock operations: 3
+Number of unlock operations: 3
+Number of abstract instructions inside a lock: 15
+Time for this cost function: 0.508s
+
+Starting lock placement for coarse
+Cost function 4: Coarse locks:
+Number of locks used: 1
+Number of lock operations: 3
+Number of unlock operations: 3
+Number of abstract instructions inside a lock: 15
+Time for this cost function: 1.027s
+

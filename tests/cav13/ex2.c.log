@@ -1,0 +1,63 @@
+Running actions
+Building sequential automaton
+8 rounds; seen states: 7; transitions: 9
+Checking if the trace is actually a counter example
+3 rounds; seen states: 3; transitions: 2
+Not Included
+0-no(init_sem)[ex2.c:24]
+1-wa(init_sem)[ex2.c:44]
+1-r(hw_start)[ex2.c:29]
+0-w(hw_start)[ex2.c:38]
+Find all sequential traces
+Find concurrent traces that are not sequential
+All bad traces: 
+(*) 1-r(hw_start)[ex2.c:29] < 0-w(hw_start)[ex2.c:38] /\ 0-no(init_sem)[ex2.c:24] < 1-wa(init_sem)[ex2.c:44]
+Found constraints to eliminate bad traces
+Locks inferred: 
+l1 (1-wa(init_sem)[ex2.c:44]-1-r(hw_start)[ex2.c:29], 0-no(init_sem)[ex2.c:24]-0-w(hw_start)[ex2.c:38])
+1-r(hw_start)[ex2.c:29]
+-------------------
+0-no(init_sem)[ex2.c:24]
+0-w(hw_start)[ex2.c:38]
+-------------------
+
+
+TIME - Iteration 1: 0.024s
+
+7 rounds; seen states: 7; transitions: 9
+Included
+Synthesis was successful.
+Threads: 2
+Iterations: 1
+Liss: 0s
+Verification: 0s
+Synthesis: 0.023s
+Memory: 30MB
+Total number of conflicts found: 1
+2 | 1 | 1 | 0s | 0.023s | 0s | 0.023s | 30MB
+Lock statistics:
+---------------
+Starting lock placement for absmin
+Cost function 2: Absolute minimum of instructions inside a lock:
+Number of locks used: 1
+Number of lock operations: 2
+Number of unlock operations: 2
+Number of abstract instructions inside a lock: 3
+Time for this cost function: 0.003s
+
+Starting lock placement for small
+Cost function 3: Smallest locks:
+Number of locks used: 1
+Number of lock operations: 2
+Number of unlock operations: 2
+Number of abstract instructions inside a lock: 3
+Time for this cost function: 0.002s
+
+Starting lock placement for coarse
+Cost function 4: Coarse locks:
+Number of locks used: 1
+Number of lock operations: 2
+Number of unlock operations: 2
+Number of abstract instructions inside a lock: 3
+Time for this cost function: 0.004s
+

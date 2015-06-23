@@ -1,0 +1,82 @@
+Running actions
+Building sequential automaton
+11 rounds; seen states: 11; transitions: 13
+Checking if the trace is actually a counter example
+7 rounds; seen states: 7; transitions: 6
+Not Included
+0-r(irq_status)[i915_irq.c:23]
+0-w(irq_status)[i915_irq.c:25]
+1-w(irq_enable)[i915_irq.c:38]
+0-w(irq_enable)[i915_irq.c:27]
+1-r(irq_status)[i915_irq.c:40]
+1-w(irq_status)[i915_irq.c:42]
+Find all sequential traces
+Find concurrent traces that are not sequential
+All bad traces: 
+(*) 0-w(irq_status)[i915_irq.c:25] < 1-r(irq_status)[i915_irq.c:40] /\ 1-w(irq_enable)[i915_irq.c:38] < 0-w(irq_enable)[i915_irq.c:27] \/
+1-r(irq_status)[i915_irq.c:40] < 0-w(irq_status)[i915_irq.c:25] /\ 0-w(irq_status)[i915_irq.c:25] < 1-w(irq_status)[i915_irq.c:42] \/
+0-r(irq_status)[i915_irq.c:23] < 1-w(irq_status)[i915_irq.c:42] /\ 1-w(irq_status)[i915_irq.c:42] < 0-w(irq_status)[i915_irq.c:25]
+Found constraints to eliminate bad traces
+Locks inferred: 
+l1 (1-w(irq_enable)[i915_irq.c:38]-1-r(irq_status)[i915_irq.c:40], 0-w(irq_status)[i915_irq.c:25]-0-w(irq_enable)[i915_irq.c:27]) /\ 
+l2 (1-r(irq_status)[i915_irq.c:40]-1-w(irq_status)[i915_irq.c:42], 0-w(irq_status)[i915_irq.c:25]-0-w(irq_status)[i915_irq.c:25]) /\ 
+l3 (1-w(irq_status)[i915_irq.c:42]-1-w(irq_status)[i915_irq.c:42], 0-r(irq_status)[i915_irq.c:23]-0-w(irq_status)[i915_irq.c:25])
+1-w(irq_enable)[i915_irq.c:38]
+1-r(irq_status)[i915_irq.c:40]
+-------------------
+0-w(irq_status)[i915_irq.c:25]
+0-w(irq_enable)[i915_irq.c:27]
+-------------------
+ /\ 
+1-r(irq_status)[i915_irq.c:40]
+1-w(irq_status)[i915_irq.c:42]
+-------------------
+0-w(irq_status)[i915_irq.c:25]
+-------------------
+ /\ 
+1-w(irq_status)[i915_irq.c:42]
+-------------------
+0-r(irq_status)[i915_irq.c:23]
+0-w(irq_status)[i915_irq.c:25]
+-------------------
+
+
+TIME - Iteration 1: 0.034s
+
+22 rounds; seen states: 22; transitions: 32
+Included
+Synthesis was successful.
+Threads: 2
+Iterations: 1
+Liss: 0s
+Verification: 0s
+Synthesis: 0.034s
+Memory: 30MB
+Total number of conflicts found: 3
+2 | 1 | 1 | 0s | 0.034s | 0s | 0.034s | 30MB
+Lock statistics:
+---------------
+Starting lock placement for absmin
+Cost function 2: Absolute minimum of instructions inside a lock:
+Number of locks used: 1
+Number of lock operations: 2
+Number of unlock operations: 2
+Number of abstract instructions inside a lock: 6
+Time for this cost function: 0.011s
+
+Starting lock placement for small
+Cost function 3: Smallest locks:
+Number of locks used: 2
+Number of lock operations: 4
+Number of unlock operations: 4
+Number of abstract instructions inside a lock: 6
+Time for this cost function: 0.015s
+
+Starting lock placement for coarse
+Cost function 4: Coarse locks:
+Number of locks used: 1
+Number of lock operations: 2
+Number of unlock operations: 2
+Number of abstract instructions inside a lock: 6
+Time for this cost function: 0.016s
+

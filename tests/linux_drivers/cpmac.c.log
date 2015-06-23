@@ -1,0 +1,13 @@
+Running actions
+Building sequential automaton
+240549 rounds; seen states: 143512; transitions: 1430575
+Included
+Synthesis was successful.
+Threads: 5
+Iterations: 0
+Liss: 0s
+Verification: 2.117s
+Synthesis: 0s
+Memory: 114MB
+Total number of conflicts found: 0
+5 | 0 | 1 | 0s | 0s | 2.117s | 2.117s | 114MB

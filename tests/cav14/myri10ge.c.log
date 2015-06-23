@@ -1,0 +1,23 @@
+Running actions
+Building sequential automaton
+26 rounds; seen states: 58; transitions: 85
+Found candidate ... Checking if truely a counter-example(size=23)
+14 rounds; seen states: 14; transitions: 13
+Candidate is not a counter-example
+Increasing the bound to 2
+53 rounds; seen states: 71; transitions: 152
+Found candidate ... Checking if truely a counter-example(size=24)
+15 rounds; seen states: 15; transitions: 14
+Candidate is not a counter-example
+Increasing the bound to 3
+525 rounds; seen states: 318; transitions: 1672
+Included
+Synthesis was successful.
+Threads: 4
+Iterations: 0
+Liss: 0s
+Verification: 0.004s
+Synthesis: 0s
+Memory: 17MB
+Total number of conflicts found: 0
+4 | 0 | 3 | 0s | 0s | 0.004s | 0.004s | 17MB
