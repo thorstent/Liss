@@ -126,8 +126,8 @@ void concurrent_automaton::int_successors(const pcstate& state, const pcsymbol& 
 pcstate concurrent_automaton::apply_symbol(const pcstate& original_state, const pcsymbol& sigma, bool& progress) const
 {
   progress = true;
-
-  if (!concurrent_ && sigma.symbol->synthesised) {
+  
+  if (original_state->current == unassigned || (sigma.symbol->assume&&!assumes_allow_switch) || sigma.symbol->synthesised) {
     // test if locking is ok
     switch (sigma.symbol->operation) {
       case abstraction::op_class::read:
@@ -141,28 +141,48 @@ pcstate concurrent_automaton::apply_symbol(const pcstate& original_state, const 
       case abstraction::op_class::wait_reset:
       case abstraction::op_class::wait:
         if (!original_state->conditionals.test(sigma.symbol->variable)) {
-          // no context switching on synthesised symbols
-          if (original_state->current == unassigned || (sigma.symbol->assume&&!assumes_allow_switch)) return nullptr;
+          return nullptr;
         }
         break;
       case abstraction::op_class::wait_not:
         if (original_state->conditionals.test(sigma.symbol->variable)) {
-          if (original_state->current == unassigned || (sigma.symbol->assume&&!assumes_allow_switch)) return nullptr;
+          return nullptr;
         }
         break;
       case abstraction::op_class::lock:
         if (original_state->locks.test(sigma.symbol->variable)) {
-          if (original_state->current == unassigned || (sigma.symbol->assume&&!assumes_allow_switch)) return nullptr;
+          return nullptr;
         }
         break;
     }
   }
   
   pcstate cloned_state = make_shared<concurrent_state>(*original_state);
-  cloned_state->current = sigma.thread_id;
-  if (!concurrent_ && sigma.symbol->synthesised) {
-    return cloned_state;
+  
+  if (true) {
+    switch (sigma.symbol->operation) {
+      case abstraction::op_class::read:
+      case abstraction::op_class::write:
+      case abstraction::op_class::epsilon:
+      case abstraction::op_class::unlock:
+      case abstraction::op_class::notify:
+      case abstraction::op_class::reset:
+      case abstraction::op_class::yield:
+        break;
+      case abstraction::op_class::wait_reset:
+      case abstraction::op_class::wait:
+      case abstraction::op_class::wait_not:
+      case abstraction::op_class::lock:
+        if (!(original_state->current == unassigned || (sigma.symbol->assume&&!assumes_allow_switch) || sigma.symbol->synthesised)) {
+          cloned_state->current = unassigned;
+          progress = false;
+          return cloned_state;
+        }
+        break;
+    }
   }
+  
+  cloned_state->current = sigma.thread_id;
   // apply changes
   switch (sigma.symbol->operation) {
     case abstraction::op_class::read:
@@ -178,7 +198,7 @@ pcstate concurrent_automaton::apply_symbol(const pcstate& original_state, const 
       }
       break;
     case abstraction::op_class::unlock:
-        cloned_state->locks.reset(sigma.symbol->variable);
+      cloned_state->locks.reset(sigma.symbol->variable);
       break;
     case abstraction::op_class::notify:
       cloned_state->conditionals.set(sigma.symbol->variable);

@@ -31,7 +31,6 @@ int port_consistent;
 lock_t port_lock;
 conditional_t port_write_in_progress;
 conditional_t write_urb_submitted;
-lock_t l1;
 
 void try_module_get()
 void usb_serial_put()
@@ -143,6 +142,7 @@ void usb_serial_disconnect() {
     x = port_initialized;
     if (nondet_int) {
         int_assume(port_tty_installed);
+        lock_tty();
         x = dev_usb_serial_initialized;
         x = port_initialized;
         int_wait_not(port_write_in_progress);
@@ -150,7 +150,6 @@ void usb_serial_disconnect() {
         int_reset(port_tty_installed);
         int_reset(drv_module_ref_cnt);
         usb_serial_put();
-        lock_tty();
         unlock_tty();
         int_wait_not(port_work);
         port_work_stop = 1;
@@ -166,9 +165,7 @@ void usb_serial_disconnect() {
 void usb_serial_device_probe() {
     int x;
     x = port_initialized;
-    int_lock(l1);
     x = dev_usb_serial_initialized;
-    int_unlock(l1);
     dev_autopm++;
     int_notify(port_tty_registered);
     dev_autopm--;
@@ -273,6 +270,7 @@ void serial_install() {
             dev_usb_serial_initialized++;
             unlock_table();
             try_module_get();
+            int_yield();
             if (nondet_int) {
                 int_assume_not(drv_module_ref_cnt);
                 usb_serial_put();
@@ -336,7 +334,6 @@ void thread_fw_module() {
 void thread_usb_bus() {
     int_wait(drv_usb_registered);
     int_yield();
-    int_lock(l1);
     usb_serial_probe();
     int_yield();
     if (nondet_int) {
@@ -345,24 +342,30 @@ void thread_usb_bus() {
     } else {
         int_assume_not(port_dev_registered);
     }
-    int_unlock(l1);
 }
 
 
 void thread_usb_cb() {
     int x;
-    int_wait(write_urb_submitted);
-    x = drv_usb_initialized;
-    int_reset(write_urb_submitted);
-    serial_write_callback();
+    if (nondet_int) {
+        int_assume(write_urb_submitted);
+        x = drv_usb_initialized;
+        int_reset(write_urb_submitted);
+        serial_write_callback();
+    }
 }
 
 
 void thread_port_work() {
     int x;
-    int_assume(port_work);
-    int_reset(port_write_in_progress);
-    int_reset(port_work);
+    if (nondet_int) {
+        int_assume(port_work);
+        x = port_initialized;
+        x = port_tty_state;
+        int_reset(port_write_in_progress);
+        int_reset(port_work);
+    }
+    ;
 }
 
 
@@ -371,6 +374,7 @@ void thread_serial_bus() {
     int_assume(port_dev_registered);
     usb_serial_device_probe();
     unlock_serial_bus();
+    int_yield();
     int_assume_not(port_dev_registered);
     lock_serial_bus();
     usb_serial_device_remove();
@@ -410,6 +414,7 @@ void thread_tty() {
 
 void thread_attribute() {
     try_module_get();
+    int_yield();
     if (nondet_int) {
         int_assume_not(drv_module_ref_cnt);
         return;

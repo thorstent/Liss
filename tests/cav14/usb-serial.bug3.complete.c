@@ -112,7 +112,6 @@ void usb_serial_probe() {
             unlock_table();
             return;
         } else {
-            int_lock(l1);
             int_assume(drv_module_ref_cnt);
             x = drv_usb_initialized;
             unlock_table();
@@ -127,7 +126,6 @@ void usb_serial_probe() {
             }
             port_work_initialized = 1;
             port_initialized = 1;
-            int_unlock(l1);
             int_notify(port_dev_registered);
         }
     }
@@ -166,7 +164,9 @@ void usb_serial_disconnect() {
 void usb_serial_device_probe() {
     int x;
     x = port_initialized;
+    int_lock(l1);
     x = dev_usb_serial_initialized;
+    int_unlock(l1);
     dev_autopm++;
     int_notify(port_tty_registered);
     dev_autopm--;
@@ -266,7 +266,6 @@ void serial_install() {
             return;
         } else {
             int_assume_not(dev_disconnected);
-            int_lock(l1);
             x = port_initialized;
             x = dev_usb_serial_initialized;
             dev_usb_serial_initialized++;
@@ -283,7 +282,6 @@ void serial_install() {
                 int_notify(port_tty_installed);
                 unlock_disc();
             }
-            int_unlock(l1);
         }
     }
 }
@@ -335,6 +333,7 @@ void thread_fw_module() {
 void thread_usb_bus() {
     int_assume(drv_usb_registered);
     int_yield();
+    int_lock(l1);
     usb_serial_probe();
     int_yield();
     if (nondet_int) {
@@ -343,6 +342,7 @@ void thread_usb_bus() {
     } else {
         int_assume_not(port_dev_registered);
     }
+    int_unlock(l1);
 }
 
 

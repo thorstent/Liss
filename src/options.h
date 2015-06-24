@@ -30,6 +30,6 @@ extern std::string output_file_code;
 extern std::string start_file_code;
 extern std::string output_file_log;
 extern std::string main_filename;
-const bool assumes_allow_switch = true;
+const bool assumes_allow_switch = false;
 
 #endif // OPTIONS_H

@@ -11,9 +11,9 @@ not_in_array() {
     return 0
 }
 
-#echo Compiling ...
+echo Compiling ...
 
-#make -C build/buildr > /dev/null
+make -C build/buildr > /dev/null
 
 echo Running tests ...
 

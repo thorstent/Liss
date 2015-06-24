@@ -316,7 +316,6 @@ void serial_write() {
 
 void serial_write_callback() {
     int x;
-    int_lock(l1);
     x = port_initialized;
     lock_port();
     x = port_consistent;
@@ -324,7 +323,6 @@ void serial_write_callback() {
     port_consistent = 1;
     unlock_port();
     x = port_work_initialized;
-    int_unlock(l1);
     int_notify(port_work);
 }
 

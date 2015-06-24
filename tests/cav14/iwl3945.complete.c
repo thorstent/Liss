@@ -15,10 +15,10 @@ void thread_config() {
 
 void thread_iwl3945_bg_alive_start() {
     int_lock(rtnl);
+    int_notify(n);
     int_unlock(rtnl);
     int_lock(l);
     restarted = 1;
-    int_notify(n);
     int_unlock(l);
 }
 

@@ -103,7 +103,7 @@ void reorderings::prepare_trace(const concurrent_trace& trace, reorderings::sepe
           thread_endpoints[thread_id] = &strace.trace.back();
           
           z3::expr ls = ctx.fresh_constant((name+"_lock_cond").c_str(), ctx.bool_sort());
-          seq_condition = ls;
+          seq_condition = ctx.bool_val(false);
           pre_pair pp(&strace.trace.back(), loc_ptr, ls);
           lockings[var].push_back(lock_pair(pp, nullptr));
         } else {
@@ -130,7 +130,7 @@ void reorderings::prepare_trace(const concurrent_trace& trace, reorderings::sepe
           thread_endpoints[thread_id] = &strace.trace.back();
           
           z3::expr cs = ctx.fresh_constant((name+"_wait_cond").c_str(), ctx.bool_sort());
-          seq_condition = cs;
+          seq_condition = ctx.bool_val(false);
           waits[var].push_back(pre_pair(&strace.trace.back(), loc_ptr, cs));
         } else {
           waits[var].push_back(pre_pair(nullptr, loc_ptr, z3::expr(ctx)));

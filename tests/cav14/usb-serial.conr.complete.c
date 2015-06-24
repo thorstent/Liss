@@ -31,6 +31,7 @@ int port_consistent;
 lock_t port_lock;
 conditional_t port_write_in_progress;
 conditional_t write_urb_submitted;
+lock_t l1;
 
 void try_module_get()
 void usb_serial_put()
@@ -165,7 +166,9 @@ void usb_serial_disconnect() {
 void usb_serial_device_probe() {
     int x;
     x = port_initialized;
+    int_lock(l1);
     x = dev_usb_serial_initialized;
+    int_unlock(l1);
     dev_autopm++;
     int_notify(port_tty_registered);
     dev_autopm--;
@@ -333,6 +336,7 @@ void thread_fw_module() {
 void thread_usb_bus() {
     int_assume(drv_usb_registered);
     int_yield();
+    int_lock(l1);
     usb_serial_probe();
     int_yield();
     if (nondet_int) {
@@ -341,6 +345,7 @@ void thread_usb_bus() {
     } else {
         int_assume_not(port_dev_registered);
     }
+    int_unlock(l1);
 }
 
 

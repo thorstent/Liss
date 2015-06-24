@@ -1,3 +1,11 @@
+New Semantics branch
+====================
+
+This branch implements two changes in the non-preemtive semantics:
+
+1) Assumes do not allow for context switches if they cannot continue
+2) When a lock or wait is reached a context switch is always allowed (past behaviour was that it was only allowed if the lock was taken or the wait not notified)
+
 Liss (Language Inclusion-based Synchronisation Synthesis)
 =======
 

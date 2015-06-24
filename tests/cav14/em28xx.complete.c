@@ -5,7 +5,7 @@ struct {
     int vdev;
     int vbi_dev;
 };
-struct (anonymous struct at /mnt/work/Documents/7Liss/tests/cav14/em28xx.c:16:1) devlist;
+struct (anonymous struct at /home/ttarrach/Documents/Work/7Liss/tests/cav14/em28xx.c:16:1) devlist;
 conditional_t registered;
 
 void thread_init() {

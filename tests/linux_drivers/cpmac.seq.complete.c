@@ -49,7 +49,6 @@ static struct mii_bus cpmac_mii;
 static int external_switch;
 conditional_t cond_platform_driver_not_in_use;
 lock_t l1;
-lock_t l2;
 
 int ar7_gpio_disable(unsigned int gpio) {
     ioval = nondet_int;
@@ -379,7 +378,7 @@ static int cpmac_remove() {
 int cpmac_init() {
     u32 mask;
     int i, res;
-    int_lock(l2);
+    int_lock(l1);
     res = platform_driver_register();
     cpmac_mii.priv = ioremap((140574720 + 7680), 256);
     if (!cpmac_mii.priv) {
@@ -406,7 +405,7 @@ int cpmac_init() {
         external_switch = 1;
         mask = 0;
     }
-    int_unlock(l2);
+    int_unlock(l1);
     cpmac_mii_phy_mask = ~(mask | 2147483648U);
     if (nondet_int) {
         int_assume_not(cond_platform_driver_registered);
@@ -454,10 +453,10 @@ void thread_init_exit() {
 
 void thread_probe_remove() {
     if (nondet_int) {
-        int_lock(l2);
+        int_lock(l1);
         int_assume(cond_platform_driver_registered);
         cpmac_probe();
-        int_unlock(l2);
+        int_unlock(l1);
         if (nondet_int) {
             int_assume(netdev_registered);
             int_yield();

@@ -162,7 +162,9 @@ void usb_serial_disconnect() {
 void usb_serial_device_probe() {
     int x;
     x = port_initialized;
+    int_lock(l1);
     x = dev_usb_serial_initialized;
+    int_unlock(l1);
     dev_autopm++;
     int_notify(port_tty_registered);
     dev_autopm--;
@@ -214,7 +216,6 @@ void belkin_init() {
     int x;
     lock_table();
     drv_usb_initialized = 1;
-    int_lock(l1);
     int_notify(drv_usb_registered);
     {
         x = fw_driver_list_consistent;
@@ -224,7 +225,6 @@ void belkin_init() {
         int_notify(drv_registered_with_serial_fw);
         unlock_table();
     }
-    int_unlock(l1);
     drv_id_table = 1;
 }
 
@@ -330,11 +330,10 @@ void thread_fw_module() {
 
 
 void thread_usb_bus() {
-    int_lock(l1);
     int_assume(drv_usb_registered);
     int_yield();
+    int_lock(l1);
     usb_serial_probe();
-    int_unlock(l1);
     int_yield();
     if (nondet_int) {
         int_assume(port_dev_registered);
@@ -342,6 +341,7 @@ void thread_usb_bus() {
     } else {
         int_assume_not(port_dev_registered);
     }
+    int_unlock(l1);
 }
 
 
