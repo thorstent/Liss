@@ -561,6 +561,9 @@ bool place_locks::find_locks(const synthesis::lock_symbols& locks_to_place, cost
     return false;
   }
   
+  // for Arjun: here you can dump out the SMT formula (run program with -v 2 to get line numbers in the variable names)
+  //cout << slv << endl;
+  
   z3::model model = slv.get_model();
   
   if (verbosity>=2) {
