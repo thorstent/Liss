@@ -114,6 +114,11 @@ struct symbol
   
   bool is_preemption_point() const;
   
+  /**
+   * @brief This point may not be locked because it is a wait or a lock statement
+   */
+  bool is_unlockable_point() const;
+  
   bool operator==(const symbol &other) const {
     if (loc != other.loc) return false;
     if (tag_branch == -1) {

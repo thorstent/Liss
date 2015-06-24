@@ -231,8 +231,8 @@ void place_locks::lock_consistancy(locking_constraints& lc)
           lc.cons_loc = lc.cons_loc && !lc.lock_a(x,l) && !lc.unlock_a(x,l);
         }
         lc.cons_basic = lc.cons_basic && (!lc.lock_a(x,l) || !lc.unlock_a(x,l)) && (!lc.lock_b(x,l) || !lc.unlock_b(x,l));
-        if (s.action && s.action->is_preemption_point()) {
-          // not allowed to lock a preemption point
+        if (s.action && s.action->is_unlockable_point()) {
+          // not allowed to lock a wait or a notify
           lc.cons_preemption = lc.cons_preemption && !lc.inl(x,l);
         }
       }
@@ -449,8 +449,8 @@ void place_locks::cost_model(z3::optimize& slv, locking_constraints& lc, cost_ty
           z3::expr x = location_vector[t][i];
           // for all locks
           for (z3::expr l : lc.lock_vector) {
-            slv.add(!lc.lock_b(x,l), 10);
-            slv.add(!lc.lock_a(x,l), 10);
+            slv.add(!lc.lock_b(x,l), 20);
+            slv.add(!lc.lock_a(x,l), 20);
           }
         }
         ++t;

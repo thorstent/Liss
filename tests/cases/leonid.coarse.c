@@ -7,6 +7,7 @@
 #include <stdatomic.h>
 #include <stdlib.h>	
 
+lock_t synthlock_0;
 atomic_ushort contention_counter = 0;
 
 #define ncontended 1000l
@@ -63,6 +64,7 @@ static void* worker_thread_coarse(void*arg) {
         //lock();
         //tracepoint(memcached, begin, "c");
         //tracepoint(memcached, contention, atomic_load(&contention_counter));
+        lock_s(synthlock_0);
         work1();
 	yield();
         for (i = 0; i < nfalse; i++) {worki();}
@@ -72,6 +74,7 @@ static void* worker_thread_coarse(void*arg) {
         work3();
         //tracepoint(memcached, end, "c");
         //unlock();
+        unlock_s(synthlock_0);
         delay ();
     };
     pthread_exit(NULL);

@@ -7,6 +7,9 @@
 #include <stdatomic.h>
 #include <stdlib.h>	
 
+lock_t synthlock_0;
+lock_t synthlock_1;
+lock_t synthlock_2;
 atomic_ushort contention_counter = 0;
 
 #define ncontended 1000l
@@ -19,15 +22,21 @@ int coarse;
 volatile long u, v, w;
 
 static void work1() {
+lock_s(synthlock_0);
     v=v+1;
+    unlock_s(synthlock_0);
 }
 
 static void work3() {
+lock_s(synthlock_2);
     w=w+1;
+unlock_s(synthlock_2);
 }
 
 static void work2() {
+    lock_s(synthlock_1);
     u = u + 1;
+unlock_s(synthlock_1);
 }
 
 static void worki() {
