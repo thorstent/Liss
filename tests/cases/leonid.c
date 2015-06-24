@@ -11,26 +11,32 @@ atomic_ushort contention_counter = 0;
 
 #define ncontended 1000l
 #define nfalse 1000l
+#define nfalse1 1l
 #define niter 1000l
 pthread_mutex_t l;
 int coarse;
 
-volatile long v, w;
+volatile long u, v, w;
 
 static void work1() {
     int i;
-    for (i = 0; i < 10; i++, v=v+1);
+    v=v+1;
 }
 
 static void work3() {
     int i;
-    for (i = 0; i < 10; i++, w=w+1);
+    w=w+1;
 }
 
 static void work2() {
     int i;
-    volatile int u = 0;
-    for (i = 0; i < 10; i++, u++);
+    u = u + 1;
+}
+
+static void worki() {
+    int i;
+    int a;
+    i = a + 1;
 }
 
 /*static void lock () {
@@ -48,8 +54,9 @@ static void work2() {
 #define ndelay 1000
 
 static void delay () {
-    long i;
-    for (i = 0; i < ndelay; i++) {work2();}
+    //long i;
+    //for (i = 0; i < ndelay; i++) {work2();}
+  yield();
 }
 
 static void* worker_thread_coarse(void*arg) {
@@ -59,10 +66,11 @@ static void* worker_thread_coarse(void*arg) {
         //lock();
         //tracepoint(memcached, begin, "c");
         //tracepoint(memcached, contention, atomic_load(&contention_counter));
-        for (i = 0; i < ncontended; i++) { work1(); }
-        for (i = 0; i < nfalse; i++) {work2();}
-        for (i = 0; i < ncontended; i++) {work3();}
-        for (i = 0; i < nfalse; i++) {work2();}
+        work1();
+        for (i = 0; i < nfalse; i++) {worki();}
+        work2();
+        for (i = 0; i < nfalse1; i++) {worki();}
+        work3();
         //tracepoint(memcached, end, "c");
         //unlock();
         delay ();
