@@ -16,17 +16,14 @@ Running tests ...
 |               tests/cav14/md.c | 3 | 1 | 1 | 0s | 0.028s | 0s | 28MB |
 |         tests/cav14/myri10ge.c | 4 | 0 | 3 | 0s | 0s | 0.011s | 17MB |
 |  tests/cav14/usb-serial.bug1.c | 7 | 2 | 2 | 0.329s | 2.424s | 3.536s | 109MB |
-| tests/cav14/usb-serial.bug1.org.c | 7 | 2 | 2 | 0.322s | 2.801s | 17.969s | 672MB |
 |  tests/cav14/usb-serial.bug2.c | 7 | 1 | 6 | 0.758s | 2.084s | 13.877s | 382MB |
 |  tests/cav14/usb-serial.bug3.c | 7 | 1 | 4 | 3.913s | 1.192s | 458.225s | 4239MB |
 |  tests/cav14/usb-serial.bug4.c | 7 | 1 | 4 | 84.371s | 2.281s | 264.22s | 3516MB |
-|       tests/cav14/usb-serial.c | 7 | 0 | 4 | 0s | 0s | 89.737s | 1895MB |
-|  tests/cav14/usb-serial.conr.c | 7 | 0 | 4 | 0s | 0s | 93.19s | 1889MB |
+|       tests/cav14/usb-serial-newcode.c | 7 | 0 | 4 | 0s | 0s | 116.258s | 2320MB |
 | tests/linux_drivers/cpmac.bug1.c | 5 | 1 | 1 | 1.285s | 114.078s | 19.879s | 830MB |
 | tests/linux_drivers/cpmac.bug2.c | 5 | 1 | 2 | 2.172s | 60.712s | 27.099s | 899MB |
 | tests/linux_drivers/cpmac.bug3.c | 5 | 1 | 1 | 5.229s | 100.297s | 9.185s | 498MB |
 | tests/linux_drivers/cpmac.bug4.c | 5 | 1 | 3 | 2.235s | 106.47s | 30.058s | 912MB |
 | tests/linux_drivers/cpmac.bug5.c | 5 | 1 | 3 | 2.533s | 100.764s | 54.685s | 927MB |
 |    tests/linux_drivers/cpmac.c | 5 | 0 | 1 | 0s | 0s | 16.62s | 656MB |
-| tests/linux_drivers/cpmac.seq.c | 5 | 2 | 3 | 73.975s | 529.188s | 85.565s | 1574MB |
 Done

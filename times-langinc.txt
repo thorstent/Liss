@@ -6,7 +6,6 @@ Running tests ...
 |            tests/cav13/ex3.c | 3 | 1 | 1 | 0s | 0.022s | 0s | 0.022s | 29MB
 |      tests/cav13/ex3_simpl.c | 2 | 1 | 1 | 0s | 0.023s | 0s | 0.023s | 29MB
 |            tests/cav13/ex5.c | 2 | 4 | 1 | 0s | 0.139s | 0s | 0.139s | 32MB
-|      tests/cav13/ex5_short.c | 2 | 4 | 1 | 0s | 0.125s | 0s | 0.125s | 32MB
 |         tests/cav14/dv1394.c | 2 | 2 | 1 | 0s | 0.076s | 0s | 0.076s | 32MB
 |   tests/cav14/dv1394_short.c | 2 | 2 | 1 | 0s | 0.078s | 0s | 0.078s | 32MB
 |         tests/cav14/em28xx.c | 2 | 1 | 1 | 0s | 0.025s | 0s | 0.025s | 29MB
