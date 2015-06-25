@@ -61,7 +61,7 @@ namespace placement {
   };
   
   enum class cost_type {
-    absolute_minimum, small_locks, coarse
+    absolute_minimum, small_locks, coarse, unoptimized
   };
   
   std::ostream& operator<<(std::ostream& out, cost_type c);

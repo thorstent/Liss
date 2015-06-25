@@ -77,3 +77,11 @@ Number of unlock operations: 2
 Number of abstract instructions inside a lock: 7
 Time for this cost function: 0.007s
 
+Starting lock placement for unopt
+Cost function 5: No cost function:
+Number of locks used: 1
+Number of lock operations: 2
+Number of unlock operations: 2
+Number of abstract instructions inside a lock: 3
+Time for this cost function: 0.001s
+

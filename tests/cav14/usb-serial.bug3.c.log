@@ -156,7 +156,7 @@ l1 (4-wn(port_dev_registered)[usb-serial.bug3.c:521]-4-r(dev_usb_serial_initiali
 -------------------
 
 
-TIME - Iteration 1: 0.221s
+TIME - Iteration 1: 0.206s
 
 2614 rounds; seen states: 2368; transitions: 13353
 Found candidate ... Checking if truely a counter-example(size=136)
@@ -315,19 +315,19 @@ l2 (4-wn(port_dev_registered)[usb-serial.bug3.c:521]-4-rs(port_tty_registered)[u
 -------------------
 
 
-TIME - Iteration 2: 0.223s
+TIME - Iteration 2: 0.234s
 
 225812 rounds; seen states: 143794; transitions: 1370764
 Included
 Synthesis was successful.
 Threads: 7
 Iterations: 2
-Liss: 0.076s
-Verification: 2.431s
-Synthesis: 0.366s
-Memory: 106MB
+Liss: 0.069s
+Verification: 2.452s
+Synthesis: 0.369s
+Memory: 105MB
 Total number of conflicts found: 2
-7 | 2 | 1 | 0.076s | 0.366s | 2.431s | 2.873s | 106MB
+7 | 2 | 1 | 0.069s | 0.369s | 2.452s | 2.89s | 105MB
 Lock statistics:
 ---------------
 Starting lock placement for absmin
@@ -336,7 +336,7 @@ Number of locks used: 1
 Number of lock operations: 3
 Number of unlock operations: 3
 Number of abstract instructions inside a lock: 17
-Time for this cost function: 0.444s
+Time for this cost function: 0.474s
 
 Starting lock placement for small
 Cost function 3: Smallest locks:
@@ -344,7 +344,7 @@ Number of locks used: 1
 Number of lock operations: 3
 Number of unlock operations: 3
 Number of abstract instructions inside a lock: 17
-Time for this cost function: 0.453s
+Time for this cost function: 0.489s
 
 Starting lock placement for coarse
 Cost function 4: Coarse locks:
@@ -352,5 +352,13 @@ Number of locks used: 1
 Number of lock operations: 3
 Number of unlock operations: 3
 Number of abstract instructions inside a lock: 17
-Time for this cost function: 1.078s
+Time for this cost function: 1.162s
+
+Starting lock placement for unopt
+Cost function 5: No cost function:
+Number of locks used: 1
+Number of lock operations: 5
+Number of unlock operations: 5
+Number of abstract instructions inside a lock: 18
+Time for this cost function: 0.117s
 

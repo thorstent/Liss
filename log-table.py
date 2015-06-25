@@ -40,6 +40,9 @@ def process_files(files):
   print("\ncoarse")
   for f in files:
     process_statistic(f, 'coarse')
+  print("\nunopt")
+  for f in files:
+    process_statistic(f, 'unopt')
 
 
 files1 = glob.glob("tests/cav13/*.log")

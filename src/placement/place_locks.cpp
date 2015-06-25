@@ -38,6 +38,8 @@ namespace placement {
         return out << "Smallest locks";
       case cost_type::coarse:
         return out << "Coarse locks";
+      case cost_type::unoptimized:
+        return out << "No cost function";
     }
     return out;
   }
@@ -50,6 +52,8 @@ namespace placement {
         return "small";
       case cost_type::coarse:
         return "coarse";
+      case cost_type::unoptimized:
+        return "unopt";
     }
     return "";
   }
@@ -409,6 +413,7 @@ bool same_instructions(const disj<synthesis::lock_lists>& a, const disj<synthesi
 
 void place_locks::cost_model(z3::optimize& slv, locking_constraints& lc, cost_type cost_function, const synthesis::lock_symbols& locks_to_place)
 {
+  if (cost_function==cost_type::unoptimized) return;
   unsigned t = 0;
   for (const cfg::abstract_cfg* thread : threads) {
     for (unsigned i = 1; i <= thread->no_states(); ++i) {

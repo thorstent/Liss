@@ -263,7 +263,7 @@ l2 (4-r(desc_ring)[cpmac.bug1.c:660](3)-4-r(desc_ring)[cpmac.bug1.c:660](3), 3-w
 -------------------
 
 
-TIME - Iteration 1: 2.234s
+TIME - Iteration 1: 2.203s
 
 49010 rounds; seen states: 30950; transitions: 262581
 Found candidate ... Checking if truely a counter-example(size=254)
@@ -275,12 +275,12 @@ Included
 Synthesis was successful.
 Threads: 5
 Iterations: 1
-Liss: 0.068s
+Liss: 0.06s
 Verification: 3.816s
-Synthesis: 2.165s
+Synthesis: 2.141s
 Memory: 157MB
 Total number of conflicts found: 2
-5 | 1 | 2 | 0.068s | 2.165s | 3.816s | 6.049s | 157MB
+5 | 1 | 2 | 0.06s | 2.141s | 3.816s | 6.017s | 157MB
 Lock statistics:
 ---------------
 Starting lock placement for absmin
@@ -289,7 +289,7 @@ Number of locks used: 1
 Number of lock operations: 3
 Number of unlock operations: 3
 Number of abstract instructions inside a lock: 9
-Time for this cost function: 0.646s
+Time for this cost function: 0.688s
 
 Starting lock placement for small
 Cost function 3: Smallest locks:
@@ -297,7 +297,7 @@ Number of locks used: 1
 Number of lock operations: 3
 Number of unlock operations: 3
 Number of abstract instructions inside a lock: 9
-Time for this cost function: 0.664s
+Time for this cost function: 0.671s
 
 Starting lock placement for coarse
 Cost function 4: Coarse locks:
@@ -305,5 +305,13 @@ Number of locks used: 1
 Number of lock operations: 3
 Number of unlock operations: 3
 Number of abstract instructions inside a lock: 9
-Time for this cost function: 1.586s
+Time for this cost function: 1.644s
+
+Starting lock placement for unopt
+Cost function 5: No cost function:
+Number of locks used: 2
+Number of lock operations: 6
+Number of unlock operations: 6
+Number of abstract instructions inside a lock: 11
+Time for this cost function: 0.211s
 

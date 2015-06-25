@@ -33,7 +33,7 @@ l1 (1-rs(open)[ex5.c:60]-1-w(power_on)[ex5.c:64], 0-no(open)[ex5.c:44]-0-r(power
 -------------------
 
 
-TIME - Iteration 1: 0.032s
+TIME - Iteration 1: 0.03s
 
 53 rounds; seen states: 55; transitions: 114
 Checking if the trace is actually a counter example
@@ -118,7 +118,7 @@ l4 (1-rs(open)[ex5.c:60]-1-r(power_on)[ex5.c:67], 0-wn(open)[ex5.c:39](2)-0-w(po
 -------------------
 
 
-TIME - Iteration 3: 0.032s
+TIME - Iteration 3: 0.033s
 
 97 rounds; seen states: 83; transitions: 218
 Checking if the trace is actually a counter example
@@ -164,10 +164,10 @@ Threads: 2
 Iterations: 4
 Liss: 0s
 Verification: 0s
-Synthesis: 0.14s
+Synthesis: 0.138s
 Memory: 33MB
 Total number of conflicts found: 5
-2 | 4 | 1 | 0s | 0.14s | 0s | 0.14s | 33MB
+2 | 4 | 1 | 0s | 0.138s | 0s | 0.138s | 33MB
 Lock statistics:
 ---------------
 Starting lock placement for absmin
@@ -176,7 +176,7 @@ Number of locks used: 1
 Number of lock operations: 3
 Number of unlock operations: 2
 Number of abstract instructions inside a lock: 9
-Time for this cost function: 0.038s
+Time for this cost function: 0.039s
 
 Starting lock placement for small
 Cost function 3: Smallest locks:
@@ -193,4 +193,12 @@ Number of lock operations: 2
 Number of unlock operations: 2
 Number of abstract instructions inside a lock: 9
 Time for this cost function: 0.058s
+
+Starting lock placement for unopt
+Cost function 5: No cost function:
+Number of locks used: 2
+Number of lock operations: 5
+Number of unlock operations: 4
+Number of abstract instructions inside a lock: 9
+Time for this cost function: 0.013s
 

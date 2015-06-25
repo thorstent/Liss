@@ -41,7 +41,7 @@ l3 (1-w(irq_status)[i915_irq.c:42]-1-w(irq_status)[i915_irq.c:42], 0-r(irq_statu
 -------------------
 
 
-TIME - Iteration 1: 0.029s
+TIME - Iteration 1: 0.027s
 
 22 rounds; seen states: 22; transitions: 32
 Included
@@ -50,10 +50,10 @@ Threads: 2
 Iterations: 1
 Liss: 0s
 Verification: 0s
-Synthesis: 0.029s
+Synthesis: 0.026s
 Memory: 30MB
 Total number of conflicts found: 3
-2 | 1 | 1 | 0s | 0.029s | 0s | 0.029s | 30MB
+2 | 1 | 1 | 0s | 0.026s | 0s | 0.026s | 30MB
 Lock statistics:
 ---------------
 Starting lock placement for absmin
@@ -70,7 +70,7 @@ Number of locks used: 2
 Number of lock operations: 4
 Number of unlock operations: 4
 Number of abstract instructions inside a lock: 6
-Time for this cost function: 0.013s
+Time for this cost function: 0.012s
 
 Starting lock placement for coarse
 Cost function 4: Coarse locks:
@@ -78,5 +78,13 @@ Number of locks used: 1
 Number of lock operations: 2
 Number of unlock operations: 2
 Number of abstract instructions inside a lock: 6
-Time for this cost function: 0.015s
+Time for this cost function: 0.014s
+
+Starting lock placement for unopt
+Cost function 5: No cost function:
+Number of locks used: 2
+Number of lock operations: 4
+Number of unlock operations: 4
+Number of abstract instructions inside a lock: 6
+Time for this cost function: 0.004s
 

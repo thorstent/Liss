@@ -60,7 +60,7 @@ l3 (2-w(bsy)[f_acm.c:108]-2-w(bsy)[f_acm.c:108], 0-r(bsy)[f_acm.c:49]-0-w(bsy)[f
 -------------------
 
 
-TIME - Iteration 1: 0.063s
+TIME - Iteration 1: 0.075s
 
 33 rounds; seen states: 63; transitions: 81
 Found candidate ... Checking if truely a counter-example(size=31)
@@ -164,7 +164,7 @@ l6 (1-w(bsy)[f_acm.c:51]-1-w(bsy)[f_acm.c:58], 0-r(bsy)[f_acm.c:49]-0-r(bsy)[f_a
 -------------------
 
 
-TIME - Iteration 3: 0.061s
+TIME - Iteration 3: 0.06s
 
 115 rounds; seen states: 176; transitions: 378
 Found candidate ... Checking if truely a counter-example(size=23)
@@ -214,7 +214,7 @@ l8 (1-w(bsy)[f_acm.c:51]-1-w(bsy)[f_acm.c:58], 0-r(bsy)[f_acm.c:49]-0-r(bsy)[f_a
 -------------------
 
 
-TIME - Iteration 4: 0.049s
+TIME - Iteration 4: 0.048s
 
 826 rounds; seen states: 767; transitions: 2320
 Found candidate ... Checking if truely a counter-example(size=14)
@@ -297,12 +297,12 @@ Included
 Synthesis was successful.
 Threads: 3
 Iterations: 6
-Liss: 0.011s
+Liss: 0.01s
 Verification: 0.011s
-Synthesis: 0.3s
+Synthesis: 0.312s
 Memory: 36MB
 Total number of conflicts found: 10
-3 | 6 | 1 | 0.011s | 0.3s | 0.011s | 0.322s | 36MB
+3 | 6 | 1 | 0.01s | 0.312s | 0.011s | 0.333s | 36MB
 Lock statistics:
 ---------------
 Starting lock placement for absmin
@@ -319,7 +319,7 @@ Number of locks used: 1
 Number of lock operations: 2
 Number of unlock operations: 2
 Number of abstract instructions inside a lock: 25
-Time for this cost function: 0.241s
+Time for this cost function: 0.242s
 
 Starting lock placement for coarse
 Cost function 4: Coarse locks:
@@ -327,5 +327,13 @@ Number of locks used: 1
 Number of lock operations: 2
 Number of unlock operations: 2
 Number of abstract instructions inside a lock: 25
-Time for this cost function: 0.375s
+Time for this cost function: 0.374s
+
+Starting lock placement for unopt
+Cost function 5: No cost function:
+Number of locks used: 1
+Number of lock operations: 2
+Number of unlock operations: 3
+Number of abstract instructions inside a lock: 27
+Time for this cost function: 0.032s
 
