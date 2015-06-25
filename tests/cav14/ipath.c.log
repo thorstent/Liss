@@ -48,9 +48,9 @@ Iterations: 1
 Liss: 0s
 Verification: 0s
 Synthesis: 0.027s
-Memory: 30MB
+Memory: 31MB
 Total number of conflicts found: 1
-2 | 1 | 3 | 0s | 0.027s | 0s | 0.027s | 30MB
+2 | 1 | 3 | 0s | 0.027s | 0s | 0.027s | 31MB
 Lock statistics:
 ---------------
 Starting lock placement for absmin

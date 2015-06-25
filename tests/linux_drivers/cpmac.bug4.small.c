@@ -646,7 +646,6 @@ static struct mii_bus cpmac_mii;
 
 static int cpmac_start_xmit(struct sk_buff *skb)
 {
-lock_s(synthlock_3);
 	int queue, len, ret;
 	//struct cpmac_desc *desc;
 	//struct cpmac_priv *priv = netdev_priv(dev);
@@ -658,6 +657,7 @@ lock_s(synthlock_3);
         //cpmac_write(CPMAC_TX_PTR(queue), (u32)desc_ring[queue].mapping);
 
         // BUG: move this line to the  *** location below
+        lock_s(synthlock_3);
         notify(cond_irq_can_happen);
 
 	if (unlikely(skb_padto(skb, ETH_ZLEN))) {
@@ -936,12 +936,12 @@ static irqreturn_t cpmac_irq(int irq)
 	//cpmac_write(CPMAC_MAC_EOI_VECTOR, 0);
         unlock_s(synthlock_3);
         reset(cond_irq_can_happen);
+        lock_s(synthlock_3);
 
         // TODO
 //	if (unlikely(status & (MAC_INT_HOST | MAC_INT_STATUS)))
 //		cpmac_check_status(dev);
 
-	lock_s(synthlock_3);
 	return IRQ_HANDLED;
 }
 

@@ -241,11 +241,11 @@ void usb_serial_device_remove () {
     lock_s(synthlock_0);
     x = port_initialized;
     x = dev_usb_serial_initialized;
+    unlock_s(synthlock_0);
     //assert (dev_usb_serial_initialized>=0);
 
     
     /* make sure suspend/resume doesn't race against port_remove */
-    unlock_s(synthlock_0);
     dev_autopm++;
     
     reset(port_tty_registered);

@@ -23,7 +23,7 @@ l1 (1-no(IntrMask)[ex1.c:35]-1-w(intr_mask)[ex1.c:36], 0-wa(IntrMask)[ex1.c:19]-
 -------------------
 
 
-TIME - Iteration 1: 0.023s
+TIME - Iteration 1: 0.047s
 
 13 rounds; seen states: 13; transitions: 20
 Included
@@ -32,10 +32,10 @@ Threads: 2
 Iterations: 1
 Liss: 0s
 Verification: 0s
-Synthesis: 0.023s
+Synthesis: 0.047s
 Memory: 30MB
 Total number of conflicts found: 1
-2 | 1 | 1 | 0s | 0.023s | 0s | 0.023s | 30MB
+2 | 1 | 1 | 0s | 0.047s | 0s | 0.047s | 30MB
 Lock statistics:
 ---------------
 Starting lock placement for absmin
@@ -44,7 +44,7 @@ Number of locks used: 1
 Number of lock operations: 2
 Number of unlock operations: 3
 Number of abstract instructions inside a lock: 3
-Time for this cost function: 0.002s
+Time for this cost function: 0.003s
 
 Starting lock placement for small
 Cost function 3: Smallest locks:
@@ -52,7 +52,7 @@ Number of locks used: 1
 Number of lock operations: 2
 Number of unlock operations: 3
 Number of abstract instructions inside a lock: 3
-Time for this cost function: 0.001s
+Time for this cost function: 0.003s
 
 Starting lock placement for coarse
 Cost function 4: Coarse locks:
@@ -60,5 +60,5 @@ Number of locks used: 1
 Number of lock operations: 2
 Number of unlock operations: 3
 Number of abstract instructions inside a lock: 3
-Time for this cost function: 0.003s
+Time for this cost function: 0.005s
 

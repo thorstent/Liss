@@ -214,7 +214,7 @@ l8 (1-w(bsy)[f_acm.c:51]-1-w(bsy)[f_acm.c:58], 0-r(bsy)[f_acm.c:49]-0-r(bsy)[f_a
 -------------------
 
 
-TIME - Iteration 4: 0.05s
+TIME - Iteration 4: 0.049s
 
 826 rounds; seen states: 767; transitions: 2320
 Found candidate ... Checking if truely a counter-example(size=14)
@@ -249,7 +249,7 @@ l9 (1-r(bsy)[f_acm.c:49]-1-no(pending)[f_acm.c:63], 0-rs(pending)[f_acm.c:46]-0-
 -------------------
 
 
-TIME - Iteration 5: 0.033s
+TIME - Iteration 5: 0.032s
 
 1100 rounds; seen states: 1076; transitions: 3184
 Found candidate ... Checking if truely a counter-example(size=23)
@@ -290,7 +290,7 @@ l10 (2-w(bsy)[f_acm.c:108]-2-w(bsy)[f_acm.c:108], 0-r(bsy)[f_acm.c:49]-0-w(bsy)[
 -------------------
 
 
-TIME - Iteration 6: 0.051s
+TIME - Iteration 6: 0.05s
 
 1902 rounds; seen states: 1736; transitions: 5513
 Included
@@ -299,10 +299,10 @@ Threads: 3
 Iterations: 6
 Liss: 0.011s
 Verification: 0.011s
-Synthesis: 0.304s
+Synthesis: 0.3s
 Memory: 36MB
 Total number of conflicts found: 10
-3 | 6 | 1 | 0.011s | 0.304s | 0.011s | 0.326s | 36MB
+3 | 6 | 1 | 0.011s | 0.3s | 0.011s | 0.322s | 36MB
 Lock statistics:
 ---------------
 Starting lock placement for absmin
@@ -319,7 +319,7 @@ Number of locks used: 1
 Number of lock operations: 2
 Number of unlock operations: 2
 Number of abstract instructions inside a lock: 25
-Time for this cost function: 0.235s
+Time for this cost function: 0.241s
 
 Starting lock placement for coarse
 Cost function 4: Coarse locks:
@@ -327,5 +327,5 @@ Number of locks used: 1
 Number of lock operations: 2
 Number of unlock operations: 2
 Number of abstract instructions inside a lock: 25
-Time for this cost function: 0.361s
+Time for this cost function: 0.375s
 

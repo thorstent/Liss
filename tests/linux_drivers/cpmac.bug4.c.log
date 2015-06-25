@@ -239,7 +239,7 @@ l1 (4-no(cond_irq_can_happen)[cpmac.bug4.c:656](2)-4-r(desc_ring)[cpmac.bug4.c:6
 -------------------
 
 
-TIME - Iteration 1: 1.821s
+TIME - Iteration 1: 1.855s
 
 5447 rounds; seen states: 4503; transitions: 27724
 Found candidate ... Checking if truely a counter-example(size=228)
@@ -556,7 +556,7 @@ l17 (4-w(desc_ring)[cpmac.bug4.c:675](2)-4-w(desc_ring)[cpmac.bug4.c:675](2), 3-
 -------------------
 
 
-TIME - Iteration 2: 11.658s
+TIME - Iteration 2: 11.298s
 
 5922 rounds; seen states: 4671; transitions: 30100
 Found candidate ... Checking if truely a counter-example(size=228)
@@ -1040,7 +1040,7 @@ l19 (4-rs(send_enabled)[eth.h:447](3)-4-r(desc_ring)[cpmac.bug4.c:666](3), 3-w(d
 -------------------
 
 
-TIME - Iteration 4: 2.683s
+TIME - Iteration 4: 2.679s
 
 5922 rounds; seen states: 4671; transitions: 30100
 Found candidate ... Checking if truely a counter-example(size=228)
@@ -1077,12 +1077,12 @@ Included
 Synthesis was successful.
 Threads: 5
 Iterations: 4
-Liss: 0.759s
-Verification: 87.412s
-Synthesis: 17.09s
+Liss: 0.765s
+Verification: 87.719s
+Synthesis: 16.754s
 Memory: 5393MB
 Total number of conflicts found: 10
-5 | 4 | 7 | 0.759s | 17.09s | 87.412s | 105.261s | 5393MB
+5 | 4 | 7 | 0.765s | 16.754s | 87.719s | 105.238s | 5393MB
 Lock statistics:
 ---------------
 Starting lock placement for absmin
@@ -1091,7 +1091,7 @@ Number of locks used: 1
 Number of lock operations: 6
 Number of unlock operations: 6
 Number of abstract instructions inside a lock: 26
-Time for this cost function: 4.948s
+Time for this cost function: 4.885s
 
 Starting lock placement for small
 Cost function 3: Smallest locks:
@@ -1099,7 +1099,7 @@ Number of locks used: 4
 Number of lock operations: 12
 Number of unlock operations: 13
 Number of abstract instructions inside a lock: 26
-Time for this cost function: 24.826s
+Time for this cost function: 29.405s
 
 Starting lock placement for coarse
 Cost function 4: Coarse locks:
@@ -1107,5 +1107,5 @@ Number of locks used: 1
 Number of lock operations: 4
 Number of unlock operations: 4
 Number of abstract instructions inside a lock: 28
-Time for this cost function: 10.711s
+Time for this cost function: 10.539s
 

@@ -16,10 +16,7 @@ deadlock() {
     seq=$(echo "$out" | grep Sequential)
     con=$(echo "$out" | grep Concurrent)
     dead=""
-    if [[ "$seq" == *"Deadlock"* ]]; then
-      echo "Sequential deadlock" "${1}"
-      dead="dead"
-    elif [[ "$seq" != *"No deadlock found"* ]]; then
+    if [[ "$seq" != *"No deadlock found"* ]]; then
       echo "Deadlock detection failed"
       dead="dead"
     fi
@@ -65,7 +62,7 @@ find tests -name '*.log' -exec rm {} \;
 
 for f in tests/cav13/*.c tests/cav14/*.c tests/linux_drivers/*.c
 do
-  if [[ "$f" != *".locksv1.c" ]] && not_in_array IGNORE "$f"; then
+  if [[ "$f" != *".locksv1.c" && "$f" != *".locksv1a.c" ]] && not_in_array IGNORE "$f"; then
     output_file1=${f/%.c/.absmin.c}
     output_file2=${f/%.c/.small.c}
     output_file3=${f/%.c/.coarse.c}

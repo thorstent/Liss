@@ -467,7 +467,7 @@ l27 (3-wa(cond_irq_enabled)[cpmac.bug2.c:1464]-3-r(desc_ring)[cpmac.bug2.c:695],
 -------------------
 
 
-TIME - Iteration 1: 44.618s
+TIME - Iteration 1: 44.799s
 
 2868 rounds; seen states: 3556; transitions: 15092
 Found candidate ... Checking if truely a counter-example(size=229)
@@ -716,7 +716,7 @@ l29 (3-w(desc_ring)[cpmac.bug2.c:708]-3-w(desc_ring)[cpmac.bug2.c:708], 1-r(desc
 -------------------
 
 
-TIME - Iteration 2: 3.77s
+TIME - Iteration 2: 3.723s
 
 5988 rounds; seen states: 6738; transitions: 31723
 Found candidate ... Checking if truely a counter-example(size=231)
@@ -1236,7 +1236,7 @@ l58 (3-wa(cond_irq_enabled)[cpmac.bug2.c:1464]-3-r(desc_ring)[cpmac.bug2.c:695],
 -------------------
 
 
-TIME - Iteration 3: 63.413s
+TIME - Iteration 3: 62.879s
 
 5988 rounds; seen states: 6741; transitions: 31723
 Found candidate ... Checking if truely a counter-example(size=231)
@@ -1525,7 +1525,7 @@ l60 (3-w(desc_ring)[cpmac.bug2.c:708]-3-w(desc_ring)[cpmac.bug2.c:708], 2-r(desc
 -------------------
 
 
-TIME - Iteration 4: 3.26s
+TIME - Iteration 4: 3.281s
 
 5988 rounds; seen states: 6741; transitions: 31723
 Found candidate ... Checking if truely a counter-example(size=231)
@@ -1577,12 +1577,12 @@ Included
 Synthesis was successful.
 Threads: 5
 Iterations: 4
-Liss: 1.145s
-Verification: 35.106s
-Synthesis: 113.911s
+Liss: 1.146s
+Verification: 35.538s
+Synthesis: 113.532s
 Memory: 1211MB
 Total number of conflicts found: 55
-5 | 4 | 10 | 1.145s | 113.911s | 35.106s | 150.162s | 1211MB
+5 | 4 | 10 | 1.146s | 113.532s | 35.538s | 150.216s | 1211MB
 Lock statistics:
 ---------------
 Starting lock placement for absmin

@@ -24,7 +24,7 @@
 
 #define pr_err(format, ...) {}
 
-lock_t synthlock_3;
+lock_t synthlock_0;
 conditional_t cond_irq_can_happen;
 
 int ar7_gpio_disable(unsigned gpio) {
@@ -1314,11 +1314,11 @@ static int cpmac_remove()
 //
 int cpmac_init(void)
 {
-lock_s(synthlock_3);
 	u32 mask;
 	int i, res;
 
         // BUG: move this line to the *** location below        
+	lock_s(synthlock_0);
 	res = platform_driver_register();
 //	cpmac_mii = mdiobus_alloc();
 //	if (cpmac_mii == NULL)
@@ -1381,7 +1381,7 @@ fail_cpmac:
 
 fail_mii:
 	iounmap(cpmac_mii.priv);
-	unlock_s(synthlock_3);
+	unlock_s(synthlock_0);
 
 fail_alloc:
 //	mdiobus_free(cpmac_mii);
@@ -1416,16 +1416,16 @@ void thread_init_exit()
 
 void thread_probe_remove () {
     if (nondet) {
-        lock_s(synthlock_3);
+        lock_s(synthlock_0);
         assume(cond_platform_driver_registered);
         cpmac_probe();
         if (nondet) {
-            unlock_s(synthlock_3);
+            unlock_s(synthlock_0);
             assume(netdev_registered);
             yield();
             cpmac_remove();
         } else {
-            unlock_s(synthlock_3);
+            unlock_s(synthlock_0);
             assume_not(netdev_registered);
         }
     };

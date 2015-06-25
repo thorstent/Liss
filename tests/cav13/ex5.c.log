@@ -33,7 +33,7 @@ l1 (1-rs(open)[ex5.c:60]-1-w(power_on)[ex5.c:64], 0-no(open)[ex5.c:44]-0-r(power
 -------------------
 
 
-TIME - Iteration 1: 0.03s
+TIME - Iteration 1: 0.032s
 
 53 rounds; seen states: 55; transitions: 114
 Checking if the trace is actually a counter example
@@ -81,7 +81,7 @@ l3 (1-rs(open)[ex5.c:60]-1-w(power_on)[ex5.c:64], 0-wn(open)[ex5.c:39](2)-0-w(po
 -------------------
 
 
-TIME - Iteration 2: 0.041s
+TIME - Iteration 2: 0.04s
 
 75 rounds; seen states: 67; transitions: 169
 Checking if the trace is actually a counter example
@@ -118,7 +118,7 @@ l4 (1-rs(open)[ex5.c:60]-1-r(power_on)[ex5.c:67], 0-wn(open)[ex5.c:39](2)-0-w(po
 -------------------
 
 
-TIME - Iteration 3: 0.033s
+TIME - Iteration 3: 0.032s
 
 97 rounds; seen states: 83; transitions: 218
 Checking if the trace is actually a counter example
@@ -155,7 +155,7 @@ l5 (1-rs(open)[ex5.c:60]-1-rs(open)[ex5.c:60], 0-wa(open)[ex5.c:42](2)-0-no(open
 -------------------
 
 
-TIME - Iteration 4: 0.038s
+TIME - Iteration 4: 0.037s
 
 100 rounds; seen states: 79; transitions: 235
 Included
@@ -164,10 +164,10 @@ Threads: 2
 Iterations: 4
 Liss: 0s
 Verification: 0s
-Synthesis: 0.139s
+Synthesis: 0.14s
 Memory: 33MB
 Total number of conflicts found: 5
-2 | 4 | 1 | 0s | 0.139s | 0s | 0.139s | 33MB
+2 | 4 | 1 | 0s | 0.14s | 0s | 0.14s | 33MB
 Lock statistics:
 ---------------
 Starting lock placement for absmin
@@ -176,7 +176,7 @@ Number of locks used: 1
 Number of lock operations: 3
 Number of unlock operations: 2
 Number of abstract instructions inside a lock: 9
-Time for this cost function: 0.033s
+Time for this cost function: 0.038s
 
 Starting lock placement for small
 Cost function 3: Smallest locks:
@@ -184,7 +184,7 @@ Number of locks used: 2
 Number of lock operations: 5
 Number of unlock operations: 4
 Number of abstract instructions inside a lock: 9
-Time for this cost function: 0.046s
+Time for this cost function: 0.05s
 
 Starting lock placement for coarse
 Cost function 4: Coarse locks:
@@ -192,5 +192,5 @@ Number of locks used: 1
 Number of lock operations: 2
 Number of unlock operations: 2
 Number of abstract instructions inside a lock: 9
-Time for this cost function: 0.06s
+Time for this cost function: 0.058s
 

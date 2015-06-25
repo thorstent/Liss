@@ -1252,14 +1252,13 @@ unlock_s(synthlock_0);
 
 	//priv->pdev = pdev;
 	mem = platform_get_resource_byname(IORESOURCE_MEM, "regs");
-	lock_s(synthlock_0);
 	if (!mem) {
 		rc = -ENODEV;
 		goto out;
 	}
 
+	lock_s(synthlock_0);
 	netdev.irq = platform_get_irq_byname("irq");
-	unlock_s(synthlock_3);
 	unlock_s(synthlock_0);
 
 	//dev->netdev_ops = &cpmac_netdev_ops;
@@ -1270,6 +1269,7 @@ unlock_s(synthlock_0);
 //	spin_lock_init(&priv->cplock);
 //	spin_lock_init(&priv->rx_lock);
 //	priv->dev = dev;
+	unlock_s(synthlock_3);
 	unlock_s(synthlock_2);
 	unlock_s(synthlock_1);
 	ring_size = 64;
@@ -1293,6 +1293,7 @@ unlock_s(synthlock_0);
 
 	rc = register_netdev();
 	lock_s(synthlock_3);
+	lock_s(synthlock_2);
 //	if (rc) {
 //		//dev_err(&pdev->dev, "Could not register net device\n");
 //		goto fail;
@@ -1304,7 +1305,6 @@ unlock_s(synthlock_0);
 //			 priv->phy_name, dev->dev_addr);
 //	}
 
-	lock_s(synthlock_2);
 	lock_s(synthlock_1);
 	lock_s(synthlock_0);
 	return 0;
@@ -1312,6 +1312,7 @@ unlock_s(synthlock_0);
 fail:
 //	free_netdev(dev);
 out:
+	lock_s(synthlock_0);
 	return rc;
 }
 
@@ -1342,7 +1343,6 @@ lock_s(synthlock_3);
         // BUG: move this line to the *** location below        
 	res = platform_driver_register();
 	lock_s(synthlock_2);
-	lock_s(synthlock_0);
 //	cpmac_mii = mdiobus_alloc();
 //	if (cpmac_mii == NULL)
 //		return -ENOMEM;
@@ -1353,6 +1353,7 @@ lock_s(synthlock_3);
 //	cpmac_mii->reset = cpmac_mdio_reset;
 //	cpmac_mii->irq = mii_irqs;
 
+	lock_s(synthlock_0);
 	cpmac_mii.priv = ioremap(AR7_REGS_MDIO, 256);
 	if (!cpmac_mii.priv) {
 		pr_err("Can't ioremap mdio registers\n");
@@ -1366,8 +1367,8 @@ lock_s(synthlock_3);
 	ar7_device_reset(AR7_RESET_BIT_CPMAC_LO);
 	ar7_device_reset(AR7_RESET_BIT_CPMAC_HI);
 	ar7_device_reset(AR7_RESET_BIT_EPHY);
-	lock_s(synthlock_1);
 
+	lock_s(synthlock_1);
 	cpmac_mdio_reset();
 	unlock_s(synthlock_2);
 
@@ -1411,12 +1412,12 @@ fail_cpmac:
 
 fail_mii:
 	iounmap(cpmac_mii.priv);
-	unlock_s(synthlock_3);
 	unlock_s(synthlock_1);
 
 fail_alloc:
 //	mdiobus_free(cpmac_mii);
 
+	unlock_s(synthlock_3);
 	return res;
 }
 
@@ -1454,17 +1455,15 @@ void thread_probe_remove () {
         lock_s(synthlock_0);
         cpmac_probe();
         unlock_s(synthlock_2);
+        unlock_s(synthlock_1);
+        unlock_s(synthlock_0);
         if (nondet) {
             unlock_s(synthlock_3);
-            unlock_s(synthlock_1);
-            unlock_s(synthlock_0);
             assume(netdev_registered);
             yield();
             cpmac_remove();
         } else {
             unlock_s(synthlock_3);
-            unlock_s(synthlock_1);
-            unlock_s(synthlock_0);
             assume_not(netdev_registered);
         }
     };

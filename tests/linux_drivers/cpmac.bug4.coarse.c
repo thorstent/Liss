@@ -24,7 +24,7 @@
 
 #define pr_err(format, ...) {}
 
-lock_t synthlock_1;
+lock_t synthlock_0;
 conditional_t cond_irq_can_happen;
 
 int ar7_gpio_disable(unsigned gpio) {
@@ -643,6 +643,7 @@ static struct mii_bus cpmac_mii;
 
 static int cpmac_start_xmit(struct sk_buff *skb)
 {
+lock_s(synthlock_0);
 	int queue, len, ret;
 	//struct cpmac_desc *desc;
 	//struct cpmac_priv *priv = netdev_priv(dev);
@@ -654,7 +655,6 @@ static int cpmac_start_xmit(struct sk_buff *skb)
         //cpmac_write(CPMAC_TX_PTR(queue), (u32)desc_ring[queue].mapping);
 
         // BUG: move this line to the  *** location below
-        lock_s(synthlock_1);
         notify(cond_irq_can_happen);
 
 	if (unlikely(skb_padto(skb, ETH_ZLEN))) {
@@ -672,10 +672,10 @@ static int cpmac_start_xmit(struct sk_buff *skb)
                     ret = NETDEV_TX_BUSY;
             } else {
 
-                unlock_s(synthlock_1);
+                unlock_s(synthlock_0);
                 spin_lock(cplock);
                 spin_unlock(cplock);
-                lock_s(synthlock_1);
+                lock_s(synthlock_0);
                 desc_ring[queue].dataflags = CPMAC_SOP | CPMAC_EOP | CPMAC_OWN;
                 desc_ring[queue].skb = skb;
                 desc_ring[queue].data_mapping = dma_map_single(skb->data, len,
@@ -696,7 +696,7 @@ static int cpmac_start_xmit(struct sk_buff *skb)
         }
         // ***
         
-        unlock_s(synthlock_1);
+        unlock_s(synthlock_0);
         return ret;
 }
 
@@ -708,9 +708,9 @@ static void cpmac_end_xmit(int queue)
 //	desc = desc_ring[queue];
 	cpmac_write(CPMAC_TX_ACK(queue), (u32)desc_ring[queue].mapping);
 	if (likely(desc_ring[queue].skb)) {
-		unlock_s(synthlock_1);
+		unlock_s(synthlock_0);
 		spin_lock(cplock);
-		lock_s(synthlock_1);
+		lock_s(synthlock_0);
 		netdev.stats.tx_packets++;
 		netdev.stats.tx_bytes += desc_ring[queue].skb->len;
 		spin_unlock(cplock);
@@ -1473,11 +1473,11 @@ void thread_open_close () {
 void thread_irq () {
     while (nondet) {
         lock(irq_running_lock);
-        lock_s(synthlock_1);
+        lock_s(synthlock_0);
         assume (cond_irq_can_happen);
         assume (cond_irq_enabled);
         cpmac_irq(nondet);
-        unlock_s(synthlock_1);
+        unlock_s(synthlock_0);
         unlock(irq_running_lock);
         yield();
     }

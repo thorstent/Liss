@@ -156,7 +156,7 @@ l1 (4-wn(port_dev_registered)[usb-serial.bug4.c:522]-4-r(dev_usb_serial_initiali
 -------------------
 
 
-TIME - Iteration 1: 0.345s
+TIME - Iteration 1: 0.343s
 
 10866 rounds; seen states: 9848; transitions: 63447
 Found candidate ... Checking if truely a counter-example(size=136)
@@ -314,19 +314,19 @@ l2 (4-wn(port_dev_registered)[usb-serial.bug4.c:522]-4-r(dev_usb_serial_initiali
 -------------------
 
 
-TIME - Iteration 2: 0.345s
+TIME - Iteration 2: 0.343s
 
 275705 rounds; seen states: 140492; transitions: 1685695
 Included
 Synthesis was successful.
 Threads: 7
 Iterations: 2
-Liss: 0.377s
-Verification: 3.093s
-Synthesis: 0.311s
+Liss: 0.376s
+Verification: 3.146s
+Synthesis: 0.309s
 Memory: 131MB
 Total number of conflicts found: 2
-7 | 2 | 1 | 0.377s | 0.311s | 3.093s | 3.781s | 131MB
+7 | 2 | 1 | 0.376s | 0.309s | 3.146s | 3.831s | 131MB
 Lock statistics:
 ---------------
 Starting lock placement for absmin
@@ -335,7 +335,7 @@ Number of locks used: 1
 Number of lock operations: 3
 Number of unlock operations: 3
 Number of abstract instructions inside a lock: 15
-Time for this cost function: 0.399s
+Time for this cost function: 0.405s
 
 Starting lock placement for small
 Cost function 3: Smallest locks:
@@ -343,7 +343,7 @@ Number of locks used: 1
 Number of lock operations: 3
 Number of unlock operations: 3
 Number of abstract instructions inside a lock: 15
-Time for this cost function: 0.414s
+Time for this cost function: 0.42s
 
 Starting lock placement for coarse
 Cost function 4: Coarse locks:
@@ -351,5 +351,5 @@ Number of locks used: 1
 Number of lock operations: 3
 Number of unlock operations: 3
 Number of abstract instructions inside a lock: 15
-Time for this cost function: 0.988s
+Time for this cost function: 1.01s
 

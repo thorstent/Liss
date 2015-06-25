@@ -24,7 +24,7 @@
 
 #define pr_err(format, ...) {}
 
-lock_t synthlock_0;
+lock_t synthlock_3;
 conditional_t cond_irq_can_happen;
 
 int ar7_gpio_disable(unsigned gpio) {
@@ -1219,9 +1219,9 @@ static int cpmac_probe()
 				continue;
 			if (!cpmac_mii.phy_map[phy_id])
 				continue;
-			unlock_s(synthlock_0);
+			unlock_s(synthlock_3);
 			strncpy(mdio_bus_id, cpmac_mii.id, MII_BUS_ID_SIZE);
-			lock_s(synthlock_0);
+			lock_s(synthlock_3);
 			break;
 		}
 	}
@@ -1257,7 +1257,7 @@ static int cpmac_probe()
 //	spin_lock_init(&priv->cplock);
 //	spin_lock_init(&priv->rx_lock);
 //	priv->dev = dev;
-	unlock_s(synthlock_0);
+	unlock_s(synthlock_3);
 	ring_size = 64;
 	//msg_enable = netif_msg_init(debug_level, 0xff);
 	memcpy(netdev.dev_addr, pdata.dev_addr, sizeof(pdata.dev_addr));
@@ -1289,7 +1289,7 @@ static int cpmac_probe()
 //			 priv->phy_name, dev->dev_addr);
 //	}
 
-	lock_s(synthlock_0);
+	lock_s(synthlock_3);
 	return 0;
 
 fail:
@@ -1318,11 +1318,11 @@ static int cpmac_remove()
 //
 int cpmac_init(void)
 {
+lock_s(synthlock_3);
 	u32 mask;
 	int i, res;
 
         // BUG: move this line to the *** location below        
-	lock_s(synthlock_0);
 	res = platform_driver_register();
 //	cpmac_mii = mdiobus_alloc();
 //	if (cpmac_mii == NULL)
@@ -1373,9 +1373,9 @@ int cpmac_init(void)
         // ***
         
 	if (nondet) {
-                unlock_s(synthlock_0);
+                unlock_s(synthlock_3);
                 assume_not (cond_platform_driver_registered);
-                lock_s(synthlock_0);
+                lock_s(synthlock_3);
 		goto fail_cpmac;
         };
         assume (cond_platform_driver_registered);
@@ -1387,7 +1387,7 @@ fail_cpmac:
 
 fail_mii:
 	iounmap(cpmac_mii.priv);
-	unlock_s(synthlock_0);
+	unlock_s(synthlock_3);
 
 fail_alloc:
 //	mdiobus_free(cpmac_mii);
@@ -1422,15 +1422,16 @@ void thread_init_exit()
 
 void thread_probe_remove () {
     if (nondet) {
-        lock_s(synthlock_0);
+        lock_s(synthlock_3);
         assume(cond_platform_driver_registered);
         cpmac_probe();
-        unlock_s(synthlock_0);
         if (nondet) {
+            unlock_s(synthlock_3);
             assume(netdev_registered);
             yield();
             cpmac_remove();
         } else {
+            unlock_s(synthlock_3);
             assume_not(netdev_registered);
         }
     };

@@ -247,10 +247,10 @@ void usb_serial_device_remove () {
     dev_autopm++;
     
     reset(port_tty_registered);
-    unlock_s(synthlock_0);
     
     //belkin_port_remove();
     
+    unlock_s(synthlock_0);
     dev_autopm--;
 }
 

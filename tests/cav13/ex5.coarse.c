@@ -46,10 +46,10 @@ lock_s(synthlock_0);
     notify(open);
 
     x = power_on;
-    unlock_s(synthlock_0);
     //assert (power_on != 0);
 
 //    unlock(l);
+unlock_s(synthlock_0);
 }
 
 /* A client has stopped using the device.
@@ -69,9 +69,9 @@ void i2c_hid_close ()
     } 
 
     x = power_on;
-    unlock_s(synthlock_0);
     //assert (power_on == 0);
 
+    unlock_s(synthlock_0);
     unlock(l);
 }
 

@@ -29,7 +29,7 @@ find tests -name '*.log' -exec rm {} \;
 
 for f in tests/cav13/*.c tests/cav14/*.c tests/linux_drivers/*.c
 do
-  if [[ "$f" != *".locksv1.c" ]] && not_in_array IGNORE "$f"; then
+  if [[ "$f" != *".locksv1.c" && "$f" != *".locksv1a.c" ]] && not_in_array IGNORE "$f"; then
     output_file=${f/%.c/.complete.c}
     printf "| %30s " "$f |"
     # check for deadlocks

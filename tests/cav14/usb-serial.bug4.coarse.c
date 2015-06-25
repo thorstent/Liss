@@ -236,15 +236,15 @@ void usb_serial_device_probe () {
 }
 
 void usb_serial_device_remove () {
+lock_s(synthlock_0);
     int x;
-    lock_s(synthlock_0);
     x = port_initialized;
     x = dev_usb_serial_initialized;
+    unlock_s(synthlock_0);
     //assert (dev_usb_serial_initialized>=0);
 
     
     /* make sure suspend/resume doesn't race against port_remove */
-    unlock_s(synthlock_0);
     dev_autopm++;
     
     reset(port_tty_registered);
@@ -523,8 +523,8 @@ void thread_serial_bus () {
     assume (port_dev_registered);
     usb_serial_device_probe ();
     unlock_serial_bus();
-    lock_s(synthlock_0);
     
+    lock_s(synthlock_0);
     assume_not (port_dev_registered);
     unlock_s(synthlock_0);
     lock_serial_bus();

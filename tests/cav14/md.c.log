@@ -28,7 +28,7 @@ l1 (2-w(sysfs_entry)[md.c:92]-2-w(sysfs_entry)[md.c:92], 1-r(sysfs_entry)[md.c:5
 -------------------
 
 
-TIME - Iteration 1: 0.027s
+TIME - Iteration 1: 0.028s
 
 42 rounds; seen states: 42; transitions: 85
 Included
@@ -37,10 +37,10 @@ Threads: 3
 Iterations: 1
 Liss: 0s
 Verification: 0s
-Synthesis: 0.027s
+Synthesis: 0.028s
 Memory: 30MB
 Total number of conflicts found: 1
-3 | 1 | 1 | 0s | 0.027s | 0s | 0.027s | 30MB
+3 | 1 | 1 | 0s | 0.028s | 0s | 0.028s | 30MB
 Lock statistics:
 ---------------
 Starting lock placement for absmin
@@ -49,7 +49,7 @@ Number of locks used: 1
 Number of lock operations: 2
 Number of unlock operations: 2
 Number of abstract instructions inside a lock: 3
-Time for this cost function: 0.004s
+Time for this cost function: 0.003s
 
 Starting lock placement for small
 Cost function 3: Smallest locks:

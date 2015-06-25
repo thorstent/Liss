@@ -318,7 +318,7 @@ l2 (4-wn(port_dev_registered)[usb-serial.bug2.c:523]-4-r(dev_usb_serial_initiali
 -------------------
 
 
-TIME - Iteration 2: 0.191s
+TIME - Iteration 2: 0.185s
 
 397099 rounds; seen states: 257778; transitions: 2276983
 Included
@@ -326,11 +326,11 @@ Synthesis was successful.
 Threads: 7
 Iterations: 2
 Liss: 0.058s
-Verification: 4.096s
-Synthesis: 0.332s
+Verification: 4.093s
+Synthesis: 0.326s
 Memory: 176MB
 Total number of conflicts found: 2
-7 | 2 | 1 | 0.058s | 0.332s | 4.096s | 4.486s | 176MB
+7 | 2 | 1 | 0.058s | 0.326s | 4.093s | 4.477s | 176MB
 Lock statistics:
 ---------------
 Starting lock placement for absmin
@@ -339,7 +339,7 @@ Number of locks used: 1
 Number of lock operations: 3
 Number of unlock operations: 3
 Number of abstract instructions inside a lock: 15
-Time for this cost function: 0.429s
+Time for this cost function: 0.428s
 
 Starting lock placement for small
 Cost function 3: Smallest locks:
@@ -347,7 +347,7 @@ Number of locks used: 1
 Number of lock operations: 3
 Number of unlock operations: 3
 Number of abstract instructions inside a lock: 15
-Time for this cost function: 0.508s
+Time for this cost function: 0.457s
 
 Starting lock placement for coarse
 Cost function 4: Coarse locks:
@@ -355,5 +355,5 @@ Number of locks used: 1
 Number of lock operations: 3
 Number of unlock operations: 3
 Number of abstract instructions inside a lock: 15
-Time for this cost function: 1.027s
+Time for this cost function: 1.032s
 
