@@ -66,6 +66,11 @@ void actions::synthesis2::run(const cfg::program& program, clang::CompilerInstan
       // blow up the lock symbols
       ::synthesis::blow_up_lock(program, lock_symbols);
       placement::place_locks plocks(program);
+      if (print_smt_only) {
+        placement::placement_result lock_result;
+        plocks.find_locks(lock_symbols, placement::cost_type::unoptimized, lock_result);
+        return;
+      }
       unsigned i = 0;
       for (placement::cost_type cf : cost_functions) {
         ++i;

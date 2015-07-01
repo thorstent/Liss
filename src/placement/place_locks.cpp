@@ -19,6 +19,7 @@
 
 #include "place_locks.h"
 
+#include <type_traits>
 #include <string.h>
 #include <algorithm>
 #include <sstream>
@@ -332,8 +333,10 @@ void place_locks::lock_sameinstr(locking_constraints& lc)
 
 
 
-void place_locks::locked_together(z3::optimize& slv, locking_constraints& lc, const synthesis::lock_symbols& locks_to_place)
+template<class T>
+void place_locks::locked_together(T& slv, locking_constraints& lc, const synthesis::lock_symbols& locks_to_place)
 {
+  static_assert(is_same<T, z3::optimize>::value || is_same<T, z3::solver>::value, "T must be z3::optimize or z3::solver");
   unsigned lock = 0;
   for (const disj<synthesis::lock_lists>& d : locks_to_place) {
     z3::expr lock_id = ctx.fresh_constant("lock" + to_string(lock), lc.locks);
@@ -507,8 +510,10 @@ void place_locks::init_locks(place_locks::locking_constraints& lc, unsigned max_
   
 }
 
-void place_locks::add_constraints(z3::optimize& slv, locking_constraints& lc)
+template<class T>
+void place_locks::add_constraints(T& slv, locking_constraints& lc)
 {  
+  static_assert(is_same<T, z3::optimize>::value || is_same<T, z3::solver>::value, "T must be z3::optimize or z3::solver");
   lock_consistancy(lc);
   lock_sameinstr(lc);
   
@@ -552,10 +557,22 @@ bool place_locks::find_locks(const synthesis::lock_symbols& locks_to_place, cost
   if (verbosity >= 1)
     debug << "Starting lock placement for " << short_name(cost_function) << endl;
   
-  z3::optimize slv(ctx);
- 
   locking_constraints lc(ctx);
   init_locks(lc, max_locks);
+
+  if (print_smt_only) {
+    z3::solver solver(ctx);
+    locked_together(solver, lc, locks_to_place);
+    add_constraints(solver, lc);
+
+    auto benchmark = solver.to_smt2();
+    cout << "; SMT benchmark begins" << endl;
+    cout << benchmark << endl;
+    cout << "; SMT benchmark ends" << endl;
+    return false;
+  }
+  z3::optimize slv(ctx);
+
   locked_together(slv, lc, locks_to_place);
   add_constraints(slv, lc);
   
@@ -565,9 +582,6 @@ bool place_locks::find_locks(const synthesis::lock_symbols& locks_to_place, cost
   if (res != z3::sat) {
     return false;
   }
-  
-  // for Arjun: here you can dump out the SMT formula (run program with -v 2 to get line numbers in the variable names)
-  //cout << slv << endl;
   
   z3::model model = slv.get_model();
   

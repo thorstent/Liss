@@ -25,6 +25,7 @@
 int verbosity = 0;
 unsigned lock_limit = 4; 
 unsigned max_bound = 20;
+bool print_smt_only = false;
 std::ostream& debug = std::cout;
 std::string debug_folder;
 std::string main_filename;
