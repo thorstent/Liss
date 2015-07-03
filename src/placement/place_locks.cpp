@@ -569,6 +569,19 @@ bool place_locks::find_locks(const synthesis::lock_symbols& locks_to_place, cost
     cout << "; SMT benchmark begins" << endl;
     cout << benchmark << endl;
     cout << "; SMT benchmark ends" << endl;
+
+    cout << "; PLAIN CFG begins" << endl;
+    auto t = 0;
+    for (const cfg::abstract_cfg* thread : threads) {
+      for (unsigned src = 1; src <= thread->no_states(); ++src) {
+        cout << location_vector[t][src] << endl;
+        for (const cfg::edge& e : thread->get_successors(src)) {
+          cout << location_vector[t][src] << "->" << location_vector[t][src] << endl;
+        }
+      }
+      t++;
+    }
+    cout << "; PLAIN CFG ends" << endl;
     return false;
   }
   z3::optimize slv(ctx);
