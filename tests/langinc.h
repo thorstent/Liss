@@ -20,5 +20,12 @@ void wait_reset(conditional_t);
 
 int nondet;
 
+int global_dummy;
+
+inline void dummy_() {
+  int i;
+  i = global_dummy;
+}
+
 
 #endif // _LANGINC_H_
