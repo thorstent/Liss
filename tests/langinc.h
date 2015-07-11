@@ -20,11 +20,11 @@ void wait_reset(conditional_t);
 
 int nondet;
 
-int global_dummy;
+int dummy_var;
 
 inline void dummy_() {
   int i;
-  i = global_dummy;
+  i = dummy_var;
 }
 
 
