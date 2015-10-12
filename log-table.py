@@ -9,7 +9,7 @@ def output_after_colon(content, start, string1):
   start3 = content.find(':', start2)
   end = content.find('\n', start3)
   
-  print(content[start3+2: end], end="")
+  print(content[start3+2:end], end="")
 
 def process_statistic(file, name):
   f = open(file, 'r')

@@ -6,8 +6,8 @@ Synthesis was successful.
 Threads: 5
 Iterations: 0
 Liss: 0s
-Verification: 2.13s
+Verification: 2.099s
 Synthesis: 0s
-Memory: 114MB
+Memory: 115MB
 Total number of conflicts found: 0
-5 | 0 | 1 | 0s | 0s | 2.13s | 2.13s | 114MB
+5 | 0 | 1 | 0s | 0s | 2.099s | 2.099s | 115MB

@@ -27,7 +27,7 @@ l1 (1-wa(registered)[em28xx.c:49]-1-r(devlist)[em28xx.c:55], 0-no(registered)[em
 -------------------
 
 
-TIME - Iteration 1: 0.041s
+TIME - Iteration 1: 0.024s
 
 13 rounds; seen states: 13; transitions: 19
 Included
@@ -36,38 +36,52 @@ Threads: 2
 Iterations: 1
 Liss: 0s
 Verification: 0s
-Synthesis: 0.041s
-Memory: 30MB
+Synthesis: 0.024s
+Memory: 31MB
 Total number of conflicts found: 1
-2 | 1 | 1 | 0s | 0.041s | 0s | 0.041s | 30MB
+2 | 1 | 1 | 0s | 0.024s | 0s | 0.024s | 31MB
 Lock statistics:
 ---------------
 Starting lock placement for absmin
+Lock placement succeeded!
 Cost function 2: Absolute minimum of instructions inside a lock:
 Number of locks used: 1
 Number of lock operations: 2
 Number of unlock operations: 2
 Number of abstract instructions inside a lock: 4
-Time for this cost function: 0.003s
-
-Starting lock placement for small
-Cost function 3: Smallest locks:
-Number of locks used: 1
-Number of lock operations: 2
-Number of unlock operations: 2
-Number of abstract instructions inside a lock: 4
-Time for this cost function: 0.003s
+Time for this cost function: 0.002s
 
 Starting lock placement for coarse
-Cost function 4: Coarse locks:
+Lock placement succeeded!
+Cost function 3: Coarse locks:
 Number of locks used: 1
 Number of lock operations: 2
 Number of unlock operations: 2
 Number of abstract instructions inside a lock: 4
-Time for this cost function: 0.005s
+Time for this cost function: 0.003s
 
 Starting lock placement for unopt
-Cost function 5: No cost function:
+Lock placement succeeded!
+Cost function 4: No cost function:
+Number of locks used: 1
+Number of lock operations: 2
+Number of unlock operations: 2
+Number of abstract instructions inside a lock: 4
+Time for this cost function: 0.001s
+
+Starting lock placement for small
+Lock placement succeeded!
+Cost function 5: Smallest locks:
+Number of locks used: 1
+Number of lock operations: 2
+Number of unlock operations: 2
+Number of abstract instructions inside a lock: 4
+Time for this cost function: 0.002s
+
+Starting lock placement for maxconc
+Finished making 64 constraints for 2 threads!
+Lock placement succeeded!
+Cost function 6: Maximum concurrency:
 Number of locks used: 1
 Number of lock operations: 2
 Number of unlock operations: 2

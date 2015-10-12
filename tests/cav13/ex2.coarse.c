@@ -27,7 +27,7 @@ void register_netdev()
 
 void rtl8169_open()
 {
-lock_s(synthlock_0);
+    lock_s(synthlock_0);
     (*hw_start)();
 unlock_s(synthlock_0);
 }

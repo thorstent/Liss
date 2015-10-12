@@ -61,7 +61,7 @@ namespace placement {
   };
   
   enum class cost_type {
-    absolute_minimum, small_locks, coarse, unoptimized
+    absolute_minimum, small_locks, coarse, unoptimized, max_pairwise_concurrency
   };
   
   std::ostream& operator<<(std::ostream& out, cost_type c);
@@ -165,6 +165,18 @@ private:
    * @return void
    */
   void cost_model(z3::optimize& slv, locking_constraints& lc, cost_type cost_function, const synthesis::lock_symbols& locks_to_place);
+
+  /**
+   * @brief Adds soft constraints for max concurreny cost function
+   *
+   * WARNING: Added 7 hours before the deadline. This function should be 
+   * removed merged back into the main cost_model function.
+   *
+   * @param locks_to_place The locking information
+   * @param lock_ids The expressions representing the ids assigned to the locks
+   * @return void
+   */
+  void cost_model_max_concurrency(z3::optimize& slv, locking_constraints& lc, cost_type cost_function, const synthesis::lock_symbols& locks_to_place);
 };
 }
 

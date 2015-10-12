@@ -41,7 +41,7 @@ l3 (1-w(irq_status)[i915_irq.c:42]-1-w(irq_status)[i915_irq.c:42], 0-r(irq_statu
 -------------------
 
 
-TIME - Iteration 1: 0.027s
+TIME - Iteration 1: 0.045s
 
 22 rounds; seen states: 22; transitions: 32
 Included
@@ -50,41 +50,55 @@ Threads: 2
 Iterations: 1
 Liss: 0s
 Verification: 0s
-Synthesis: 0.026s
+Synthesis: 0.044s
 Memory: 30MB
 Total number of conflicts found: 3
-2 | 1 | 1 | 0s | 0.026s | 0s | 0.026s | 30MB
+2 | 1 | 1 | 0s | 0.044s | 0s | 0.044s | 30MB
 Lock statistics:
 ---------------
 Starting lock placement for absmin
+Lock placement succeeded!
 Cost function 2: Absolute minimum of instructions inside a lock:
-Number of locks used: 1
-Number of lock operations: 2
-Number of unlock operations: 2
-Number of abstract instructions inside a lock: 6
-Time for this cost function: 0.009s
-
-Starting lock placement for small
-Cost function 3: Smallest locks:
-Number of locks used: 2
-Number of lock operations: 4
-Number of unlock operations: 4
-Number of abstract instructions inside a lock: 6
-Time for this cost function: 0.012s
-
-Starting lock placement for coarse
-Cost function 4: Coarse locks:
 Number of locks used: 1
 Number of lock operations: 2
 Number of unlock operations: 2
 Number of abstract instructions inside a lock: 6
 Time for this cost function: 0.014s
 
+Starting lock placement for coarse
+Lock placement succeeded!
+Cost function 3: Coarse locks:
+Number of locks used: 1
+Number of lock operations: 2
+Number of unlock operations: 2
+Number of abstract instructions inside a lock: 6
+Time for this cost function: 0.022s
+
 Starting lock placement for unopt
-Cost function 5: No cost function:
+Lock placement succeeded!
+Cost function 4: No cost function:
 Number of locks used: 2
 Number of lock operations: 4
 Number of unlock operations: 4
 Number of abstract instructions inside a lock: 6
-Time for this cost function: 0.004s
+Time for this cost function: 0.006s
+
+Starting lock placement for small
+Lock placement succeeded!
+Cost function 5: Smallest locks:
+Number of locks used: 2
+Number of lock operations: 4
+Number of unlock operations: 4
+Number of abstract instructions inside a lock: 6
+Time for this cost function: 0.017s
+
+Starting lock placement for maxconc
+Finished making 49 constraints for 2 threads!
+Lock placement succeeded!
+Cost function 6: Maximum concurrency:
+Number of locks used: 1
+Number of lock operations: 2
+Number of unlock operations: 2
+Number of abstract instructions inside a lock: 6
+Time for this cost function: 0.011s
 

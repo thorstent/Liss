@@ -55,7 +55,9 @@ void actions::synthesis2::run(const cfg::program& program, clang::CompilerInstan
   ::synthesis::lock_symbols lock_symbols;
   
   // strategies we want to test
-  vector<placement::cost_type> cost_functions = { placement::cost_type::absolute_minimum, placement::cost_type::coarse, placement::cost_type::unoptimized, placement::cost_type::small_locks };
+  vector<placement::cost_type> cost_functions = { placement::cost_type::absolute_minimum, placement::cost_type::coarse, placement::cost_type::unoptimized, 
+	  //placement::cost_type::small_locks,
+	  placement::cost_type::max_pairwise_concurrency };
   
   bool success = synth_loop(program, lock_symbols);
   

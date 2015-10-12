@@ -467,7 +467,11 @@ l27 (3-wa(cond_irq_enabled)[cpmac.bug2.c:1528]-3-r(desc_ring)[cpmac.bug2.c:759],
 -------------------
 
 
+<<<<<<< Updated upstream
 TIME - Iteration 1: 44.055s
+=======
+TIME - Iteration 1: 48.146s
+>>>>>>> Stashed changes
 
 2868 rounds; seen states: 3556; transitions: 15092
 Found candidate ... Checking if truely a counter-example(size=229)
@@ -716,7 +720,11 @@ l29 (3-w(desc_ring)[cpmac.bug2.c:772]-3-w(desc_ring)[cpmac.bug2.c:772], 1-r(desc
 -------------------
 
 
+<<<<<<< Updated upstream
 TIME - Iteration 2: 3.689s
+=======
+TIME - Iteration 2: 3.751s
+>>>>>>> Stashed changes
 
 5988 rounds; seen states: 6738; transitions: 31723
 Found candidate ... Checking if truely a counter-example(size=231)
@@ -1236,7 +1244,11 @@ l58 (3-wa(cond_irq_enabled)[cpmac.bug2.c:1528]-3-r(desc_ring)[cpmac.bug2.c:759],
 -------------------
 
 
+<<<<<<< Updated upstream
 TIME - Iteration 3: 63.248s
+=======
+TIME - Iteration 3: 68.187s
+>>>>>>> Stashed changes
 
 5988 rounds; seen states: 6741; transitions: 31723
 Found candidate ... Checking if truely a counter-example(size=231)
@@ -1525,7 +1537,11 @@ l60 (3-w(desc_ring)[cpmac.bug2.c:772]-3-w(desc_ring)[cpmac.bug2.c:772], 2-r(desc
 -------------------
 
 
+<<<<<<< Updated upstream
 TIME - Iteration 4: 3.275s
+=======
+TIME - Iteration 4: 3.329s
+>>>>>>> Stashed changes
 
 5988 rounds; seen states: 6741; transitions: 31723
 Found candidate ... Checking if truely a counter-example(size=231)
@@ -1577,6 +1593,7 @@ Included
 Synthesis was successful.
 Threads: 5
 Iterations: 4
+<<<<<<< Updated upstream
 Liss: 1.198s
 Verification: 35.794s
 Synthesis: 113.06s
@@ -1610,3 +1627,10 @@ Number of abstract instructions inside a lock: 119
 Time for this cost function: 0.895s
 
 Starting lock placement for small
+Liss: 1.14s
+Verification: 36.505s
+Synthesis: 122.268s
+Memory: 1211MB
+Total number of conflicts found: 55
+5 | 4 | 10 | 1.14s | 122.268s | 36.505s | 159.913s | 1211MB
+Lock statistics:

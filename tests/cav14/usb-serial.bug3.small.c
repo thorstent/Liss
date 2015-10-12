@@ -522,8 +522,8 @@ void thread_serial_bus () {
     assume (port_dev_registered);
     usb_serial_device_probe ();
     unlock_serial_bus();
-    lock_s(synthlock_0);
     
+    lock_s(synthlock_0);
     assume_not (port_dev_registered);
     unlock_s(synthlock_0);
     lock_serial_bus();

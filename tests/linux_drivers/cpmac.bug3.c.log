@@ -170,7 +170,7 @@ l16 (1-w(ioval)[platform.h:52]-1-r(ioval)[platform.h:53], 0-w(ioval)[cpmac.bug3.
 -------------------
 
 
-TIME - Iteration 1: 0.454s
+TIME - Iteration 1: 0.462s
 
 2290 rounds; seen states: 3009; transitions: 11829
 Checking if the trace is actually a counter example
@@ -238,7 +238,7 @@ l17 (1-r(external_switch)[cpmac.bug3.c:1212]-1-w(ioval)[platform.h:52], 0-r(iova
 -------------------
 
 
-TIME - Iteration 2: 0.096s
+TIME - Iteration 2: 0.097s
 
 2492 rounds; seen states: 3014; transitions: 12897
 Checking if the trace is actually a counter example
@@ -309,7 +309,7 @@ l18 (1-wa(cond_platform_driver_registered)[cpmac.bug3.c:1416]-1-r(external_switc
 -------------------
 
 
-TIME - Iteration 3: 0.07s
+TIME - Iteration 3: 0.071s
 
 1578 rounds; seen states: 1994; transitions: 8231
 Checking if the trace is actually a counter example
@@ -376,7 +376,7 @@ l19 (1-wa(cond_platform_driver_registered)[cpmac.bug3.c:1416]-1-r(external_switc
 -------------------
 
 
-TIME - Iteration 4: 0.055s
+TIME - Iteration 4: 0.056s
 
 1415 rounds; seen states: 1741; transitions: 7312
 Found candidate ... Checking if truely a counter-example(size=45)
@@ -463,7 +463,7 @@ l20 (1-wa(cond_platform_driver_registered)[cpmac.bug3.c:1416]-1-r(cpmac_mii)[cpm
 -------------------
 
 
-TIME - Iteration 5: 0.083s
+TIME - Iteration 5: 0.086s
 
 102687 rounds; seen states: 104934; transitions: 616280
 Found candidate ... Checking if truely a counter-example(size=38)
@@ -542,7 +542,7 @@ l21 (1-w(ioval)[platform.h:52]-1-r(ioval)[platform.h:53], 0-r(ioval)[cpmac.bug3.
 -------------------
 
 
-TIME - Iteration 6: 1.031s
+TIME - Iteration 6: 1.006s
 
 102741 rounds; seen states: 104982; transitions: 616512
 Found candidate ... Checking if truely a counter-example(size=38)
@@ -620,7 +620,7 @@ l22 (1-w(ioval)[platform.h:52]-1-w(ioval)[platform.h:52], 0-r(ioval)[cpmac.bug3.
 -------------------
 
 
-TIME - Iteration 7: 1.026s
+TIME - Iteration 7: 1.01s
 
 102435 rounds; seen states: 104595; transitions: 614980
 Found candidate ... Checking if truely a counter-example(size=38)
@@ -721,7 +721,7 @@ l23 (1-wa(cond_platform_driver_registered)[cpmac.bug3.c:1416]-1-r(cpmac_mii)[cpm
 -------------------
 
 
-TIME - Iteration 8: 1.093s
+TIME - Iteration 8: 1.07s
 
 102753 rounds; seen states: 105068; transitions: 616668
 Found candidate ... Checking if truely a counter-example(size=48)
@@ -799,50 +799,64 @@ l24 (1-wa(cond_platform_driver_registered)[cpmac.bug3.c:1416]-1-r(external_switc
 -------------------
 
 
-TIME - Iteration 9: 1.009s
+TIME - Iteration 9: 0.979s
 
 758857 rounds; seen states: 710424; transitions: 4355157
 Included
 Synthesis was successful.
 Threads: 5
 Iterations: 9
-Liss: 3.907s
-Verification: 6.291s
-Synthesis: 1.006s
+Liss: 3.807s
+Verification: 6.06s
+Synthesis: 1.023s
 Memory: 522MB
 Total number of conflicts found: 18
-5 | 9 | 4 | 3.907s | 1.006s | 6.291s | 11.204s | 522MB
+5 | 9 | 4 | 3.807s | 1.023s | 6.06s | 10.89s | 522MB
 Lock statistics:
 ---------------
 Starting lock placement for absmin
+Lock placement succeeded!
 Cost function 2: Absolute minimum of instructions inside a lock:
 Number of locks used: 1
 Number of lock operations: 5
 Number of unlock operations: 6
 Number of abstract instructions inside a lock: 28
-Time for this cost function: 7.797s
-
-Starting lock placement for small
-Cost function 3: Smallest locks:
-Number of locks used: 4
-Number of lock operations: 20
-Number of unlock operations: 20
-Number of abstract instructions inside a lock: 28
-Time for this cost function: 60.447s
+Time for this cost function: 8.006s
 
 Starting lock placement for coarse
-Cost function 4: Coarse locks:
+Lock placement succeeded!
+Cost function 3: Coarse locks:
 Number of locks used: 1
 Number of lock operations: 2
 Number of unlock operations: 3
 Number of abstract instructions inside a lock: 36
-Time for this cost function: 16.241s
+Time for this cost function: 15.503s
 
 Starting lock placement for unopt
-Cost function 5: No cost function:
+Lock placement succeeded!
+Cost function 4: No cost function:
 Number of locks used: 1
 Number of lock operations: 4
 Number of unlock operations: 4
 Number of abstract instructions inside a lock: 29
-Time for this cost function: 0.56s
+Time for this cost function: 0.632s
+
+Starting lock placement for small
+Lock placement succeeded!
+Cost function 5: Smallest locks:
+Number of locks used: 4
+Number of lock operations: 19
+Number of unlock operations: 21
+Number of abstract instructions inside a lock: 28
+Time for this cost function: 51.86s
+
+Starting lock placement for maxconc
+Finished making 150869 constraints for 5 threads!
+Lock placement succeeded!
+Cost function 6: Maximum concurrency:
+Number of locks used: 1
+Number of lock operations: 5
+Number of unlock operations: 6
+Number of abstract instructions inside a lock: 28
+Time for this cost function: 9.645s
 

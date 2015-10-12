@@ -31,9 +31,9 @@ void thread_init() {
 
     // 2. initialise vdev
     devlist.vdev = 1;
-    lock_s(synthlock_0);
 
     // 3. register vdev
+    lock_s(synthlock_0);
     notify(registered);
 
     // 4. initialise vbi_dev

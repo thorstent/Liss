@@ -106,9 +106,9 @@ void thread_worker () {
     // B. not allowed to wait here
     //        assert (lock != request);
     lock(l);
+    lock_s(synthlock_0);
     
     // C. handle the request and update state variables
-    lock_s(synthlock_0);
     bsy = 0;
     unlock_s(synthlock_0);
     reset(request);

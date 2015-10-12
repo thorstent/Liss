@@ -25,7 +25,7 @@
 
 #include "langinc.h"
 
-lock_t synthlock_0;
+lock_t synthlock_3;
 lock_t l;
 conditional_t open;
 int power_on = 0;
@@ -33,7 +33,7 @@ int power_on = 0;
 /* A client wants to start using the device.
  * Powers up the device if it is currently closed. */
 void i2c_hid_open() {
-lock_s(synthlock_0);
+lock_s(synthlock_3);
     int x;
 //    lock(l);
 
@@ -46,10 +46,10 @@ lock_s(synthlock_0);
     notify(open);
 
     x = power_on;
+    unlock_s(synthlock_3);
     //assert (power_on != 0);
 
 //    unlock(l);
-unlock_s(synthlock_0);
 }
 
 /* A client has stopped using the device.
@@ -59,8 +59,8 @@ void i2c_hid_close ()
 {
     int x;
     lock(l);
-    lock_s(synthlock_0);
 
+    lock_s(synthlock_3);
     reset(open);
 
     if (nondet) {
@@ -69,9 +69,9 @@ void i2c_hid_close ()
     } 
 
     x = power_on;
+    unlock_s(synthlock_3);
     //assert (power_on == 0);
 
-    unlock_s(synthlock_0);
     unlock(l);
 }
 

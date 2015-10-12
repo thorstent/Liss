@@ -27,28 +27,28 @@ void thread_i915_enable_vblank() {
     irq_status = (tmp | EN_MASK) & (~STAT_MASK);
     // 3.
     irq_enable = 1;
-    unlock_s(synthlock_0);
 
     // 4.
 //    assert (((irq_enable == 1) && (irq_status & EN_MASK)) || 
 //            ((irq_enable == 0) && !(irq_status & EN_MASK)));
+unlock_s(synthlock_0);
 }
 
 void thread_i915_disable_vblank() {
-lock_s(synthlock_0);
     unsigned int tmp;
 
     // a.
+    lock_s(synthlock_0);
     irq_enable = 0;
     // b.
     tmp = irq_status;
     // c.
     irq_status = tmp & (~EN_MASK) & (~STAT_MASK);
-    unlock_s(synthlock_0);
 
     // d.
 //    assert (((irq_enable == 1) && (irq_status & EN_MASK)) || 
 //            ((irq_enable == 0) && !(irq_status & EN_MASK)));
+unlock_s(synthlock_0);
 }
 
 //void main () {

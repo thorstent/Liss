@@ -41,6 +41,8 @@ namespace placement {
         return out << "Coarse locks";
       case cost_type::unoptimized:
         return out << "No cost function";
+      case cost_type::max_pairwise_concurrency:
+        return out << "Maximum concurrency";
     }
     return out;
   }
@@ -55,6 +57,8 @@ namespace placement {
         return "coarse";
       case cost_type::unoptimized:
         return "unopt";
+      case cost_type::max_pairwise_concurrency:
+        return "maxconc";
     }
     return "";
   }
@@ -414,6 +418,38 @@ bool same_instructions(const disj<synthesis::lock_lists>& a, const disj<synthesi
   return false;
 }
 
+void place_locks::cost_model_max_concurrency(z3::optimize& slv, locking_constraints& lc, cost_type cost_function, const synthesis::lock_symbols& locks_to_place)
+{
+  unsigned cons = 0;
+  unsigned t1 = 0;
+  for (const cfg::abstract_cfg* thread1 : threads) {
+    unsigned t2 = 0;
+    for (const cfg::abstract_cfg* thread2 : threads) {
+      if (t1 <= t2) continue;
+
+      for (unsigned i = 1; i <= thread1->no_states(); ++i) {
+        z3::expr x = location_vector[t1][i];
+
+        for (unsigned j = 1; j <= thread2->no_states(); ++j) {
+          z3::expr y = location_vector[t2][j];
+
+          z3::expr c = x.ctx().bool_val(true);
+          for (z3::expr l : lc.lock_vector) {
+            c = c && (!lc.inl(x,l) || !lc.inl(y,l), 100);
+          }
+          slv.add(c, 1);
+          cons++;
+
+        }
+      }
+
+      ++t2;
+    }
+    ++t1;
+  }
+  debug << "Finished making " << cons << " constraints for " << threads.size() << " threads!" << endl;
+}
+
 void place_locks::cost_model(z3::optimize& slv, locking_constraints& lc, cost_type cost_function, const synthesis::lock_symbols& locks_to_place)
 {
   if (cost_function==cost_type::unoptimized) return;
@@ -429,6 +465,10 @@ void place_locks::cost_model(z3::optimize& slv, locking_constraints& lc, cost_ty
     ++t;
   }
   assert (lc.lock_ids.size() == locks_to_place.size());
+  if (cost_function==cost_type::max_pairwise_concurrency) {
+    place_locks::cost_model_max_concurrency(slv, lc, cost_function, locks_to_place);
+    return;
+  }
   switch (cost_function) {
     case cost_type::absolute_minimum:
       // the condition above is enough
@@ -444,7 +484,6 @@ void place_locks::cost_model(z3::optimize& slv, locking_constraints& lc, cost_ty
             if (!same_instructions(a,b, threads.size())) {
               // we prefer different locks
               slv.add(lc.lock_ids[i]!=lc.lock_ids[j], 100);
-              //cout << (lc.lock_ids[i]!=lc.lock_ids[j]) << endl;
             }
           } // end if (j!=i)
         }
@@ -576,7 +615,8 @@ bool place_locks::find_locks(const synthesis::lock_symbols& locks_to_place, cost
       for (unsigned src = 1; src <= thread->no_states(); ++src) {
         cout << location_vector[t][src] << endl;
         for (const cfg::edge& e : thread->get_successors(src)) {
-          cout << location_vector[t][src] << "->" << location_vector[t][src] << endl;
+          if (!e.back_edge)
+            cout << location_vector[t][src] << "->" << location_vector[t][e.to] << endl;
         }
       }
       t++;
@@ -593,9 +633,11 @@ bool place_locks::find_locks(const synthesis::lock_symbols& locks_to_place, cost
   
   z3::check_result res = slv.check();
   if (res != z3::sat) {
+    debug << "Lock placement failed!" << endl;
     return false;
   }
   
+  debug << "Lock placement succeeded!" << endl;
   z3::model model = slv.get_model();
   
   if (verbosity>=2) {

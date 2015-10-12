@@ -29,6 +29,7 @@ find tests -name '*.absmin.c' -exec rm {} \;
 find tests -name '*.small.c' -exec rm {} \;
 find tests -name '*.coarse.c' -exec rm {} \;
 find tests -name '*.unopt.c' -exec rm {} \;
+find tests -name '*.maxconc.c' -exec rm {} \;
 find tests -name '*.log' -exec rm {} \;
 
 for f in tests/cav13/*.c tests/cav14/*.c tests/linux_drivers/*.c

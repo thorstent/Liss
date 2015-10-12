@@ -11,7 +11,7 @@
 #include "langinc.h"
 
 lock_t synthlock_0;
-lock_t synthlock_2;
+lock_t synthlock_1;
 unsigned int irq_status;
 unsigned int irq_enable;
 
@@ -19,16 +19,16 @@ unsigned int irq_enable;
 #define STAT_MASK 0x02
 
 void thread_i915_enable_vblank() {
-lock_s(synthlock_2);
     unsigned int tmp; 
 
     // 1.
+    lock_s(synthlock_1);
     tmp = irq_status;
-    // 2.
     lock_s(synthlock_0);
+    // 2.
     irq_status = (tmp | EN_MASK) & (~STAT_MASK);
     // 3.
-    unlock_s(synthlock_2);
+    unlock_s(synthlock_1);
     irq_enable = 1;
     unlock_s(synthlock_0);
 
@@ -38,10 +38,10 @@ lock_s(synthlock_2);
 }
 
 void thread_i915_disable_vblank() {
+lock_s(synthlock_1);
     unsigned int tmp;
 
     // a.
-    lock_s(synthlock_2);
     lock_s(synthlock_0);
     irq_enable = 0;
     // b.
@@ -49,7 +49,7 @@ void thread_i915_disable_vblank() {
     // c.
     unlock_s(synthlock_0);
     irq_status = tmp & (~EN_MASK) & (~STAT_MASK);
-    unlock_s(synthlock_2);
+    unlock_s(synthlock_1);
 
     // d.
 //    assert (((irq_enable == 1) && (irq_status & EN_MASK)) || 
