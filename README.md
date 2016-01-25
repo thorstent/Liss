@@ -4,7 +4,7 @@ Liss (Language Inclusion-based Synchronisation Synthesis)
 Liss is the implementation that accompanies our paper [1]. It is a synthesis tool that is given a concurrent C program and will insert synchronisation primitives until the behaviour of the concurrent version of the program is identical to the sequential version. It is currently a research prototype.
 
 
-[1] Pavol Cerny, Edmund C. Clarke, Thomas A. Henzinger, Arjun Radhakrishna, Leonid Ryzhyk, Roopsha Samanta, Thorsten Tarrach. From Non-preemptive to Preemptive Scheduling using Synchronization Synthesis. In CAV 2015
+[1] Pavol Černý, Edmund C. Clarke, Thomas A. Henzinger, Arjun Radhakrishna, Leonid Ryzhyk, Roopsha Samanta, Thorsten Tarrach. From Non-preemptive to Preemptive Scheduling using Synchronization Synthesis. In CAV 2015
 
 Compiling Liss
 ==============
