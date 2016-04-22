@@ -25,7 +25,6 @@
 extern int verbosity;
 extern unsigned lock_limit; // a limit on how many locks to synthesise (performance impact)
 extern unsigned max_bound; // bound for the antichain algorithm
-extern bool print_smt_only;
 extern std::ostream& debug;
 extern std::string debug_folder;
 std::string output_file_code(std::string strategy_name);

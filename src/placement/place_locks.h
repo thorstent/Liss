@@ -142,8 +142,7 @@ private:
    * 
    * @param locks_to_place These places need to be covered by the same lock
    */
-  template<class T>
-  void locked_together(T& slv, placement::place_locks::locking_constraints& lc, const synthesis::lock_symbols& locks_to_place);
+  void locked_together(z3::optimize& slv, placement::place_locks::locking_constraints& lc, const synthesis::lock_symbols& locks_to_place);
   // void locked_together(z3::optimize& slv, placement::place_locks::locking_constraints& lc, const synthesis::lock_symbols& locks_to_place);
   lock_statistics get_statistics(std::vector< placement::single_placement >& to_lock, z3::model& model, const placement::place_locks::locking_constraints& lc);
   
@@ -152,8 +151,7 @@ private:
    * 
    * These are the hard constraints only
    */
-  template<class T>
-  void add_constraints(T& slv, locking_constraints& lc);
+  void add_constraints(z3::optimize& slv, locking_constraints& lc);
     
   /**
    * @brief Adds the soft constraints to the solver

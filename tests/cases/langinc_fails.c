@@ -5,7 +5,7 @@ int x,y,z,a;
 
 void thread_1() {
   int i;
-  while(nondet) {
+  while(i) {
     x = 1;
   }
   y = 1;
@@ -13,7 +13,7 @@ void thread_1() {
 
 void thread_2() {
   int i;
-  while(nondet) {
+  while(i) {
     z = 1;
   }
 }

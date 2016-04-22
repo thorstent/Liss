@@ -19,7 +19,6 @@
 
 #include "place_locks.h"
 
-#include <type_traits>
 #include <string.h>
 #include <algorithm>
 #include <sstream>
@@ -337,10 +336,8 @@ void place_locks::lock_sameinstr(locking_constraints& lc)
 
 
 
-template<class T>
-void place_locks::locked_together(T& slv, locking_constraints& lc, const synthesis::lock_symbols& locks_to_place)
+void place_locks::locked_together(z3::optimize& slv, locking_constraints& lc, const synthesis::lock_symbols& locks_to_place)
 {
-  static_assert(is_same<T, z3::optimize>::value || is_same<T, z3::solver>::value, "T must be z3::optimize or z3::solver");
   unsigned lock = 0;
   for (const disj<synthesis::lock_lists>& d : locks_to_place) {
     z3::expr lock_id = ctx.fresh_constant("lock" + to_string(lock), lc.locks);
@@ -435,7 +432,7 @@ void place_locks::cost_model_max_concurrency(z3::optimize& slv, locking_constrai
 
           z3::expr c = x.ctx().bool_val(true);
           for (z3::expr l : lc.lock_vector) {
-            c = c && (!lc.inl(x,l) || !lc.inl(y,l), 100);
+            c = c && (!lc.inl(x,l) || !lc.inl(y,l), 100); // return 100 for the expression, implicitly true
           }
           slv.add(c, 1);
           cons++;
@@ -549,10 +546,8 @@ void place_locks::init_locks(place_locks::locking_constraints& lc, unsigned max_
   
 }
 
-template<class T>
-void place_locks::add_constraints(T& slv, locking_constraints& lc)
+void place_locks::add_constraints(z3::optimize& slv, locking_constraints& lc)
 {  
-  static_assert(is_same<T, z3::optimize>::value || is_same<T, z3::solver>::value, "T must be z3::optimize or z3::solver");
   lock_consistancy(lc);
   lock_sameinstr(lc);
   
@@ -599,31 +594,6 @@ bool place_locks::find_locks(const synthesis::lock_symbols& locks_to_place, cost
   locking_constraints lc(ctx);
   init_locks(lc, max_locks);
 
-  if (print_smt_only) {
-    z3::solver solver(ctx);
-    locked_together(solver, lc, locks_to_place);
-    add_constraints(solver, lc);
-
-    auto benchmark = solver.to_smt2();
-    cout << "; SMT benchmark begins" << endl;
-    cout << benchmark << endl;
-    cout << "; SMT benchmark ends" << endl;
-
-    cout << "; PLAIN CFG begins" << endl;
-    auto t = 0;
-    for (const cfg::abstract_cfg* thread : threads) {
-      for (unsigned src = 1; src <= thread->no_states(); ++src) {
-        cout << location_vector[t][src] << endl;
-        for (const cfg::edge& e : thread->get_successors(src)) {
-          if (!e.back_edge)
-            cout << location_vector[t][src] << "->" << location_vector[t][e.to] << endl;
-        }
-      }
-      t++;
-    }
-    cout << "; PLAIN CFG ends" << endl;
-    return false;
-  }
   z3::optimize slv(ctx);
 
   locked_together(slv, lc, locks_to_place);

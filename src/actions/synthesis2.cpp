@@ -56,7 +56,7 @@ void actions::synthesis2::run(const cfg::program& program, clang::CompilerInstan
   
   // strategies we want to test
   vector<placement::cost_type> cost_functions = { placement::cost_type::absolute_minimum, placement::cost_type::coarse, placement::cost_type::unoptimized, 
-	  //placement::cost_type::small_locks,
+	  placement::cost_type::small_locks,
 	  placement::cost_type::max_pairwise_concurrency };
   
   bool success = synth_loop(program, lock_symbols);
@@ -68,11 +68,6 @@ void actions::synthesis2::run(const cfg::program& program, clang::CompilerInstan
       // blow up the lock symbols
       ::synthesis::blow_up_lock(program, lock_symbols);
       placement::place_locks plocks(program);
-      if (print_smt_only) {
-        placement::placement_result lock_result;
-        plocks.find_locks(lock_symbols, placement::cost_type::unoptimized, lock_result);
-        return;
-      }
       unsigned i = 0;
       for (placement::cost_type cf : cost_functions) {
         ++i;
@@ -124,7 +119,7 @@ void actions::synthesis2::print_summary(const cfg::program& original_program, un
   debug << "Memory: " << max_mem << "MB" << endl;
   debug << "Total number of conflicts found: " << conflicts << endl;
   //cout.precision(1);
-  debug << original_program.no_threads() << " | " << iteration << " | " << this->max_bound <<  " | " << (double)langinc.count()/1000 << "s | "  << (double)synthesis_time.count()/1000 << "s | " << (double)verification.count()/1000 << "s | " << total << "s | " << max_mem << "MB" << endl;
+  //debug << original_program.no_threads() << " | " << iteration << " | " << this->max_bound <<  " | " << (double)langinc.count()/1000 << "s | "  << (double)synthesis_time.count()/1000 << "s | " << (double)verification.count()/1000 << "s | " << total << "s | " << max_mem << "MB" << endl;
 }
 
 bool actions::synthesis2::synth_loop(const cfg::program& program, ::synthesis::lock_symbols& lock_symbols)

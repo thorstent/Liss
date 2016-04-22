@@ -58,7 +58,6 @@ cl::list<actions::action_names> ActionList(cl::desc("Available Actions:"),
 cl::opt<int, true> Verbosity ("v", cl::desc("Set verbosity level"), cl::value_desc("verbosity"), cl::cat(LissCategory), cl::location(verbosity));
 string lock_desc = "Set the maximum number of locks to synthesise (default=" + to_string(lock_limit) + ")";
 cl::opt<unsigned, true> Lock_Limit ("locklimit", cl::desc(lock_desc.c_str()), cl::value_desc("max locks"), cl::cat(LissCategory), cl::location(lock_limit));
-cl::opt<bool, true> Synthesis_Print_SMT_Only ("print-smt-only", cl::desc("Only dump the SMT formula representing all valid locks"), cl::value_desc("print valid lock SMT only"), cl::cat(LissCategory), cl::location(print_smt_only));
 
 string bound_desc = "Set bound of antichain algorithm (default=" + to_string(max_bound) + ")";
 cl::opt<unsigned, true> Bound ("bound", cl::desc(bound_desc.c_str()), cl::value_desc("bound"), cl::cat(LissCategory), cl::location(max_bound));

@@ -237,7 +237,7 @@ void usb_serial_device_probe () {
 }
 
 void usb_serial_device_remove () {
-lock_s(synthlock_0);
+    lock_s(synthlock_0);
     int x;
     x = port_initialized;
     x = dev_usb_serial_initialized;
