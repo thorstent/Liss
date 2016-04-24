@@ -20,7 +20,7 @@
 #define WORKER  3
 
 // ensures atomic access to other variables
-lock_t synthlock_3;
+lock_t synthlock_0;
 lock_t l; 
 
 // bsy flag.  No new request can be started when this is true
@@ -42,9 +42,9 @@ void acm_cdc_notify () {
   
   // 0. acquire lock
   lock(l);
-  lock_s(synthlock_3);
   
   // 1. if we are invoked to handle a pending request, clear the pending flag.
+  lock_s(synthlock_0);
   reset(pending);
   
   // 2.
@@ -70,7 +70,7 @@ void acm_cdc_notify () {
     // 9.
     unlock(l);
   }
-unlock_s(synthlock_3);
+unlock_s(synthlock_0);
 }
 
 // attempt to submit a request to the worker thread; fail nondeterministically
@@ -101,19 +101,19 @@ void thread_client2() {
 void thread_worker () {
   while (nondet) {
     // A.
-    lock_s(synthlock_3);
+    lock_s(synthlock_0);
     assume (request);
+    unlock_s(synthlock_0);
     
     // B. not allowed to wait here
     //        assert (lock != request);
-    unlock_s(synthlock_3);
     lock(l);
-    lock_s(synthlock_3);
     
     // C. handle the request and update state variables
+    lock_s(synthlock_0);
     bsy = 0;
     reset(request);
-    unlock_s(synthlock_3);
+    unlock_s(synthlock_0);
     
     // D.
     unlock(l);

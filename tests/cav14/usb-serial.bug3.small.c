@@ -2,7 +2,7 @@
 
 /* framework variables */
 
-lock_t synthlock_0;
+lock_t synthlock_1;
 int fw_tty_registered;
 int fw_tty_initialized;
 lock_t fw_tty_lock;
@@ -236,8 +236,8 @@ void usb_serial_device_probe () {
 }
 
 void usb_serial_device_remove () {
+lock_s(synthlock_1);
     int x;
-    lock_s(synthlock_0);
     x = port_initialized;
     x = dev_usb_serial_initialized;
     //assert (dev_usb_serial_initialized>=0);
@@ -250,7 +250,7 @@ void usb_serial_device_remove () {
     
     //belkin_port_remove();
     
-    unlock_s(synthlock_0);
+    unlock_s(synthlock_1);
     dev_autopm--;
 }
 
@@ -282,12 +282,12 @@ void usb_serial_put () {
         
         /* Now that nothing is using the ports, they can be freed */
         lock_serial_bus();
-        lock_s(synthlock_0);
+        lock_s(synthlock_1);
         reset(port_dev_registered);
         unlock_serial_bus();
         assume_not (port_tty_registered);
+        unlock_s(synthlock_1);
         dev_usb_serial_initialized = -1;
-        unlock_s(synthlock_0);
         port_initialized = 0;
         reset(drv_module_ref_cnt);
         //drv_module_ref_cnt--;
@@ -522,10 +522,10 @@ void thread_serial_bus () {
     assume (port_dev_registered);
     usb_serial_device_probe ();
     unlock_serial_bus();
+    lock_s(synthlock_1);
     
-    lock_s(synthlock_0);
     assume_not (port_dev_registered);
-    unlock_s(synthlock_0);
+    unlock_s(synthlock_1);
     lock_serial_bus();
     usb_serial_device_remove ();
     unlock_serial_bus();

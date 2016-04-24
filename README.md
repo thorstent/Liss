@@ -1,7 +1,11 @@
 Liss (Language Inclusion-based Synchronisation Synthesis)
 =======
 
-This is the version of Liss for our POPL submission.
+This is the version of Liss for our FMSD (Formal Methods in System Design, CAV15 special edition) submission [1].
+It is also mentioned in Thorsten Tarrach's PhD thesis [2]
+
+[1] Pavol Černý, Edmund C. Clarke, Thomas A. Henzinger, Arjun Radhakrishna, Leonid Ryzhyk, Roopsha Samanta, Thorsten Tarrach. From Non-preemptive to Preemptive Scheduling using Synchronization Synthesis. In FMSD (2015), submitted
+[2] [http://thorstent.github.io/theses/](http://thorstent.github.io/theses/)
 
 Compiling Liss
 ==============
@@ -37,6 +41,8 @@ The `tests` folder contains our test cases. `CAV13` and `CAV14` are test cases f
 | .absmin.c      | This is the file with the synthesised synchronisation primitives using the absolute minimum cost function. |
 | .small.c       | This is the file with the synthesised synchronisation primitives using the smalled locks cost function. |
 | .coarse.c      | This is the file with the synthesised synchronisation primitives using the coarse cost function. |
+| .unopt.c       | This is the file with the synthesised synchronisation primitives using no cost function. |
+| .maxconc.c     | This is the file with the synthesised synchronisation primitives using the maximum concurrency cost function. |
 | .locksv1.c     | This are the locks that were placed by Lissv1. |
 
 The changes can be easily visualised by diffing these files.
@@ -70,16 +76,20 @@ In the place of `-inclusion` any of the following actions may be used:
 | Action       | Description                                                                                              |
 |--------------|----------------------------------------------------------------------------------------------------------|
 | `-inclusion` | Tests if all preemptive traces are also preemption-free traces. Prints a counter-example if one exists. |
-| `-synthesis` | Invoke the synthesis and output a fixed file. Use the deadlock switch to find out if deadlocks were created by the synthesis. |
+| `-synthesis` | Invoke the synthesis and output all possible fixes fixed file. |
 | `-deadlock`  | Test for potential deadlocks and output a trace if one is found.                                         |
-| `-print`     | Output a .dot file with the non-preemptive and preemptive automaton (only useful for small programs).        |
+| `-print`     | Output a number of .dot files with the non-preemptive and preemptive automaton (only useful for small programs). These files appear in a seperate subfolder called output. The _ef files are without the epsilon transitions.       |
+| `-printcfg`  | Print the control flow graphs of the threads. |
+| `-printthreads` | Print only the thread automata (this is for bigger programs where `-print` would just be too large) |
+| `-printtim` | Print the threads in Timbuk format. |
+| `-printlocks` | Debug information to check if lock placements are correctly identified. |
 
 There are two additional command line switches of interest:
 
 | Switch       | Description                                                                                              |
 |--------------|----------------------------------------------------------------------------------------------------------|
 | `-bound`     | The maximum bound for the bounded language inclusion (having a high number has no performance penalty, but it could take long before the algorithm gives up) |
-| `-locklimit` | The maximum number of locks that can be synthesised (heavy performance penalty for increasing this). |
+| `-locklimit` | The maximum number of locks that can be synthesised (heavy performance penalty for increasing this). Lock in this case does not refer to lock statements, but distinct lock variables. |
 
 Common error messages
 ------

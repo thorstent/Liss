@@ -20,11 +20,77 @@
 
 #include "types.h"
 #include "eth.h"
-#include "platform.h"
+
+#include "langinc.h"
+#include "types.h"
+
+typedef u64 phys_addr_t;
+typedef phys_addr_t resource_size_t;
+
+lock_t synthlock_0;
+conditional_t cond_irq_enabled;
+lock_t irq_running_lock;
+
+void request_irq () {
+    notify(cond_irq_enabled);
+}
+
+void free_irq() {
+    reset(cond_irq_enabled);
+    unlock_s(synthlock_0);
+    lock(irq_running_lock);
+    unlock(irq_running_lock);
+    lock_s(synthlock_0);
+}
+
+struct resource {
+        resource_size_t start;
+        resource_size_t end;
+        const char *name;
+        unsigned long flags;
+        //struct resource *parent, *sibling, *child;
+};
+
+static inline resource_size_t resource_size(const struct resource *res)
+{
+        return (resource_size_t) nondet;
+}
+
+conditional_t cond_platform_driver_registered;
+
+int platform_driver_register() {
+    if (nondet) {
+        notify (cond_platform_driver_registered);
+        return 0;
+    } else {
+        return -1;
+    }
+}
+
+void platform_driver_unregister() {
+    reset (cond_platform_driver_registered);
+}
+
+int platform_get_irq_byname(const char* name) {
+    ioval = nondet;
+    return (int)ioval;
+}
+
+struct resource * platform_get_resource_byname(unsigned int type, const char * name) {
+    return (struct resource *)(addr_t)nondet;
+}
+
+struct resource * request_mem_region(resource_size_t start, resource_size_t n, const char *name) {
+    return (struct resource *)(addr_t)nondet;
+}
+
+void release_mem_region(resource_size_t start, resource_size_t n)
+{
+    ioval = nondet;
+}
 
 #define pr_err(format, ...) {}
 
-lock_t synthlock_2;
 conditional_t cond_irq_can_happen;
 
 int ar7_gpio_disable(unsigned gpio) {
@@ -695,8 +761,10 @@ static void cpmac_end_xmit(int queue)
 //	desc = desc_ring[queue];
 	cpmac_write(CPMAC_TX_ACK(queue), (u32)desc_ring[queue].mapping);
 	if (likely(desc_ring[queue].skb)) {
+		unlock_s(synthlock_0);
 		spin_lock(cplock);
 		netdev.stats.tx_packets++;
+		lock_s(synthlock_0);
 		netdev.stats.tx_bytes += desc_ring[queue].skb->len;
 		spin_unlock(cplock);
 		dma_unmap_single(desc_ring[queue].data_mapping, desc_ring[queue].skb->len,
@@ -1157,7 +1225,9 @@ static int cpmac_stop()
 	//TODO
         //phy_stop(priv->phy);
 
-	free_irq(/*dev->irq, dev*/);
+        // ***
+
+	lock_s(synthlock_0);
 	cpmac_hw_stop();
 
 	//for (i = 0; i < 8; i++)
@@ -1182,6 +1252,9 @@ static int cpmac_stop()
 			  (CPMAC_QUEUES + ring_size),
 			  desc_ring, dma_ring);
 
+        // BUG: move the following line to the  *** location above
+	free_irq(/*dev->irq, dev*/);
+	unlock_s(synthlock_0);
 	return 0;
 }
 
@@ -1219,9 +1292,7 @@ static int cpmac_probe()
 				continue;
 			if (!cpmac_mii.phy_map[phy_id])
 				continue;
-			unlock_s(synthlock_2);
 			strncpy(mdio_bus_id, cpmac_mii.id, MII_BUS_ID_SIZE);
-			lock_s(synthlock_2);
 			break;
 		}
 	}
@@ -1248,7 +1319,6 @@ static int cpmac_probe()
 	}
 
 	netdev.irq = platform_get_irq_byname("irq");
-	unlock_s(synthlock_2);
 
 	//dev->netdev_ops = &cpmac_netdev_ops;
 	//dev->ethtool_ops = &cpmac_ethtool_ops;
@@ -1278,10 +1348,10 @@ static int cpmac_probe()
 //	}
 
 	rc = register_netdev();
-//	if (rc) {
-//		//dev_err(&pdev->dev, "Could not register net device\n");
-//		goto fail;
-//	}
+	if (rc) {
+		//dev_err(&pdev->dev, "Could not register net device\n");
+		goto fail;
+	}
 
 //	if (netif_msg_probe(priv)) {
 //		dev_info(&pdev->dev, "regs: %p, irq: %d, phy: %s, "
@@ -1289,7 +1359,6 @@ static int cpmac_probe()
 //			 priv->phy_name, dev->dev_addr);
 //	}
 
-	lock_s(synthlock_2);
 	return 0;
 
 fail:
@@ -1321,9 +1390,6 @@ int cpmac_init(void)
 	u32 mask;
 	int i, res;
 
-        // BUG: move this line to the *** location below        
-	lock_s(synthlock_2);
-	res = platform_driver_register();
 //	cpmac_mii = mdiobus_alloc();
 //	if (cpmac_mii == NULL)
 //		return -ENOMEM;
@@ -1338,7 +1404,7 @@ int cpmac_init(void)
 	if (!cpmac_mii.priv) {
 		pr_err("Can't ioremap mdio registers\n");
 		res = -ENXIO;
-		//goto fail_alloc;
+		goto fail_alloc;
 	}
 
 	ar7_gpio_disable(26);
@@ -1370,22 +1436,20 @@ int cpmac_init(void)
 	//if (res)
 	//	goto fail_mii;
 
-        // ***
-        
+	res = platform_driver_register();
 	if (nondet) {
                 assume_not (cond_platform_driver_registered);
 		goto fail_cpmac;
         };
         assume (cond_platform_driver_registered);
 
-//	return 0;
+	return 0;
 
 fail_cpmac:
 	//mdiobus_unregister();
 
 fail_mii:
 	iounmap(cpmac_mii.priv);
-	unlock_s(synthlock_2);
 
 fail_alloc:
 //	mdiobus_free(cpmac_mii);
@@ -1420,10 +1484,8 @@ void thread_init_exit()
 
 void thread_probe_remove () {
     if (nondet) {
-        lock_s(synthlock_2);
         assume(cond_platform_driver_registered);
         cpmac_probe();
-        unlock_s(synthlock_2);
         if (nondet) {
             assume(netdev_registered);
             yield();
@@ -1470,8 +1532,10 @@ void thread_irq () {
     while (nondet) {
         lock(irq_running_lock);
         assume (cond_irq_can_happen);
+        lock_s(synthlock_0);
         assume (cond_irq_enabled);
         cpmac_irq(nondet);
+        unlock_s(synthlock_0);
         unlock(irq_running_lock);
         yield();
     }

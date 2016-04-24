@@ -684,8 +684,8 @@ static int cpmac_start_xmit(struct sk_buff *skb)
 	
         //cpmac_write(CPMAC_TX_PTR(queue), (u32)desc_ring[queue].mapping);
         notify(cond_irq_can_happen);
+        lock_s(synthlock_0);
 
-	lock_s(synthlock_0);
 	return NETDEV_TX_OK;
 }
 
@@ -1490,15 +1490,15 @@ void thread_irq () {
 void thread_send() {
     while(nondet) {
         yield();
+        lock_s(synthlock_0);
         notify(send_in_progress);
         if (nondet) {
-            lock_s(synthlock_0);
             assume(send_enabled);
             assume(netdev_running);
             cpmac_start_xmit((struct sk_buff *)((addr_t)nondet));
-            unlock_s(synthlock_0);
         };
         reset(send_in_progress);
+        unlock_s(synthlock_0);
     }
 }
 

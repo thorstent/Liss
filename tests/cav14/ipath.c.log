@@ -1,16 +1,19 @@
 Running actions
 Building sequential automaton
-27 rounds; seen states: 36; transitions: 52
-Found candidate ... Checking if truely a counter-example(size=12)
-9 rounds; seen states: 9; transitions: 8
-Not Included; bound
+16 rounds; seen states: 18; transitions: 25
+Found candidate ... Checking if truely a counter-example(size=9)
+6 rounds; seen states: 6; transitions: 5
+Candidate is not a counter-example
+Increasing the bound to 2
+12 rounds; seen states: 20; transitions: 17
+Checking if the trace is actually a counter example
+7 rounds; seen states: 7; transitions: 6
+Not Included
 1-lo(l)[ipath.c:46]
 1-r(ipath_pd)[ipath.c:49]
 1-un(l)[ipath.c:51]
 0-lo(l)[ipath.c:29]
 0-r(ipath_pd)[ipath.c:32]
-1-w(block)[ipath.c:56]
-1-w(block)[ipath.c:58]
 1-w(ipath_pd)[ipath.c:62]
 0-r(ipath_pd)[ipath.c:35]
 0-un(l)[ipath.c:39]
@@ -28,29 +31,29 @@ l1 (1-w(ipath_pd)[ipath.c:62]-1-w(ipath_pd)[ipath.c:62], 0-r(ipath_pd)[ipath.c:3
 -------------------
 
 
-TIME - Iteration 1: 0.057s
+TIME - Iteration 1: 0.015s
 
-35 rounds; seen states: 42; transitions: 66
-Found candidate ... Checking if truely a counter-example(size=12)
-9 rounds; seen states: 9; transitions: 8
+17 rounds; seen states: 22; transitions: 26
+Found candidate ... Checking if truely a counter-example(size=9)
+6 rounds; seen states: 6; transitions: 5
 Candidate is not a counter-example
 Increasing the bound to 2
-39 rounds; seen states: 47; transitions: 73
+24 rounds; seen states: 29; transitions: 39
 Found candidate ... Checking if truely a counter-example(size=12)
 9 rounds; seen states: 9; transitions: 8
 Candidate is not a counter-example
 Increasing the bound to 3
-31 rounds; seen states: 49; transitions: 52
+42 rounds; seen states: 49; transitions: 79
 Included
 Synthesis was successful.
 Threads: 2
 Iterations: 1
 Liss: 0s
 Verification: 0s
-Synthesis: 0.056s
-Memory: 31MB
+Synthesis: 0.015s
+Memory: 30MB
 Total number of conflicts found: 1
-2 | 1 | 3 | 0s | 0.056s | 0s | 0.056s | 31MB
+2 | 1 | 3 | 0s | 0.015s | 0s | 0.015s | 30MB
 Lock statistics:
 ---------------
 Starting lock placement for absmin
@@ -60,7 +63,7 @@ Number of locks used: 1
 Number of lock operations: 2
 Number of unlock operations: 2
 Number of abstract instructions inside a lock: 3
-Time for this cost function: 0.004s
+Time for this cost function: 0.001s
 
 Starting lock placement for coarse
 Lock placement succeeded!
@@ -69,7 +72,7 @@ Number of locks used: 1
 Number of lock operations: 2
 Number of unlock operations: 2
 Number of abstract instructions inside a lock: 7
-Time for this cost function: 0.013s
+Time for this cost function: 0.005s
 
 Starting lock placement for unopt
 Lock placement succeeded!
@@ -78,7 +81,7 @@ Number of locks used: 1
 Number of lock operations: 2
 Number of unlock operations: 2
 Number of abstract instructions inside a lock: 3
-Time for this cost function: 0.003s
+Time for this cost function: 0.001s
 
 Starting lock placement for small
 Lock placement succeeded!
@@ -87,15 +90,14 @@ Number of locks used: 1
 Number of lock operations: 2
 Number of unlock operations: 2
 Number of abstract instructions inside a lock: 3
-Time for this cost function: 0.004s
+Time for this cost function: 0.001s
 
 Starting lock placement for maxconc
-Finished making 80 constraints for 2 threads!
 Lock placement succeeded!
 Cost function 6: Maximum concurrency:
 Number of locks used: 1
 Number of lock operations: 2
 Number of unlock operations: 2
 Number of abstract instructions inside a lock: 3
-Time for this cost function: 0.004s
+Time for this cost function: 0.001s
 

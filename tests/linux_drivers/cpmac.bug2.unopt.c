@@ -20,14 +20,78 @@
 
 #include "types.h"
 #include "eth.h"
-#include "platform.h"
+
+#include "langinc.h"
+#include "types.h"
+
+typedef u64 phys_addr_t;
+typedef phys_addr_t resource_size_t;
+
+lock_t synthlock_0;
+lock_t synthlock_2;
+conditional_t cond_irq_enabled;
+lock_t irq_running_lock;
+
+void request_irq () {
+    notify(cond_irq_enabled);
+}
+
+void free_irq() {
+    reset(cond_irq_enabled);
+    unlock_s(synthlock_0);
+    lock(irq_running_lock);
+    lock_s(synthlock_0);
+    unlock(irq_running_lock);
+}
+
+struct resource {
+        resource_size_t start;
+        resource_size_t end;
+        const char *name;
+        unsigned long flags;
+        //struct resource *parent, *sibling, *child;
+};
+
+static inline resource_size_t resource_size(const struct resource *res)
+{
+        return (resource_size_t) nondet;
+}
+
+conditional_t cond_platform_driver_registered;
+
+int platform_driver_register() {
+    if (nondet) {
+        notify (cond_platform_driver_registered);
+        return 0;
+    } else {
+        return -1;
+    }
+}
+
+void platform_driver_unregister() {
+    reset (cond_platform_driver_registered);
+}
+
+int platform_get_irq_byname(const char* name) {
+    ioval = nondet;
+    return (int)ioval;
+}
+
+struct resource * platform_get_resource_byname(unsigned int type, const char * name) {
+    return (struct resource *)(addr_t)nondet;
+}
+
+struct resource * request_mem_region(resource_size_t start, resource_size_t n, const char *name) {
+    return (struct resource *)(addr_t)nondet;
+}
+
+void release_mem_region(resource_size_t start, resource_size_t n)
+{
+    ioval = nondet;
+}
 
 #define pr_err(format, ...) {}
 
-lock_t synthlock_0;
-lock_t synthlock_1;
-lock_t synthlock_2;
-lock_t synthlock_3;
 conditional_t cond_irq_can_happen;
 
 int ar7_gpio_disable(unsigned gpio) {
@@ -404,9 +468,11 @@ static int cpmac_mdio_reset()
 //		return -1;
 //	}
 	ar7_device_reset(AR7_RESET_BIT_MDIO);
+	lock_s(synthlock_0);
 	cpmac_write(CPMAC_MDIO_CONTROL, MDIOC_ENABLE |
 		    MDIOC_CLKDIV(/*clk_get_rate(cpmac_clk)*/nondet / 2200000 - 1));
 
+	unlock_s(synthlock_0);
 	return 0;
 }
 
@@ -646,67 +712,48 @@ static struct mii_bus cpmac_mii;
 
 static int cpmac_start_xmit(struct sk_buff *skb)
 {
-	int queue, len, ret;
+	int queue, len;
 	//struct cpmac_desc *desc;
 	//struct cpmac_priv *priv = netdev_priv(dev);
 
 	//if (unlikely(atomic_read(reset_pending)))
 	//	return NETDEV_TX_BUSY;
 
+	if (unlikely(skb_padto(skb, ETH_ZLEN)))
+		return NETDEV_TX_OK;
 
+	len = max(skb->len, ETH_ZLEN);
+	//queue = skb_get_queue_mapping(skb);
+	netif_stop_subqueue(/*queue*/);
+
+	//desc = &desc_ring[queue];
+	if (unlikely(desc_ring[queue].dataflags & CPMAC_OWN)) {
+//		if (netif_msg_tx_err(priv) && net_ratelimit())
+//			netdev_warn(dev, "tx dma ring full\n");
+
+		return NETDEV_TX_BUSY;
+	}
+
+	spin_lock(cplock);
+	spin_unlock(cplock);
+	desc_ring[queue].dataflags = CPMAC_SOP | CPMAC_EOP | CPMAC_OWN;
+	desc_ring[queue].skb = skb;
+	desc_ring[queue].data_mapping = dma_map_single(skb->data, len,
+					    DMA_TO_DEVICE);
+	desc_ring[queue].hw_data = (u32)desc_ring[queue].data_mapping;
+	desc_ring[queue].datalen = len;
+	desc_ring[queue].buflen = len;
+//	if (unlikely(netif_msg_tx_queued(priv)))
+//		netdev_dbg(dev, "sending 0x%p, len=%d\n", skb, skb->len);
+//	if (unlikely(netif_msg_hw(priv)))
+//		cpmac_dump_desc(dev, &desc_ring[queue]);
+//	if (unlikely(netif_msg_pktdata(priv)))
+//		cpmac_dump_skb(dev, skb);
+	
         //cpmac_write(CPMAC_TX_PTR(queue), (u32)desc_ring[queue].mapping);
-
-        // BUG: move this line to the  *** location below
-        lock_s(synthlock_0);
         notify(cond_irq_can_happen);
 
-	if (unlikely(skb_padto(skb, ETH_ZLEN))) {
-            ret = NETDEV_TX_OK;
-        } else {
-            len = max(skb->len, ETH_ZLEN);
-            //queue = skb_get_queue_mapping(skb);
-            netif_stop_subqueue(/*queue*/);
-
-            //desc = &desc_ring[queue];
-            if (unlikely(desc_ring[queue].dataflags & CPMAC_OWN)) {
-    //		if (netif_msg_tx_err(priv) && net_ratelimit())
-    //			netdev_warn(dev, "tx dma ring full\n");
-
-                    ret = NETDEV_TX_BUSY;
-            } else {
-
-                unlock_s(synthlock_3);
-                unlock_s(synthlock_0);
-                spin_lock(cplock);
-                spin_unlock(cplock);
-                lock_s(synthlock_3);
-                lock_s(synthlock_2);
-                desc_ring[queue].dataflags = CPMAC_SOP | CPMAC_EOP | CPMAC_OWN;
-                desc_ring[queue].skb = skb;
-                desc_ring[queue].data_mapping = dma_map_single(skb->data, len,
-                                                    DMA_TO_DEVICE);
-                desc_ring[queue].hw_data = (u32)desc_ring[queue].data_mapping;
-                lock_s(synthlock_1);
-                desc_ring[queue].datalen = len;
-                unlock_s(synthlock_2);
-                lock_s(synthlock_0);
-                desc_ring[queue].buflen = len;
-                unlock_s(synthlock_1);
-        //	if (unlikely(netif_msg_tx_queued(priv)))
-        //		netdev_dbg(dev, "sending 0x%p, len=%d\n", skb, skb->len);
-        //	if (unlikely(netif_msg_hw(priv)))
-        //		cpmac_dump_desc(dev, &desc_ring[queue]);
-        //	if (unlikely(netif_msg_pktdata(priv)))
-        //		cpmac_dump_skb(dev, skb);
-	
-
-                ret = NETDEV_TX_OK;
-            }
-        }
-        // ***
-        
-        unlock_s(synthlock_0);
-        return ret;
+	return NETDEV_TX_OK;
 }
 
 static void cpmac_end_xmit(int queue)
@@ -717,14 +764,12 @@ static void cpmac_end_xmit(int queue)
 //	desc = desc_ring[queue];
 	cpmac_write(CPMAC_TX_ACK(queue), (u32)desc_ring[queue].mapping);
 	if (likely(desc_ring[queue].skb)) {
-		unlock_s(synthlock_3);
+		unlock_s(synthlock_2);
+		unlock_s(synthlock_0);
 		spin_lock(cplock);
-		lock_s(synthlock_3);
 		netdev.stats.tx_packets++;
-		lock_s(synthlock_2);
-		lock_s(synthlock_1);
+		lock_s(synthlock_0);
 		netdev.stats.tx_bytes += desc_ring[queue].skb->len;
-		unlock_s(synthlock_1);
 		spin_unlock(cplock);
 		dma_unmap_single(desc_ring[queue].data_mapping, desc_ring[queue].skb->len,
 				 DMA_TO_DEVICE);
@@ -733,23 +778,26 @@ static void cpmac_end_xmit(int queue)
 //			netdev_dbg(dev, "sent 0x%p, len=%d\n",
 //				   desc_ring[queue].skb, desc_ring[queue].skb->len);
 
-		lock_s(synthlock_0);
 		dev_kfree_skb_irq(desc_ring[queue].skb);
 		desc_ring[queue].skb = NULL;
 		//if (__netif_subqueue_stopped(dev, queue))
-			unlock_s(synthlock_2);
-			netif_wake_subqueue();
 			unlock_s(synthlock_0);
+			netif_wake_subqueue();
 	} else {
 //		if (netif_msg_tx_err(priv) && net_ratelimit())
 //			netdev_warn(dev, "end_xmit: spurious interrupt\n");
 		//if (__netif_subqueue_stopped(dev, queue))
+			unlock_s(synthlock_2);
+			unlock_s(synthlock_0);
 			netif_wake_subqueue();
 	}
+lock_s(synthlock_2);
+lock_s(synthlock_0);
 }
 
 static void cpmac_hw_stop(/*struct net_device *dev*/)
 {
+lock_s(synthlock_0);
 	int i;
 	//struct cpmac_priv *priv = netdev_priv(dev);
 	//struct plat_cpmac_data *pdata = dev_get_platdata(&priv->pdev->dev);
@@ -767,6 +815,7 @@ static void cpmac_hw_stop(/*struct net_device *dev*/)
 	cpmac_write(CPMAC_RX_INT_CLEAR, 0xff);
 	cpmac_write(CPMAC_TX_INT_CLEAR, 0xff);
 	cpmac_write(CPMAC_MAC_INT_CLEAR, 0xff);
+	unlock_s(synthlock_0);
 	cpmac_write(CPMAC_MAC_CONTROL,
 		    cpmac_read(CPMAC_MAC_CONTROL) & ~MAC_MII);
 }
@@ -780,6 +829,7 @@ static void cpmac_hw_start()
 	ar7_device_reset(pdata.reset_bit);
 	//for (i = 0; i < 8; i++) {
 		cpmac_write(CPMAC_TX_PTR(i), 0);
+		lock_s(synthlock_0);
 		cpmac_write_CPMAC_RX_PTR(i, 0);
 	//}
 	cpmac_write_CPMAC_RX_PTR(0, rx_head->mapping);
@@ -810,6 +860,7 @@ static void cpmac_hw_start()
 	cpmac_write(CPMAC_MAC_CONTROL,
 		    cpmac_read(CPMAC_MAC_CONTROL) | MAC_MII |
 		    MAC_FDX);
+unlock_s(synthlock_0);
 }
 
 //static void cpmac_clear_rx(struct net_device *dev)
@@ -931,12 +982,16 @@ static irqreturn_t cpmac_irq(int irq)
 	}
 
 	//cpmac_write(CPMAC_MAC_EOI_VECTOR, 0);
-        //reset(cond_irq_can_happen);
+        unlock_s(synthlock_2);
+        unlock_s(synthlock_0);
+        reset(cond_irq_can_happen);
 
         // TODO
 //	if (unlikely(status & (MAC_INT_HOST | MAC_INT_STATUS)))
 //		cpmac_check_status(dev);
 
+	lock_s(synthlock_2);
+	lock_s(synthlock_0);
 	return IRQ_HANDLED;
 }
 
@@ -1183,16 +1238,20 @@ static int cpmac_stop()
 	netif_tx_stop_all_queues();
 
 	cancel_work_sync(/*&priv->reset_work*/);
+	lock_s(synthlock_2);
 	//napi_disable();
 	//TODO
         //phy_stop(priv->phy);
 
-	free_irq(/*dev->irq, dev*/);
+        // ***
+
 	cpmac_hw_stop();
 
 	//for (i = 0; i < 8; i++)
+		lock_s(synthlock_0);
 		cpmac_write(CPMAC_TX_PTR(i), 0);
 	cpmac_write_CPMAC_RX_PTR(0, 0);
+	unlock_s(synthlock_2);
 	cpmac_write(CPMAC_MBP, 0);
 
 	iounmap(regs);
@@ -1212,6 +1271,9 @@ static int cpmac_stop()
 			  (CPMAC_QUEUES + ring_size),
 			  desc_ring, dma_ring);
 
+        // BUG: move the following line to the  *** location above
+	free_irq(/*dev->irq, dev*/);
+	unlock_s(synthlock_0);
 	return 0;
 }
 
@@ -1305,10 +1367,10 @@ static int cpmac_probe()
 //	}
 
 	rc = register_netdev();
-//	if (rc) {
-//		//dev_err(&pdev->dev, "Could not register net device\n");
-//		goto fail;
-//	}
+	if (rc) {
+		//dev_err(&pdev->dev, "Could not register net device\n");
+		goto fail;
+	}
 
 //	if (netif_msg_probe(priv)) {
 //		dev_info(&pdev->dev, "regs: %p, irq: %d, phy: %s, "
@@ -1376,9 +1438,8 @@ int cpmac_init(void)
 		mask = cpmac_read(CPMAC_MDIO_ALIVE);
 		if (mask)
 			break;
-		else {
+		else
 			msleep(10);
-    }
 	}
 
 	mask &= 0x7fffffff;
@@ -1489,13 +1550,15 @@ void thread_open_close () {
 void thread_irq () {
     while (nondet) {
         lock(irq_running_lock);
-        lock_s(synthlock_3);
         assume (cond_irq_can_happen);
+        lock_s(synthlock_2);
+        lock_s(synthlock_0);
         assume (cond_irq_enabled);
         cpmac_irq(nondet);
-        unlock_s(synthlock_3);
+        unlock_s(synthlock_0);
         unlock(irq_running_lock);
         yield();
+        unlock_s(synthlock_2);
     }
 }
 
@@ -1515,17 +1578,13 @@ void thread_irq () {
 void thread_send() {
     while(nondet) {
         yield();
-        lock_s(synthlock_3);
         notify(send_in_progress);
         if (nondet) {
             assume(send_enabled);
-            unlock_s(synthlock_3);
             assume(netdev_running);
-            lock_s(synthlock_3);
             cpmac_start_xmit((struct sk_buff *)((addr_t)nondet));
         };
         reset(send_in_progress);
-        unlock_s(synthlock_3);
     }
 }
 

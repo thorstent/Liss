@@ -13,7 +13,6 @@
 #include <langinc.h>
 
 lock_t synthlock_0;
-lock_t synthlock_1;
 lock_t mtx;
 //int want_mtx;
 lock_t sem;
@@ -54,19 +53,17 @@ void thread_mmap () {
         // 7.
         //assert (state != INCONSISTENT);
         // 8.
-        lock_s(synthlock_1);
+        lock_s(synthlock_0);
         state = INCONSISTENT;
         // 9.
         state = INITIALISED;
         // 10.
-        lock_s(synthlock_0);
         state = INCONSISTENT;
-        unlock_s(synthlock_1);
         // 11.
         state = MAPPED;
+        unlock_s(synthlock_0);
 
         // 12.
-        unlock_s(synthlock_0);
         unlock(mtx);
     }
 
@@ -86,7 +83,6 @@ void thread_ioctl () {
     //assert (state != INCONSISTENT);
     // C.
     old_state = state;
-    lock_s(synthlock_1);
     // D.
     state = INCONSISTENT;
 
@@ -98,7 +94,6 @@ void thread_ioctl () {
         //want_sem = IOCTL_THREAD;
         
         // F.
-        unlock_s(synthlock_1);
         lock(sem);
 
         // G.
@@ -106,13 +101,11 @@ void thread_ioctl () {
 
         // H.
         unlock(sem);
-        lock_s(synthlock_1);
     };
 
     // I.
     lock_s(synthlock_0);
     state = old_state;
-    unlock_s(synthlock_1);
     unlock_s(synthlock_0);
 
 }

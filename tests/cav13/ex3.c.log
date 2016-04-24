@@ -1,13 +1,13 @@
 Running actions
 Building sequential automaton
-6 rounds; seen states: 8; transitions: 8
+8 rounds; seen states: 8; transitions: 9
 Checking if the trace is actually a counter example
 3 rounds; seen states: 3; transitions: 2
 Not Included
-0-w(shutdown)[ex3.c:18]
 2-wn(napi_poll)[ex3.c:66]
-0-no(napi_poll)[ex3.c:25]
+0-w(shutdown)[ex3.c:18]
 2-r(shutdown)[ex3.c:54]
+0-no(napi_poll)[ex3.c:25]
 Find all sequential traces
 Find concurrent traces that are not sequential
 All bad traces: 
@@ -23,7 +23,7 @@ l1 (2-wn(napi_poll)[ex3.c:66]-2-r(shutdown)[ex3.c:54], 0-w(shutdown)[ex3.c:18]-0
 -------------------
 
 
-TIME - Iteration 1: 0.027s
+TIME - Iteration 1: 0.013s
 
 11 rounds; seen states: 11; transitions: 15
 Included
@@ -32,10 +32,10 @@ Threads: 3
 Iterations: 1
 Liss: 0s
 Verification: 0s
-Synthesis: 0.027s
-Memory: 30MB
+Synthesis: 0.013s
+Memory: 29MB
 Total number of conflicts found: 1
-3 | 1 | 1 | 0s | 0.027s | 0s | 0.027s | 30MB
+3 | 1 | 1 | 0s | 0.013s | 0s | 0.013s | 29MB
 Lock statistics:
 ---------------
 Starting lock placement for absmin
@@ -45,7 +45,7 @@ Number of locks used: 1
 Number of lock operations: 2
 Number of unlock operations: 2
 Number of abstract instructions inside a lock: 4
-Time for this cost function: 0.005s
+Time for this cost function: 0.003s
 
 Starting lock placement for coarse
 Lock placement succeeded!
@@ -54,7 +54,7 @@ Number of locks used: 1
 Number of lock operations: 2
 Number of unlock operations: 2
 Number of abstract instructions inside a lock: 4
-Time for this cost function: 0.01s
+Time for this cost function: 0.006s
 
 Starting lock placement for unopt
 Lock placement succeeded!
@@ -63,7 +63,7 @@ Number of locks used: 1
 Number of lock operations: 2
 Number of unlock operations: 2
 Number of abstract instructions inside a lock: 4
-Time for this cost function: 0.003s
+Time for this cost function: 0.002s
 
 Starting lock placement for small
 Lock placement succeeded!
@@ -72,15 +72,14 @@ Number of locks used: 1
 Number of lock operations: 2
 Number of unlock operations: 2
 Number of abstract instructions inside a lock: 4
-Time for this cost function: 0.004s
+Time for this cost function: 0.003s
 
 Starting lock placement for maxconc
-Finished making 428 constraints for 3 threads!
 Lock placement succeeded!
 Cost function 6: Maximum concurrency:
 Number of locks used: 1
 Number of lock operations: 2
 Number of unlock operations: 2
 Number of abstract instructions inside a lock: 4
-Time for this cost function: 0.006s
+Time for this cost function: 0.003s
 

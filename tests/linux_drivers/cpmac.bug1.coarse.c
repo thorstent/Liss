@@ -701,8 +701,8 @@ static void cpmac_end_xmit(int queue)
 		netdev.stats.tx_packets++;
 		netdev.stats.tx_bytes += desc_ring[queue].skb->len;
 		spin_unlock(cplock);
-		lock_s(synthlock_0);
                 // FIX: move the following line to location labelled with *** below
+		lock_s(synthlock_0);
 		netif_wake_subqueue();
 		dma_unmap_single(desc_ring[queue].data_mapping, desc_ring[queue].skb->len,
 				 DMA_TO_DEVICE);
@@ -1490,15 +1490,15 @@ void thread_irq () {
 void thread_send() {
     while(nondet) {
         yield();
+        lock_s(synthlock_0);
         notify(send_in_progress);
         if (nondet) {
-            lock_s(synthlock_0);
             assume(send_enabled);
             assume(netdev_running);
             cpmac_start_xmit((struct sk_buff *)((addr_t)nondet));
-            unlock_s(synthlock_0);
         };
         reset(send_in_progress);
+        unlock_s(synthlock_0);
     }
 }
 

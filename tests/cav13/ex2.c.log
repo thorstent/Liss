@@ -1,6 +1,6 @@
 Running actions
 Building sequential automaton
-8 rounds; seen states: 7; transitions: 9
+5 rounds; seen states: 7; transitions: 7
 Checking if the trace is actually a counter example
 3 rounds; seen states: 3; transitions: 2
 Not Included
@@ -22,7 +22,7 @@ l1 (1-wa(init_sem)[ex2.c:44]-1-r(hw_start)[ex2.c:29], 0-no(init_sem)[ex2.c:24]-0
 -------------------
 
 
-TIME - Iteration 1: 0.041s
+TIME - Iteration 1: 0.013s
 
 7 rounds; seen states: 7; transitions: 9
 Included
@@ -31,10 +31,10 @@ Threads: 2
 Iterations: 1
 Liss: 0s
 Verification: 0s
-Synthesis: 0.041s
-Memory: 30MB
+Synthesis: 0.013s
+Memory: 29MB
 Total number of conflicts found: 1
-2 | 1 | 1 | 0s | 0.041s | 0s | 0.041s | 30MB
+2 | 1 | 1 | 0s | 0.013s | 0s | 0.013s | 29MB
 Lock statistics:
 ---------------
 Starting lock placement for absmin
@@ -44,7 +44,7 @@ Number of locks used: 1
 Number of lock operations: 2
 Number of unlock operations: 2
 Number of abstract instructions inside a lock: 3
-Time for this cost function: 0.004s
+Time for this cost function: 0.001s
 
 Starting lock placement for coarse
 Lock placement succeeded!
@@ -53,7 +53,7 @@ Number of locks used: 1
 Number of lock operations: 2
 Number of unlock operations: 2
 Number of abstract instructions inside a lock: 3
-Time for this cost function: 0.008s
+Time for this cost function: 0.003s
 
 Starting lock placement for unopt
 Lock placement succeeded!
@@ -62,7 +62,7 @@ Number of locks used: 1
 Number of lock operations: 2
 Number of unlock operations: 2
 Number of abstract instructions inside a lock: 3
-Time for this cost function: 0.003s
+Time for this cost function: 0.001s
 
 Starting lock placement for small
 Lock placement succeeded!
@@ -71,15 +71,14 @@ Number of locks used: 1
 Number of lock operations: 2
 Number of unlock operations: 2
 Number of abstract instructions inside a lock: 3
-Time for this cost function: 0.004s
+Time for this cost function: 0.001s
 
 Starting lock placement for maxconc
-Finished making 100 constraints for 2 threads!
 Lock placement succeeded!
 Cost function 6: Maximum concurrency:
 Number of locks used: 1
 Number of lock operations: 2
 Number of unlock operations: 2
 Number of abstract instructions inside a lock: 3
-Time for this cost function: 0.004s
+Time for this cost function: 0.001s
 

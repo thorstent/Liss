@@ -114,11 +114,11 @@ void unlock_disc () {
 
 void usb_serial_probe () {
     int x;
-    lock_table();
+    //lock_table();
     
     x = fw_driver_list_consistent;
     if (/*(!drv_id_table) |*/ (!drv_registered_with_usb_fw)) {
-        unlock_table();
+        //unlock_table();
         return;
     } else {
 
@@ -126,7 +126,7 @@ void usb_serial_probe () {
     
     if (/*drv_module_ref_cnt <= 0*/nondet) {
         assume_not(drv_module_ref_cnt);
-        unlock_table ();
+        //unlock_table ();
         return;
     } else {
         assume(drv_module_ref_cnt);
@@ -135,7 +135,7 @@ void usb_serial_probe () {
     x = drv_usb_initialized;
     //assert (drv_usb_registered);
    
-    unlock_table();
+    //unlock_table();
     
     dev_usb_serial_initialized = 1;
     //belkin_probe ();
@@ -147,7 +147,7 @@ void usb_serial_probe () {
      * disconnected flag and not clearing it until all ports have been
      * registered.
      */
-    //notify(dev_disconnected);
+    notify(dev_disconnected);
     
     // allocate_minors ()
     {
@@ -162,7 +162,7 @@ void usb_serial_probe () {
     port_work_initialized = 1;
     port_initialized = 1;
     notify(port_dev_registered);
-    //reset(dev_disconnected);
+    reset(dev_disconnected);
     
     // port_dev_registered = 1 increments module counter
     // module_put();
@@ -236,8 +236,8 @@ void usb_serial_device_probe () {
 }
 
 void usb_serial_device_remove () {
-lock_s(synthlock_1);
     int x;
+    lock_s(synthlock_1);
     x = port_initialized;
     x = dev_usb_serial_initialized;
     //assert (dev_usb_serial_initialized>=0);
@@ -247,10 +247,10 @@ lock_s(synthlock_1);
     dev_autopm++;
     
     reset(port_tty_registered);
+    unlock_s(synthlock_1);
     
     //belkin_port_remove();
     
-    unlock_s(synthlock_1);
     dev_autopm--;
 }
 
@@ -398,6 +398,7 @@ void serial_install () {
                 assume_not(drv_module_ref_cnt);
                 usb_serial_put ();
                 unlock_disc ();
+                return;
             } else {
                 assume(drv_module_ref_cnt);
                 dev_autopm++;
@@ -510,8 +511,8 @@ void thread_port_work () {
     int x;
     //while (port_work_active != 0) {
         assume (port_work /*| (port_work_stop == 1)*/);
-        //x = port_initialized;
-        //x = port_tty_state;
+    //    x = port_initialized;
+    //    x = port_tty_state;
         reset(port_write_in_progress);
         reset(port_work);
     //};

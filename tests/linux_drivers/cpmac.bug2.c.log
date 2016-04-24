@@ -1,904 +1,280 @@
 Running actions
 Building sequential automaton
-2697 rounds; seen states: 3225; transitions: 14296
-Found candidate ... Checking if truely a counter-example(size=231)
-179 rounds; seen states: 179; transitions: 178
-Not Included; bound
-0-w(ioval)[types.h:189]
-0-r(ioval)[types.h:190]
-0-w(cpmac_mii)[cpmac.bug2.c:1396]
-0-r(cpmac_mii)[cpmac.bug2.c:1397]
-3-lo(irq_running_lock)[cpmac.bug2.c:1526]
-2-lo(rtnl)[cpmac.bug2.c:1496]
-4-yi[cpmac.bug2.c:1550]
-4-no(send_in_progress)[cpmac.bug2.c:1551]
-4-rs(send_in_progress)[cpmac.bug2.c:1557]
-0-w(ioval)[cpmac.bug2.c:94]
-0-w(ioval)[cpmac.bug2.c:94]
-0-w(ioval)[cpmac.bug2.c:98]
-0-w(ioval)[cpmac.bug2.c:98]
-0-w(ioval)[cpmac.bug2.c:98]
-0-w(ioval)[cpmac.bug2.c:98]
-0-w(regs)[cpmac.bug2.c:340]
-0-w(ioval)[cpmac.bug2.c:341]
-0-w(cpmac_mii_phy_mask)[cpmac.bug2.c:1425]
-0-no(cond_platform_driver_registered)[cpmac.bug2.c:60]
-0-wa(cond_platform_driver_registered)[cpmac.bug2.c:1437]
-0-wa(cond_platform_driver_registered)[cpmac.bug2.c:1470]
-0-yi[cpmac.bug2.c:1471]
-1-wa(cond_platform_driver_registered)[cpmac.bug2.c:1480]
-1-r(external_switch)[cpmac.bug2.c:1279]
-1-w(ioval)[cpmac.bug2.c:72]
-1-r(ioval)[cpmac.bug2.c:73]
-1-w(netdev)[cpmac.bug2.c:1314]
-1-w(ring_size)[cpmac.bug2.c:1324]
-1-r(pdata)[cpmac.bug2.c:1326]
-1-r(pdata)[cpmac.bug2.c:1326]
-1-w(pdata)[cpmac.bug2.c:1326]
-1-r(netdev)[cpmac.bug2.c:1326]
-1-no(netdev_registered)[eth.h:391]
-2-wa(netdev_registered)[cpmac.bug2.c:1498]
-2-no(netdev_running)[cpmac.bug2.c:1499]
-2-r(netdev)[cpmac.bug2.c:1120]
-1-wa(netdev_registered)[cpmac.bug2.c:1483]
-1-yi[cpmac.bug2.c:1484]
-2-w(ioval)[types.h:189]
-2-r(ioval)[types.h:190]
-2-w(regs)[cpmac.bug2.c:1128]
-2-r(regs)[cpmac.bug2.c:1129]
-2-r(ring_size)[cpmac.bug2.c:1137]
-2-w(dma_ring)[cpmac.bug2.c:1139]
-2-w(desc_ring)[cpmac.bug2.c:1138]
-2-r(desc_ring)[cpmac.bug2.c:1141]
-2-r(dma_ring)[cpmac.bug2.c:1147]
-2-w(desc_ring)[cpmac.bug2.c:1147]
-2-r(desc_ring)[cpmac.bug2.c:1149]
-2-w(rx_head)[cpmac.bug2.c:1149]
-2-w(rx_head)[cpmac.bug2.c:1156]
-2-w(rx_head)[cpmac.bug2.c:1157]
-2-r(rx_head)[cpmac.bug2.c:1160]
-2-w(rx_head)[cpmac.bug2.c:1160]
-2-w(rx_head)[cpmac.bug2.c:1161]
-2-w(rx_head)[cpmac.bug2.c:1162]
-2-r(rx_head)[cpmac.bug2.c:1163]
-2-r(ring_size)[cpmac.bug2.c:1163]
-2-w(rx_head)[cpmac.bug2.c:1163]
-2-r(rx_head)[cpmac.bug2.c:1164]
-2-w(rx_head)[cpmac.bug2.c:1164]
-2-r(rx_head)[cpmac.bug2.c:1165]
-2-w(rx_head)[cpmac.bug2.c:1165]
-2-w(rx_head)[cpmac.bug2.c:1168]
-2-no(cond_irq_enabled)[cpmac.bug2.c:34]
-2-r(pdata)[cpmac.bug2.c:813]
-2-w(ioval)[cpmac.bug2.c:98]
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-w(cpmac_rx_ptr)[cpmac.bug2.c:358]
-2-r(rx_head)[cpmac.bug2.c:818]
-2-w(cpmac_rx_ptr)[cpmac.bug2.c:358]
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-r(netdev)[cpmac.bug2.c:824]
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-r(netdev)[cpmac.bug2.c:825]
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-r(netdev)[cpmac.bug2.c:826]
-2-r(netdev)[cpmac.bug2.c:827]
-2-r(netdev)[cpmac.bug2.c:827]
-2-r(netdev)[cpmac.bug2.c:828]
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-r(ioval)[cpmac.bug2.c:345]
-2-r(regs)[cpmac.bug2.c:345]
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-r(ioval)[cpmac.bug2.c:345]
-2-r(regs)[cpmac.bug2.c:345]
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-r(ioval)[cpmac.bug2.c:345]
-2-r(regs)[cpmac.bug2.c:345]
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-no(send_enabled)[eth.h:441]
-2-un(rtnl)[cpmac.bug2.c:1502]
-1-lo(rtnl)[eth.h:408]
-1-rs(netdev_registered)[eth.h:411]
-1-wa(netdev_running)[eth.h:413]
-2-yi[cpmac.bug2.c:1504]
-4-yi[cpmac.bug2.c:1550]
-4-no(send_in_progress)[cpmac.bug2.c:1551]
-4-wa(send_enabled)[cpmac.bug2.c:1553]
-4-wa(netdev_running)[cpmac.bug2.c:1554]
-1-rs(netdev_running)[eth.h:414]
-1-rs(send_enabled)[eth.h:415]
-4-rs(send_enabled)[eth.h:447]
-4-r(desc_ring)[cpmac.bug2.c:724]
-4-lo(cplock)[cpmac.bug2.c:731]
-4-un(cplock)[cpmac.bug2.c:732]
-4-w(desc_ring)[cpmac.bug2.c:733]
-4-w(desc_ring)[cpmac.bug2.c:734]
-4-w(desc_ring)[cpmac.bug2.c:735]
-4-r(desc_ring)[cpmac.bug2.c:737]
-4-w(desc_ring)[cpmac.bug2.c:737]
-4-w(desc_ring)[cpmac.bug2.c:738]
-4-w(desc_ring)[cpmac.bug2.c:739]
-4-no(cond_irq_can_happen)[cpmac.bug2.c:748]
-3-wa(cond_irq_can_happen)[cpmac.bug2.c:1527]
-3-wa(cond_irq_enabled)[cpmac.bug2.c:1528]
-3-r(cpmac_int_vector)[cpmac.bug2.c:351]
-4-rs(send_in_progress)[cpmac.bug2.c:1557]
-1-wn(send_in_progress)[eth.h:416]
-1-rs(send_enabled)[eth.h:447]
-1-r(pdata)[cpmac.bug2.c:790]
-1-w(ioval)[cpmac.bug2.c:98]
-1-r(ioval)[cpmac.bug2.c:345]
-1-r(regs)[cpmac.bug2.c:345]
-1-w(regs)[cpmac.bug2.c:340]
-1-w(ioval)[cpmac.bug2.c:341]
-1-r(ioval)[cpmac.bug2.c:345]
-1-r(regs)[cpmac.bug2.c:345]
-1-w(regs)[cpmac.bug2.c:340]
-1-w(ioval)[cpmac.bug2.c:341]
-1-w(regs)[cpmac.bug2.c:340]
-1-w(ioval)[cpmac.bug2.c:341]
-1-w(cpmac_rx_ptr)[cpmac.bug2.c:358]
-1-w(regs)[cpmac.bug2.c:340]
-1-w(ioval)[cpmac.bug2.c:341]
-1-w(regs)[cpmac.bug2.c:340]
-1-w(ioval)[cpmac.bug2.c:341]
-1-w(regs)[cpmac.bug2.c:340]
-1-w(ioval)[cpmac.bug2.c:341]
-1-w(regs)[cpmac.bug2.c:340]
-1-w(ioval)[cpmac.bug2.c:341]
-1-r(ioval)[cpmac.bug2.c:345]
-1-r(regs)[cpmac.bug2.c:345]
-1-w(regs)[cpmac.bug2.c:340]
-1-w(ioval)[cpmac.bug2.c:341]
-1-w(regs)[cpmac.bug2.c:340]
-1-w(ioval)[cpmac.bug2.c:341]
-1-w(cpmac_rx_ptr)[cpmac.bug2.c:358]
-1-w(regs)[cpmac.bug2.c:340]
-1-w(ioval)[cpmac.bug2.c:341]
-1-w(regs)[cpmac.bug2.c:1232]
-1-w(ioval)[cpmac.bug2.c:1232]
-1-w(ioval)[cpmac.bug2.c:86]
-1-r(desc_ring)[cpmac.bug2.c:1235]
-1-w(rx_head)[cpmac.bug2.c:1235]
-1-r(rx_head)[cpmac.bug2.c:1237]
-1-r(rx_head)[cpmac.bug2.c:1238]
-1-w(rx_head)[cpmac.bug2.c:1241]
-1-w(desc_ring)[cpmac.bug2.c:1247]
-1-w(dma_ring)[cpmac.bug2.c:1247]
-1-rs(cond_irq_enabled)[cpmac.bug2.c:38]
-3-r(desc_ring)[cpmac.bug2.c:759]
-3-w(regs)[cpmac.bug2.c:340]
-3-w(ioval)[cpmac.bug2.c:341]
-3-r(desc_ring)[cpmac.bug2.c:760]
-3-lo(cplock)[cpmac.bug2.c:761]
-3-r(netdev)[cpmac.bug2.c:762]
-3-r(netdev)[cpmac.bug2.c:763]
-3-r(desc_ring)[cpmac.bug2.c:763]
-3-un(cplock)[cpmac.bug2.c:764]
-3-r(desc_ring)[cpmac.bug2.c:765]
-3-r(desc_ring)[cpmac.bug2.c:765]
-3-w(desc_ring)[cpmac.bug2.c:772]
-3-w(desc_ring)[cpmac.bug2.c:773]
-3-no(send_enabled)[eth.h:459]
-3-rs(cond_irq_can_happen)[cpmac.bug2.c:967]
-3-un(irq_running_lock)[cpmac.bug2.c:1530]
-1-lo(irq_running_lock)[cpmac.bug2.c:39]
-1-un(irq_running_lock)[cpmac.bug2.c:40]
-1-un(rtnl)[eth.h:421]
-1-no(cond_platform_driver_not_in_use)[cpmac.bug2.c:1490]
-0-wa(cond_platform_driver_not_in_use)[cpmac.bug2.c:1472]
-0-rs(cond_platform_driver_registered)[cpmac.bug2.c:68]
-0-w(cpmac_mii)[cpmac.bug2.c:1457]
-0-w(ioval)[cpmac.bug2.c:1457]
-2-lo(rtnl)[cpmac.bug2.c:1506]
-2-wn(netdev_running)[cpmac.bug2.c:1514]
-2-un(rtnl)[cpmac.bug2.c:1520]
-3-yi[cpmac.bug2.c:1531]
-Find all sequential traces
-Find concurrent traces that are not sequential
-All bad traces: 
-1-w(ioval)[cpmac.bug2.c:86] < 3-w(ioval)[cpmac.bug2.c:341] /\ 3-r(desc_ring)[cpmac.bug2.c:760] < 1-w(desc_ring)[cpmac.bug2.c:1247] \/
-1-w(regs)[cpmac.bug2.c:1232] < 3-w(regs)[cpmac.bug2.c:340] /\ 3-w(ioval)[cpmac.bug2.c:341] < 1-w(ioval)[cpmac.bug2.c:86] \/
-1-w(regs)[cpmac.bug2.c:340] < 3-w(regs)[cpmac.bug2.c:340] /\ 3-w(regs)[cpmac.bug2.c:340] < 1-w(regs)[cpmac.bug2.c:1232] \/
-1-w(regs)[cpmac.bug2.c:340] < 3-w(regs)[cpmac.bug2.c:340] /\ 3-w(regs)[cpmac.bug2.c:340] < 1-w(regs)[cpmac.bug2.c:340] \/
-1-w(regs)[cpmac.bug2.c:340] < 3-w(regs)[cpmac.bug2.c:340] /\ 3-w(regs)[cpmac.bug2.c:340] < 1-w(regs)[cpmac.bug2.c:340] \/
-1-r(regs)[cpmac.bug2.c:345] < 3-w(regs)[cpmac.bug2.c:340] /\ 3-w(regs)[cpmac.bug2.c:340] < 1-w(regs)[cpmac.bug2.c:340] \/
-1-r(ioval)[cpmac.bug2.c:345] < 3-w(ioval)[cpmac.bug2.c:341] /\ 3-w(regs)[cpmac.bug2.c:340] < 1-r(regs)[cpmac.bug2.c:345] \/
-1-w(regs)[cpmac.bug2.c:340] < 3-w(regs)[cpmac.bug2.c:340] /\ 3-w(ioval)[cpmac.bug2.c:341] < 1-r(ioval)[cpmac.bug2.c:345] \/
-1-w(regs)[cpmac.bug2.c:340] < 3-w(regs)[cpmac.bug2.c:340] /\ 3-w(regs)[cpmac.bug2.c:340] < 1-w(regs)[cpmac.bug2.c:340] \/
-1-w(regs)[cpmac.bug2.c:340] < 3-w(regs)[cpmac.bug2.c:340] /\ 3-w(regs)[cpmac.bug2.c:340] < 1-w(regs)[cpmac.bug2.c:340] \/
-1-w(regs)[cpmac.bug2.c:340] < 3-w(regs)[cpmac.bug2.c:340] /\ 3-w(regs)[cpmac.bug2.c:340] < 1-w(regs)[cpmac.bug2.c:340] \/
-1-w(regs)[cpmac.bug2.c:340] < 3-w(regs)[cpmac.bug2.c:340] /\ 3-w(regs)[cpmac.bug2.c:340] < 1-w(regs)[cpmac.bug2.c:340] \/
-1-w(regs)[cpmac.bug2.c:340] < 3-w(regs)[cpmac.bug2.c:340] /\ 3-w(regs)[cpmac.bug2.c:340] < 1-w(regs)[cpmac.bug2.c:340] \/
-1-r(regs)[cpmac.bug2.c:345] < 3-w(regs)[cpmac.bug2.c:340] /\ 3-w(regs)[cpmac.bug2.c:340] < 1-w(regs)[cpmac.bug2.c:340] \/
-1-r(ioval)[cpmac.bug2.c:345] < 3-w(ioval)[cpmac.bug2.c:341] /\ 3-w(regs)[cpmac.bug2.c:340] < 1-r(regs)[cpmac.bug2.c:345] \/
-1-w(regs)[cpmac.bug2.c:340] < 3-w(regs)[cpmac.bug2.c:340] /\ 3-w(ioval)[cpmac.bug2.c:341] < 1-r(ioval)[cpmac.bug2.c:345] \/
-1-r(regs)[cpmac.bug2.c:345] < 3-w(regs)[cpmac.bug2.c:340] /\ 3-w(regs)[cpmac.bug2.c:340] < 1-w(regs)[cpmac.bug2.c:340] \/
-1-r(ioval)[cpmac.bug2.c:345] < 3-w(ioval)[cpmac.bug2.c:341] /\ 3-w(regs)[cpmac.bug2.c:340] < 1-r(regs)[cpmac.bug2.c:345] \/
-1-w(ioval)[cpmac.bug2.c:98] < 3-w(ioval)[cpmac.bug2.c:341] /\ 3-w(ioval)[cpmac.bug2.c:341] < 1-r(ioval)[cpmac.bug2.c:345] \/
-1-r(desc_ring)[cpmac.bug2.c:1235] < 3-w(desc_ring)[cpmac.bug2.c:772] /\ 3-w(desc_ring)[cpmac.bug2.c:773] < 1-w(desc_ring)[cpmac.bug2.c:1247] \/
-3-w(desc_ring)[cpmac.bug2.c:772] < 1-w(desc_ring)[cpmac.bug2.c:1247] /\ 1-w(desc_ring)[cpmac.bug2.c:1247] < 3-w(desc_ring)[cpmac.bug2.c:773] \/
-3-r(desc_ring)[cpmac.bug2.c:765] < 1-w(desc_ring)[cpmac.bug2.c:1247] /\ 1-w(desc_ring)[cpmac.bug2.c:1247] < 3-w(desc_ring)[cpmac.bug2.c:772] \/
-3-r(desc_ring)[cpmac.bug2.c:765] < 1-w(desc_ring)[cpmac.bug2.c:1247] /\ 1-w(desc_ring)[cpmac.bug2.c:1247] < 3-r(desc_ring)[cpmac.bug2.c:765] \/
-3-r(desc_ring)[cpmac.bug2.c:763] < 1-w(desc_ring)[cpmac.bug2.c:1247] /\ 1-w(desc_ring)[cpmac.bug2.c:1247] < 3-r(desc_ring)[cpmac.bug2.c:765] \/
-3-r(desc_ring)[cpmac.bug2.c:759] < 1-w(desc_ring)[cpmac.bug2.c:1247] /\ 1-w(desc_ring)[cpmac.bug2.c:1247] < 3-r(desc_ring)[cpmac.bug2.c:760] \/
-3-w(desc_ring)[cpmac.bug2.c:772] < 1-r(desc_ring)[cpmac.bug2.c:1235] /\ 1-r(desc_ring)[cpmac.bug2.c:1235] < 3-w(desc_ring)[cpmac.bug2.c:773] \/
-(*) 1-w(desc_ring)[cpmac.bug2.c:1247] < 3-r(desc_ring)[cpmac.bug2.c:759] /\ 3-wa(cond_irq_enabled)[cpmac.bug2.c:1528] < 1-rs(cond_irq_enabled)[cpmac.bug2.c:38]
-Found constraints to eliminate bad traces
-Locks inferred: 
-l1 (3-w(ioval)[cpmac.bug2.c:341]-3-r(desc_ring)[cpmac.bug2.c:760], 1-w(ioval)[cpmac.bug2.c:86]-1-w(desc_ring)[cpmac.bug2.c:1247]) /\ 
-l2 (3-w(regs)[cpmac.bug2.c:340]-3-w(ioval)[cpmac.bug2.c:341], 1-w(regs)[cpmac.bug2.c:1232]-1-w(ioval)[cpmac.bug2.c:86]) /\ 
-l3 (3-w(regs)[cpmac.bug2.c:340]-3-w(regs)[cpmac.bug2.c:340], 1-w(regs)[cpmac.bug2.c:340]-1-w(regs)[cpmac.bug2.c:1232]) /\ 
-l4 (3-w(regs)[cpmac.bug2.c:340]-3-w(regs)[cpmac.bug2.c:340], 1-w(regs)[cpmac.bug2.c:340]-1-w(regs)[cpmac.bug2.c:340]) /\ 
-l5 (3-w(regs)[cpmac.bug2.c:340]-3-w(regs)[cpmac.bug2.c:340], 1-w(regs)[cpmac.bug2.c:340]-1-w(regs)[cpmac.bug2.c:340]) /\ 
-l6 (3-w(regs)[cpmac.bug2.c:340]-3-w(regs)[cpmac.bug2.c:340], 1-r(regs)[cpmac.bug2.c:345]-1-w(regs)[cpmac.bug2.c:340]) /\ 
-l7 (3-w(regs)[cpmac.bug2.c:340]-3-w(ioval)[cpmac.bug2.c:341], 1-r(ioval)[cpmac.bug2.c:345]-1-r(regs)[cpmac.bug2.c:345]) /\ 
-l8 (3-w(regs)[cpmac.bug2.c:340]-3-w(ioval)[cpmac.bug2.c:341], 1-w(regs)[cpmac.bug2.c:340]-1-r(ioval)[cpmac.bug2.c:345]) /\ 
-l9 (3-w(regs)[cpmac.bug2.c:340]-3-w(regs)[cpmac.bug2.c:340], 1-w(regs)[cpmac.bug2.c:340]-1-w(regs)[cpmac.bug2.c:340]) /\ 
-l10 (3-w(regs)[cpmac.bug2.c:340]-3-w(regs)[cpmac.bug2.c:340], 1-w(regs)[cpmac.bug2.c:340]-1-w(regs)[cpmac.bug2.c:340]) /\ 
-l11 (3-w(regs)[cpmac.bug2.c:340]-3-w(regs)[cpmac.bug2.c:340], 1-w(regs)[cpmac.bug2.c:340]-1-w(regs)[cpmac.bug2.c:340]) /\ 
-l12 (3-w(regs)[cpmac.bug2.c:340]-3-w(regs)[cpmac.bug2.c:340], 1-w(regs)[cpmac.bug2.c:340]-1-w(regs)[cpmac.bug2.c:340]) /\ 
-l13 (3-w(regs)[cpmac.bug2.c:340]-3-w(regs)[cpmac.bug2.c:340], 1-w(regs)[cpmac.bug2.c:340]-1-w(regs)[cpmac.bug2.c:340]) /\ 
-l14 (3-w(regs)[cpmac.bug2.c:340]-3-w(regs)[cpmac.bug2.c:340], 1-r(regs)[cpmac.bug2.c:345]-1-w(regs)[cpmac.bug2.c:340]) /\ 
-l15 (3-w(regs)[cpmac.bug2.c:340]-3-w(ioval)[cpmac.bug2.c:341], 1-r(ioval)[cpmac.bug2.c:345]-1-r(regs)[cpmac.bug2.c:345]) /\ 
-l16 (3-w(regs)[cpmac.bug2.c:340]-3-w(ioval)[cpmac.bug2.c:341], 1-w(regs)[cpmac.bug2.c:340]-1-r(ioval)[cpmac.bug2.c:345]) /\ 
-l17 (3-w(regs)[cpmac.bug2.c:340]-3-w(regs)[cpmac.bug2.c:340], 1-r(regs)[cpmac.bug2.c:345]-1-w(regs)[cpmac.bug2.c:340]) /\ 
-l18 (3-w(regs)[cpmac.bug2.c:340]-3-w(ioval)[cpmac.bug2.c:341], 1-r(ioval)[cpmac.bug2.c:345]-1-r(regs)[cpmac.bug2.c:345]) /\ 
-l19 (3-w(ioval)[cpmac.bug2.c:341]-3-w(ioval)[cpmac.bug2.c:341], 1-w(ioval)[cpmac.bug2.c:98]-1-r(ioval)[cpmac.bug2.c:345]) /\ 
-l20 (3-w(desc_ring)[cpmac.bug2.c:772]-3-w(desc_ring)[cpmac.bug2.c:773], 1-r(desc_ring)[cpmac.bug2.c:1235]-1-w(desc_ring)[cpmac.bug2.c:1247]) /\ 
-l21 (3-w(desc_ring)[cpmac.bug2.c:772]-3-w(desc_ring)[cpmac.bug2.c:773], 1-w(desc_ring)[cpmac.bug2.c:1247]-1-w(desc_ring)[cpmac.bug2.c:1247]) /\ 
-l22 (3-r(desc_ring)[cpmac.bug2.c:765]-3-w(desc_ring)[cpmac.bug2.c:772], 1-w(desc_ring)[cpmac.bug2.c:1247]-1-w(desc_ring)[cpmac.bug2.c:1247]) /\ 
-l23 (3-r(desc_ring)[cpmac.bug2.c:765]-3-r(desc_ring)[cpmac.bug2.c:765], 1-w(desc_ring)[cpmac.bug2.c:1247]-1-w(desc_ring)[cpmac.bug2.c:1247]) /\ 
-l24 (3-r(desc_ring)[cpmac.bug2.c:763]-3-r(desc_ring)[cpmac.bug2.c:765], 1-w(desc_ring)[cpmac.bug2.c:1247]-1-w(desc_ring)[cpmac.bug2.c:1247]) /\ 
-l25 (3-r(desc_ring)[cpmac.bug2.c:759]-3-r(desc_ring)[cpmac.bug2.c:760], 1-w(desc_ring)[cpmac.bug2.c:1247]-1-w(desc_ring)[cpmac.bug2.c:1247]) /\ 
-l26 (3-w(desc_ring)[cpmac.bug2.c:772]-3-w(desc_ring)[cpmac.bug2.c:773], 1-r(desc_ring)[cpmac.bug2.c:1235]-1-r(desc_ring)[cpmac.bug2.c:1235]) /\ 
-l27 (3-wa(cond_irq_enabled)[cpmac.bug2.c:1528]-3-r(desc_ring)[cpmac.bug2.c:759], 1-w(desc_ring)[cpmac.bug2.c:1247]-1-rs(cond_irq_enabled)[cpmac.bug2.c:38])
-3-w(ioval)[cpmac.bug2.c:341]
-3-r(desc_ring)[cpmac.bug2.c:760]
--------------------
-1-w(ioval)[cpmac.bug2.c:86]
-1-r(desc_ring)[cpmac.bug2.c:1235]
-1-w(rx_head)[cpmac.bug2.c:1235]
-1-r(rx_head)[cpmac.bug2.c:1237]
-1-r(rx_head)[cpmac.bug2.c:1238]
-1-w(rx_head)[cpmac.bug2.c:1241]
-1-w(desc_ring)[cpmac.bug2.c:1247]
--------------------
- /\ 
-3-w(regs)[cpmac.bug2.c:340]
-3-w(ioval)[cpmac.bug2.c:341]
--------------------
-1-w(regs)[cpmac.bug2.c:1232]
-1-w(ioval)[cpmac.bug2.c:1232]
-1-w(ioval)[cpmac.bug2.c:86]
--------------------
- /\ 
-3-w(regs)[cpmac.bug2.c:340]
--------------------
-1-w(regs)[cpmac.bug2.c:340]
-1-w(ioval)[cpmac.bug2.c:341]
-1-w(regs)[cpmac.bug2.c:1232]
--------------------
- /\ 
-3-w(regs)[cpmac.bug2.c:340]
--------------------
-1-w(regs)[cpmac.bug2.c:340]
-1-w(ioval)[cpmac.bug2.c:341]
-1-w(cpmac_rx_ptr)[cpmac.bug2.c:358]
-1-w(regs)[cpmac.bug2.c:340]
--------------------
- /\ 
-3-w(regs)[cpmac.bug2.c:340]
--------------------
-1-w(regs)[cpmac.bug2.c:340]
-1-w(ioval)[cpmac.bug2.c:341]
-1-w(regs)[cpmac.bug2.c:340]
--------------------
- /\ 
-3-w(regs)[cpmac.bug2.c:340]
--------------------
-1-r(regs)[cpmac.bug2.c:345]
-1-w(regs)[cpmac.bug2.c:340]
--------------------
- /\ 
-3-w(regs)[cpmac.bug2.c:340]
-3-w(ioval)[cpmac.bug2.c:341]
--------------------
-1-r(ioval)[cpmac.bug2.c:345]
-1-r(regs)[cpmac.bug2.c:345]
--------------------
- /\ 
-3-w(regs)[cpmac.bug2.c:340]
-3-w(ioval)[cpmac.bug2.c:341]
--------------------
-1-w(regs)[cpmac.bug2.c:340]
-1-w(ioval)[cpmac.bug2.c:341]
-1-r(ioval)[cpmac.bug2.c:345]
--------------------
- /\ 
-3-w(regs)[cpmac.bug2.c:340]
--------------------
-1-w(regs)[cpmac.bug2.c:340]
-1-w(ioval)[cpmac.bug2.c:341]
-1-w(regs)[cpmac.bug2.c:340]
--------------------
- /\ 
-3-w(regs)[cpmac.bug2.c:340]
--------------------
-1-w(regs)[cpmac.bug2.c:340]
-1-w(ioval)[cpmac.bug2.c:341]
-1-w(regs)[cpmac.bug2.c:340]
--------------------
- /\ 
-3-w(regs)[cpmac.bug2.c:340]
--------------------
-1-w(regs)[cpmac.bug2.c:340]
-1-w(ioval)[cpmac.bug2.c:341]
-1-w(regs)[cpmac.bug2.c:340]
--------------------
- /\ 
-3-w(regs)[cpmac.bug2.c:340]
--------------------
-1-w(regs)[cpmac.bug2.c:340]
-1-w(ioval)[cpmac.bug2.c:341]
-1-w(cpmac_rx_ptr)[cpmac.bug2.c:358]
-1-w(regs)[cpmac.bug2.c:340]
--------------------
- /\ 
-3-w(regs)[cpmac.bug2.c:340]
--------------------
-1-w(regs)[cpmac.bug2.c:340]
-1-w(ioval)[cpmac.bug2.c:341]
-1-w(regs)[cpmac.bug2.c:340]
--------------------
- /\ 
-3-w(regs)[cpmac.bug2.c:340]
--------------------
-1-r(regs)[cpmac.bug2.c:345]
-1-w(regs)[cpmac.bug2.c:340]
--------------------
- /\ 
-3-w(regs)[cpmac.bug2.c:340]
-3-w(ioval)[cpmac.bug2.c:341]
--------------------
-1-r(ioval)[cpmac.bug2.c:345]
-1-r(regs)[cpmac.bug2.c:345]
--------------------
- /\ 
-3-w(regs)[cpmac.bug2.c:340]
-3-w(ioval)[cpmac.bug2.c:341]
--------------------
-1-w(regs)[cpmac.bug2.c:340]
-1-w(ioval)[cpmac.bug2.c:341]
-1-r(ioval)[cpmac.bug2.c:345]
--------------------
- /\ 
-3-w(regs)[cpmac.bug2.c:340]
--------------------
-1-r(regs)[cpmac.bug2.c:345]
-1-w(regs)[cpmac.bug2.c:340]
--------------------
- /\ 
-3-w(regs)[cpmac.bug2.c:340]
-3-w(ioval)[cpmac.bug2.c:341]
--------------------
-1-r(ioval)[cpmac.bug2.c:345]
-1-r(regs)[cpmac.bug2.c:345]
--------------------
- /\ 
-3-w(ioval)[cpmac.bug2.c:341]
--------------------
-1-w(ioval)[cpmac.bug2.c:98]
-1-r(ioval)[cpmac.bug2.c:345]
--------------------
- /\ 
-3-w(desc_ring)[cpmac.bug2.c:772]
-3-w(desc_ring)[cpmac.bug2.c:773]
--------------------
-1-r(desc_ring)[cpmac.bug2.c:1235]
-1-w(rx_head)[cpmac.bug2.c:1235]
-1-r(rx_head)[cpmac.bug2.c:1237]
-1-r(rx_head)[cpmac.bug2.c:1238]
-1-w(rx_head)[cpmac.bug2.c:1241]
-1-w(desc_ring)[cpmac.bug2.c:1247]
--------------------
- /\ 
-3-r(desc_ring)[cpmac.bug2.c:765]
-3-w(desc_ring)[cpmac.bug2.c:772]
--------------------
-1-w(desc_ring)[cpmac.bug2.c:1247]
--------------------
- /\ 
-3-r(desc_ring)[cpmac.bug2.c:765]
-3-r(desc_ring)[cpmac.bug2.c:765]
--------------------
-1-w(desc_ring)[cpmac.bug2.c:1247]
--------------------
- /\ 
-3-r(desc_ring)[cpmac.bug2.c:763]
-3-un(cplock)[cpmac.bug2.c:764]
-3-r(desc_ring)[cpmac.bug2.c:765]
--------------------
-1-w(desc_ring)[cpmac.bug2.c:1247]
--------------------
- /\ 
-3-r(desc_ring)[cpmac.bug2.c:759]
-3-w(regs)[cpmac.bug2.c:340]
-3-w(ioval)[cpmac.bug2.c:341]
-3-r(desc_ring)[cpmac.bug2.c:760]
--------------------
-1-w(desc_ring)[cpmac.bug2.c:1247]
--------------------
- /\ 
-3-wa(cond_irq_enabled)[cpmac.bug2.c:1528]
-3-r(cpmac_int_vector)[cpmac.bug2.c:351]
-3-r(desc_ring)[cpmac.bug2.c:759]
--------------------
-1-w(desc_ring)[cpmac.bug2.c:1247]
-1-w(dma_ring)[cpmac.bug2.c:1247]
-1-rs(cond_irq_enabled)[cpmac.bug2.c:38]
--------------------
-
-
-<<<<<<< Updated upstream
-TIME - Iteration 1: 44.055s
-=======
-TIME - Iteration 1: 48.146s
->>>>>>> Stashed changes
-
-2868 rounds; seen states: 3556; transitions: 15092
-Found candidate ... Checking if truely a counter-example(size=229)
-177 rounds; seen states: 177; transitions: 176
-Not Included; bound
-0-w(ioval)[types.h:189]
-0-r(ioval)[types.h:190]
-0-w(cpmac_mii)[cpmac.bug2.c:1396]
-0-r(cpmac_mii)[cpmac.bug2.c:1397]
-3-lo(irq_running_lock)[cpmac.bug2.c:1526]
-2-lo(rtnl)[cpmac.bug2.c:1496]
-4-yi[cpmac.bug2.c:1550]
-4-no(send_in_progress)[cpmac.bug2.c:1551]
-4-rs(send_in_progress)[cpmac.bug2.c:1557]
-0-w(ioval)[cpmac.bug2.c:94]
-0-w(ioval)[cpmac.bug2.c:94]
-0-w(ioval)[cpmac.bug2.c:98]
-0-w(ioval)[cpmac.bug2.c:98]
-0-w(ioval)[cpmac.bug2.c:98]
-0-w(ioval)[cpmac.bug2.c:98]
-0-w(regs)[cpmac.bug2.c:340]
-0-w(ioval)[cpmac.bug2.c:341]
-0-w(cpmac_mii_phy_mask)[cpmac.bug2.c:1425]
-0-no(cond_platform_driver_registered)[cpmac.bug2.c:60]
-0-wa(cond_platform_driver_registered)[cpmac.bug2.c:1437]
-0-wa(cond_platform_driver_registered)[cpmac.bug2.c:1470]
-0-yi[cpmac.bug2.c:1471]
-1-wa(cond_platform_driver_registered)[cpmac.bug2.c:1480]
-1-r(external_switch)[cpmac.bug2.c:1279]
-1-w(ioval)[cpmac.bug2.c:72]
-1-r(ioval)[cpmac.bug2.c:73]
-1-w(netdev)[cpmac.bug2.c:1314]
-1-w(ring_size)[cpmac.bug2.c:1324]
-1-r(pdata)[cpmac.bug2.c:1326]
-1-r(pdata)[cpmac.bug2.c:1326]
-1-w(pdata)[cpmac.bug2.c:1326]
-1-r(netdev)[cpmac.bug2.c:1326]
-1-no(netdev_registered)[eth.h:391]
-2-wa(netdev_registered)[cpmac.bug2.c:1498]
-2-no(netdev_running)[cpmac.bug2.c:1499]
-2-r(netdev)[cpmac.bug2.c:1120]
-1-wa(netdev_registered)[cpmac.bug2.c:1483]
-1-yi[cpmac.bug2.c:1484]
-2-w(ioval)[types.h:189]
-2-r(ioval)[types.h:190]
-2-w(regs)[cpmac.bug2.c:1128]
-2-r(regs)[cpmac.bug2.c:1129]
-2-r(ring_size)[cpmac.bug2.c:1137]
-2-w(dma_ring)[cpmac.bug2.c:1139]
-2-w(desc_ring)[cpmac.bug2.c:1138]
-2-r(desc_ring)[cpmac.bug2.c:1141]
-2-r(dma_ring)[cpmac.bug2.c:1147]
-2-w(desc_ring)[cpmac.bug2.c:1147]
-2-r(desc_ring)[cpmac.bug2.c:1149]
-2-w(rx_head)[cpmac.bug2.c:1149]
-2-w(rx_head)[cpmac.bug2.c:1156]
-2-w(rx_head)[cpmac.bug2.c:1157]
-2-r(rx_head)[cpmac.bug2.c:1160]
-2-w(rx_head)[cpmac.bug2.c:1160]
-2-w(rx_head)[cpmac.bug2.c:1161]
-2-w(rx_head)[cpmac.bug2.c:1162]
-2-r(rx_head)[cpmac.bug2.c:1163]
-2-r(ring_size)[cpmac.bug2.c:1163]
-2-w(rx_head)[cpmac.bug2.c:1163]
-2-r(rx_head)[cpmac.bug2.c:1164]
-2-w(rx_head)[cpmac.bug2.c:1164]
-2-r(rx_head)[cpmac.bug2.c:1165]
-2-w(rx_head)[cpmac.bug2.c:1165]
-2-w(rx_head)[cpmac.bug2.c:1168]
-2-no(cond_irq_enabled)[cpmac.bug2.c:34]
-2-r(pdata)[cpmac.bug2.c:813]
-2-w(ioval)[cpmac.bug2.c:98]
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-w(cpmac_rx_ptr)[cpmac.bug2.c:358]
-2-r(rx_head)[cpmac.bug2.c:818]
-2-w(cpmac_rx_ptr)[cpmac.bug2.c:358]
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-r(netdev)[cpmac.bug2.c:824]
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-r(netdev)[cpmac.bug2.c:825]
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-r(netdev)[cpmac.bug2.c:826]
-2-r(netdev)[cpmac.bug2.c:827]
-2-r(netdev)[cpmac.bug2.c:827]
-2-r(netdev)[cpmac.bug2.c:828]
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-r(ioval)[cpmac.bug2.c:345]
-2-r(regs)[cpmac.bug2.c:345]
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-r(ioval)[cpmac.bug2.c:345]
-2-r(regs)[cpmac.bug2.c:345]
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-r(ioval)[cpmac.bug2.c:345]
-2-r(regs)[cpmac.bug2.c:345]
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-no(send_enabled)[eth.h:441]
-2-un(rtnl)[cpmac.bug2.c:1502]
-1-lo(rtnl)[eth.h:408]
-1-rs(netdev_registered)[eth.h:411]
-1-wa(netdev_running)[eth.h:413]
-2-yi[cpmac.bug2.c:1504]
-4-yi[cpmac.bug2.c:1550]
-4-no(send_in_progress)[cpmac.bug2.c:1551]
-4-wa(send_enabled)[cpmac.bug2.c:1553]
-4-wa(netdev_running)[cpmac.bug2.c:1554]
-1-rs(netdev_running)[eth.h:414]
-1-rs(send_enabled)[eth.h:415]
-4-rs(send_enabled)[eth.h:447]
-4-r(desc_ring)[cpmac.bug2.c:724]
-4-lo(cplock)[cpmac.bug2.c:731]
-4-un(cplock)[cpmac.bug2.c:732]
-4-w(desc_ring)[cpmac.bug2.c:733]
-4-w(desc_ring)[cpmac.bug2.c:734]
-4-w(desc_ring)[cpmac.bug2.c:735]
-4-r(desc_ring)[cpmac.bug2.c:737]
-4-w(desc_ring)[cpmac.bug2.c:737]
-4-w(desc_ring)[cpmac.bug2.c:738]
-4-w(desc_ring)[cpmac.bug2.c:739]
-4-no(cond_irq_can_happen)[cpmac.bug2.c:748]
-3-wa(cond_irq_can_happen)[cpmac.bug2.c:1527]
-3-wa(cond_irq_enabled)[cpmac.bug2.c:1528]
-3-r(cpmac_int_vector)[cpmac.bug2.c:351]
-4-rs(send_in_progress)[cpmac.bug2.c:1557]
-1-wn(send_in_progress)[eth.h:416]
-1-rs(send_enabled)[eth.h:447]
-1-r(pdata)[cpmac.bug2.c:790]
-1-w(ioval)[cpmac.bug2.c:98]
-1-r(ioval)[cpmac.bug2.c:345]
-1-r(regs)[cpmac.bug2.c:345]
-1-w(regs)[cpmac.bug2.c:340]
-1-w(ioval)[cpmac.bug2.c:341]
-1-r(ioval)[cpmac.bug2.c:345]
-1-r(regs)[cpmac.bug2.c:345]
-1-w(regs)[cpmac.bug2.c:340]
-1-w(ioval)[cpmac.bug2.c:341]
-1-w(regs)[cpmac.bug2.c:340]
-1-w(ioval)[cpmac.bug2.c:341]
-1-w(cpmac_rx_ptr)[cpmac.bug2.c:358]
-1-w(regs)[cpmac.bug2.c:340]
-1-w(ioval)[cpmac.bug2.c:341]
-1-w(regs)[cpmac.bug2.c:340]
-1-w(ioval)[cpmac.bug2.c:341]
-1-w(regs)[cpmac.bug2.c:340]
-1-w(ioval)[cpmac.bug2.c:341]
-1-w(regs)[cpmac.bug2.c:340]
-1-w(ioval)[cpmac.bug2.c:341]
-1-r(ioval)[cpmac.bug2.c:345]
-1-r(regs)[cpmac.bug2.c:345]
-1-w(regs)[cpmac.bug2.c:340]
-1-w(ioval)[cpmac.bug2.c:341]
-1-w(regs)[cpmac.bug2.c:340]
-1-w(ioval)[cpmac.bug2.c:341]
-1-w(cpmac_rx_ptr)[cpmac.bug2.c:358]
-1-w(regs)[cpmac.bug2.c:340]
-1-w(ioval)[cpmac.bug2.c:341]
-1-w(regs)[cpmac.bug2.c:1232]
-1-w(ioval)[cpmac.bug2.c:1232]
-1-w(ioval)[cpmac.bug2.c:86]
-1-r(desc_ring)[cpmac.bug2.c:1235]
-1-w(rx_head)[cpmac.bug2.c:1235]
-1-r(rx_head)[cpmac.bug2.c:1237]
-3-r(desc_ring)[cpmac.bug2.c:759]
-3-w(regs)[cpmac.bug2.c:340]
-3-w(ioval)[cpmac.bug2.c:341]
-3-r(desc_ring)[cpmac.bug2.c:760]
-1-w(desc_ring)[cpmac.bug2.c:1247]
-1-w(dma_ring)[cpmac.bug2.c:1247]
-1-rs(cond_irq_enabled)[cpmac.bug2.c:38]
-3-lo(cplock)[cpmac.bug2.c:761]
-3-r(netdev)[cpmac.bug2.c:762]
-3-r(netdev)[cpmac.bug2.c:763]
-3-r(desc_ring)[cpmac.bug2.c:763]
-3-un(cplock)[cpmac.bug2.c:764]
-3-r(desc_ring)[cpmac.bug2.c:765]
-3-r(desc_ring)[cpmac.bug2.c:765]
-3-w(desc_ring)[cpmac.bug2.c:772]
-3-w(desc_ring)[cpmac.bug2.c:773]
-3-no(send_enabled)[eth.h:459]
-3-rs(cond_irq_can_happen)[cpmac.bug2.c:967]
-3-un(irq_running_lock)[cpmac.bug2.c:1530]
-1-lo(irq_running_lock)[cpmac.bug2.c:39]
-1-un(irq_running_lock)[cpmac.bug2.c:40]
-1-un(rtnl)[eth.h:421]
-1-no(cond_platform_driver_not_in_use)[cpmac.bug2.c:1490]
-0-wa(cond_platform_driver_not_in_use)[cpmac.bug2.c:1472]
-0-rs(cond_platform_driver_registered)[cpmac.bug2.c:68]
-0-w(cpmac_mii)[cpmac.bug2.c:1457]
-0-w(ioval)[cpmac.bug2.c:1457]
-2-lo(rtnl)[cpmac.bug2.c:1506]
-2-wn(netdev_running)[cpmac.bug2.c:1514]
-2-un(rtnl)[cpmac.bug2.c:1520]
-3-yi[cpmac.bug2.c:1531]
-Find all sequential traces
-Find concurrent traces that are not sequential
-All bad traces: 
-(*) 1-w(ioval)[cpmac.bug2.c:86] < 3-w(ioval)[cpmac.bug2.c:341] /\ 3-r(desc_ring)[cpmac.bug2.c:760] < 1-w(desc_ring)[cpmac.bug2.c:1247] \/
-1-r(desc_ring)[cpmac.bug2.c:1235] < 3-w(desc_ring)[cpmac.bug2.c:772] /\ 3-w(desc_ring)[cpmac.bug2.c:772] < 1-w(desc_ring)[cpmac.bug2.c:1247]
-Found constraints to eliminate bad traces
-Locks inferred: 
-l28 (3-w(ioval)[cpmac.bug2.c:341]-3-r(desc_ring)[cpmac.bug2.c:760], 1-w(ioval)[cpmac.bug2.c:86]-1-w(desc_ring)[cpmac.bug2.c:1247]) /\ 
-l29 (3-w(desc_ring)[cpmac.bug2.c:772]-3-w(desc_ring)[cpmac.bug2.c:772], 1-r(desc_ring)[cpmac.bug2.c:1235]-1-w(desc_ring)[cpmac.bug2.c:1247])
-3-w(ioval)[cpmac.bug2.c:341]
-3-r(desc_ring)[cpmac.bug2.c:760]
--------------------
-1-w(ioval)[cpmac.bug2.c:86]
-1-r(desc_ring)[cpmac.bug2.c:1235]
-1-w(rx_head)[cpmac.bug2.c:1235]
-1-r(rx_head)[cpmac.bug2.c:1237]
-1-w(desc_ring)[cpmac.bug2.c:1247]
--------------------
- /\ 
-3-w(desc_ring)[cpmac.bug2.c:772]
--------------------
-1-r(desc_ring)[cpmac.bug2.c:1235]
-1-w(rx_head)[cpmac.bug2.c:1235]
-1-r(rx_head)[cpmac.bug2.c:1237]
-1-w(desc_ring)[cpmac.bug2.c:1247]
--------------------
-
-
-<<<<<<< Updated upstream
-TIME - Iteration 2: 3.689s
-=======
-TIME - Iteration 2: 3.751s
->>>>>>> Stashed changes
-
-5988 rounds; seen states: 6738; transitions: 31723
-Found candidate ... Checking if truely a counter-example(size=231)
-179 rounds; seen states: 179; transitions: 178
+64690 rounds; seen states: 55485; transitions: 374301
+Found candidate ... Checking if truely a counter-example(size=564)
+223 rounds; seen states: 223; transitions: 222
 Candidate is not a counter-example
 Increasing the bound to 2
-5408 rounds; seen states: 7999; transitions: 27814
-Found candidate ... Checking if truely a counter-example(size=231)
-179 rounds; seen states: 179; transitions: 178
-Candidate is not a counter-example
-Increasing the bound to 3
-4441 rounds; seen states: 8000; transitions: 23074
-Found candidate ... Checking if truely a counter-example(size=231)
-179 rounds; seen states: 179; transitions: 178
-Candidate is not a counter-example
-Increasing the bound to 4
-4395 rounds; seen states: 8000; transitions: 22821
-Found candidate ... Checking if truely a counter-example(size=231)
-179 rounds; seen states: 179; transitions: 178
-Candidate is not a counter-example
-Increasing the bound to 5
-4458 rounds; seen states: 8001; transitions: 23080
-Found candidate ... Checking if truely a counter-example(size=231)
-179 rounds; seen states: 179; transitions: 178
-Candidate is not a counter-example
-Increasing the bound to 6
-4504 rounds; seen states: 8008; transitions: 23296
-Found candidate ... Checking if truely a counter-example(size=231)
-179 rounds; seen states: 179; transitions: 178
-Candidate is not a counter-example
-Increasing the bound to 7
-4509 rounds; seen states: 8008; transitions: 23248
-Found candidate ... Checking if truely a counter-example(size=231)
-179 rounds; seen states: 179; transitions: 178
-Candidate is not a counter-example
-Increasing the bound to 8
-4506 rounds; seen states: 8008; transitions: 23233
-Found candidate ... Checking if truely a counter-example(size=231)
-179 rounds; seen states: 179; transitions: 178
-Candidate is not a counter-example
-Increasing the bound to 9
-17155 rounds; seen states: 13146; transitions: 89305
-Found candidate ... Checking if truely a counter-example(size=231)
-179 rounds; seen states: 179; transitions: 178
+63031 rounds; seen states: 57178; transitions: 345243
+Found candidate ... Checking if truely a counter-example(size=570)
+224 rounds; seen states: 224; transitions: 223
 Not Included; bound
-0-w(ioval)[types.h:189]
-0-r(ioval)[types.h:190]
-0-w(cpmac_mii)[cpmac.bug2.c:1396]
-0-r(cpmac_mii)[cpmac.bug2.c:1397]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 3-lo(irq_running_lock)[cpmac.bug2.c:1526]
 2-lo(rtnl)[cpmac.bug2.c:1496]
 4-yi[cpmac.bug2.c:1550]
 4-no(send_in_progress)[cpmac.bug2.c:1551]
+0-w(ioval)[types.h:189]
+0-r(ioval)[types.h:190]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+0-w(cpmac_mii)[cpmac.bug2.c:1396]
+0-r(cpmac_mii)[cpmac.bug2.c:1397]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 4-rs(send_in_progress)[cpmac.bug2.c:1557]
 0-w(ioval)[cpmac.bug2.c:94]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 0-w(ioval)[cpmac.bug2.c:94]
 0-w(ioval)[cpmac.bug2.c:98]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
 0-w(ioval)[cpmac.bug2.c:98]
 0-w(ioval)[cpmac.bug2.c:98]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 0-w(ioval)[cpmac.bug2.c:98]
 0-w(regs)[cpmac.bug2.c:340]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 0-w(ioval)[cpmac.bug2.c:341]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
 0-w(cpmac_mii_phy_mask)[cpmac.bug2.c:1425]
 0-no(cond_platform_driver_registered)[cpmac.bug2.c:60]
-0-wa(cond_platform_driver_registered)[cpmac.bug2.c:1437]
-0-wa(cond_platform_driver_registered)[cpmac.bug2.c:1470]
-0-yi[cpmac.bug2.c:1471]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 1-wa(cond_platform_driver_registered)[cpmac.bug2.c:1480]
 1-r(external_switch)[cpmac.bug2.c:1279]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+0-wa(cond_platform_driver_registered)[cpmac.bug2.c:1437]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+1-r(dumb_switch)[cpmac.bug2.c:1279]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+1-r(pdata)[cpmac.bug2.c:1284]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+1-r(cpmac_mii)[cpmac.bug2.c:1286]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+1-r(cpmac_mii)[cpmac.bug2.c:1288]
+0-wa(cond_platform_driver_registered)[cpmac.bug2.c:1470]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 1-w(ioval)[cpmac.bug2.c:72]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 1-r(ioval)[cpmac.bug2.c:73]
 1-w(netdev)[cpmac.bug2.c:1314]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
 1-w(ring_size)[cpmac.bug2.c:1324]
 1-r(pdata)[cpmac.bug2.c:1326]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 1-r(pdata)[cpmac.bug2.c:1326]
 1-w(pdata)[cpmac.bug2.c:1326]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 1-r(netdev)[cpmac.bug2.c:1326]
 1-no(netdev_registered)[eth.h:391]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
 2-wa(netdev_registered)[cpmac.bug2.c:1498]
 2-no(netdev_running)[cpmac.bug2.c:1499]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 2-r(netdev)[cpmac.bug2.c:1120]
-1-wa(netdev_registered)[cpmac.bug2.c:1483]
-1-yi[cpmac.bug2.c:1484]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 2-w(ioval)[types.h:189]
 2-r(ioval)[types.h:190]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
 2-w(regs)[cpmac.bug2.c:1128]
 2-r(regs)[cpmac.bug2.c:1129]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 2-r(ring_size)[cpmac.bug2.c:1137]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 2-w(dma_ring)[cpmac.bug2.c:1139]
 2-w(desc_ring)[cpmac.bug2.c:1138]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
 2-r(desc_ring)[cpmac.bug2.c:1141]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 2-r(dma_ring)[cpmac.bug2.c:1147]
 2-w(desc_ring)[cpmac.bug2.c:1147]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 2-r(desc_ring)[cpmac.bug2.c:1149]
 2-w(rx_head)[cpmac.bug2.c:1149]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
 2-w(rx_head)[cpmac.bug2.c:1156]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 2-w(rx_head)[cpmac.bug2.c:1157]
 2-r(rx_head)[cpmac.bug2.c:1160]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 2-w(rx_head)[cpmac.bug2.c:1160]
 2-w(rx_head)[cpmac.bug2.c:1161]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
 2-w(rx_head)[cpmac.bug2.c:1162]
 2-r(rx_head)[cpmac.bug2.c:1163]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 2-r(ring_size)[cpmac.bug2.c:1163]
 2-w(rx_head)[cpmac.bug2.c:1163]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 2-r(rx_head)[cpmac.bug2.c:1164]
 2-w(rx_head)[cpmac.bug2.c:1164]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
 2-r(rx_head)[cpmac.bug2.c:1165]
 2-w(rx_head)[cpmac.bug2.c:1165]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 2-w(rx_head)[cpmac.bug2.c:1168]
 2-no(cond_irq_enabled)[cpmac.bug2.c:34]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 2-r(pdata)[cpmac.bug2.c:813]
 2-w(ioval)[cpmac.bug2.c:98]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
 2-w(regs)[cpmac.bug2.c:340]
 2-w(ioval)[cpmac.bug2.c:341]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 2-w(cpmac_rx_ptr)[cpmac.bug2.c:358]
 2-r(rx_head)[cpmac.bug2.c:818]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 2-w(cpmac_rx_ptr)[cpmac.bug2.c:358]
 2-w(regs)[cpmac.bug2.c:340]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
 2-w(ioval)[cpmac.bug2.c:341]
 2-w(regs)[cpmac.bug2.c:340]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 2-w(ioval)[cpmac.bug2.c:341]
 2-r(netdev)[cpmac.bug2.c:824]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 2-w(regs)[cpmac.bug2.c:340]
 2-w(ioval)[cpmac.bug2.c:341]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
 2-r(netdev)[cpmac.bug2.c:825]
 2-w(regs)[cpmac.bug2.c:340]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 2-w(ioval)[cpmac.bug2.c:341]
 2-r(netdev)[cpmac.bug2.c:826]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 2-r(netdev)[cpmac.bug2.c:827]
 2-r(netdev)[cpmac.bug2.c:827]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
 2-r(netdev)[cpmac.bug2.c:828]
 2-w(regs)[cpmac.bug2.c:340]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 2-w(ioval)[cpmac.bug2.c:341]
 2-w(regs)[cpmac.bug2.c:340]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 2-w(ioval)[cpmac.bug2.c:341]
 2-w(regs)[cpmac.bug2.c:340]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
 2-w(ioval)[cpmac.bug2.c:341]
 2-w(regs)[cpmac.bug2.c:340]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 2-w(ioval)[cpmac.bug2.c:341]
 2-w(regs)[cpmac.bug2.c:340]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 2-w(ioval)[cpmac.bug2.c:341]
 2-w(regs)[cpmac.bug2.c:340]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
 2-w(ioval)[cpmac.bug2.c:341]
 2-w(regs)[cpmac.bug2.c:340]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 2-w(ioval)[cpmac.bug2.c:341]
 2-w(regs)[cpmac.bug2.c:340]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 2-w(ioval)[cpmac.bug2.c:341]
 2-w(regs)[cpmac.bug2.c:340]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
 2-w(ioval)[cpmac.bug2.c:341]
 2-w(regs)[cpmac.bug2.c:340]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 2-w(ioval)[cpmac.bug2.c:341]
 2-r(ioval)[cpmac.bug2.c:345]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 2-r(regs)[cpmac.bug2.c:345]
 2-w(regs)[cpmac.bug2.c:340]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
 2-w(ioval)[cpmac.bug2.c:341]
 2-r(ioval)[cpmac.bug2.c:345]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 2-r(regs)[cpmac.bug2.c:345]
 2-w(regs)[cpmac.bug2.c:340]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 2-w(ioval)[cpmac.bug2.c:341]
 2-r(ioval)[cpmac.bug2.c:345]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
 2-r(regs)[cpmac.bug2.c:345]
 2-w(regs)[cpmac.bug2.c:340]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 2-w(ioval)[cpmac.bug2.c:341]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 2-no(send_enabled)[eth.h:441]
-2-un(rtnl)[cpmac.bug2.c:1502]
-2-yi[cpmac.bug2.c:1504]
-2-lo(rtnl)[cpmac.bug2.c:1506]
-2-wa(netdev_running)[cpmac.bug2.c:1508]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 4-yi[cpmac.bug2.c:1550]
 4-no(send_in_progress)[cpmac.bug2.c:1551]
 4-wa(send_enabled)[cpmac.bug2.c:1553]
 4-wa(netdev_running)[cpmac.bug2.c:1554]
-2-rs(netdev_running)[cpmac.bug2.c:1509]
-2-rs(send_enabled)[cpmac.bug2.c:1510]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+2-un(rtnl)[cpmac.bug2.c:1502]
 4-rs(send_enabled)[eth.h:447]
 4-r(desc_ring)[cpmac.bug2.c:724]
 4-lo(cplock)[cpmac.bug2.c:731]
@@ -911,269 +287,326 @@ Not Included; bound
 4-w(desc_ring)[cpmac.bug2.c:738]
 4-w(desc_ring)[cpmac.bug2.c:739]
 4-no(cond_irq_can_happen)[cpmac.bug2.c:748]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 3-wa(cond_irq_can_happen)[cpmac.bug2.c:1527]
 3-wa(cond_irq_enabled)[cpmac.bug2.c:1528]
-3-r(cpmac_int_vector)[cpmac.bug2.c:351]
 4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+3-r(cpmac_int_vector)[cpmac.bug2.c:351]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+3-r(desc_ring)[cpmac.bug2.c:759]
+3-w(regs)[cpmac.bug2.c:340]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+3-w(ioval)[cpmac.bug2.c:341]
+3-r(desc_ring)[cpmac.bug2.c:760]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+3-no(send_enabled)[eth.h:459]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+3-rs(cond_irq_can_happen)[cpmac.bug2.c:967]
+3-un(irq_running_lock)[cpmac.bug2.c:1530]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+3-yi[cpmac.bug2.c:1531]
+4-rs(send_enabled)[eth.h:447]
+4-r(desc_ring)[cpmac.bug2.c:724]
+4-lo(cplock)[cpmac.bug2.c:731]
+4-un(cplock)[cpmac.bug2.c:732]
+4-w(desc_ring)[cpmac.bug2.c:733]
+4-w(desc_ring)[cpmac.bug2.c:734]
+4-w(desc_ring)[cpmac.bug2.c:735]
+4-r(desc_ring)[cpmac.bug2.c:737]
+4-w(desc_ring)[cpmac.bug2.c:737]
+4-w(desc_ring)[cpmac.bug2.c:738]
+4-w(desc_ring)[cpmac.bug2.c:739]
+4-no(cond_irq_can_happen)[cpmac.bug2.c:748]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+3-lo(irq_running_lock)[cpmac.bug2.c:1526]
+3-wa(cond_irq_can_happen)[cpmac.bug2.c:1527]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+3-wa(cond_irq_enabled)[cpmac.bug2.c:1528]
+3-r(cpmac_int_vector)[cpmac.bug2.c:351]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+2-yi[cpmac.bug2.c:1504]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+3-r(desc_ring)[cpmac.bug2.c:759]
+2-lo(rtnl)[cpmac.bug2.c:1506]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+3-w(regs)[cpmac.bug2.c:340]
+3-w(ioval)[cpmac.bug2.c:341]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+3-r(desc_ring)[cpmac.bug2.c:760]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+3-no(send_enabled)[eth.h:459]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+3-rs(cond_irq_can_happen)[cpmac.bug2.c:967]
+4-rs(send_enabled)[eth.h:447]
+4-r(desc_ring)[cpmac.bug2.c:724]
+4-lo(cplock)[cpmac.bug2.c:731]
+4-un(cplock)[cpmac.bug2.c:732]
+4-w(desc_ring)[cpmac.bug2.c:733]
+4-w(desc_ring)[cpmac.bug2.c:734]
+4-w(desc_ring)[cpmac.bug2.c:735]
+4-r(desc_ring)[cpmac.bug2.c:737]
+4-w(desc_ring)[cpmac.bug2.c:737]
+4-w(desc_ring)[cpmac.bug2.c:738]
+4-w(desc_ring)[cpmac.bug2.c:739]
+4-no(cond_irq_can_happen)[cpmac.bug2.c:748]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+3-un(irq_running_lock)[cpmac.bug2.c:1530]
+3-yi[cpmac.bug2.c:1531]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+3-lo(irq_running_lock)[cpmac.bug2.c:1526]
+3-wa(cond_irq_can_happen)[cpmac.bug2.c:1527]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+3-wa(cond_irq_enabled)[cpmac.bug2.c:1528]
+3-r(cpmac_int_vector)[cpmac.bug2.c:351]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+2-wa(netdev_running)[cpmac.bug2.c:1508]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+2-rs(netdev_running)[cpmac.bug2.c:1509]
+3-r(desc_ring)[cpmac.bug2.c:759]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+3-w(regs)[cpmac.bug2.c:340]
+3-w(ioval)[cpmac.bug2.c:341]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+3-r(desc_ring)[cpmac.bug2.c:760]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+3-lo(cplock)[cpmac.bug2.c:761]
+3-r(netdev)[cpmac.bug2.c:762]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+3-r(netdev)[cpmac.bug2.c:763]
+3-r(desc_ring)[cpmac.bug2.c:763]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+3-un(cplock)[cpmac.bug2.c:764]
+3-r(desc_ring)[cpmac.bug2.c:765]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+3-r(desc_ring)[cpmac.bug2.c:765]
+3-w(desc_ring)[cpmac.bug2.c:772]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+2-rs(send_enabled)[cpmac.bug2.c:1510]
 2-wn(send_in_progress)[cpmac.bug2.c:1511]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 2-rs(send_enabled)[eth.h:447]
 2-r(pdata)[cpmac.bug2.c:790]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
 2-w(ioval)[cpmac.bug2.c:98]
 2-r(ioval)[cpmac.bug2.c:345]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 2-r(regs)[cpmac.bug2.c:345]
 2-w(regs)[cpmac.bug2.c:340]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 2-w(ioval)[cpmac.bug2.c:341]
 2-r(ioval)[cpmac.bug2.c:345]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
 2-r(regs)[cpmac.bug2.c:345]
 2-w(regs)[cpmac.bug2.c:340]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 2-w(ioval)[cpmac.bug2.c:341]
 2-w(regs)[cpmac.bug2.c:340]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 2-w(ioval)[cpmac.bug2.c:341]
 2-w(cpmac_rx_ptr)[cpmac.bug2.c:358]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
 2-w(regs)[cpmac.bug2.c:340]
 2-w(ioval)[cpmac.bug2.c:341]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 2-w(regs)[cpmac.bug2.c:340]
 2-w(ioval)[cpmac.bug2.c:341]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 2-w(regs)[cpmac.bug2.c:340]
 2-w(ioval)[cpmac.bug2.c:341]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
 2-w(regs)[cpmac.bug2.c:340]
 2-w(ioval)[cpmac.bug2.c:341]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 2-r(ioval)[cpmac.bug2.c:345]
 2-r(regs)[cpmac.bug2.c:345]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 2-w(regs)[cpmac.bug2.c:340]
 2-w(ioval)[cpmac.bug2.c:341]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
 2-w(regs)[cpmac.bug2.c:340]
 2-w(ioval)[cpmac.bug2.c:341]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 2-w(cpmac_rx_ptr)[cpmac.bug2.c:358]
 2-w(regs)[cpmac.bug2.c:340]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 2-w(ioval)[cpmac.bug2.c:341]
 2-w(regs)[cpmac.bug2.c:1232]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
 2-w(ioval)[cpmac.bug2.c:1232]
 2-w(ioval)[cpmac.bug2.c:86]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 2-r(desc_ring)[cpmac.bug2.c:1235]
-2-w(rx_head)[cpmac.bug2.c:1235]
-2-r(rx_head)[cpmac.bug2.c:1237]
-2-r(rx_head)[cpmac.bug2.c:1238]
-2-w(rx_head)[cpmac.bug2.c:1241]
-2-w(desc_ring)[cpmac.bug2.c:1247]
-2-w(dma_ring)[cpmac.bug2.c:1247]
-2-rs(cond_irq_enabled)[cpmac.bug2.c:38]
-3-r(desc_ring)[cpmac.bug2.c:759]
-3-w(regs)[cpmac.bug2.c:340]
-3-w(ioval)[cpmac.bug2.c:341]
-3-r(desc_ring)[cpmac.bug2.c:760]
-3-lo(cplock)[cpmac.bug2.c:761]
-3-r(netdev)[cpmac.bug2.c:762]
-3-r(netdev)[cpmac.bug2.c:763]
-3-r(desc_ring)[cpmac.bug2.c:763]
-3-un(cplock)[cpmac.bug2.c:764]
-3-r(desc_ring)[cpmac.bug2.c:765]
-3-r(desc_ring)[cpmac.bug2.c:765]
-3-w(desc_ring)[cpmac.bug2.c:772]
 3-w(desc_ring)[cpmac.bug2.c:773]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 3-no(send_enabled)[eth.h:459]
 3-rs(cond_irq_can_happen)[cpmac.bug2.c:967]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
 3-un(irq_running_lock)[cpmac.bug2.c:1530]
+3-yi[cpmac.bug2.c:1531]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+2-w(rx_head)[cpmac.bug2.c:1235]
+2-r(rx_head)[cpmac.bug2.c:1237]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+2-w(desc_ring)[cpmac.bug2.c:1247]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+2-w(dma_ring)[cpmac.bug2.c:1247]
+2-rs(cond_irq_enabled)[cpmac.bug2.c:38]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 2-lo(irq_running_lock)[cpmac.bug2.c:39]
 2-un(irq_running_lock)[cpmac.bug2.c:40]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 2-un(rtnl)[cpmac.bug2.c:1520]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+1-wa(netdev_registered)[cpmac.bug2.c:1483]
+1-yi[cpmac.bug2.c:1484]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 1-lo(rtnl)[eth.h:408]
 1-rs(netdev_registered)[eth.h:411]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 1-wn(netdev_running)[eth.h:419]
 1-un(rtnl)[eth.h:421]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
 1-no(cond_platform_driver_not_in_use)[cpmac.bug2.c:1490]
+0-yi[cpmac.bug2.c:1471]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 0-wa(cond_platform_driver_not_in_use)[cpmac.bug2.c:1472]
 0-rs(cond_platform_driver_registered)[cpmac.bug2.c:68]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 0-w(cpmac_mii)[cpmac.bug2.c:1457]
 0-w(ioval)[cpmac.bug2.c:1457]
-3-yi[cpmac.bug2.c:1531]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 Find all sequential traces
 Find concurrent traces that are not sequential
 All bad traces: 
-2-r(regs)[cpmac.bug2.c:345] < 3-w(regs)[cpmac.bug2.c:340] /\ 3-w(ioval)[cpmac.bug2.c:341] < 2-w(ioval)[cpmac.bug2.c:341] \/
-3-w(desc_ring)[cpmac.bug2.c:772] < 2-r(desc_ring)[cpmac.bug2.c:1235] /\ 2-r(desc_ring)[cpmac.bug2.c:1235] < 3-w(desc_ring)[cpmac.bug2.c:773] \/
-2-r(ioval)[cpmac.bug2.c:345] < 3-w(ioval)[cpmac.bug2.c:341] /\ 3-w(regs)[cpmac.bug2.c:340] < 2-r(regs)[cpmac.bug2.c:345] \/
-2-w(regs)[cpmac.bug2.c:340] < 3-w(regs)[cpmac.bug2.c:340] /\ 3-w(ioval)[cpmac.bug2.c:341] < 2-r(ioval)[cpmac.bug2.c:345] \/
-2-w(regs)[cpmac.bug2.c:340] < 3-w(regs)[cpmac.bug2.c:340] /\ 3-w(regs)[cpmac.bug2.c:340] < 2-w(regs)[cpmac.bug2.c:340] \/
-3-w(regs)[cpmac.bug2.c:340] < 2-w(regs)[cpmac.bug2.c:340] /\ 2-w(ioval)[cpmac.bug2.c:341] < 3-w(ioval)[cpmac.bug2.c:341] \/
-2-w(regs)[cpmac.bug2.c:340] < 3-w(regs)[cpmac.bug2.c:340] /\ 3-w(regs)[cpmac.bug2.c:340] < 2-w(regs)[cpmac.bug2.c:340] \/
-2-w(regs)[cpmac.bug2.c:340] < 3-w(regs)[cpmac.bug2.c:340] /\ 3-w(regs)[cpmac.bug2.c:340] < 2-w(regs)[cpmac.bug2.c:340] \/
-2-w(regs)[cpmac.bug2.c:340] < 3-w(regs)[cpmac.bug2.c:340] /\ 3-w(regs)[cpmac.bug2.c:340] < 2-w(regs)[cpmac.bug2.c:340] \/
-2-w(regs)[cpmac.bug2.c:340] < 3-w(regs)[cpmac.bug2.c:340] /\ 3-w(regs)[cpmac.bug2.c:340] < 2-w(regs)[cpmac.bug2.c:340] \/
-3-w(desc_ring)[cpmac.bug2.c:772] < 2-w(desc_ring)[cpmac.bug2.c:1247] /\ 2-w(desc_ring)[cpmac.bug2.c:1247] < 3-w(desc_ring)[cpmac.bug2.c:773] \/
-3-r(desc_ring)[cpmac.bug2.c:765] < 2-w(desc_ring)[cpmac.bug2.c:1247] /\ 2-w(desc_ring)[cpmac.bug2.c:1247] < 3-w(desc_ring)[cpmac.bug2.c:772] \/
-3-r(desc_ring)[cpmac.bug2.c:765] < 2-w(desc_ring)[cpmac.bug2.c:1247] /\ 2-w(desc_ring)[cpmac.bug2.c:1247] < 3-r(desc_ring)[cpmac.bug2.c:765] \/
-2-w(regs)[cpmac.bug2.c:340] < 3-w(regs)[cpmac.bug2.c:340] /\ 3-w(regs)[cpmac.bug2.c:340] < 2-w(regs)[cpmac.bug2.c:340] \/
-2-w(regs)[cpmac.bug2.c:340] < 3-w(regs)[cpmac.bug2.c:340] /\ 3-w(regs)[cpmac.bug2.c:340] < 2-w(regs)[cpmac.bug2.c:1232] \/
-2-w(regs)[cpmac.bug2.c:1232] < 3-w(regs)[cpmac.bug2.c:340] /\ 3-w(ioval)[cpmac.bug2.c:341] < 2-w(ioval)[cpmac.bug2.c:1232] \/
-2-w(ioval)[cpmac.bug2.c:1232] < 3-w(ioval)[cpmac.bug2.c:341] /\ 3-w(ioval)[cpmac.bug2.c:341] < 2-w(ioval)[cpmac.bug2.c:86] \/
-2-w(ioval)[cpmac.bug2.c:86] < 3-w(ioval)[cpmac.bug2.c:341] /\ 3-r(desc_ring)[cpmac.bug2.c:760] < 2-w(desc_ring)[cpmac.bug2.c:1247] \/
-2-w(regs)[cpmac.bug2.c:340] < 3-w(regs)[cpmac.bug2.c:340] /\ 3-w(regs)[cpmac.bug2.c:340] < 2-w(regs)[cpmac.bug2.c:340] \/
-2-r(regs)[cpmac.bug2.c:345] < 3-w(regs)[cpmac.bug2.c:340] /\ 3-w(regs)[cpmac.bug2.c:340] < 2-w(regs)[cpmac.bug2.c:340] \/
-2-r(ioval)[cpmac.bug2.c:345] < 3-w(ioval)[cpmac.bug2.c:341] /\ 3-w(regs)[cpmac.bug2.c:340] < 2-r(regs)[cpmac.bug2.c:345] \/
-2-w(regs)[cpmac.bug2.c:340] < 3-w(regs)[cpmac.bug2.c:340] /\ 3-w(ioval)[cpmac.bug2.c:341] < 2-r(ioval)[cpmac.bug2.c:345] \/
-2-r(regs)[cpmac.bug2.c:345] < 3-w(regs)[cpmac.bug2.c:340] /\ 3-w(regs)[cpmac.bug2.c:340] < 2-w(regs)[cpmac.bug2.c:340] \/
-2-r(ioval)[cpmac.bug2.c:345] < 3-w(ioval)[cpmac.bug2.c:341] /\ 3-w(regs)[cpmac.bug2.c:340] < 2-r(regs)[cpmac.bug2.c:345] \/
-2-w(ioval)[cpmac.bug2.c:98] < 3-w(ioval)[cpmac.bug2.c:341] /\ 3-w(ioval)[cpmac.bug2.c:341] < 2-r(ioval)[cpmac.bug2.c:345] \/
-3-r(desc_ring)[cpmac.bug2.c:763] < 2-w(desc_ring)[cpmac.bug2.c:1247] /\ 2-w(desc_ring)[cpmac.bug2.c:1247] < 3-r(desc_ring)[cpmac.bug2.c:765] \/
-2-r(desc_ring)[cpmac.bug2.c:1235] < 3-w(desc_ring)[cpmac.bug2.c:772] /\ 3-w(desc_ring)[cpmac.bug2.c:773] < 2-w(desc_ring)[cpmac.bug2.c:1247] \/
-3-r(desc_ring)[cpmac.bug2.c:759] < 2-w(desc_ring)[cpmac.bug2.c:1247] /\ 2-w(desc_ring)[cpmac.bug2.c:1247] < 3-r(desc_ring)[cpmac.bug2.c:760] \/
-(*) 2-w(desc_ring)[cpmac.bug2.c:1247] < 3-r(desc_ring)[cpmac.bug2.c:759] /\ 3-wa(cond_irq_enabled)[cpmac.bug2.c:1528] < 2-rs(cond_irq_enabled)[cpmac.bug2.c:38]
+(*) 3-w(desc_ring)[cpmac.bug2.c:772](3) < 2-r(desc_ring)[cpmac.bug2.c:1235] /\ 2-r(desc_ring)[cpmac.bug2.c:1235] < 3-w(desc_ring)[cpmac.bug2.c:773](3) \/
+3-w(regs)[cpmac.bug2.c:340](3) < 2-r(regs)[cpmac.bug2.c:345] /\ 2-r(ioval)[cpmac.bug2.c:345] < 3-w(ioval)[cpmac.bug2.c:341](3) \/
+2-w(regs)[cpmac.bug2.c:340] < 3-w(regs)[cpmac.bug2.c:340](3) /\ 3-w(ioval)[cpmac.bug2.c:341](3) < 2-r(ioval)[cpmac.bug2.c:345] \/
+2-r(regs)[cpmac.bug2.c:345] < 3-w(regs)[cpmac.bug2.c:340](3) /\ 3-w(regs)[cpmac.bug2.c:340](3) < 2-w(regs)[cpmac.bug2.c:340] \/
+2-r(ioval)[cpmac.bug2.c:345] < 3-w(ioval)[cpmac.bug2.c:341](3) /\ 3-w(regs)[cpmac.bug2.c:340](3) < 2-r(regs)[cpmac.bug2.c:345] \/
+2-w(ioval)[cpmac.bug2.c:98] < 3-w(ioval)[cpmac.bug2.c:341](3) /\ 3-w(ioval)[cpmac.bug2.c:341](3) < 2-r(ioval)[cpmac.bug2.c:345] \/
+2-r(regs)[cpmac.bug2.c:345] < 3-w(regs)[cpmac.bug2.c:340](3) /\ 3-w(regs)[cpmac.bug2.c:340](3) < 2-w(regs)[cpmac.bug2.c:340] \/
+2-w(regs)[cpmac.bug2.c:340] < 3-w(regs)[cpmac.bug2.c:340](3) /\ 3-w(ioval)[cpmac.bug2.c:341](3) < 2-w(ioval)[cpmac.bug2.c:341] \/
+2-w(ioval)[cpmac.bug2.c:341] < 3-w(ioval)[cpmac.bug2.c:341](3) /\ 3-w(ioval)[cpmac.bug2.c:341](3) < 2-w(ioval)[cpmac.bug2.c:341] \/
+2-w(ioval)[cpmac.bug2.c:341] < 3-w(ioval)[cpmac.bug2.c:341](3) /\ 3-w(ioval)[cpmac.bug2.c:341](3) < 2-w(ioval)[cpmac.bug2.c:341] \/
+2-w(ioval)[cpmac.bug2.c:341] < 3-w(ioval)[cpmac.bug2.c:341](3) /\ 3-w(ioval)[cpmac.bug2.c:341](3) < 2-w(ioval)[cpmac.bug2.c:341] \/
+2-w(ioval)[cpmac.bug2.c:341] < 3-w(ioval)[cpmac.bug2.c:341](3) /\ 3-w(ioval)[cpmac.bug2.c:341](3) < 2-w(ioval)[cpmac.bug2.c:341] \/
+3-w(regs)[cpmac.bug2.c:340](3) < 2-r(regs)[cpmac.bug2.c:345] /\ 2-r(ioval)[cpmac.bug2.c:345] < 3-w(ioval)[cpmac.bug2.c:341](3) \/
+2-w(ioval)[cpmac.bug2.c:341] < 3-w(ioval)[cpmac.bug2.c:341](3) /\ 3-w(ioval)[cpmac.bug2.c:341](3) < 2-r(ioval)[cpmac.bug2.c:345] \/
+2-w(regs)[cpmac.bug2.c:340] < 3-w(regs)[cpmac.bug2.c:340](3) /\ 3-w(regs)[cpmac.bug2.c:340](3) < 2-w(regs)[cpmac.bug2.c:340] \/
+2-r(regs)[cpmac.bug2.c:345] < 3-w(regs)[cpmac.bug2.c:340](3) /\ 3-w(regs)[cpmac.bug2.c:340](3) < 2-w(regs)[cpmac.bug2.c:340] \/
+3-r(desc_ring)[cpmac.bug2.c:765](3) < 2-w(desc_ring)[cpmac.bug2.c:1247] /\ 2-w(desc_ring)[cpmac.bug2.c:1247] < 3-w(desc_ring)[cpmac.bug2.c:772](3) \/
+3-r(desc_ring)[cpmac.bug2.c:765](3) < 2-w(desc_ring)[cpmac.bug2.c:1247] /\ 2-w(desc_ring)[cpmac.bug2.c:1247] < 3-r(desc_ring)[cpmac.bug2.c:765](3) \/
+2-w(regs)[cpmac.bug2.c:340] < 3-w(regs)[cpmac.bug2.c:340](3) /\ 3-w(regs)[cpmac.bug2.c:340](3) < 2-w(regs)[cpmac.bug2.c:340] \/
+2-w(regs)[cpmac.bug2.c:340] < 3-w(regs)[cpmac.bug2.c:340](3) /\ 3-w(regs)[cpmac.bug2.c:340](3) < 2-w(regs)[cpmac.bug2.c:1232] \/
+2-w(regs)[cpmac.bug2.c:1232] < 3-w(regs)[cpmac.bug2.c:340](3) /\ 3-w(ioval)[cpmac.bug2.c:341](3) < 2-w(ioval)[cpmac.bug2.c:86] \/
+2-w(ioval)[cpmac.bug2.c:86] < 3-w(ioval)[cpmac.bug2.c:341](3) /\ 3-r(desc_ring)[cpmac.bug2.c:760](3) < 2-w(desc_ring)[cpmac.bug2.c:1247] \/
+3-r(desc_ring)[cpmac.bug2.c:759](3) < 2-w(desc_ring)[cpmac.bug2.c:1247] /\ 2-w(desc_ring)[cpmac.bug2.c:1247] < 3-r(desc_ring)[cpmac.bug2.c:760](3) \/
+2-w(desc_ring)[cpmac.bug2.c:1247] < 3-r(desc_ring)[cpmac.bug2.c:759](3) /\ 3-wa(cond_irq_enabled)[cpmac.bug2.c:1528](3) < 2-rs(cond_irq_enabled)[cpmac.bug2.c:38] \/
+3-r(desc_ring)[cpmac.bug2.c:763](3) < 2-w(desc_ring)[cpmac.bug2.c:1247] /\ 2-w(desc_ring)[cpmac.bug2.c:1247] < 3-r(desc_ring)[cpmac.bug2.c:765](3) \/
+3-w(desc_ring)[cpmac.bug2.c:772](3) < 2-w(desc_ring)[cpmac.bug2.c:1247] /\ 2-w(desc_ring)[cpmac.bug2.c:1247] < 3-w(desc_ring)[cpmac.bug2.c:773](3) \/
+2-r(desc_ring)[cpmac.bug2.c:1235] < 3-w(desc_ring)[cpmac.bug2.c:772](3) /\ 3-w(desc_ring)[cpmac.bug2.c:773](3) < 2-w(desc_ring)[cpmac.bug2.c:1247]
 Found constraints to eliminate bad traces
 Locks inferred: 
-l30 (3-w(regs)[cpmac.bug2.c:340]-3-w(ioval)[cpmac.bug2.c:341], 2-r(regs)[cpmac.bug2.c:345]-2-w(ioval)[cpmac.bug2.c:341]) /\ 
-l31 (3-w(desc_ring)[cpmac.bug2.c:772]-3-w(desc_ring)[cpmac.bug2.c:773], 2-r(desc_ring)[cpmac.bug2.c:1235]-2-r(desc_ring)[cpmac.bug2.c:1235]) /\ 
-l32 (3-w(regs)[cpmac.bug2.c:340]-3-w(ioval)[cpmac.bug2.c:341], 2-r(ioval)[cpmac.bug2.c:345]-2-r(regs)[cpmac.bug2.c:345]) /\ 
-l33 (3-w(regs)[cpmac.bug2.c:340]-3-w(ioval)[cpmac.bug2.c:341], 2-w(regs)[cpmac.bug2.c:340]-2-r(ioval)[cpmac.bug2.c:345]) /\ 
-l34 (3-w(regs)[cpmac.bug2.c:340]-3-w(regs)[cpmac.bug2.c:340], 2-w(regs)[cpmac.bug2.c:340]-2-w(regs)[cpmac.bug2.c:340]) /\ 
-l35 (3-w(regs)[cpmac.bug2.c:340]-3-w(ioval)[cpmac.bug2.c:341], 2-w(regs)[cpmac.bug2.c:340]-2-w(ioval)[cpmac.bug2.c:341]) /\ 
-l36 (3-w(regs)[cpmac.bug2.c:340]-3-w(regs)[cpmac.bug2.c:340], 2-w(regs)[cpmac.bug2.c:340]-2-w(regs)[cpmac.bug2.c:340]) /\ 
-l37 (3-w(regs)[cpmac.bug2.c:340]-3-w(regs)[cpmac.bug2.c:340], 2-w(regs)[cpmac.bug2.c:340]-2-w(regs)[cpmac.bug2.c:340]) /\ 
-l38 (3-w(regs)[cpmac.bug2.c:340]-3-w(regs)[cpmac.bug2.c:340], 2-w(regs)[cpmac.bug2.c:340]-2-w(regs)[cpmac.bug2.c:340]) /\ 
-l39 (3-w(regs)[cpmac.bug2.c:340]-3-w(regs)[cpmac.bug2.c:340], 2-w(regs)[cpmac.bug2.c:340]-2-w(regs)[cpmac.bug2.c:340]) /\ 
-l40 (3-w(desc_ring)[cpmac.bug2.c:772]-3-w(desc_ring)[cpmac.bug2.c:773], 2-w(desc_ring)[cpmac.bug2.c:1247]-2-w(desc_ring)[cpmac.bug2.c:1247]) /\ 
-l41 (3-r(desc_ring)[cpmac.bug2.c:765]-3-w(desc_ring)[cpmac.bug2.c:772], 2-w(desc_ring)[cpmac.bug2.c:1247]-2-w(desc_ring)[cpmac.bug2.c:1247]) /\ 
-l42 (3-r(desc_ring)[cpmac.bug2.c:765]-3-r(desc_ring)[cpmac.bug2.c:765], 2-w(desc_ring)[cpmac.bug2.c:1247]-2-w(desc_ring)[cpmac.bug2.c:1247]) /\ 
-l43 (3-w(regs)[cpmac.bug2.c:340]-3-w(regs)[cpmac.bug2.c:340], 2-w(regs)[cpmac.bug2.c:340]-2-w(regs)[cpmac.bug2.c:340]) /\ 
-l44 (3-w(regs)[cpmac.bug2.c:340]-3-w(regs)[cpmac.bug2.c:340], 2-w(regs)[cpmac.bug2.c:340]-2-w(regs)[cpmac.bug2.c:1232]) /\ 
-l45 (3-w(regs)[cpmac.bug2.c:340]-3-w(ioval)[cpmac.bug2.c:341], 2-w(regs)[cpmac.bug2.c:1232]-2-w(ioval)[cpmac.bug2.c:1232]) /\ 
-l46 (3-w(ioval)[cpmac.bug2.c:341]-3-w(ioval)[cpmac.bug2.c:341], 2-w(ioval)[cpmac.bug2.c:1232]-2-w(ioval)[cpmac.bug2.c:86]) /\ 
-l47 (3-w(ioval)[cpmac.bug2.c:341]-3-r(desc_ring)[cpmac.bug2.c:760], 2-w(ioval)[cpmac.bug2.c:86]-2-w(desc_ring)[cpmac.bug2.c:1247]) /\ 
-l48 (3-w(regs)[cpmac.bug2.c:340]-3-w(regs)[cpmac.bug2.c:340], 2-w(regs)[cpmac.bug2.c:340]-2-w(regs)[cpmac.bug2.c:340]) /\ 
-l49 (3-w(regs)[cpmac.bug2.c:340]-3-w(regs)[cpmac.bug2.c:340], 2-r(regs)[cpmac.bug2.c:345]-2-w(regs)[cpmac.bug2.c:340]) /\ 
-l50 (3-w(regs)[cpmac.bug2.c:340]-3-w(ioval)[cpmac.bug2.c:341], 2-r(ioval)[cpmac.bug2.c:345]-2-r(regs)[cpmac.bug2.c:345]) /\ 
-l51 (3-w(regs)[cpmac.bug2.c:340]-3-w(ioval)[cpmac.bug2.c:341], 2-w(regs)[cpmac.bug2.c:340]-2-r(ioval)[cpmac.bug2.c:345]) /\ 
-l52 (3-w(regs)[cpmac.bug2.c:340]-3-w(regs)[cpmac.bug2.c:340], 2-r(regs)[cpmac.bug2.c:345]-2-w(regs)[cpmac.bug2.c:340]) /\ 
-l53 (3-w(regs)[cpmac.bug2.c:340]-3-w(ioval)[cpmac.bug2.c:341], 2-r(ioval)[cpmac.bug2.c:345]-2-r(regs)[cpmac.bug2.c:345]) /\ 
-l54 (3-w(ioval)[cpmac.bug2.c:341]-3-w(ioval)[cpmac.bug2.c:341], 2-w(ioval)[cpmac.bug2.c:98]-2-r(ioval)[cpmac.bug2.c:345]) /\ 
-l55 (3-r(desc_ring)[cpmac.bug2.c:763]-3-r(desc_ring)[cpmac.bug2.c:765], 2-w(desc_ring)[cpmac.bug2.c:1247]-2-w(desc_ring)[cpmac.bug2.c:1247]) /\ 
-l56 (3-w(desc_ring)[cpmac.bug2.c:772]-3-w(desc_ring)[cpmac.bug2.c:773], 2-r(desc_ring)[cpmac.bug2.c:1235]-2-w(desc_ring)[cpmac.bug2.c:1247]) /\ 
-l57 (3-r(desc_ring)[cpmac.bug2.c:759]-3-r(desc_ring)[cpmac.bug2.c:760], 2-w(desc_ring)[cpmac.bug2.c:1247]-2-w(desc_ring)[cpmac.bug2.c:1247]) /\ 
-l58 (3-wa(cond_irq_enabled)[cpmac.bug2.c:1528]-3-r(desc_ring)[cpmac.bug2.c:759], 2-w(desc_ring)[cpmac.bug2.c:1247]-2-rs(cond_irq_enabled)[cpmac.bug2.c:38])
-3-w(regs)[cpmac.bug2.c:340]
-3-w(ioval)[cpmac.bug2.c:341]
--------------------
-2-r(regs)[cpmac.bug2.c:345]
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
--------------------
- /\ 
-3-w(regs)[cpmac.bug2.c:340]
-3-w(ioval)[cpmac.bug2.c:341]
--------------------
-2-r(ioval)[cpmac.bug2.c:345]
-2-r(regs)[cpmac.bug2.c:345]
--------------------
- /\ 
-3-w(regs)[cpmac.bug2.c:340]
-3-w(ioval)[cpmac.bug2.c:341]
--------------------
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-r(ioval)[cpmac.bug2.c:345]
--------------------
- /\ 
-3-w(regs)[cpmac.bug2.c:340]
--------------------
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-w(regs)[cpmac.bug2.c:340]
--------------------
- /\ 
-3-w(regs)[cpmac.bug2.c:340]
--------------------
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-w(regs)[cpmac.bug2.c:340]
--------------------
- /\ 
-3-w(regs)[cpmac.bug2.c:340]
--------------------
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-w(regs)[cpmac.bug2.c:340]
--------------------
- /\ 
-3-w(regs)[cpmac.bug2.c:340]
--------------------
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-w(regs)[cpmac.bug2.c:340]
--------------------
- /\ 
-3-w(regs)[cpmac.bug2.c:340]
--------------------
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-w(cpmac_rx_ptr)[cpmac.bug2.c:358]
-2-w(regs)[cpmac.bug2.c:340]
--------------------
- /\ 
-3-r(desc_ring)[cpmac.bug2.c:765]
-3-w(desc_ring)[cpmac.bug2.c:772]
--------------------
-2-w(desc_ring)[cpmac.bug2.c:1247]
--------------------
- /\ 
-3-r(desc_ring)[cpmac.bug2.c:765]
-3-r(desc_ring)[cpmac.bug2.c:765]
--------------------
-2-w(desc_ring)[cpmac.bug2.c:1247]
--------------------
- /\ 
-3-w(regs)[cpmac.bug2.c:340]
--------------------
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-w(cpmac_rx_ptr)[cpmac.bug2.c:358]
-2-w(regs)[cpmac.bug2.c:340]
--------------------
- /\ 
-3-w(regs)[cpmac.bug2.c:340]
--------------------
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-w(regs)[cpmac.bug2.c:1232]
--------------------
- /\ 
-3-w(regs)[cpmac.bug2.c:340]
-3-w(ioval)[cpmac.bug2.c:341]
--------------------
-2-w(regs)[cpmac.bug2.c:1232]
-2-w(ioval)[cpmac.bug2.c:1232]
--------------------
- /\ 
-3-w(ioval)[cpmac.bug2.c:341]
--------------------
-2-w(ioval)[cpmac.bug2.c:1232]
-2-w(ioval)[cpmac.bug2.c:86]
--------------------
- /\ 
-3-w(ioval)[cpmac.bug2.c:341]
-3-r(desc_ring)[cpmac.bug2.c:760]
--------------------
-2-w(ioval)[cpmac.bug2.c:86]
-2-r(desc_ring)[cpmac.bug2.c:1235]
-2-w(rx_head)[cpmac.bug2.c:1235]
-2-r(rx_head)[cpmac.bug2.c:1237]
-2-r(rx_head)[cpmac.bug2.c:1238]
-2-w(rx_head)[cpmac.bug2.c:1241]
-2-w(desc_ring)[cpmac.bug2.c:1247]
--------------------
- /\ 
-3-w(regs)[cpmac.bug2.c:340]
--------------------
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-w(regs)[cpmac.bug2.c:340]
--------------------
- /\ 
-3-w(regs)[cpmac.bug2.c:340]
--------------------
-2-r(regs)[cpmac.bug2.c:345]
-2-w(regs)[cpmac.bug2.c:340]
--------------------
- /\ 
+l1 (3-w(desc_ring)[cpmac.bug2.c:772](3)-3-w(desc_ring)[cpmac.bug2.c:773](3), 2-r(desc_ring)[cpmac.bug2.c:1235]-2-r(desc_ring)[cpmac.bug2.c:1235]) /\ 
+l2 (3-w(regs)[cpmac.bug2.c:340](3)-3-w(ioval)[cpmac.bug2.c:341](3), 2-r(ioval)[cpmac.bug2.c:345]-2-r(regs)[cpmac.bug2.c:345]) /\ 
+l3 (3-w(regs)[cpmac.bug2.c:340](3)-3-w(ioval)[cpmac.bug2.c:341](3), 2-w(regs)[cpmac.bug2.c:340]-2-r(ioval)[cpmac.bug2.c:345]) /\ 
+l4 (3-w(regs)[cpmac.bug2.c:340](3)-3-w(regs)[cpmac.bug2.c:340](3), 2-r(regs)[cpmac.bug2.c:345]-2-w(regs)[cpmac.bug2.c:340]) /\ 
+l5 (3-w(regs)[cpmac.bug2.c:340](3)-3-w(ioval)[cpmac.bug2.c:341](3), 2-r(ioval)[cpmac.bug2.c:345]-2-r(regs)[cpmac.bug2.c:345]) /\ 
+l6 (3-w(ioval)[cpmac.bug2.c:341](3)-3-w(ioval)[cpmac.bug2.c:341](3), 2-w(ioval)[cpmac.bug2.c:98]-2-r(ioval)[cpmac.bug2.c:345]) /\ 
+l7 (3-w(regs)[cpmac.bug2.c:340](3)-3-w(regs)[cpmac.bug2.c:340](3), 2-r(regs)[cpmac.bug2.c:345]-2-w(regs)[cpmac.bug2.c:340]) /\ 
+l8 (3-w(regs)[cpmac.bug2.c:340](3)-3-w(ioval)[cpmac.bug2.c:341](3), 2-w(regs)[cpmac.bug2.c:340]-2-w(ioval)[cpmac.bug2.c:341]) /\ 
+l9 (3-w(ioval)[cpmac.bug2.c:341](3)-3-w(ioval)[cpmac.bug2.c:341](3), 2-w(ioval)[cpmac.bug2.c:341]-2-w(ioval)[cpmac.bug2.c:341]) /\ 
+l10 (3-w(ioval)[cpmac.bug2.c:341](3)-3-w(ioval)[cpmac.bug2.c:341](3), 2-w(ioval)[cpmac.bug2.c:341]-2-w(ioval)[cpmac.bug2.c:341]) /\ 
+l11 (3-w(ioval)[cpmac.bug2.c:341](3)-3-w(ioval)[cpmac.bug2.c:341](3), 2-w(ioval)[cpmac.bug2.c:341]-2-w(ioval)[cpmac.bug2.c:341]) /\ 
+l12 (3-w(ioval)[cpmac.bug2.c:341](3)-3-w(ioval)[cpmac.bug2.c:341](3), 2-w(ioval)[cpmac.bug2.c:341]-2-w(ioval)[cpmac.bug2.c:341]) /\ 
+l13 (3-w(regs)[cpmac.bug2.c:340](3)-3-w(ioval)[cpmac.bug2.c:341](3), 2-r(ioval)[cpmac.bug2.c:345]-2-r(regs)[cpmac.bug2.c:345]) /\ 
+l14 (3-w(ioval)[cpmac.bug2.c:341](3)-3-w(ioval)[cpmac.bug2.c:341](3), 2-w(ioval)[cpmac.bug2.c:341]-2-r(ioval)[cpmac.bug2.c:345]) /\ 
+l15 (3-w(regs)[cpmac.bug2.c:340](3)-3-w(regs)[cpmac.bug2.c:340](3), 2-w(regs)[cpmac.bug2.c:340]-2-w(regs)[cpmac.bug2.c:340]) /\ 
+l16 (3-w(regs)[cpmac.bug2.c:340](3)-3-w(regs)[cpmac.bug2.c:340](3), 2-r(regs)[cpmac.bug2.c:345]-2-w(regs)[cpmac.bug2.c:340]) /\ 
+l17 (3-r(desc_ring)[cpmac.bug2.c:765](3)-3-w(desc_ring)[cpmac.bug2.c:772](3), 2-w(desc_ring)[cpmac.bug2.c:1247]-2-w(desc_ring)[cpmac.bug2.c:1247]) /\ 
+l18 (3-r(desc_ring)[cpmac.bug2.c:765](3)-3-r(desc_ring)[cpmac.bug2.c:765](3), 2-w(desc_ring)[cpmac.bug2.c:1247]-2-w(desc_ring)[cpmac.bug2.c:1247]) /\ 
+l19 (3-w(regs)[cpmac.bug2.c:340](3)-3-w(regs)[cpmac.bug2.c:340](3), 2-w(regs)[cpmac.bug2.c:340]-2-w(regs)[cpmac.bug2.c:340]) /\ 
+l20 (3-w(regs)[cpmac.bug2.c:340](3)-3-w(regs)[cpmac.bug2.c:340](3), 2-w(regs)[cpmac.bug2.c:340]-2-w(regs)[cpmac.bug2.c:1232]) /\ 
+l21 (3-w(regs)[cpmac.bug2.c:340](3)-3-w(ioval)[cpmac.bug2.c:341](3), 2-w(regs)[cpmac.bug2.c:1232]-2-w(ioval)[cpmac.bug2.c:86]) /\ 
+l22 (3-w(ioval)[cpmac.bug2.c:341](3)-3-r(desc_ring)[cpmac.bug2.c:760](3), 2-w(ioval)[cpmac.bug2.c:86]-2-w(desc_ring)[cpmac.bug2.c:1247]) /\ 
+l23 (3-r(desc_ring)[cpmac.bug2.c:759](3)-3-r(desc_ring)[cpmac.bug2.c:760](3), 2-w(desc_ring)[cpmac.bug2.c:1247]-2-w(desc_ring)[cpmac.bug2.c:1247]) /\ 
+l24 (3-wa(cond_irq_enabled)[cpmac.bug2.c:1528](3)-3-r(desc_ring)[cpmac.bug2.c:759](3), 2-w(desc_ring)[cpmac.bug2.c:1247]-2-rs(cond_irq_enabled)[cpmac.bug2.c:38]) /\ 
+l25 (3-r(desc_ring)[cpmac.bug2.c:763](3)-3-r(desc_ring)[cpmac.bug2.c:765](3), 2-w(desc_ring)[cpmac.bug2.c:1247]-2-w(desc_ring)[cpmac.bug2.c:1247]) /\ 
+l26 (3-w(desc_ring)[cpmac.bug2.c:772](3)-3-w(desc_ring)[cpmac.bug2.c:773](3), 2-w(desc_ring)[cpmac.bug2.c:1247]-2-w(desc_ring)[cpmac.bug2.c:1247]) /\ 
+l27 (3-w(desc_ring)[cpmac.bug2.c:772](3)-3-w(desc_ring)[cpmac.bug2.c:773](3), 2-r(desc_ring)[cpmac.bug2.c:1235]-2-w(desc_ring)[cpmac.bug2.c:1247])
 3-w(regs)[cpmac.bug2.c:340]
 3-w(ioval)[cpmac.bug2.c:341]
 -------------------
@@ -1208,21 +641,118 @@ l58 (3-wa(cond_irq_enabled)[cpmac.bug2.c:1528]-3-r(desc_ring)[cpmac.bug2.c:759],
 2-r(ioval)[cpmac.bug2.c:345]
 -------------------
  /\ 
-3-r(desc_ring)[cpmac.bug2.c:763]
-3-un(cplock)[cpmac.bug2.c:764]
+3-w(regs)[cpmac.bug2.c:340]
+-------------------
+2-r(regs)[cpmac.bug2.c:345]
+2-w(regs)[cpmac.bug2.c:340]
+-------------------
+ /\ 
+3-w(regs)[cpmac.bug2.c:340]
+3-w(ioval)[cpmac.bug2.c:341]
+-------------------
+2-w(regs)[cpmac.bug2.c:340]
+2-w(ioval)[cpmac.bug2.c:341]
+2-w(regs)[cpmac.bug2.c:340]
+2-w(ioval)[cpmac.bug2.c:341]
+-------------------
+ /\ 
+3-w(ioval)[cpmac.bug2.c:341]
+-------------------
+2-w(ioval)[cpmac.bug2.c:341]
+2-w(cpmac_rx_ptr)[cpmac.bug2.c:358]
+2-w(regs)[cpmac.bug2.c:340]
+2-w(ioval)[cpmac.bug2.c:341]
+-------------------
+ /\ 
+3-w(ioval)[cpmac.bug2.c:341]
+-------------------
+2-w(ioval)[cpmac.bug2.c:341]
+2-w(regs)[cpmac.bug2.c:340]
+2-w(ioval)[cpmac.bug2.c:341]
+-------------------
+ /\ 
+3-w(ioval)[cpmac.bug2.c:341]
+-------------------
+2-w(ioval)[cpmac.bug2.c:341]
+2-w(regs)[cpmac.bug2.c:340]
+2-w(ioval)[cpmac.bug2.c:341]
+-------------------
+ /\ 
+3-w(ioval)[cpmac.bug2.c:341]
+-------------------
+2-w(ioval)[cpmac.bug2.c:341]
+2-w(regs)[cpmac.bug2.c:340]
+2-w(ioval)[cpmac.bug2.c:341]
+-------------------
+ /\ 
+3-w(regs)[cpmac.bug2.c:340]
+3-w(ioval)[cpmac.bug2.c:341]
+-------------------
+2-r(ioval)[cpmac.bug2.c:345]
+2-r(regs)[cpmac.bug2.c:345]
+-------------------
+ /\ 
+3-w(ioval)[cpmac.bug2.c:341]
+-------------------
+2-w(ioval)[cpmac.bug2.c:341]
+2-r(ioval)[cpmac.bug2.c:345]
+-------------------
+ /\ 
+3-w(regs)[cpmac.bug2.c:340]
+-------------------
+2-w(regs)[cpmac.bug2.c:340]
+2-w(ioval)[cpmac.bug2.c:341]
+2-w(regs)[cpmac.bug2.c:340]
+-------------------
+ /\ 
+3-w(regs)[cpmac.bug2.c:340]
+-------------------
+2-r(regs)[cpmac.bug2.c:345]
+2-w(regs)[cpmac.bug2.c:340]
+-------------------
+ /\ 
+3-r(desc_ring)[cpmac.bug2.c:765]
+3-w(desc_ring)[cpmac.bug2.c:772]
+-------------------
+2-w(desc_ring)[cpmac.bug2.c:1247]
+-------------------
+ /\ 
+3-r(desc_ring)[cpmac.bug2.c:765]
 3-r(desc_ring)[cpmac.bug2.c:765]
 -------------------
 2-w(desc_ring)[cpmac.bug2.c:1247]
 -------------------
  /\ 
-3-w(desc_ring)[cpmac.bug2.c:772]
-3-w(desc_ring)[cpmac.bug2.c:773]
+3-w(regs)[cpmac.bug2.c:340]
 -------------------
+2-w(regs)[cpmac.bug2.c:340]
+2-w(ioval)[cpmac.bug2.c:341]
+2-w(cpmac_rx_ptr)[cpmac.bug2.c:358]
+2-w(regs)[cpmac.bug2.c:340]
+-------------------
+ /\ 
+3-w(regs)[cpmac.bug2.c:340]
+-------------------
+2-w(regs)[cpmac.bug2.c:340]
+2-w(ioval)[cpmac.bug2.c:341]
+2-w(regs)[cpmac.bug2.c:1232]
+-------------------
+ /\ 
+3-w(regs)[cpmac.bug2.c:340]
+3-w(ioval)[cpmac.bug2.c:341]
+-------------------
+2-w(regs)[cpmac.bug2.c:1232]
+2-w(ioval)[cpmac.bug2.c:1232]
+2-w(ioval)[cpmac.bug2.c:86]
+-------------------
+ /\ 
+3-w(ioval)[cpmac.bug2.c:341]
+3-r(desc_ring)[cpmac.bug2.c:760]
+-------------------
+2-w(ioval)[cpmac.bug2.c:86]
 2-r(desc_ring)[cpmac.bug2.c:1235]
 2-w(rx_head)[cpmac.bug2.c:1235]
 2-r(rx_head)[cpmac.bug2.c:1237]
-2-r(rx_head)[cpmac.bug2.c:1238]
-2-w(rx_head)[cpmac.bug2.c:1241]
 2-w(desc_ring)[cpmac.bug2.c:1247]
 -------------------
  /\ 
@@ -1242,187 +772,312 @@ l58 (3-wa(cond_irq_enabled)[cpmac.bug2.c:1528]-3-r(desc_ring)[cpmac.bug2.c:759],
 2-w(dma_ring)[cpmac.bug2.c:1247]
 2-rs(cond_irq_enabled)[cpmac.bug2.c:38]
 -------------------
+ /\ 
+3-r(desc_ring)[cpmac.bug2.c:763]
+3-un(cplock)[cpmac.bug2.c:764]
+3-r(desc_ring)[cpmac.bug2.c:765]
+-------------------
+2-w(desc_ring)[cpmac.bug2.c:1247]
+-------------------
+ /\ 
+3-w(desc_ring)[cpmac.bug2.c:772]
+3-w(desc_ring)[cpmac.bug2.c:773]
+-------------------
+2-r(desc_ring)[cpmac.bug2.c:1235]
+2-w(rx_head)[cpmac.bug2.c:1235]
+2-r(rx_head)[cpmac.bug2.c:1237]
+2-w(desc_ring)[cpmac.bug2.c:1247]
+-------------------
 
 
-<<<<<<< Updated upstream
-TIME - Iteration 3: 63.248s
-=======
-TIME - Iteration 3: 68.187s
->>>>>>> Stashed changes
+TIME - Iteration 1: 118.931s
 
-5988 rounds; seen states: 6741; transitions: 31723
-Found candidate ... Checking if truely a counter-example(size=231)
-179 rounds; seen states: 179; transitions: 178
+67504 rounds; seen states: 58380; transitions: 390644
+Found candidate ... Checking if truely a counter-example(size=564)
+223 rounds; seen states: 223; transitions: 222
 Candidate is not a counter-example
 Increasing the bound to 2
-5408 rounds; seen states: 8005; transitions: 27814
-Found candidate ... Checking if truely a counter-example(size=231)
-179 rounds; seen states: 179; transitions: 178
+67307 rounds; seen states: 61193; transitions: 368442
+Found candidate ... Checking if truely a counter-example(size=570)
+224 rounds; seen states: 224; transitions: 223
 Candidate is not a counter-example
 Increasing the bound to 3
-4441 rounds; seen states: 8006; transitions: 23074
-Found candidate ... Checking if truely a counter-example(size=231)
-179 rounds; seen states: 179; transitions: 178
-Candidate is not a counter-example
-Increasing the bound to 4
-4395 rounds; seen states: 8006; transitions: 22821
-Found candidate ... Checking if truely a counter-example(size=231)
-179 rounds; seen states: 179; transitions: 178
-Candidate is not a counter-example
-Increasing the bound to 5
-4458 rounds; seen states: 8007; transitions: 23080
-Found candidate ... Checking if truely a counter-example(size=231)
-179 rounds; seen states: 179; transitions: 178
-Candidate is not a counter-example
-Increasing the bound to 6
-4504 rounds; seen states: 8014; transitions: 23296
-Found candidate ... Checking if truely a counter-example(size=231)
-179 rounds; seen states: 179; transitions: 178
-Candidate is not a counter-example
-Increasing the bound to 7
-4509 rounds; seen states: 8014; transitions: 23248
-Found candidate ... Checking if truely a counter-example(size=231)
-179 rounds; seen states: 179; transitions: 178
-Candidate is not a counter-example
-Increasing the bound to 8
-4506 rounds; seen states: 8014; transitions: 23233
-Found candidate ... Checking if truely a counter-example(size=231)
-179 rounds; seen states: 179; transitions: 178
-Candidate is not a counter-example
-Increasing the bound to 9
-17308 rounds; seen states: 13427; transitions: 90056
-Found candidate ... Checking if truely a counter-example(size=229)
-177 rounds; seen states: 177; transitions: 176
+65775 rounds; seen states: 62857; transitions: 361177
+Found candidate ... Checking if truely a counter-example(size=578)
+227 rounds; seen states: 227; transitions: 226
 Not Included; bound
-0-w(ioval)[types.h:189]
-0-r(ioval)[types.h:190]
-0-w(cpmac_mii)[cpmac.bug2.c:1396]
-0-r(cpmac_mii)[cpmac.bug2.c:1397]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 3-lo(irq_running_lock)[cpmac.bug2.c:1526]
 2-lo(rtnl)[cpmac.bug2.c:1496]
 4-yi[cpmac.bug2.c:1550]
 4-no(send_in_progress)[cpmac.bug2.c:1551]
+0-w(ioval)[types.h:189]
+0-r(ioval)[types.h:190]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+0-w(cpmac_mii)[cpmac.bug2.c:1396]
+0-r(cpmac_mii)[cpmac.bug2.c:1397]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 4-rs(send_in_progress)[cpmac.bug2.c:1557]
 0-w(ioval)[cpmac.bug2.c:94]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 0-w(ioval)[cpmac.bug2.c:94]
 0-w(ioval)[cpmac.bug2.c:98]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
 0-w(ioval)[cpmac.bug2.c:98]
 0-w(ioval)[cpmac.bug2.c:98]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 0-w(ioval)[cpmac.bug2.c:98]
 0-w(regs)[cpmac.bug2.c:340]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 0-w(ioval)[cpmac.bug2.c:341]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
 0-w(cpmac_mii_phy_mask)[cpmac.bug2.c:1425]
 0-no(cond_platform_driver_registered)[cpmac.bug2.c:60]
-0-wa(cond_platform_driver_registered)[cpmac.bug2.c:1437]
-0-wa(cond_platform_driver_registered)[cpmac.bug2.c:1470]
-0-yi[cpmac.bug2.c:1471]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 1-wa(cond_platform_driver_registered)[cpmac.bug2.c:1480]
 1-r(external_switch)[cpmac.bug2.c:1279]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+0-wa(cond_platform_driver_registered)[cpmac.bug2.c:1437]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+1-r(dumb_switch)[cpmac.bug2.c:1279]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+1-r(pdata)[cpmac.bug2.c:1284]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+1-r(cpmac_mii)[cpmac.bug2.c:1286]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+1-r(cpmac_mii)[cpmac.bug2.c:1288]
+0-wa(cond_platform_driver_registered)[cpmac.bug2.c:1470]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 1-w(ioval)[cpmac.bug2.c:72]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 1-r(ioval)[cpmac.bug2.c:73]
 1-w(netdev)[cpmac.bug2.c:1314]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
 1-w(ring_size)[cpmac.bug2.c:1324]
 1-r(pdata)[cpmac.bug2.c:1326]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 1-r(pdata)[cpmac.bug2.c:1326]
 1-w(pdata)[cpmac.bug2.c:1326]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 1-r(netdev)[cpmac.bug2.c:1326]
 1-no(netdev_registered)[eth.h:391]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
 2-wa(netdev_registered)[cpmac.bug2.c:1498]
 2-no(netdev_running)[cpmac.bug2.c:1499]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 2-r(netdev)[cpmac.bug2.c:1120]
-1-wa(netdev_registered)[cpmac.bug2.c:1483]
-1-yi[cpmac.bug2.c:1484]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 2-w(ioval)[types.h:189]
 2-r(ioval)[types.h:190]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
 2-w(regs)[cpmac.bug2.c:1128]
 2-r(regs)[cpmac.bug2.c:1129]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 2-r(ring_size)[cpmac.bug2.c:1137]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 2-w(dma_ring)[cpmac.bug2.c:1139]
 2-w(desc_ring)[cpmac.bug2.c:1138]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
 2-r(desc_ring)[cpmac.bug2.c:1141]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 2-r(dma_ring)[cpmac.bug2.c:1147]
 2-w(desc_ring)[cpmac.bug2.c:1147]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 2-r(desc_ring)[cpmac.bug2.c:1149]
 2-w(rx_head)[cpmac.bug2.c:1149]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
 2-w(rx_head)[cpmac.bug2.c:1156]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 2-w(rx_head)[cpmac.bug2.c:1157]
 2-r(rx_head)[cpmac.bug2.c:1160]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 2-w(rx_head)[cpmac.bug2.c:1160]
 2-w(rx_head)[cpmac.bug2.c:1161]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
 2-w(rx_head)[cpmac.bug2.c:1162]
 2-r(rx_head)[cpmac.bug2.c:1163]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 2-r(ring_size)[cpmac.bug2.c:1163]
 2-w(rx_head)[cpmac.bug2.c:1163]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 2-r(rx_head)[cpmac.bug2.c:1164]
 2-w(rx_head)[cpmac.bug2.c:1164]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
 2-r(rx_head)[cpmac.bug2.c:1165]
 2-w(rx_head)[cpmac.bug2.c:1165]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 2-w(rx_head)[cpmac.bug2.c:1168]
 2-no(cond_irq_enabled)[cpmac.bug2.c:34]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 2-r(pdata)[cpmac.bug2.c:813]
 2-w(ioval)[cpmac.bug2.c:98]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
 2-w(regs)[cpmac.bug2.c:340]
 2-w(ioval)[cpmac.bug2.c:341]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 2-w(cpmac_rx_ptr)[cpmac.bug2.c:358]
 2-r(rx_head)[cpmac.bug2.c:818]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 2-w(cpmac_rx_ptr)[cpmac.bug2.c:358]
 2-w(regs)[cpmac.bug2.c:340]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
 2-w(ioval)[cpmac.bug2.c:341]
 2-w(regs)[cpmac.bug2.c:340]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 2-w(ioval)[cpmac.bug2.c:341]
 2-r(netdev)[cpmac.bug2.c:824]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 2-w(regs)[cpmac.bug2.c:340]
 2-w(ioval)[cpmac.bug2.c:341]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
 2-r(netdev)[cpmac.bug2.c:825]
 2-w(regs)[cpmac.bug2.c:340]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 2-w(ioval)[cpmac.bug2.c:341]
 2-r(netdev)[cpmac.bug2.c:826]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 2-r(netdev)[cpmac.bug2.c:827]
 2-r(netdev)[cpmac.bug2.c:827]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
 2-r(netdev)[cpmac.bug2.c:828]
 2-w(regs)[cpmac.bug2.c:340]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 2-w(ioval)[cpmac.bug2.c:341]
 2-w(regs)[cpmac.bug2.c:340]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 2-w(ioval)[cpmac.bug2.c:341]
 2-w(regs)[cpmac.bug2.c:340]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
 2-w(ioval)[cpmac.bug2.c:341]
 2-w(regs)[cpmac.bug2.c:340]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 2-w(ioval)[cpmac.bug2.c:341]
 2-w(regs)[cpmac.bug2.c:340]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 2-w(ioval)[cpmac.bug2.c:341]
 2-w(regs)[cpmac.bug2.c:340]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
 2-w(ioval)[cpmac.bug2.c:341]
 2-w(regs)[cpmac.bug2.c:340]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 2-w(ioval)[cpmac.bug2.c:341]
 2-w(regs)[cpmac.bug2.c:340]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 2-w(ioval)[cpmac.bug2.c:341]
 2-w(regs)[cpmac.bug2.c:340]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
 2-w(ioval)[cpmac.bug2.c:341]
 2-w(regs)[cpmac.bug2.c:340]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 2-w(ioval)[cpmac.bug2.c:341]
 2-r(ioval)[cpmac.bug2.c:345]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 2-r(regs)[cpmac.bug2.c:345]
 2-w(regs)[cpmac.bug2.c:340]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
 2-w(ioval)[cpmac.bug2.c:341]
 2-r(ioval)[cpmac.bug2.c:345]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 2-r(regs)[cpmac.bug2.c:345]
 2-w(regs)[cpmac.bug2.c:340]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 2-w(ioval)[cpmac.bug2.c:341]
 2-r(ioval)[cpmac.bug2.c:345]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
 2-r(regs)[cpmac.bug2.c:345]
 2-w(regs)[cpmac.bug2.c:340]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 2-w(ioval)[cpmac.bug2.c:341]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 2-no(send_enabled)[eth.h:441]
-2-un(rtnl)[cpmac.bug2.c:1502]
-2-yi[cpmac.bug2.c:1504]
-2-lo(rtnl)[cpmac.bug2.c:1506]
-2-wa(netdev_running)[cpmac.bug2.c:1508]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 4-yi[cpmac.bug2.c:1550]
 4-no(send_in_progress)[cpmac.bug2.c:1551]
 4-wa(send_enabled)[cpmac.bug2.c:1553]
 4-wa(netdev_running)[cpmac.bug2.c:1554]
-2-rs(netdev_running)[cpmac.bug2.c:1509]
-2-rs(send_enabled)[cpmac.bug2.c:1510]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+2-un(rtnl)[cpmac.bug2.c:1502]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+2-yi[cpmac.bug2.c:1504]
 4-rs(send_enabled)[eth.h:447]
 4-r(desc_ring)[cpmac.bug2.c:724]
 4-lo(cplock)[cpmac.bug2.c:731]
@@ -1435,89 +1090,288 @@ Not Included; bound
 4-w(desc_ring)[cpmac.bug2.c:738]
 4-w(desc_ring)[cpmac.bug2.c:739]
 4-no(cond_irq_can_happen)[cpmac.bug2.c:748]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 3-wa(cond_irq_can_happen)[cpmac.bug2.c:1527]
 3-wa(cond_irq_enabled)[cpmac.bug2.c:1528]
-3-r(cpmac_int_vector)[cpmac.bug2.c:351]
 4-rs(send_in_progress)[cpmac.bug2.c:1557]
-2-wn(send_in_progress)[cpmac.bug2.c:1511]
-2-rs(send_enabled)[eth.h:447]
-2-r(pdata)[cpmac.bug2.c:790]
-2-w(ioval)[cpmac.bug2.c:98]
-2-r(ioval)[cpmac.bug2.c:345]
-2-r(regs)[cpmac.bug2.c:345]
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-r(ioval)[cpmac.bug2.c:345]
-2-r(regs)[cpmac.bug2.c:345]
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-w(cpmac_rx_ptr)[cpmac.bug2.c:358]
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-r(ioval)[cpmac.bug2.c:345]
-2-r(regs)[cpmac.bug2.c:345]
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-w(cpmac_rx_ptr)[cpmac.bug2.c:358]
-2-w(regs)[cpmac.bug2.c:340]
-2-w(ioval)[cpmac.bug2.c:341]
-2-w(regs)[cpmac.bug2.c:1232]
-2-w(ioval)[cpmac.bug2.c:1232]
-2-w(ioval)[cpmac.bug2.c:86]
-2-r(desc_ring)[cpmac.bug2.c:1235]
-2-w(rx_head)[cpmac.bug2.c:1235]
-2-r(rx_head)[cpmac.bug2.c:1237]
+4-yi[cpmac.bug2.c:1550]
+3-r(cpmac_int_vector)[cpmac.bug2.c:351]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 3-r(desc_ring)[cpmac.bug2.c:759]
 3-w(regs)[cpmac.bug2.c:340]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 3-w(ioval)[cpmac.bug2.c:341]
 3-r(desc_ring)[cpmac.bug2.c:760]
-2-w(desc_ring)[cpmac.bug2.c:1247]
-2-w(dma_ring)[cpmac.bug2.c:1247]
-2-rs(cond_irq_enabled)[cpmac.bug2.c:38]
-3-lo(cplock)[cpmac.bug2.c:761]
-3-r(netdev)[cpmac.bug2.c:762]
-3-r(netdev)[cpmac.bug2.c:763]
-3-r(desc_ring)[cpmac.bug2.c:763]
-3-un(cplock)[cpmac.bug2.c:764]
-3-r(desc_ring)[cpmac.bug2.c:765]
-3-r(desc_ring)[cpmac.bug2.c:765]
-3-w(desc_ring)[cpmac.bug2.c:772]
-3-w(desc_ring)[cpmac.bug2.c:773]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
 3-no(send_enabled)[eth.h:459]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 3-rs(cond_irq_can_happen)[cpmac.bug2.c:967]
 3-un(irq_running_lock)[cpmac.bug2.c:1530]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+3-yi[cpmac.bug2.c:1531]
+4-rs(send_enabled)[eth.h:447]
+4-r(desc_ring)[cpmac.bug2.c:724]
+4-lo(cplock)[cpmac.bug2.c:731]
+4-un(cplock)[cpmac.bug2.c:732]
+4-w(desc_ring)[cpmac.bug2.c:733]
+4-w(desc_ring)[cpmac.bug2.c:734]
+4-w(desc_ring)[cpmac.bug2.c:735]
+4-r(desc_ring)[cpmac.bug2.c:737]
+4-w(desc_ring)[cpmac.bug2.c:737]
+4-w(desc_ring)[cpmac.bug2.c:738]
+4-w(desc_ring)[cpmac.bug2.c:739]
+4-no(cond_irq_can_happen)[cpmac.bug2.c:748]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+3-lo(irq_running_lock)[cpmac.bug2.c:1526]
+3-wa(cond_irq_can_happen)[cpmac.bug2.c:1527]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+3-wa(cond_irq_enabled)[cpmac.bug2.c:1528]
+3-r(cpmac_int_vector)[cpmac.bug2.c:351]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+3-r(desc_ring)[cpmac.bug2.c:759]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+2-lo(rtnl)[cpmac.bug2.c:1506]
+2-wa(netdev_running)[cpmac.bug2.c:1508]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+3-w(regs)[cpmac.bug2.c:340]
+3-w(ioval)[cpmac.bug2.c:341]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+3-r(desc_ring)[cpmac.bug2.c:760]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+3-no(send_enabled)[eth.h:459]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+3-rs(cond_irq_can_happen)[cpmac.bug2.c:967]
+4-rs(send_enabled)[eth.h:447]
+4-r(desc_ring)[cpmac.bug2.c:724]
+4-lo(cplock)[cpmac.bug2.c:731]
+4-un(cplock)[cpmac.bug2.c:732]
+4-w(desc_ring)[cpmac.bug2.c:733]
+4-w(desc_ring)[cpmac.bug2.c:734]
+4-w(desc_ring)[cpmac.bug2.c:735]
+4-r(desc_ring)[cpmac.bug2.c:737]
+4-w(desc_ring)[cpmac.bug2.c:737]
+4-w(desc_ring)[cpmac.bug2.c:738]
+4-w(desc_ring)[cpmac.bug2.c:739]
+4-no(cond_irq_can_happen)[cpmac.bug2.c:748]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+3-un(irq_running_lock)[cpmac.bug2.c:1530]
+3-yi[cpmac.bug2.c:1531]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+3-lo(irq_running_lock)[cpmac.bug2.c:1526]
+3-wa(cond_irq_can_happen)[cpmac.bug2.c:1527]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+3-wa(cond_irq_enabled)[cpmac.bug2.c:1528]
+3-r(cpmac_int_vector)[cpmac.bug2.c:351]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+2-rs(netdev_running)[cpmac.bug2.c:1509]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+2-rs(send_enabled)[cpmac.bug2.c:1510]
+3-r(desc_ring)[cpmac.bug2.c:759]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+3-w(regs)[cpmac.bug2.c:340]
+3-w(ioval)[cpmac.bug2.c:341]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+3-r(desc_ring)[cpmac.bug2.c:760]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+3-lo(cplock)[cpmac.bug2.c:761]
+3-r(netdev)[cpmac.bug2.c:762]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+3-r(netdev)[cpmac.bug2.c:763]
+3-r(desc_ring)[cpmac.bug2.c:763]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+3-un(cplock)[cpmac.bug2.c:764]
+3-r(desc_ring)[cpmac.bug2.c:765]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+3-r(desc_ring)[cpmac.bug2.c:765]
+2-wn(send_in_progress)[cpmac.bug2.c:1511]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+2-rs(send_enabled)[eth.h:447]
+2-r(pdata)[cpmac.bug2.c:790]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+2-w(ioval)[cpmac.bug2.c:98]
+2-r(ioval)[cpmac.bug2.c:345]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+2-r(regs)[cpmac.bug2.c:345]
+2-w(regs)[cpmac.bug2.c:340]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+2-w(ioval)[cpmac.bug2.c:341]
+2-r(ioval)[cpmac.bug2.c:345]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+2-r(regs)[cpmac.bug2.c:345]
+2-w(regs)[cpmac.bug2.c:340]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+2-w(ioval)[cpmac.bug2.c:341]
+2-w(regs)[cpmac.bug2.c:340]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+2-w(ioval)[cpmac.bug2.c:341]
+2-w(cpmac_rx_ptr)[cpmac.bug2.c:358]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+2-w(regs)[cpmac.bug2.c:340]
+2-w(ioval)[cpmac.bug2.c:341]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+2-w(regs)[cpmac.bug2.c:340]
+2-w(ioval)[cpmac.bug2.c:341]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+2-w(regs)[cpmac.bug2.c:340]
+2-w(ioval)[cpmac.bug2.c:341]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+2-w(regs)[cpmac.bug2.c:340]
+2-w(ioval)[cpmac.bug2.c:341]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+2-r(ioval)[cpmac.bug2.c:345]
+2-r(regs)[cpmac.bug2.c:345]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+2-w(regs)[cpmac.bug2.c:340]
+2-w(ioval)[cpmac.bug2.c:341]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+2-w(regs)[cpmac.bug2.c:340]
+2-w(ioval)[cpmac.bug2.c:341]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+2-w(cpmac_rx_ptr)[cpmac.bug2.c:358]
+2-w(regs)[cpmac.bug2.c:340]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+2-w(ioval)[cpmac.bug2.c:341]
+2-w(regs)[cpmac.bug2.c:1232]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+2-w(ioval)[cpmac.bug2.c:1232]
+2-w(ioval)[cpmac.bug2.c:86]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+2-r(desc_ring)[cpmac.bug2.c:1235]
+2-w(rx_head)[cpmac.bug2.c:1235]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+2-r(rx_head)[cpmac.bug2.c:1237]
+3-w(desc_ring)[cpmac.bug2.c:772]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+3-w(desc_ring)[cpmac.bug2.c:773]
+3-no(send_enabled)[eth.h:459]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+3-rs(cond_irq_can_happen)[cpmac.bug2.c:967]
+3-un(irq_running_lock)[cpmac.bug2.c:1530]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+3-yi[cpmac.bug2.c:1531]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+2-r(rx_head)[cpmac.bug2.c:1238]
+2-w(rx_head)[cpmac.bug2.c:1241]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+2-w(desc_ring)[cpmac.bug2.c:1247]
+2-w(dma_ring)[cpmac.bug2.c:1247]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+2-rs(cond_irq_enabled)[cpmac.bug2.c:38]
 2-lo(irq_running_lock)[cpmac.bug2.c:39]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 2-un(irq_running_lock)[cpmac.bug2.c:40]
 2-un(rtnl)[cpmac.bug2.c:1520]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+1-wa(netdev_registered)[cpmac.bug2.c:1483]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+1-yi[cpmac.bug2.c:1484]
 1-lo(rtnl)[eth.h:408]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 1-rs(netdev_registered)[eth.h:411]
 1-wn(netdev_running)[eth.h:419]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
 1-un(rtnl)[eth.h:421]
 1-no(cond_platform_driver_not_in_use)[cpmac.bug2.c:1490]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+0-yi[cpmac.bug2.c:1471]
 0-wa(cond_platform_driver_not_in_use)[cpmac.bug2.c:1472]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
 0-rs(cond_platform_driver_registered)[cpmac.bug2.c:68]
 0-w(cpmac_mii)[cpmac.bug2.c:1457]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
 0-w(ioval)[cpmac.bug2.c:1457]
-3-yi[cpmac.bug2.c:1531]
 Find all sequential traces
 Find concurrent traces that are not sequential
 All bad traces: 
-(*) 2-w(ioval)[cpmac.bug2.c:86] < 3-w(ioval)[cpmac.bug2.c:341] /\ 3-r(desc_ring)[cpmac.bug2.c:760] < 2-w(desc_ring)[cpmac.bug2.c:1247] \/
-2-r(desc_ring)[cpmac.bug2.c:1235] < 3-w(desc_ring)[cpmac.bug2.c:772] /\ 3-w(desc_ring)[cpmac.bug2.c:772] < 2-w(desc_ring)[cpmac.bug2.c:1247]
+(*) 2-r(desc_ring)[cpmac.bug2.c:1235] < 3-w(desc_ring)[cpmac.bug2.c:772](3) /\ 3-w(desc_ring)[cpmac.bug2.c:773](3) < 2-w(desc_ring)[cpmac.bug2.c:1247] \/
+2-w(ioval)[cpmac.bug2.c:86] < 3-w(ioval)[cpmac.bug2.c:341](3) /\ 3-r(desc_ring)[cpmac.bug2.c:760](3) < 2-w(desc_ring)[cpmac.bug2.c:1247]
 Found constraints to eliminate bad traces
 Locks inferred: 
-l59 (3-w(ioval)[cpmac.bug2.c:341]-3-r(desc_ring)[cpmac.bug2.c:760], 2-w(ioval)[cpmac.bug2.c:86]-2-w(desc_ring)[cpmac.bug2.c:1247]) /\ 
-l60 (3-w(desc_ring)[cpmac.bug2.c:772]-3-w(desc_ring)[cpmac.bug2.c:772], 2-r(desc_ring)[cpmac.bug2.c:1235]-2-w(desc_ring)[cpmac.bug2.c:1247])
+l28 (3-w(desc_ring)[cpmac.bug2.c:772](3)-3-w(desc_ring)[cpmac.bug2.c:773](3), 2-r(desc_ring)[cpmac.bug2.c:1235]-2-w(desc_ring)[cpmac.bug2.c:1247]) /\ 
+l29 (3-w(ioval)[cpmac.bug2.c:341](3)-3-r(desc_ring)[cpmac.bug2.c:760](3), 2-w(ioval)[cpmac.bug2.c:86]-2-w(desc_ring)[cpmac.bug2.c:1247])
+3-w(desc_ring)[cpmac.bug2.c:772]
+3-w(desc_ring)[cpmac.bug2.c:773]
+-------------------
+2-r(desc_ring)[cpmac.bug2.c:1235]
+2-w(rx_head)[cpmac.bug2.c:1235]
+2-r(rx_head)[cpmac.bug2.c:1237]
+2-r(rx_head)[cpmac.bug2.c:1238]
+2-w(rx_head)[cpmac.bug2.c:1241]
+2-w(desc_ring)[cpmac.bug2.c:1247]
+-------------------
+ /\ 
 3-w(ioval)[cpmac.bug2.c:341]
 3-r(desc_ring)[cpmac.bug2.c:760]
 -------------------
@@ -1525,112 +1379,1713 @@ l60 (3-w(desc_ring)[cpmac.bug2.c:772]-3-w(desc_ring)[cpmac.bug2.c:772], 2-r(desc
 2-r(desc_ring)[cpmac.bug2.c:1235]
 2-w(rx_head)[cpmac.bug2.c:1235]
 2-r(rx_head)[cpmac.bug2.c:1237]
-2-w(desc_ring)[cpmac.bug2.c:1247]
--------------------
- /\ 
-3-w(desc_ring)[cpmac.bug2.c:772]
--------------------
-2-r(desc_ring)[cpmac.bug2.c:1235]
-2-w(rx_head)[cpmac.bug2.c:1235]
-2-r(rx_head)[cpmac.bug2.c:1237]
+2-r(rx_head)[cpmac.bug2.c:1238]
+2-w(rx_head)[cpmac.bug2.c:1241]
 2-w(desc_ring)[cpmac.bug2.c:1247]
 -------------------
 
 
-<<<<<<< Updated upstream
-TIME - Iteration 4: 3.275s
-=======
-TIME - Iteration 4: 3.329s
->>>>>>> Stashed changes
+TIME - Iteration 2: 22.614s
 
-5988 rounds; seen states: 6741; transitions: 31723
-Found candidate ... Checking if truely a counter-example(size=231)
-179 rounds; seen states: 179; transitions: 178
+67504 rounds; seen states: 58380; transitions: 390644
+Found candidate ... Checking if truely a counter-example(size=564)
+223 rounds; seen states: 223; transitions: 222
 Candidate is not a counter-example
 Increasing the bound to 2
-5408 rounds; seen states: 8005; transitions: 27814
-Found candidate ... Checking if truely a counter-example(size=231)
-179 rounds; seen states: 179; transitions: 178
+67307 rounds; seen states: 61193; transitions: 368442
+Found candidate ... Checking if truely a counter-example(size=570)
+224 rounds; seen states: 224; transitions: 223
 Candidate is not a counter-example
 Increasing the bound to 3
-4441 rounds; seen states: 8006; transitions: 23074
-Found candidate ... Checking if truely a counter-example(size=231)
-179 rounds; seen states: 179; transitions: 178
+70677 rounds; seen states: 64963; transitions: 388108
+Found candidate ... Checking if truely a counter-example(size=576)
+225 rounds; seen states: 225; transitions: 224
 Candidate is not a counter-example
 Increasing the bound to 4
-4395 rounds; seen states: 8006; transitions: 22821
-Found candidate ... Checking if truely a counter-example(size=231)
-179 rounds; seen states: 179; transitions: 178
+82718 rounds; seen states: 67441; transitions: 452705
+Found candidate ... Checking if truely a counter-example(size=528)
+208 rounds; seen states: 208; transitions: 207
 Candidate is not a counter-example
 Increasing the bound to 5
-4458 rounds; seen states: 8007; transitions: 23080
-Found candidate ... Checking if truely a counter-example(size=231)
-179 rounds; seen states: 179; transitions: 178
+93201 rounds; seen states: 69562; transitions: 509715
+Found candidate ... Checking if truely a counter-example(size=534)
+209 rounds; seen states: 209; transitions: 208
 Candidate is not a counter-example
 Increasing the bound to 6
-4504 rounds; seen states: 8014; transitions: 23296
-Found candidate ... Checking if truely a counter-example(size=231)
-179 rounds; seen states: 179; transitions: 178
+96034 rounds; seen states: 72394; transitions: 525606
+Found candidate ... Checking if truely a counter-example(size=486)
+192 rounds; seen states: 192; transitions: 191
 Candidate is not a counter-example
 Increasing the bound to 7
-4509 rounds; seen states: 8014; transitions: 23248
-Found candidate ... Checking if truely a counter-example(size=231)
-179 rounds; seen states: 179; transitions: 178
+109939 rounds; seen states: 72971; transitions: 601918
+Found candidate ... Checking if truely a counter-example(size=480)
+191 rounds; seen states: 191; transitions: 190
 Candidate is not a counter-example
 Increasing the bound to 8
-4506 rounds; seen states: 8014; transitions: 23233
-Found candidate ... Checking if truely a counter-example(size=231)
-179 rounds; seen states: 179; transitions: 178
+123557 rounds; seen states: 75804; transitions: 676544
+Found candidate ... Checking if truely a counter-example(size=480)
+191 rounds; seen states: 191; transitions: 190
 Candidate is not a counter-example
 Increasing the bound to 9
-97020 rounds; seen states: 59904; transitions: 519689
-Found candidate ... Checking if truely a counter-example(size=231)
-179 rounds; seen states: 179; transitions: 178
+164395 rounds; seen states: 108503; transitions: 885893
+Found candidate ... Checking if truely a counter-example(size=477)
+191 rounds; seen states: 191; transitions: 190
 Candidate is not a counter-example
 Increasing the bound to 10
-920637 rounds; seen states: 339592; transitions: 5517505
+253866 rounds; seen states: 129995; transitions: 1408182
+Found candidate ... Checking if truely a counter-example(size=660)
+249 rounds; seen states: 249; transitions: 248
+Not Included; bound
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+3-lo(irq_running_lock)[cpmac.bug2.c:1526]
+2-lo(rtnl)[cpmac.bug2.c:1496]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+0-w(ioval)[types.h:189]
+0-r(ioval)[types.h:190]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+0-w(cpmac_mii)[cpmac.bug2.c:1396]
+0-r(cpmac_mii)[cpmac.bug2.c:1397]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+0-w(ioval)[cpmac.bug2.c:94]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+0-w(ioval)[cpmac.bug2.c:94]
+0-w(ioval)[cpmac.bug2.c:98]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+0-w(ioval)[cpmac.bug2.c:98]
+0-w(ioval)[cpmac.bug2.c:98]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+0-w(ioval)[cpmac.bug2.c:98]
+0-w(regs)[cpmac.bug2.c:340]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+0-w(ioval)[cpmac.bug2.c:341]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+0-w(cpmac_mii_phy_mask)[cpmac.bug2.c:1425]
+0-no(cond_platform_driver_registered)[cpmac.bug2.c:60]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+1-wa(cond_platform_driver_registered)[cpmac.bug2.c:1480]
+1-r(external_switch)[cpmac.bug2.c:1279]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+0-wa(cond_platform_driver_registered)[cpmac.bug2.c:1437]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+1-r(dumb_switch)[cpmac.bug2.c:1279]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+1-r(pdata)[cpmac.bug2.c:1284]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+1-r(cpmac_mii)[cpmac.bug2.c:1286]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+1-r(cpmac_mii)[cpmac.bug2.c:1288]
+0-wa(cond_platform_driver_registered)[cpmac.bug2.c:1470]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+1-w(ioval)[cpmac.bug2.c:72]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+1-r(ioval)[cpmac.bug2.c:73]
+1-w(netdev)[cpmac.bug2.c:1314]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+1-w(ring_size)[cpmac.bug2.c:1324]
+1-r(pdata)[cpmac.bug2.c:1326]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+1-r(pdata)[cpmac.bug2.c:1326]
+1-w(pdata)[cpmac.bug2.c:1326]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+1-r(netdev)[cpmac.bug2.c:1326]
+1-no(netdev_registered)[eth.h:391]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+2-wa(netdev_registered)[cpmac.bug2.c:1498]
+2-no(netdev_running)[cpmac.bug2.c:1499]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+2-r(netdev)[cpmac.bug2.c:1120]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+2-w(ioval)[types.h:189]
+2-r(ioval)[types.h:190]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+2-w(regs)[cpmac.bug2.c:1128]
+2-r(regs)[cpmac.bug2.c:1129]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+2-r(ring_size)[cpmac.bug2.c:1137]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+2-w(dma_ring)[cpmac.bug2.c:1139]
+2-w(desc_ring)[cpmac.bug2.c:1138]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+2-r(desc_ring)[cpmac.bug2.c:1141]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+2-r(dma_ring)[cpmac.bug2.c:1147]
+2-w(desc_ring)[cpmac.bug2.c:1147]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+2-r(desc_ring)[cpmac.bug2.c:1149]
+2-w(rx_head)[cpmac.bug2.c:1149]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+2-w(rx_head)[cpmac.bug2.c:1156]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+2-w(rx_head)[cpmac.bug2.c:1157]
+2-r(rx_head)[cpmac.bug2.c:1160]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+2-w(rx_head)[cpmac.bug2.c:1160]
+2-w(rx_head)[cpmac.bug2.c:1161]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+2-w(rx_head)[cpmac.bug2.c:1162]
+2-r(rx_head)[cpmac.bug2.c:1163]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+2-r(ring_size)[cpmac.bug2.c:1163]
+2-w(rx_head)[cpmac.bug2.c:1163]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+2-r(rx_head)[cpmac.bug2.c:1164]
+2-w(rx_head)[cpmac.bug2.c:1164]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+2-r(rx_head)[cpmac.bug2.c:1165]
+2-w(rx_head)[cpmac.bug2.c:1165]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+2-w(rx_head)[cpmac.bug2.c:1168]
+2-no(cond_irq_enabled)[cpmac.bug2.c:34]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+2-r(pdata)[cpmac.bug2.c:813]
+2-w(ioval)[cpmac.bug2.c:98]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+2-w(regs)[cpmac.bug2.c:340]
+2-w(ioval)[cpmac.bug2.c:341]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+2-w(cpmac_rx_ptr)[cpmac.bug2.c:358]
+2-r(rx_head)[cpmac.bug2.c:818]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+2-w(cpmac_rx_ptr)[cpmac.bug2.c:358]
+2-w(regs)[cpmac.bug2.c:340]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+2-w(ioval)[cpmac.bug2.c:341]
+2-w(regs)[cpmac.bug2.c:340]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+2-w(ioval)[cpmac.bug2.c:341]
+2-r(netdev)[cpmac.bug2.c:824]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+2-w(regs)[cpmac.bug2.c:340]
+2-w(ioval)[cpmac.bug2.c:341]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+2-r(netdev)[cpmac.bug2.c:825]
+2-w(regs)[cpmac.bug2.c:340]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+2-w(ioval)[cpmac.bug2.c:341]
+2-r(netdev)[cpmac.bug2.c:826]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+2-r(netdev)[cpmac.bug2.c:827]
+2-r(netdev)[cpmac.bug2.c:827]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+2-r(netdev)[cpmac.bug2.c:828]
+2-w(regs)[cpmac.bug2.c:340]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+2-w(ioval)[cpmac.bug2.c:341]
+2-w(regs)[cpmac.bug2.c:340]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+2-w(ioval)[cpmac.bug2.c:341]
+2-w(regs)[cpmac.bug2.c:340]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+2-w(ioval)[cpmac.bug2.c:341]
+2-w(regs)[cpmac.bug2.c:340]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+2-w(ioval)[cpmac.bug2.c:341]
+2-w(regs)[cpmac.bug2.c:340]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+2-w(ioval)[cpmac.bug2.c:341]
+2-w(regs)[cpmac.bug2.c:340]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+2-w(ioval)[cpmac.bug2.c:341]
+2-w(regs)[cpmac.bug2.c:340]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+2-w(ioval)[cpmac.bug2.c:341]
+2-w(regs)[cpmac.bug2.c:340]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+2-w(ioval)[cpmac.bug2.c:341]
+2-w(regs)[cpmac.bug2.c:340]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+2-w(ioval)[cpmac.bug2.c:341]
+2-w(regs)[cpmac.bug2.c:340]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+2-w(ioval)[cpmac.bug2.c:341]
+2-r(ioval)[cpmac.bug2.c:345]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+2-r(regs)[cpmac.bug2.c:345]
+2-w(regs)[cpmac.bug2.c:340]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+2-w(ioval)[cpmac.bug2.c:341]
+2-r(ioval)[cpmac.bug2.c:345]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+2-r(regs)[cpmac.bug2.c:345]
+2-w(regs)[cpmac.bug2.c:340]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+2-w(ioval)[cpmac.bug2.c:341]
+2-r(ioval)[cpmac.bug2.c:345]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+2-r(regs)[cpmac.bug2.c:345]
+2-w(regs)[cpmac.bug2.c:340]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+2-w(ioval)[cpmac.bug2.c:341]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+2-no(send_enabled)[eth.h:441]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+2-un(rtnl)[cpmac.bug2.c:1502]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+2-yi[cpmac.bug2.c:1504]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+1-wa(netdev_registered)[cpmac.bug2.c:1483]
+4-rs(send_enabled)[eth.h:447]
+4-r(desc_ring)[cpmac.bug2.c:724]
+4-lo(cplock)[cpmac.bug2.c:731]
+4-un(cplock)[cpmac.bug2.c:732]
+4-w(desc_ring)[cpmac.bug2.c:733]
+4-w(desc_ring)[cpmac.bug2.c:734]
+4-w(desc_ring)[cpmac.bug2.c:735]
+4-r(desc_ring)[cpmac.bug2.c:737]
+4-w(desc_ring)[cpmac.bug2.c:737]
+4-w(desc_ring)[cpmac.bug2.c:738]
+4-w(desc_ring)[cpmac.bug2.c:739]
+4-no(cond_irq_can_happen)[cpmac.bug2.c:748]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+3-wa(cond_irq_can_happen)[cpmac.bug2.c:1527]
+3-wa(cond_irq_enabled)[cpmac.bug2.c:1528]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+3-r(cpmac_int_vector)[cpmac.bug2.c:351]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+3-r(desc_ring)[cpmac.bug2.c:759]
+3-w(regs)[cpmac.bug2.c:340]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+3-w(ioval)[cpmac.bug2.c:341]
+3-r(desc_ring)[cpmac.bug2.c:760]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+3-no(send_enabled)[eth.h:459]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+3-rs(cond_irq_can_happen)[cpmac.bug2.c:967]
+3-un(irq_running_lock)[cpmac.bug2.c:1530]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+3-yi[cpmac.bug2.c:1531]
+3-lo(irq_running_lock)[cpmac.bug2.c:1526]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+4-rs(send_enabled)[eth.h:447]
+4-r(desc_ring)[cpmac.bug2.c:724]
+4-lo(cplock)[cpmac.bug2.c:731]
+4-un(cplock)[cpmac.bug2.c:732]
+4-w(desc_ring)[cpmac.bug2.c:733]
+4-w(desc_ring)[cpmac.bug2.c:734]
+4-w(desc_ring)[cpmac.bug2.c:735]
+4-r(desc_ring)[cpmac.bug2.c:737]
+4-w(desc_ring)[cpmac.bug2.c:737]
+4-w(desc_ring)[cpmac.bug2.c:738]
+4-w(desc_ring)[cpmac.bug2.c:739]
+4-no(cond_irq_can_happen)[cpmac.bug2.c:748]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+3-wa(cond_irq_can_happen)[cpmac.bug2.c:1527]
+3-wa(cond_irq_enabled)[cpmac.bug2.c:1528]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+3-r(cpmac_int_vector)[cpmac.bug2.c:351]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+3-r(desc_ring)[cpmac.bug2.c:759]
+1-yi[cpmac.bug2.c:1484]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+1-lo(rtnl)[eth.h:408]
+3-w(regs)[cpmac.bug2.c:340]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+3-w(ioval)[cpmac.bug2.c:341]
+3-r(desc_ring)[cpmac.bug2.c:760]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+3-no(send_enabled)[eth.h:459]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+3-rs(cond_irq_can_happen)[cpmac.bug2.c:967]
+3-un(irq_running_lock)[cpmac.bug2.c:1530]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+4-rs(send_enabled)[eth.h:447]
+4-r(desc_ring)[cpmac.bug2.c:724]
+4-lo(cplock)[cpmac.bug2.c:731]
+4-un(cplock)[cpmac.bug2.c:732]
+4-w(desc_ring)[cpmac.bug2.c:733]
+4-w(desc_ring)[cpmac.bug2.c:734]
+4-w(desc_ring)[cpmac.bug2.c:735]
+4-r(desc_ring)[cpmac.bug2.c:737]
+4-w(desc_ring)[cpmac.bug2.c:737]
+4-w(desc_ring)[cpmac.bug2.c:738]
+4-w(desc_ring)[cpmac.bug2.c:739]
+4-no(cond_irq_can_happen)[cpmac.bug2.c:748]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+3-yi[cpmac.bug2.c:1531]
+3-lo(irq_running_lock)[cpmac.bug2.c:1526]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+3-wa(cond_irq_can_happen)[cpmac.bug2.c:1527]
+3-wa(cond_irq_enabled)[cpmac.bug2.c:1528]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+3-r(cpmac_int_vector)[cpmac.bug2.c:351]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+1-rs(netdev_registered)[eth.h:411]
+1-wa(netdev_running)[eth.h:413]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+3-r(desc_ring)[cpmac.bug2.c:759]
+3-w(regs)[cpmac.bug2.c:340]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+3-w(ioval)[cpmac.bug2.c:341]
+3-r(desc_ring)[cpmac.bug2.c:760]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+3-no(send_enabled)[eth.h:459]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+3-rs(cond_irq_can_happen)[cpmac.bug2.c:967]
+3-un(irq_running_lock)[cpmac.bug2.c:1530]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+3-yi[cpmac.bug2.c:1531]
+3-lo(irq_running_lock)[cpmac.bug2.c:1526]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+4-rs(send_enabled)[eth.h:447]
+4-r(desc_ring)[cpmac.bug2.c:724]
+4-lo(cplock)[cpmac.bug2.c:731]
+4-un(cplock)[cpmac.bug2.c:732]
+4-w(desc_ring)[cpmac.bug2.c:733]
+4-w(desc_ring)[cpmac.bug2.c:734]
+4-w(desc_ring)[cpmac.bug2.c:735]
+4-r(desc_ring)[cpmac.bug2.c:737]
+4-w(desc_ring)[cpmac.bug2.c:737]
+4-w(desc_ring)[cpmac.bug2.c:738]
+4-w(desc_ring)[cpmac.bug2.c:739]
+4-no(cond_irq_can_happen)[cpmac.bug2.c:748]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+3-wa(cond_irq_can_happen)[cpmac.bug2.c:1527]
+3-wa(cond_irq_enabled)[cpmac.bug2.c:1528]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+3-r(cpmac_int_vector)[cpmac.bug2.c:351]
+1-rs(netdev_running)[eth.h:414]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+1-rs(send_enabled)[eth.h:415]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+3-r(desc_ring)[cpmac.bug2.c:759]
+3-w(regs)[cpmac.bug2.c:340]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+3-w(ioval)[cpmac.bug2.c:341]
+3-r(desc_ring)[cpmac.bug2.c:760]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+3-lo(cplock)[cpmac.bug2.c:761]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+3-r(netdev)[cpmac.bug2.c:762]
+3-r(netdev)[cpmac.bug2.c:763]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+3-r(desc_ring)[cpmac.bug2.c:763]
+3-un(cplock)[cpmac.bug2.c:764]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+3-r(desc_ring)[cpmac.bug2.c:765]
+3-r(desc_ring)[cpmac.bug2.c:765]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+3-w(desc_ring)[cpmac.bug2.c:772]
+0-yi[cpmac.bug2.c:1471]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+1-wn(send_in_progress)[eth.h:416]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+1-rs(send_enabled)[eth.h:447]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+1-r(pdata)[cpmac.bug2.c:790]
+4-yi[cpmac.bug2.c:1550]
+1-w(ioval)[cpmac.bug2.c:98]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+1-r(ioval)[cpmac.bug2.c:345]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+1-r(regs)[cpmac.bug2.c:345]
+4-yi[cpmac.bug2.c:1550]
+1-w(regs)[cpmac.bug2.c:340]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+1-w(ioval)[cpmac.bug2.c:341]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+1-r(ioval)[cpmac.bug2.c:345]
+4-yi[cpmac.bug2.c:1550]
+1-r(regs)[cpmac.bug2.c:345]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+1-w(regs)[cpmac.bug2.c:340]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+1-w(ioval)[cpmac.bug2.c:341]
+4-yi[cpmac.bug2.c:1550]
+1-w(regs)[cpmac.bug2.c:340]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+1-w(ioval)[cpmac.bug2.c:341]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+1-w(cpmac_rx_ptr)[cpmac.bug2.c:358]
+4-yi[cpmac.bug2.c:1550]
+1-w(regs)[cpmac.bug2.c:340]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+1-w(ioval)[cpmac.bug2.c:341]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+1-w(regs)[cpmac.bug2.c:340]
+4-yi[cpmac.bug2.c:1550]
+1-w(ioval)[cpmac.bug2.c:341]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+1-w(regs)[cpmac.bug2.c:340]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+1-w(ioval)[cpmac.bug2.c:341]
+4-yi[cpmac.bug2.c:1550]
+1-w(regs)[cpmac.bug2.c:340]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+1-w(ioval)[cpmac.bug2.c:341]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+1-r(ioval)[cpmac.bug2.c:345]
+4-yi[cpmac.bug2.c:1550]
+1-r(regs)[cpmac.bug2.c:345]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+1-w(regs)[cpmac.bug2.c:340]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+1-w(ioval)[cpmac.bug2.c:341]
+4-yi[cpmac.bug2.c:1550]
+1-w(regs)[cpmac.bug2.c:340]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+1-w(ioval)[cpmac.bug2.c:341]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+1-w(cpmac_rx_ptr)[cpmac.bug2.c:358]
+4-yi[cpmac.bug2.c:1550]
+1-w(regs)[cpmac.bug2.c:340]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+1-w(ioval)[cpmac.bug2.c:341]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+1-w(regs)[cpmac.bug2.c:1232]
+4-yi[cpmac.bug2.c:1550]
+1-w(ioval)[cpmac.bug2.c:1232]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+1-w(ioval)[cpmac.bug2.c:86]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+1-r(desc_ring)[cpmac.bug2.c:1235]
+4-yi[cpmac.bug2.c:1550]
+3-w(desc_ring)[cpmac.bug2.c:773]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+3-no(send_enabled)[eth.h:459]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+3-rs(cond_irq_can_happen)[cpmac.bug2.c:967]
+4-yi[cpmac.bug2.c:1550]
+3-un(irq_running_lock)[cpmac.bug2.c:1530]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+3-yi[cpmac.bug2.c:1531]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+1-w(rx_head)[cpmac.bug2.c:1235]
+4-yi[cpmac.bug2.c:1550]
+1-r(rx_head)[cpmac.bug2.c:1237]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+1-w(desc_ring)[cpmac.bug2.c:1247]
+4-yi[cpmac.bug2.c:1550]
+1-w(dma_ring)[cpmac.bug2.c:1247]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+1-rs(cond_irq_enabled)[cpmac.bug2.c:38]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+1-lo(irq_running_lock)[cpmac.bug2.c:39]
+4-yi[cpmac.bug2.c:1550]
+1-un(irq_running_lock)[cpmac.bug2.c:40]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+1-un(rtnl)[eth.h:421]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+2-lo(rtnl)[cpmac.bug2.c:1506]
+4-yi[cpmac.bug2.c:1550]
+2-wn(netdev_running)[cpmac.bug2.c:1514]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+2-un(rtnl)[cpmac.bug2.c:1520]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+1-no(cond_platform_driver_not_in_use)[cpmac.bug2.c:1490]
+4-yi[cpmac.bug2.c:1550]
+0-wa(cond_platform_driver_not_in_use)[cpmac.bug2.c:1472]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+0-rs(cond_platform_driver_registered)[cpmac.bug2.c:68]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+0-w(cpmac_mii)[cpmac.bug2.c:1457]
+0-w(ioval)[cpmac.bug2.c:1457]
+Find all sequential traces
+Find concurrent traces that are not sequential
+All bad traces: 
+3-r(desc_ring)[cpmac.bug2.c:765](4) < 1-w(desc_ring)[cpmac.bug2.c:1247] /\ 1-w(desc_ring)[cpmac.bug2.c:1247] < 3-w(desc_ring)[cpmac.bug2.c:772](4) \/
+3-r(desc_ring)[cpmac.bug2.c:765](4) < 1-w(desc_ring)[cpmac.bug2.c:1247] /\ 1-w(desc_ring)[cpmac.bug2.c:1247] < 3-r(desc_ring)[cpmac.bug2.c:765](4) \/
+3-r(desc_ring)[cpmac.bug2.c:763](4) < 1-w(desc_ring)[cpmac.bug2.c:1247] /\ 1-w(desc_ring)[cpmac.bug2.c:1247] < 3-r(desc_ring)[cpmac.bug2.c:765](4) \/
+1-w(ioval)[cpmac.bug2.c:98] < 3-w(ioval)[cpmac.bug2.c:341](4) /\ 3-w(ioval)[cpmac.bug2.c:341](4) < 1-r(ioval)[cpmac.bug2.c:345] \/
+3-w(desc_ring)[cpmac.bug2.c:772](4) < 1-w(desc_ring)[cpmac.bug2.c:1247] /\ 1-w(desc_ring)[cpmac.bug2.c:1247] < 3-w(desc_ring)[cpmac.bug2.c:773](4) \/
+3-w(regs)[cpmac.bug2.c:340](4) < 1-r(regs)[cpmac.bug2.c:345] /\ 1-r(ioval)[cpmac.bug2.c:345] < 3-w(ioval)[cpmac.bug2.c:341](4) \/
+1-w(ioval)[cpmac.bug2.c:341] < 3-w(ioval)[cpmac.bug2.c:341](4) /\ 3-w(ioval)[cpmac.bug2.c:341](4) < 1-r(ioval)[cpmac.bug2.c:345] \/
+3-w(regs)[cpmac.bug2.c:340](4) < 1-r(regs)[cpmac.bug2.c:345] /\ 1-r(ioval)[cpmac.bug2.c:345] < 3-w(ioval)[cpmac.bug2.c:341](4) \/
+1-r(regs)[cpmac.bug2.c:345] < 3-w(regs)[cpmac.bug2.c:340](4) /\ 3-w(ioval)[cpmac.bug2.c:341](4) < 1-w(ioval)[cpmac.bug2.c:341] \/
+1-w(regs)[cpmac.bug2.c:340] < 3-w(regs)[cpmac.bug2.c:340](4) /\ 3-w(regs)[cpmac.bug2.c:340](4) < 1-w(regs)[cpmac.bug2.c:340] \/
+1-w(regs)[cpmac.bug2.c:340] < 3-w(regs)[cpmac.bug2.c:340](4) /\ 3-w(regs)[cpmac.bug2.c:340](4) < 1-w(regs)[cpmac.bug2.c:340] \/
+1-w(regs)[cpmac.bug2.c:340] < 3-w(regs)[cpmac.bug2.c:340](4) /\ 3-w(regs)[cpmac.bug2.c:340](4) < 1-w(regs)[cpmac.bug2.c:340] \/
+1-r(regs)[cpmac.bug2.c:345] < 3-w(regs)[cpmac.bug2.c:340](4) /\ 3-w(regs)[cpmac.bug2.c:340](4) < 1-w(regs)[cpmac.bug2.c:340] \/
+1-w(regs)[cpmac.bug2.c:340] < 3-w(regs)[cpmac.bug2.c:340](4) /\ 3-w(regs)[cpmac.bug2.c:340](4) < 1-w(regs)[cpmac.bug2.c:340] \/
+1-w(regs)[cpmac.bug2.c:340] < 3-w(regs)[cpmac.bug2.c:340](4) /\ 3-w(regs)[cpmac.bug2.c:340](4) < 1-w(regs)[cpmac.bug2.c:340] \/
+1-w(regs)[cpmac.bug2.c:340] < 3-w(regs)[cpmac.bug2.c:340](4) /\ 3-w(ioval)[cpmac.bug2.c:341](4) < 1-r(ioval)[cpmac.bug2.c:345] \/
+3-w(regs)[cpmac.bug2.c:340](4) < 1-r(regs)[cpmac.bug2.c:345] /\ 1-r(ioval)[cpmac.bug2.c:345] < 3-w(ioval)[cpmac.bug2.c:341](4) \/
+1-r(regs)[cpmac.bug2.c:345] < 3-w(regs)[cpmac.bug2.c:340](4) /\ 3-w(regs)[cpmac.bug2.c:340](4) < 1-w(regs)[cpmac.bug2.c:340] \/
+1-w(regs)[cpmac.bug2.c:340] < 3-w(regs)[cpmac.bug2.c:340](4) /\ 3-w(ioval)[cpmac.bug2.c:341](4) < 1-w(ioval)[cpmac.bug2.c:341] \/
+1-w(ioval)[cpmac.bug2.c:341] < 3-w(ioval)[cpmac.bug2.c:341](4) /\ 3-w(ioval)[cpmac.bug2.c:341](4) < 1-w(ioval)[cpmac.bug2.c:341] \/
+1-w(ioval)[cpmac.bug2.c:341] < 3-w(ioval)[cpmac.bug2.c:341](4) /\ 3-w(ioval)[cpmac.bug2.c:341](4) < 1-w(ioval)[cpmac.bug2.c:1232] \/
+1-w(ioval)[cpmac.bug2.c:86] < 3-w(ioval)[cpmac.bug2.c:341](4) /\ 3-r(desc_ring)[cpmac.bug2.c:760](4) < 1-w(desc_ring)[cpmac.bug2.c:1247] \/
+1-w(ioval)[cpmac.bug2.c:1232] < 3-w(ioval)[cpmac.bug2.c:341](4) /\ 3-w(ioval)[cpmac.bug2.c:341](4) < 1-w(ioval)[cpmac.bug2.c:86] \/
+3-r(desc_ring)[cpmac.bug2.c:759](4) < 1-w(desc_ring)[cpmac.bug2.c:1247] /\ 1-w(desc_ring)[cpmac.bug2.c:1247] < 3-r(desc_ring)[cpmac.bug2.c:760](4) \/
+1-w(desc_ring)[cpmac.bug2.c:1247] < 3-r(desc_ring)[cpmac.bug2.c:759](4) /\ 3-wa(cond_irq_enabled)[cpmac.bug2.c:1528](4) < 1-rs(cond_irq_enabled)[cpmac.bug2.c:38] \/
+1-r(desc_ring)[cpmac.bug2.c:1235] < 3-w(desc_ring)[cpmac.bug2.c:772](4) /\ 3-w(desc_ring)[cpmac.bug2.c:773](4) < 1-w(desc_ring)[cpmac.bug2.c:1247] \/
+(*) 3-w(desc_ring)[cpmac.bug2.c:772](4) < 1-r(desc_ring)[cpmac.bug2.c:1235] /\ 1-r(desc_ring)[cpmac.bug2.c:1235] < 3-w(desc_ring)[cpmac.bug2.c:773](4)
+Found constraints to eliminate bad traces
+Locks inferred: 
+l30 (3-r(desc_ring)[cpmac.bug2.c:765](4)-3-w(desc_ring)[cpmac.bug2.c:772](4), 1-w(desc_ring)[cpmac.bug2.c:1247]-1-w(desc_ring)[cpmac.bug2.c:1247]) /\ 
+l31 (3-r(desc_ring)[cpmac.bug2.c:765](4)-3-r(desc_ring)[cpmac.bug2.c:765](4), 1-w(desc_ring)[cpmac.bug2.c:1247]-1-w(desc_ring)[cpmac.bug2.c:1247]) /\ 
+l32 (3-r(desc_ring)[cpmac.bug2.c:763](4)-3-r(desc_ring)[cpmac.bug2.c:765](4), 1-w(desc_ring)[cpmac.bug2.c:1247]-1-w(desc_ring)[cpmac.bug2.c:1247]) /\ 
+l33 (3-w(ioval)[cpmac.bug2.c:341](4)-3-w(ioval)[cpmac.bug2.c:341](4), 1-w(ioval)[cpmac.bug2.c:98]-1-r(ioval)[cpmac.bug2.c:345]) /\ 
+l34 (3-w(desc_ring)[cpmac.bug2.c:772](4)-3-w(desc_ring)[cpmac.bug2.c:773](4), 1-w(desc_ring)[cpmac.bug2.c:1247]-1-w(desc_ring)[cpmac.bug2.c:1247]) /\ 
+l35 (3-w(regs)[cpmac.bug2.c:340](4)-3-w(ioval)[cpmac.bug2.c:341](4), 1-r(ioval)[cpmac.bug2.c:345]-1-r(regs)[cpmac.bug2.c:345]) /\ 
+l36 (3-w(ioval)[cpmac.bug2.c:341](4)-3-w(ioval)[cpmac.bug2.c:341](4), 1-w(ioval)[cpmac.bug2.c:341]-1-r(ioval)[cpmac.bug2.c:345]) /\ 
+l37 (3-w(regs)[cpmac.bug2.c:340](4)-3-w(ioval)[cpmac.bug2.c:341](4), 1-r(ioval)[cpmac.bug2.c:345]-1-r(regs)[cpmac.bug2.c:345]) /\ 
+l38 (3-w(regs)[cpmac.bug2.c:340](4)-3-w(ioval)[cpmac.bug2.c:341](4), 1-r(regs)[cpmac.bug2.c:345]-1-w(ioval)[cpmac.bug2.c:341]) /\ 
+l39 (3-w(regs)[cpmac.bug2.c:340](4)-3-w(regs)[cpmac.bug2.c:340](4), 1-w(regs)[cpmac.bug2.c:340]-1-w(regs)[cpmac.bug2.c:340]) /\ 
+l40 (3-w(regs)[cpmac.bug2.c:340](4)-3-w(regs)[cpmac.bug2.c:340](4), 1-w(regs)[cpmac.bug2.c:340]-1-w(regs)[cpmac.bug2.c:340]) /\ 
+l41 (3-w(regs)[cpmac.bug2.c:340](4)-3-w(regs)[cpmac.bug2.c:340](4), 1-w(regs)[cpmac.bug2.c:340]-1-w(regs)[cpmac.bug2.c:340]) /\ 
+l42 (3-w(regs)[cpmac.bug2.c:340](4)-3-w(regs)[cpmac.bug2.c:340](4), 1-r(regs)[cpmac.bug2.c:345]-1-w(regs)[cpmac.bug2.c:340]) /\ 
+l43 (3-w(regs)[cpmac.bug2.c:340](4)-3-w(regs)[cpmac.bug2.c:340](4), 1-w(regs)[cpmac.bug2.c:340]-1-w(regs)[cpmac.bug2.c:340]) /\ 
+l44 (3-w(regs)[cpmac.bug2.c:340](4)-3-w(regs)[cpmac.bug2.c:340](4), 1-w(regs)[cpmac.bug2.c:340]-1-w(regs)[cpmac.bug2.c:340]) /\ 
+l45 (3-w(regs)[cpmac.bug2.c:340](4)-3-w(ioval)[cpmac.bug2.c:341](4), 1-w(regs)[cpmac.bug2.c:340]-1-r(ioval)[cpmac.bug2.c:345]) /\ 
+l46 (3-w(regs)[cpmac.bug2.c:340](4)-3-w(ioval)[cpmac.bug2.c:341](4), 1-r(ioval)[cpmac.bug2.c:345]-1-r(regs)[cpmac.bug2.c:345]) /\ 
+l47 (3-w(regs)[cpmac.bug2.c:340](4)-3-w(regs)[cpmac.bug2.c:340](4), 1-r(regs)[cpmac.bug2.c:345]-1-w(regs)[cpmac.bug2.c:340]) /\ 
+l48 (3-w(regs)[cpmac.bug2.c:340](4)-3-w(ioval)[cpmac.bug2.c:341](4), 1-w(regs)[cpmac.bug2.c:340]-1-w(ioval)[cpmac.bug2.c:341]) /\ 
+l49 (3-w(ioval)[cpmac.bug2.c:341](4)-3-w(ioval)[cpmac.bug2.c:341](4), 1-w(ioval)[cpmac.bug2.c:341]-1-w(ioval)[cpmac.bug2.c:341]) /\ 
+l50 (3-w(ioval)[cpmac.bug2.c:341](4)-3-w(ioval)[cpmac.bug2.c:341](4), 1-w(ioval)[cpmac.bug2.c:341]-1-w(ioval)[cpmac.bug2.c:1232]) /\ 
+l51 (3-w(ioval)[cpmac.bug2.c:341](4)-3-r(desc_ring)[cpmac.bug2.c:760](4), 1-w(ioval)[cpmac.bug2.c:86]-1-w(desc_ring)[cpmac.bug2.c:1247]) /\ 
+l52 (3-w(ioval)[cpmac.bug2.c:341](4)-3-w(ioval)[cpmac.bug2.c:341](4), 1-w(ioval)[cpmac.bug2.c:1232]-1-w(ioval)[cpmac.bug2.c:86]) /\ 
+l53 (3-r(desc_ring)[cpmac.bug2.c:759](4)-3-r(desc_ring)[cpmac.bug2.c:760](4), 1-w(desc_ring)[cpmac.bug2.c:1247]-1-w(desc_ring)[cpmac.bug2.c:1247]) /\ 
+l54 (3-wa(cond_irq_enabled)[cpmac.bug2.c:1528](4)-3-r(desc_ring)[cpmac.bug2.c:759](4), 1-w(desc_ring)[cpmac.bug2.c:1247]-1-rs(cond_irq_enabled)[cpmac.bug2.c:38]) /\ 
+l55 (3-w(desc_ring)[cpmac.bug2.c:772](4)-3-w(desc_ring)[cpmac.bug2.c:773](4), 1-r(desc_ring)[cpmac.bug2.c:1235]-1-w(desc_ring)[cpmac.bug2.c:1247]) /\ 
+l56 (3-w(desc_ring)[cpmac.bug2.c:772](4)-3-w(desc_ring)[cpmac.bug2.c:773](4), 1-r(desc_ring)[cpmac.bug2.c:1235]-1-r(desc_ring)[cpmac.bug2.c:1235])
+3-r(desc_ring)[cpmac.bug2.c:765]
+3-w(desc_ring)[cpmac.bug2.c:772]
+-------------------
+1-w(desc_ring)[cpmac.bug2.c:1247]
+-------------------
+ /\ 
+3-r(desc_ring)[cpmac.bug2.c:765]
+3-r(desc_ring)[cpmac.bug2.c:765]
+-------------------
+1-w(desc_ring)[cpmac.bug2.c:1247]
+-------------------
+ /\ 
+3-r(desc_ring)[cpmac.bug2.c:763]
+3-un(cplock)[cpmac.bug2.c:764]
+3-r(desc_ring)[cpmac.bug2.c:765]
+-------------------
+1-w(desc_ring)[cpmac.bug2.c:1247]
+-------------------
+ /\ 
+3-w(ioval)[cpmac.bug2.c:341]
+-------------------
+1-w(ioval)[cpmac.bug2.c:98]
+1-r(ioval)[cpmac.bug2.c:345]
+-------------------
+ /\ 
+3-w(regs)[cpmac.bug2.c:340]
+3-w(ioval)[cpmac.bug2.c:341]
+-------------------
+1-r(ioval)[cpmac.bug2.c:345]
+1-r(regs)[cpmac.bug2.c:345]
+-------------------
+ /\ 
+3-w(ioval)[cpmac.bug2.c:341]
+-------------------
+1-w(ioval)[cpmac.bug2.c:341]
+1-r(ioval)[cpmac.bug2.c:345]
+-------------------
+ /\ 
+3-w(regs)[cpmac.bug2.c:340]
+3-w(ioval)[cpmac.bug2.c:341]
+-------------------
+1-r(ioval)[cpmac.bug2.c:345]
+1-r(regs)[cpmac.bug2.c:345]
+-------------------
+ /\ 
+3-w(regs)[cpmac.bug2.c:340]
+3-w(ioval)[cpmac.bug2.c:341]
+-------------------
+1-r(regs)[cpmac.bug2.c:345]
+1-w(regs)[cpmac.bug2.c:340]
+1-w(ioval)[cpmac.bug2.c:341]
+-------------------
+ /\ 
+3-w(regs)[cpmac.bug2.c:340]
+-------------------
+1-w(regs)[cpmac.bug2.c:340]
+1-w(ioval)[cpmac.bug2.c:341]
+1-w(regs)[cpmac.bug2.c:340]
+-------------------
+ /\ 
+3-w(regs)[cpmac.bug2.c:340]
+-------------------
+1-w(regs)[cpmac.bug2.c:340]
+1-w(ioval)[cpmac.bug2.c:341]
+1-w(cpmac_rx_ptr)[cpmac.bug2.c:358]
+1-w(regs)[cpmac.bug2.c:340]
+-------------------
+ /\ 
+3-w(regs)[cpmac.bug2.c:340]
+-------------------
+1-w(regs)[cpmac.bug2.c:340]
+1-w(ioval)[cpmac.bug2.c:341]
+1-w(regs)[cpmac.bug2.c:340]
+-------------------
+ /\ 
+3-w(regs)[cpmac.bug2.c:340]
+-------------------
+1-r(regs)[cpmac.bug2.c:345]
+1-w(regs)[cpmac.bug2.c:340]
+-------------------
+ /\ 
+3-w(regs)[cpmac.bug2.c:340]
+-------------------
+1-w(regs)[cpmac.bug2.c:340]
+1-w(ioval)[cpmac.bug2.c:341]
+1-w(regs)[cpmac.bug2.c:340]
+-------------------
+ /\ 
+3-w(regs)[cpmac.bug2.c:340]
+-------------------
+1-w(regs)[cpmac.bug2.c:340]
+1-w(ioval)[cpmac.bug2.c:341]
+1-w(regs)[cpmac.bug2.c:340]
+-------------------
+ /\ 
+3-w(regs)[cpmac.bug2.c:340]
+3-w(ioval)[cpmac.bug2.c:341]
+-------------------
+1-w(regs)[cpmac.bug2.c:340]
+1-w(ioval)[cpmac.bug2.c:341]
+1-r(ioval)[cpmac.bug2.c:345]
+-------------------
+ /\ 
+3-w(regs)[cpmac.bug2.c:340]
+3-w(ioval)[cpmac.bug2.c:341]
+-------------------
+1-r(ioval)[cpmac.bug2.c:345]
+1-r(regs)[cpmac.bug2.c:345]
+-------------------
+ /\ 
+3-w(regs)[cpmac.bug2.c:340]
+-------------------
+1-r(regs)[cpmac.bug2.c:345]
+1-w(regs)[cpmac.bug2.c:340]
+-------------------
+ /\ 
+3-w(regs)[cpmac.bug2.c:340]
+3-w(ioval)[cpmac.bug2.c:341]
+-------------------
+1-w(regs)[cpmac.bug2.c:340]
+1-w(ioval)[cpmac.bug2.c:341]
+1-w(regs)[cpmac.bug2.c:340]
+1-w(ioval)[cpmac.bug2.c:341]
+-------------------
+ /\ 
+3-w(ioval)[cpmac.bug2.c:341]
+-------------------
+1-w(ioval)[cpmac.bug2.c:341]
+1-w(cpmac_rx_ptr)[cpmac.bug2.c:358]
+1-w(regs)[cpmac.bug2.c:340]
+1-w(ioval)[cpmac.bug2.c:341]
+-------------------
+ /\ 
+3-w(ioval)[cpmac.bug2.c:341]
+-------------------
+1-w(ioval)[cpmac.bug2.c:341]
+1-w(regs)[cpmac.bug2.c:1232]
+1-w(ioval)[cpmac.bug2.c:1232]
+-------------------
+ /\ 
+3-w(ioval)[cpmac.bug2.c:341]
+3-r(desc_ring)[cpmac.bug2.c:760]
+-------------------
+1-w(ioval)[cpmac.bug2.c:86]
+1-r(desc_ring)[cpmac.bug2.c:1235]
+1-w(rx_head)[cpmac.bug2.c:1235]
+1-r(rx_head)[cpmac.bug2.c:1237]
+1-w(desc_ring)[cpmac.bug2.c:1247]
+-------------------
+ /\ 
+3-w(ioval)[cpmac.bug2.c:341]
+-------------------
+1-w(ioval)[cpmac.bug2.c:1232]
+1-w(ioval)[cpmac.bug2.c:86]
+-------------------
+ /\ 
+3-r(desc_ring)[cpmac.bug2.c:759]
+3-w(regs)[cpmac.bug2.c:340]
+3-w(ioval)[cpmac.bug2.c:341]
+3-r(desc_ring)[cpmac.bug2.c:760]
+-------------------
+1-w(desc_ring)[cpmac.bug2.c:1247]
+-------------------
+ /\ 
+3-wa(cond_irq_enabled)[cpmac.bug2.c:1528]
+3-r(cpmac_int_vector)[cpmac.bug2.c:351]
+3-r(desc_ring)[cpmac.bug2.c:759]
+-------------------
+1-w(desc_ring)[cpmac.bug2.c:1247]
+1-w(dma_ring)[cpmac.bug2.c:1247]
+1-rs(cond_irq_enabled)[cpmac.bug2.c:38]
+-------------------
+ /\ 
+3-w(desc_ring)[cpmac.bug2.c:772]
+3-w(desc_ring)[cpmac.bug2.c:773]
+-------------------
+1-r(desc_ring)[cpmac.bug2.c:1235]
+1-w(rx_head)[cpmac.bug2.c:1235]
+1-r(rx_head)[cpmac.bug2.c:1237]
+1-w(desc_ring)[cpmac.bug2.c:1247]
+-------------------
+
+
+TIME - Iteration 3: 305.131s
+
+67684 rounds; seen states: 58542; transitions: 391646
+Found candidate ... Checking if truely a counter-example(size=564)
+223 rounds; seen states: 223; transitions: 222
+Candidate is not a counter-example
+Increasing the bound to 2
+67487 rounds; seen states: 61355; transitions: 369390
+Found candidate ... Checking if truely a counter-example(size=570)
+224 rounds; seen states: 224; transitions: 223
+Candidate is not a counter-example
+Increasing the bound to 3
+70743 rounds; seen states: 65125; transitions: 388460
+Found candidate ... Checking if truely a counter-example(size=576)
+225 rounds; seen states: 225; transitions: 224
+Candidate is not a counter-example
+Increasing the bound to 4
+82718 rounds; seen states: 67603; transitions: 452705
+Found candidate ... Checking if truely a counter-example(size=528)
+208 rounds; seen states: 208; transitions: 207
+Candidate is not a counter-example
+Increasing the bound to 5
+93201 rounds; seen states: 69724; transitions: 509715
+Found candidate ... Checking if truely a counter-example(size=534)
+209 rounds; seen states: 209; transitions: 208
+Candidate is not a counter-example
+Increasing the bound to 6
+96034 rounds; seen states: 72556; transitions: 525606
+Found candidate ... Checking if truely a counter-example(size=486)
+192 rounds; seen states: 192; transitions: 191
+Candidate is not a counter-example
+Increasing the bound to 7
+109939 rounds; seen states: 73133; transitions: 601918
+Found candidate ... Checking if truely a counter-example(size=480)
+191 rounds; seen states: 191; transitions: 190
+Candidate is not a counter-example
+Increasing the bound to 8
+123557 rounds; seen states: 75966; transitions: 676544
+Found candidate ... Checking if truely a counter-example(size=480)
+191 rounds; seen states: 191; transitions: 190
+Candidate is not a counter-example
+Increasing the bound to 9
+164395 rounds; seen states: 108665; transitions: 885893
+Found candidate ... Checking if truely a counter-example(size=477)
+191 rounds; seen states: 191; transitions: 190
+Candidate is not a counter-example
+Increasing the bound to 10
+257890 rounds; seen states: 130779; transitions: 1429102
+Found candidate ... Checking if truely a counter-example(size=665)
+251 rounds; seen states: 251; transitions: 250
+Not Included; bound
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+3-lo(irq_running_lock)[cpmac.bug2.c:1526]
+2-lo(rtnl)[cpmac.bug2.c:1496]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+0-w(ioval)[types.h:189]
+0-r(ioval)[types.h:190]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+0-w(cpmac_mii)[cpmac.bug2.c:1396]
+0-r(cpmac_mii)[cpmac.bug2.c:1397]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+0-w(ioval)[cpmac.bug2.c:94]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+0-w(ioval)[cpmac.bug2.c:94]
+0-w(ioval)[cpmac.bug2.c:98]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+0-w(ioval)[cpmac.bug2.c:98]
+0-w(ioval)[cpmac.bug2.c:98]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+0-w(ioval)[cpmac.bug2.c:98]
+0-w(regs)[cpmac.bug2.c:340]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+0-w(ioval)[cpmac.bug2.c:341]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+0-w(cpmac_mii_phy_mask)[cpmac.bug2.c:1425]
+0-no(cond_platform_driver_registered)[cpmac.bug2.c:60]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+1-wa(cond_platform_driver_registered)[cpmac.bug2.c:1480]
+1-r(external_switch)[cpmac.bug2.c:1279]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+0-wa(cond_platform_driver_registered)[cpmac.bug2.c:1437]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+1-r(dumb_switch)[cpmac.bug2.c:1279]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+1-r(pdata)[cpmac.bug2.c:1284]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+1-r(cpmac_mii)[cpmac.bug2.c:1286]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+1-r(cpmac_mii)[cpmac.bug2.c:1288]
+0-wa(cond_platform_driver_registered)[cpmac.bug2.c:1470]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+1-w(ioval)[cpmac.bug2.c:72]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+1-r(ioval)[cpmac.bug2.c:73]
+1-w(netdev)[cpmac.bug2.c:1314]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+1-w(ring_size)[cpmac.bug2.c:1324]
+1-r(pdata)[cpmac.bug2.c:1326]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+1-r(pdata)[cpmac.bug2.c:1326]
+1-w(pdata)[cpmac.bug2.c:1326]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+1-r(netdev)[cpmac.bug2.c:1326]
+1-no(netdev_registered)[eth.h:391]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+2-wa(netdev_registered)[cpmac.bug2.c:1498]
+2-no(netdev_running)[cpmac.bug2.c:1499]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+2-r(netdev)[cpmac.bug2.c:1120]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+2-w(ioval)[types.h:189]
+2-r(ioval)[types.h:190]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+2-w(regs)[cpmac.bug2.c:1128]
+2-r(regs)[cpmac.bug2.c:1129]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+2-r(ring_size)[cpmac.bug2.c:1137]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+2-w(dma_ring)[cpmac.bug2.c:1139]
+2-w(desc_ring)[cpmac.bug2.c:1138]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+2-r(desc_ring)[cpmac.bug2.c:1141]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+2-r(dma_ring)[cpmac.bug2.c:1147]
+2-w(desc_ring)[cpmac.bug2.c:1147]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+2-r(desc_ring)[cpmac.bug2.c:1149]
+2-w(rx_head)[cpmac.bug2.c:1149]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+2-w(rx_head)[cpmac.bug2.c:1156]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+2-w(rx_head)[cpmac.bug2.c:1157]
+2-r(rx_head)[cpmac.bug2.c:1160]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+2-w(rx_head)[cpmac.bug2.c:1160]
+2-w(rx_head)[cpmac.bug2.c:1161]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+2-w(rx_head)[cpmac.bug2.c:1162]
+2-r(rx_head)[cpmac.bug2.c:1163]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+2-r(ring_size)[cpmac.bug2.c:1163]
+2-w(rx_head)[cpmac.bug2.c:1163]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+2-r(rx_head)[cpmac.bug2.c:1164]
+2-w(rx_head)[cpmac.bug2.c:1164]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+2-r(rx_head)[cpmac.bug2.c:1165]
+2-w(rx_head)[cpmac.bug2.c:1165]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+2-w(rx_head)[cpmac.bug2.c:1168]
+2-no(cond_irq_enabled)[cpmac.bug2.c:34]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+2-r(pdata)[cpmac.bug2.c:813]
+2-w(ioval)[cpmac.bug2.c:98]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+2-w(regs)[cpmac.bug2.c:340]
+2-w(ioval)[cpmac.bug2.c:341]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+2-w(cpmac_rx_ptr)[cpmac.bug2.c:358]
+2-r(rx_head)[cpmac.bug2.c:818]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+2-w(cpmac_rx_ptr)[cpmac.bug2.c:358]
+2-w(regs)[cpmac.bug2.c:340]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+2-w(ioval)[cpmac.bug2.c:341]
+2-w(regs)[cpmac.bug2.c:340]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+2-w(ioval)[cpmac.bug2.c:341]
+2-r(netdev)[cpmac.bug2.c:824]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+2-w(regs)[cpmac.bug2.c:340]
+2-w(ioval)[cpmac.bug2.c:341]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+2-r(netdev)[cpmac.bug2.c:825]
+2-w(regs)[cpmac.bug2.c:340]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+2-w(ioval)[cpmac.bug2.c:341]
+2-r(netdev)[cpmac.bug2.c:826]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+2-r(netdev)[cpmac.bug2.c:827]
+2-r(netdev)[cpmac.bug2.c:827]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+2-r(netdev)[cpmac.bug2.c:828]
+2-w(regs)[cpmac.bug2.c:340]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+2-w(ioval)[cpmac.bug2.c:341]
+2-w(regs)[cpmac.bug2.c:340]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+2-w(ioval)[cpmac.bug2.c:341]
+2-w(regs)[cpmac.bug2.c:340]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+2-w(ioval)[cpmac.bug2.c:341]
+2-w(regs)[cpmac.bug2.c:340]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+2-w(ioval)[cpmac.bug2.c:341]
+2-w(regs)[cpmac.bug2.c:340]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+2-w(ioval)[cpmac.bug2.c:341]
+2-w(regs)[cpmac.bug2.c:340]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+2-w(ioval)[cpmac.bug2.c:341]
+2-w(regs)[cpmac.bug2.c:340]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+2-w(ioval)[cpmac.bug2.c:341]
+2-w(regs)[cpmac.bug2.c:340]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+2-w(ioval)[cpmac.bug2.c:341]
+2-w(regs)[cpmac.bug2.c:340]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+2-w(ioval)[cpmac.bug2.c:341]
+2-w(regs)[cpmac.bug2.c:340]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+2-w(ioval)[cpmac.bug2.c:341]
+2-r(ioval)[cpmac.bug2.c:345]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+2-r(regs)[cpmac.bug2.c:345]
+2-w(regs)[cpmac.bug2.c:340]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+2-w(ioval)[cpmac.bug2.c:341]
+2-r(ioval)[cpmac.bug2.c:345]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+2-r(regs)[cpmac.bug2.c:345]
+2-w(regs)[cpmac.bug2.c:340]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+2-w(ioval)[cpmac.bug2.c:341]
+2-r(ioval)[cpmac.bug2.c:345]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+2-r(regs)[cpmac.bug2.c:345]
+2-w(regs)[cpmac.bug2.c:340]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+2-w(ioval)[cpmac.bug2.c:341]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+2-no(send_enabled)[eth.h:441]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+2-un(rtnl)[cpmac.bug2.c:1502]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+2-yi[cpmac.bug2.c:1504]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+1-wa(netdev_registered)[cpmac.bug2.c:1483]
+4-rs(send_enabled)[eth.h:447]
+4-r(desc_ring)[cpmac.bug2.c:724]
+4-lo(cplock)[cpmac.bug2.c:731]
+4-un(cplock)[cpmac.bug2.c:732]
+4-w(desc_ring)[cpmac.bug2.c:733]
+4-w(desc_ring)[cpmac.bug2.c:734]
+4-w(desc_ring)[cpmac.bug2.c:735]
+4-r(desc_ring)[cpmac.bug2.c:737]
+4-w(desc_ring)[cpmac.bug2.c:737]
+4-w(desc_ring)[cpmac.bug2.c:738]
+4-w(desc_ring)[cpmac.bug2.c:739]
+4-no(cond_irq_can_happen)[cpmac.bug2.c:748]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+3-wa(cond_irq_can_happen)[cpmac.bug2.c:1527]
+3-wa(cond_irq_enabled)[cpmac.bug2.c:1528]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+3-r(cpmac_int_vector)[cpmac.bug2.c:351]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+3-r(desc_ring)[cpmac.bug2.c:759]
+3-w(regs)[cpmac.bug2.c:340]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+3-w(ioval)[cpmac.bug2.c:341]
+3-r(desc_ring)[cpmac.bug2.c:760]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+3-no(send_enabled)[eth.h:459]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+3-rs(cond_irq_can_happen)[cpmac.bug2.c:967]
+3-un(irq_running_lock)[cpmac.bug2.c:1530]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+3-yi[cpmac.bug2.c:1531]
+3-lo(irq_running_lock)[cpmac.bug2.c:1526]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+4-rs(send_enabled)[eth.h:447]
+4-r(desc_ring)[cpmac.bug2.c:724]
+4-lo(cplock)[cpmac.bug2.c:731]
+4-un(cplock)[cpmac.bug2.c:732]
+4-w(desc_ring)[cpmac.bug2.c:733]
+4-w(desc_ring)[cpmac.bug2.c:734]
+4-w(desc_ring)[cpmac.bug2.c:735]
+4-r(desc_ring)[cpmac.bug2.c:737]
+4-w(desc_ring)[cpmac.bug2.c:737]
+4-w(desc_ring)[cpmac.bug2.c:738]
+4-w(desc_ring)[cpmac.bug2.c:739]
+4-no(cond_irq_can_happen)[cpmac.bug2.c:748]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+3-wa(cond_irq_can_happen)[cpmac.bug2.c:1527]
+3-wa(cond_irq_enabled)[cpmac.bug2.c:1528]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+3-r(cpmac_int_vector)[cpmac.bug2.c:351]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+3-r(desc_ring)[cpmac.bug2.c:759]
+1-yi[cpmac.bug2.c:1484]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+1-lo(rtnl)[eth.h:408]
+3-w(regs)[cpmac.bug2.c:340]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+3-w(ioval)[cpmac.bug2.c:341]
+3-r(desc_ring)[cpmac.bug2.c:760]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+3-no(send_enabled)[eth.h:459]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+3-rs(cond_irq_can_happen)[cpmac.bug2.c:967]
+3-un(irq_running_lock)[cpmac.bug2.c:1530]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+4-rs(send_enabled)[eth.h:447]
+4-r(desc_ring)[cpmac.bug2.c:724]
+4-lo(cplock)[cpmac.bug2.c:731]
+4-un(cplock)[cpmac.bug2.c:732]
+4-w(desc_ring)[cpmac.bug2.c:733]
+4-w(desc_ring)[cpmac.bug2.c:734]
+4-w(desc_ring)[cpmac.bug2.c:735]
+4-r(desc_ring)[cpmac.bug2.c:737]
+4-w(desc_ring)[cpmac.bug2.c:737]
+4-w(desc_ring)[cpmac.bug2.c:738]
+4-w(desc_ring)[cpmac.bug2.c:739]
+4-no(cond_irq_can_happen)[cpmac.bug2.c:748]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+3-yi[cpmac.bug2.c:1531]
+3-lo(irq_running_lock)[cpmac.bug2.c:1526]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+3-wa(cond_irq_can_happen)[cpmac.bug2.c:1527]
+3-wa(cond_irq_enabled)[cpmac.bug2.c:1528]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+3-r(cpmac_int_vector)[cpmac.bug2.c:351]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+1-rs(netdev_registered)[eth.h:411]
+1-wa(netdev_running)[eth.h:413]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+3-r(desc_ring)[cpmac.bug2.c:759]
+3-w(regs)[cpmac.bug2.c:340]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+3-w(ioval)[cpmac.bug2.c:341]
+3-r(desc_ring)[cpmac.bug2.c:760]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+3-no(send_enabled)[eth.h:459]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+3-rs(cond_irq_can_happen)[cpmac.bug2.c:967]
+3-un(irq_running_lock)[cpmac.bug2.c:1530]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+3-yi[cpmac.bug2.c:1531]
+3-lo(irq_running_lock)[cpmac.bug2.c:1526]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-wa(send_enabled)[cpmac.bug2.c:1553]
+4-wa(netdev_running)[cpmac.bug2.c:1554]
+4-rs(send_enabled)[eth.h:447]
+4-r(desc_ring)[cpmac.bug2.c:724]
+4-lo(cplock)[cpmac.bug2.c:731]
+4-un(cplock)[cpmac.bug2.c:732]
+4-w(desc_ring)[cpmac.bug2.c:733]
+4-w(desc_ring)[cpmac.bug2.c:734]
+4-w(desc_ring)[cpmac.bug2.c:735]
+4-r(desc_ring)[cpmac.bug2.c:737]
+4-w(desc_ring)[cpmac.bug2.c:737]
+4-w(desc_ring)[cpmac.bug2.c:738]
+4-w(desc_ring)[cpmac.bug2.c:739]
+4-no(cond_irq_can_happen)[cpmac.bug2.c:748]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+3-wa(cond_irq_can_happen)[cpmac.bug2.c:1527]
+3-wa(cond_irq_enabled)[cpmac.bug2.c:1528]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+3-r(cpmac_int_vector)[cpmac.bug2.c:351]
+1-rs(netdev_running)[eth.h:414]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+1-rs(send_enabled)[eth.h:415]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+3-r(desc_ring)[cpmac.bug2.c:759]
+3-w(regs)[cpmac.bug2.c:340]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+3-w(ioval)[cpmac.bug2.c:341]
+3-r(desc_ring)[cpmac.bug2.c:760]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+3-lo(cplock)[cpmac.bug2.c:761]
+4-yi[cpmac.bug2.c:1550]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+3-r(netdev)[cpmac.bug2.c:762]
+3-r(netdev)[cpmac.bug2.c:763]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+3-r(desc_ring)[cpmac.bug2.c:763]
+3-un(cplock)[cpmac.bug2.c:764]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+3-r(desc_ring)[cpmac.bug2.c:765]
+3-r(desc_ring)[cpmac.bug2.c:765]
+4-yi[cpmac.bug2.c:1550]
+1-wn(send_in_progress)[eth.h:416]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+1-rs(send_enabled)[eth.h:447]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+1-r(pdata)[cpmac.bug2.c:790]
+4-yi[cpmac.bug2.c:1550]
+1-w(ioval)[cpmac.bug2.c:98]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+1-r(ioval)[cpmac.bug2.c:345]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+1-r(regs)[cpmac.bug2.c:345]
+4-yi[cpmac.bug2.c:1550]
+1-w(regs)[cpmac.bug2.c:340]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+1-w(ioval)[cpmac.bug2.c:341]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+1-r(ioval)[cpmac.bug2.c:345]
+4-yi[cpmac.bug2.c:1550]
+1-r(regs)[cpmac.bug2.c:345]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+1-w(regs)[cpmac.bug2.c:340]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+1-w(ioval)[cpmac.bug2.c:341]
+4-yi[cpmac.bug2.c:1550]
+1-w(regs)[cpmac.bug2.c:340]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+1-w(ioval)[cpmac.bug2.c:341]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+1-w(cpmac_rx_ptr)[cpmac.bug2.c:358]
+4-yi[cpmac.bug2.c:1550]
+1-w(regs)[cpmac.bug2.c:340]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+1-w(ioval)[cpmac.bug2.c:341]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+1-w(regs)[cpmac.bug2.c:340]
+4-yi[cpmac.bug2.c:1550]
+1-w(ioval)[cpmac.bug2.c:341]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+1-w(regs)[cpmac.bug2.c:340]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+1-w(ioval)[cpmac.bug2.c:341]
+4-yi[cpmac.bug2.c:1550]
+1-w(regs)[cpmac.bug2.c:340]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+1-w(ioval)[cpmac.bug2.c:341]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+1-r(ioval)[cpmac.bug2.c:345]
+4-yi[cpmac.bug2.c:1550]
+1-r(regs)[cpmac.bug2.c:345]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+1-w(regs)[cpmac.bug2.c:340]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+1-w(ioval)[cpmac.bug2.c:341]
+4-yi[cpmac.bug2.c:1550]
+1-w(regs)[cpmac.bug2.c:340]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+1-w(ioval)[cpmac.bug2.c:341]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+1-w(cpmac_rx_ptr)[cpmac.bug2.c:358]
+4-yi[cpmac.bug2.c:1550]
+1-w(regs)[cpmac.bug2.c:340]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+1-w(ioval)[cpmac.bug2.c:341]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+1-w(regs)[cpmac.bug2.c:1232]
+4-yi[cpmac.bug2.c:1550]
+1-w(ioval)[cpmac.bug2.c:1232]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+1-w(ioval)[cpmac.bug2.c:86]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+1-r(desc_ring)[cpmac.bug2.c:1235]
+4-yi[cpmac.bug2.c:1550]
+1-w(rx_head)[cpmac.bug2.c:1235]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+1-r(rx_head)[cpmac.bug2.c:1237]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+3-w(desc_ring)[cpmac.bug2.c:772]
+4-yi[cpmac.bug2.c:1550]
+3-w(desc_ring)[cpmac.bug2.c:773]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+3-no(send_enabled)[eth.h:459]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+3-rs(cond_irq_can_happen)[cpmac.bug2.c:967]
+4-yi[cpmac.bug2.c:1550]
+3-un(irq_running_lock)[cpmac.bug2.c:1530]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+3-yi[cpmac.bug2.c:1531]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+4-yi[cpmac.bug2.c:1550]
+1-r(rx_head)[cpmac.bug2.c:1238]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+1-w(rx_head)[cpmac.bug2.c:1241]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+1-w(desc_ring)[cpmac.bug2.c:1247]
+4-yi[cpmac.bug2.c:1550]
+1-w(dma_ring)[cpmac.bug2.c:1247]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+1-rs(cond_irq_enabled)[cpmac.bug2.c:38]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+1-lo(irq_running_lock)[cpmac.bug2.c:39]
+4-yi[cpmac.bug2.c:1550]
+1-un(irq_running_lock)[cpmac.bug2.c:40]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+1-un(rtnl)[eth.h:421]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+2-lo(rtnl)[cpmac.bug2.c:1506]
+4-yi[cpmac.bug2.c:1550]
+2-wn(netdev_running)[cpmac.bug2.c:1514]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+2-un(rtnl)[cpmac.bug2.c:1520]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+1-no(cond_platform_driver_not_in_use)[cpmac.bug2.c:1490]
+4-yi[cpmac.bug2.c:1550]
+0-yi[cpmac.bug2.c:1471]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+0-wa(cond_platform_driver_not_in_use)[cpmac.bug2.c:1472]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+0-rs(cond_platform_driver_registered)[cpmac.bug2.c:68]
+4-yi[cpmac.bug2.c:1550]
+0-w(cpmac_mii)[cpmac.bug2.c:1457]
+4-no(send_in_progress)[cpmac.bug2.c:1551]
+0-w(ioval)[cpmac.bug2.c:1457]
+4-rs(send_in_progress)[cpmac.bug2.c:1557]
+Find all sequential traces
+Find concurrent traces that are not sequential
+All bad traces: 
+(*) 1-r(desc_ring)[cpmac.bug2.c:1235] < 3-w(desc_ring)[cpmac.bug2.c:772](4) /\ 3-w(desc_ring)[cpmac.bug2.c:773](4) < 1-w(desc_ring)[cpmac.bug2.c:1247] \/
+1-w(ioval)[cpmac.bug2.c:86] < 3-w(ioval)[cpmac.bug2.c:341](4) /\ 3-r(desc_ring)[cpmac.bug2.c:760](4) < 1-w(desc_ring)[cpmac.bug2.c:1247]
+Found constraints to eliminate bad traces
+Locks inferred: 
+l57 (3-w(desc_ring)[cpmac.bug2.c:772](4)-3-w(desc_ring)[cpmac.bug2.c:773](4), 1-r(desc_ring)[cpmac.bug2.c:1235]-1-w(desc_ring)[cpmac.bug2.c:1247]) /\ 
+l58 (3-w(ioval)[cpmac.bug2.c:341](4)-3-r(desc_ring)[cpmac.bug2.c:760](4), 1-w(ioval)[cpmac.bug2.c:86]-1-w(desc_ring)[cpmac.bug2.c:1247])
+3-w(desc_ring)[cpmac.bug2.c:772]
+3-w(desc_ring)[cpmac.bug2.c:773]
+-------------------
+1-r(desc_ring)[cpmac.bug2.c:1235]
+1-w(rx_head)[cpmac.bug2.c:1235]
+1-r(rx_head)[cpmac.bug2.c:1237]
+1-r(rx_head)[cpmac.bug2.c:1238]
+1-w(rx_head)[cpmac.bug2.c:1241]
+1-w(desc_ring)[cpmac.bug2.c:1247]
+-------------------
+ /\ 
+3-w(ioval)[cpmac.bug2.c:341]
+3-r(desc_ring)[cpmac.bug2.c:760]
+-------------------
+1-w(ioval)[cpmac.bug2.c:86]
+1-r(desc_ring)[cpmac.bug2.c:1235]
+1-w(rx_head)[cpmac.bug2.c:1235]
+1-r(rx_head)[cpmac.bug2.c:1237]
+1-r(rx_head)[cpmac.bug2.c:1238]
+1-w(rx_head)[cpmac.bug2.c:1241]
+1-w(desc_ring)[cpmac.bug2.c:1247]
+-------------------
+
+
+TIME - Iteration 4: 110.627s
+
+67684 rounds; seen states: 58542; transitions: 391646
+Found candidate ... Checking if truely a counter-example(size=564)
+223 rounds; seen states: 223; transitions: 222
+Candidate is not a counter-example
+Increasing the bound to 2
+67487 rounds; seen states: 61355; transitions: 369390
+Found candidate ... Checking if truely a counter-example(size=570)
+224 rounds; seen states: 224; transitions: 223
+Candidate is not a counter-example
+Increasing the bound to 3
+70743 rounds; seen states: 65125; transitions: 388460
+Found candidate ... Checking if truely a counter-example(size=576)
+225 rounds; seen states: 225; transitions: 224
+Candidate is not a counter-example
+Increasing the bound to 4
+82718 rounds; seen states: 67603; transitions: 452705
+Found candidate ... Checking if truely a counter-example(size=528)
+208 rounds; seen states: 208; transitions: 207
+Candidate is not a counter-example
+Increasing the bound to 5
+93201 rounds; seen states: 69724; transitions: 509715
+Found candidate ... Checking if truely a counter-example(size=534)
+209 rounds; seen states: 209; transitions: 208
+Candidate is not a counter-example
+Increasing the bound to 6
+96034 rounds; seen states: 72556; transitions: 525606
+Found candidate ... Checking if truely a counter-example(size=486)
+192 rounds; seen states: 192; transitions: 191
+Candidate is not a counter-example
+Increasing the bound to 7
+109939 rounds; seen states: 73133; transitions: 601918
+Found candidate ... Checking if truely a counter-example(size=480)
+191 rounds; seen states: 191; transitions: 190
+Candidate is not a counter-example
+Increasing the bound to 8
+123557 rounds; seen states: 75966; transitions: 676544
+Found candidate ... Checking if truely a counter-example(size=480)
+191 rounds; seen states: 191; transitions: 190
+Candidate is not a counter-example
+Increasing the bound to 9
+164395 rounds; seen states: 108665; transitions: 885893
+Found candidate ... Checking if truely a counter-example(size=477)
+191 rounds; seen states: 191; transitions: 190
+Candidate is not a counter-example
+Increasing the bound to 10
+1084451 rounds; seen states: 341800; transitions: 6499710
 Included
 Synthesis was successful.
 Threads: 5
 Iterations: 4
-<<<<<<< Updated upstream
-Liss: 1.198s
-Verification: 35.794s
-Synthesis: 113.06s
-Memory: 1211MB
-Total number of conflicts found: 55
-5 | 4 | 10 | 1.198s | 113.06s | 35.794s | 150.052s | 1211MB
+Liss: 24.102s
+Verification: 26.533s
+Synthesis: 533.196s
+Memory: 1129MB
+Total number of conflicts found: 54
+5 | 4 | 10 | 24.102s | 533.196s | 26.533s | 583.831s | 1129MB
 Lock statistics:
 ---------------
 Starting lock placement for absmin
+Lock placement succeeded!
 Cost function 2: Absolute minimum of instructions inside a lock:
 Number of locks used: 1
 Number of lock operations: 6
 Number of unlock operations: 7
 Number of abstract instructions inside a lock: 95
-Time for this cost function: 31.75s
+Time for this cost function: 17.161s
 
 Starting lock placement for coarse
+Lock placement succeeded!
 Cost function 3: Coarse locks:
 Number of locks used: 1
 Number of lock operations: 4
 Number of unlock operations: 4
 Number of abstract instructions inside a lock: 98
-Time for this cost function: 63s
+Time for this cost function: 32.338s
 
 Starting lock placement for unopt
+Lock placement succeeded!
 Cost function 4: No cost function:
 Number of locks used: 2
-Number of lock operations: 22
-Number of unlock operations: 23
-Number of abstract instructions inside a lock: 119
-Time for this cost function: 0.895s
+Number of lock operations: 13
+Number of unlock operations: 15
+Number of abstract instructions inside a lock: 150
+Time for this cost function: 0.37s
 
 Starting lock placement for small
-Liss: 1.14s
-Verification: 36.505s
-Synthesis: 122.268s
-Memory: 1211MB
-Total number of conflicts found: 55
-5 | 4 | 10 | 1.14s | 122.268s | 36.505s | 159.913s | 1211MB
-Lock statistics:

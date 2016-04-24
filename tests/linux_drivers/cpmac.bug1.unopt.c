@@ -25,7 +25,6 @@
 #define pr_err(format, ...) {}
 
 lock_t synthlock_0;
-lock_t synthlock_1;
 conditional_t cond_irq_can_happen;
 
 int ar7_gpio_disable(unsigned gpio) {
@@ -656,7 +655,6 @@ static int cpmac_start_xmit(struct sk_buff *skb)
 
 	len = max(skb->len, ETH_ZLEN);
 	//queue = skb_get_queue_mapping(skb);
-	lock_s(synthlock_0);
 	netif_stop_subqueue(/*queue*/);
 
 	//desc = &desc_ring[queue];
@@ -664,11 +662,9 @@ static int cpmac_start_xmit(struct sk_buff *skb)
 //		if (netif_msg_tx_err(priv) && net_ratelimit())
 //			netdev_warn(dev, "tx dma ring full\n");
 
-		unlock_s(synthlock_0);
 		return NETDEV_TX_BUSY;
 	}
 
-	unlock_s(synthlock_1);
 	unlock_s(synthlock_0);
 	spin_lock(cplock);
 	spin_unlock(cplock);
@@ -689,7 +685,7 @@ static int cpmac_start_xmit(struct sk_buff *skb)
         //cpmac_write(CPMAC_TX_PTR(queue), (u32)desc_ring[queue].mapping);
         notify(cond_irq_can_happen);
 
-	lock_s(synthlock_1);
+	lock_s(synthlock_0);
 	return NETDEV_TX_OK;
 }
 
@@ -706,7 +702,7 @@ static void cpmac_end_xmit(int queue)
 		netdev.stats.tx_bytes += desc_ring[queue].skb->len;
 		spin_unlock(cplock);
                 // FIX: move the following line to location labelled with *** below
-		lock_s(synthlock_1);
+		lock_s(synthlock_0);
 		netif_wake_subqueue();
 		dma_unmap_single(desc_ring[queue].data_mapping, desc_ring[queue].skb->len,
 				 DMA_TO_DEVICE);
@@ -715,10 +711,9 @@ static void cpmac_end_xmit(int queue)
 //			netdev_dbg(dev, "sent 0x%p, len=%d\n",
 //				   desc_ring[queue].skb, desc_ring[queue].skb->len);
 
-		lock_s(synthlock_0);
 		dev_kfree_skb_irq(desc_ring[queue].skb);
-		unlock_s(synthlock_1);
 		desc_ring[queue].skb = NULL;
+		unlock_s(synthlock_0);
 
                 //**
                 
@@ -727,10 +722,8 @@ static void cpmac_end_xmit(int queue)
 //		if (netif_msg_tx_err(priv) && net_ratelimit())
 //			netdev_warn(dev, "end_xmit: spurious interrupt\n");
 		//if (__netif_subqueue_stopped(dev, queue))
-			lock_s(synthlock_0);
 			netif_wake_subqueue();
 	}
-unlock_s(synthlock_0);
 }
 
 static void cpmac_hw_stop(/*struct net_device *dev*/)
@@ -1497,15 +1490,15 @@ void thread_irq () {
 void thread_send() {
     while(nondet) {
         yield();
+        lock_s(synthlock_0);
         notify(send_in_progress);
-        lock_s(synthlock_1);
         if (nondet) {
             assume(send_enabled);
             assume(netdev_running);
             cpmac_start_xmit((struct sk_buff *)((addr_t)nondet));
         };
         reset(send_in_progress);
-        unlock_s(synthlock_1);
+        unlock_s(synthlock_0);
     }
 }
 

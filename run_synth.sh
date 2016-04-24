@@ -21,7 +21,7 @@ echo Running tests ...
 
 declare -a IGNORE=("tests/cav14/drbd_receiver.c" "tests/r8169.c")
 
-echo "| File | Threads | Iterations | max.Bound | Bug finding | Synthesis | Verification | Total |"
+echo "| File | Threads | Iterations | max.Bound | Bug finding | Synthesis | Verification | Total | Memory |"
 
 # delete complete files
 find tests -name '*.complete.c' -exec rm {} \;

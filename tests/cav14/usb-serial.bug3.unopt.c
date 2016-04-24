@@ -58,8 +58,10 @@ void usb_serial_put ();
  * Framework functions
  */
 void usb_serial_init () {
+    unlock_s(synthlock_0);
     fw_tty_initialized = 1;
     fw_tty_registered = 1;
+lock_s(synthlock_0);
 }
 
 
@@ -81,9 +83,7 @@ void unlock_table () {
 }
 
 void lock_serial_bus () {
-unlock_s(synthlock_0);
     lock(fw_serial_bus_lock);
-lock_s(synthlock_0);
 }
 
 void unlock_serial_bus () {
@@ -227,6 +227,7 @@ void usb_serial_device_probe () {
     int x;
     x = port_initialized;
     //assert (dev_usb_serial_initialized>=0);
+    unlock_s(synthlock_0);
     x = dev_usb_serial_initialized;
     dev_autopm++;
     
@@ -234,11 +235,13 @@ void usb_serial_device_probe () {
     
     notify(port_tty_registered);
     
+    lock_s(synthlock_0);
     dev_autopm--;
 }
 
 void usb_serial_device_remove () {
     int x;
+    lock_s(synthlock_0);
     x = port_initialized;
     x = dev_usb_serial_initialized;
     //assert (dev_usb_serial_initialized>=0);
@@ -253,7 +256,6 @@ void usb_serial_device_remove () {
     
     unlock_s(synthlock_0);
     dev_autopm--;
-lock_s(synthlock_0);
 }
 
 void usb_serial_put () {
@@ -283,13 +285,13 @@ void usb_serial_put () {
         //belkin_release ();
         
         /* Now that nothing is using the ports, they can be freed */
-        lock_s(synthlock_0);
         lock_serial_bus();
+        lock_s(synthlock_0);
         reset(port_dev_registered);
         unlock_serial_bus();
         assume_not (port_tty_registered);
-        dev_usb_serial_initialized = -1;
         unlock_s(synthlock_0);
+        dev_usb_serial_initialized = -1;
         port_initialized = 0;
         reset(drv_module_ref_cnt);
         //drv_module_ref_cnt--;
@@ -464,7 +466,9 @@ void serial_write_callback () {
  * Threads
  */
 void thread_fw_module () {
+    lock_s(synthlock_0);
     usb_serial_init();
+    unlock_s(synthlock_0);
     
     belkin_init();
 
@@ -520,18 +524,16 @@ void thread_port_work () {
 }
 
 void thread_serial_bus () {
-    lock_s(synthlock_0);
     lock_serial_bus();
     assume (port_dev_registered);
-    unlock_s(synthlock_0);
+    lock_s(synthlock_0);
     usb_serial_device_probe ();
     unlock_serial_bus();
-    lock_s(synthlock_0);
     
     assume_not (port_dev_registered);
+    unlock_s(synthlock_0);
     lock_serial_bus();
     usb_serial_device_remove ();
-    unlock_s(synthlock_0);
     unlock_serial_bus();
 }
 

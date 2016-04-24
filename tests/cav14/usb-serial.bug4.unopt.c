@@ -3,7 +3,6 @@
 /* framework variables */
 
 lock_t synthlock_0;
-lock_t synthlock_1;
 int fw_tty_registered;
 int fw_tty_initialized;
 lock_t fw_tty_lock;
@@ -244,13 +243,13 @@ void usb_serial_device_remove () {
 
     
     /* make sure suspend/resume doesn't race against port_remove */
-    unlock_s(synthlock_0);
     dev_autopm++;
     
     reset(port_tty_registered);
     
     //belkin_port_remove();
     
+    unlock_s(synthlock_0);
     dev_autopm--;
 lock_s(synthlock_0);
 }
@@ -287,8 +286,8 @@ void usb_serial_put () {
         reset(port_dev_registered);
         unlock_serial_bus();
         assume_not (port_tty_registered);
-        dev_usb_serial_initialized = -1;
         unlock_s(synthlock_0);
+        dev_usb_serial_initialized = -1;
         port_initialized = 0;
         reset(drv_module_ref_cnt);
         //drv_module_ref_cnt--;
@@ -332,10 +331,10 @@ void belkin_init () {
     {
         x = fw_driver_list_consistent;
         fw_driver_list_consistent = 0;
-        lock_s(synthlock_1);
+        lock_s(synthlock_0);
         drv_registered_with_usb_fw = 1;
-        unlock_s(synthlock_1);
         fw_driver_list_consistent = 1;
+        unlock_s(synthlock_0);
         
         notify(drv_registered_with_serial_fw);
         unlock_table();

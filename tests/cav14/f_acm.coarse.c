@@ -42,9 +42,9 @@ void acm_cdc_notify () {
   
   // 0. acquire lock
   lock(l);
+  lock_s(synthlock_0);
   
   // 1. if we are invoked to handle a pending request, clear the pending flag.
-  lock_s(synthlock_0);
   reset(pending);
   
   // 2.
@@ -101,19 +101,21 @@ void thread_client2() {
 void thread_worker () {
   while (nondet) {
     // A.
+    lock_s(synthlock_0);
     assume (request);
     
     // B. not allowed to wait here
     //        assert (lock != request);
+    unlock_s(synthlock_0);
     lock(l);
-    lock_s(synthlock_0);
     
     // C. handle the request and update state variables
+    lock_s(synthlock_0);
     bsy = 0;
-    unlock_s(synthlock_0);
     reset(request);
     
     // D.
+    unlock_s(synthlock_0);
     unlock(l);
     
     // E. if there are more requests pending, schedule them now

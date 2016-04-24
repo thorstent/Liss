@@ -2,7 +2,7 @@
 
 /* framework variables */
 
-lock_t synthlock_1;
+lock_t synthlock_0;
 int fw_tty_registered;
 int fw_tty_initialized;
 lock_t fw_tty_lock;
@@ -147,7 +147,7 @@ void usb_serial_probe () {
      * disconnected flag and not clearing it until all ports have been
      * registered.
      */
-    //notify(dev_disconnected);
+    notify(dev_disconnected);
     
     // allocate_minors ()
     {
@@ -162,7 +162,7 @@ void usb_serial_probe () {
     port_work_initialized = 1;
     port_initialized = 1;
     notify(port_dev_registered);
-    //reset(dev_disconnected);
+    reset(dev_disconnected);
     
     // port_dev_registered = 1 increments module counter
     // module_put();
@@ -183,15 +183,14 @@ void usb_serial_disconnect () {
     x = port_initialized;
     
     if (nondet) {
-        assume(port_tty_installed);
+        assume(port_tty_installed); // lock here
         //serial_hangup ();
         //serial_close ();
-        lock_tty ();
         //assert (drv_module_ref_cnt > 0);
         //x = drv_module_ref_cnt;
         x = dev_usb_serial_initialized;
         x = port_initialized;
-        assume_not (port_write_in_progress);
+        wait_not (port_write_in_progress);
         port_tty_state = 0;
         reset(port_tty_installed);
 
@@ -200,12 +199,13 @@ void usb_serial_disconnect () {
         usb_serial_put();
         // end: serial_close
 
+        lock_tty ();
         unlock_tty ();
 
         //usb_serial_port_poison_urbs();
         //wake_up_interruptible(&port->port.delta_msr_wait);
 
-        assume_not(port_work);
+        wait_not(port_work);
         port_work_stop = 1;
         port_work_initialized = 0;
 
@@ -236,7 +236,6 @@ void usb_serial_device_probe () {
 }
 
 void usb_serial_device_remove () {
-lock_s(synthlock_1);
     int x;
     x = port_initialized;
     x = dev_usb_serial_initialized;
@@ -250,7 +249,6 @@ lock_s(synthlock_1);
     
     //belkin_port_remove();
     
-    unlock_s(synthlock_1);
     dev_autopm--;
 }
 
@@ -282,11 +280,11 @@ void usb_serial_put () {
         
         /* Now that nothing is using the ports, they can be freed */
         lock_serial_bus();
-        lock_s(synthlock_1);
+        lock_s(synthlock_0);
         reset(port_dev_registered);
+        unlock_s(synthlock_0);
         unlock_serial_bus();
-        assume_not (port_tty_registered);
-        unlock_s(synthlock_1);
+        wait_not (port_tty_registered);
         dev_usb_serial_initialized = -1;
         port_initialized = 0;
         reset(drv_module_ref_cnt);
@@ -398,6 +396,7 @@ void serial_install () {
                 assume_not(drv_module_ref_cnt);
                 usb_serial_put ();
                 unlock_disc ();
+                return;
             } else {
                 assume(drv_module_ref_cnt);
                 dev_autopm++;
@@ -480,7 +479,7 @@ void thread_fw_module () {
 }
 
 void thread_usb_bus () {
-    assume (drv_usb_registered /*| drv_device_id_registered*/);
+    wait (drv_usb_registered /*| drv_device_id_registered*/);
     yield();
     usb_serial_probe ();
     yield();
@@ -498,7 +497,7 @@ void thread_usb_bus () {
 void thread_usb_cb () {
     int x;
     //while (drv_usb_registered != 0) {
-        assume (write_urb_submitted/* | (drv_usb_registered == 0)*/);
+        wait (write_urb_submitted/* | (drv_usb_registered == 0)*/);
         //assert (drv_usb_initialized);
         x = drv_usb_initialized;
         reset(write_urb_submitted);
@@ -519,13 +518,13 @@ void thread_port_work () {
 
 void thread_serial_bus () {
     lock_serial_bus();
+    lock_s(synthlock_0);
     assume (port_dev_registered);
     usb_serial_device_probe ();
     unlock_serial_bus();
-    lock_s(synthlock_1);
     
     assume_not (port_dev_registered);
-    unlock_s(synthlock_1);
+    unlock_s(synthlock_0);
     lock_serial_bus();
     usb_serial_device_remove ();
     unlock_serial_bus();
@@ -533,7 +532,7 @@ void thread_serial_bus () {
 
 void thread_tty () {
     int x;
-    assume (drv_registered_with_serial_fw);
+    wait (drv_registered_with_serial_fw);
     serial_install ();
     yield();
     //while (port_tty_installed != 0) {
@@ -574,7 +573,7 @@ void thread_attribute () {
         return;
     } else {
         assume(drv_module_ref_cnt);
-        assume (drv_registered_with_serial_fw);
+        wait (drv_registered_with_serial_fw);
         drv_device_id_registered = 1;
         //drv_module_ref_cnt--;
         reset(drv_module_ref_cnt);

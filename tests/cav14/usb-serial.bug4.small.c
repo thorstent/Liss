@@ -244,13 +244,13 @@ void usb_serial_device_remove () {
 
     
     /* make sure suspend/resume doesn't race against port_remove */
-    unlock_s(synthlock_0);
     dev_autopm++;
     
     reset(port_tty_registered);
     
     //belkin_port_remove();
     
+    unlock_s(synthlock_0);
     dev_autopm--;
 }
 
@@ -286,8 +286,8 @@ void usb_serial_put () {
         reset(port_dev_registered);
         unlock_serial_bus();
         assume_not (port_tty_registered);
-        dev_usb_serial_initialized = -1;
         unlock_s(synthlock_0);
+        dev_usb_serial_initialized = -1;
         port_initialized = 0;
         reset(drv_module_ref_cnt);
         //drv_module_ref_cnt--;

@@ -70,9 +70,9 @@ void i2c_hid_close ()
     } 
 
     x = power_on;
+    unlock_s(synthlock_0);
     //assert (power_on == 0);
 
-    unlock_s(synthlock_0);
     unlock(l);
 }
 

@@ -444,7 +444,7 @@ void place_locks::cost_model_max_concurrency(z3::optimize& slv, locking_constrai
     }
     ++t1;
   }
-  debug << "Finished making " << cons << " constraints for " << threads.size() << " threads!" << endl;
+  //debug << "Finished making " << cons << " constraints for " << threads.size() << " threads!" << endl;
 }
 
 void place_locks::cost_model(z3::optimize& slv, locking_constraints& lc, cost_type cost_function, const synthesis::lock_symbols& locks_to_place)

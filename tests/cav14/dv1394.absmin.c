@@ -61,9 +61,9 @@ void thread_mmap () {
         state = INCONSISTENT;
         // 11.
         state = MAPPED;
-        unlock_s(synthlock_0);
 
         // 12.
+        unlock_s(synthlock_0);
         unlock(mtx);
     }
 
@@ -83,7 +83,6 @@ void thread_ioctl () {
     //assert (state != INCONSISTENT);
     // C.
     old_state = state;
-    lock_s(synthlock_0);
     // D.
     state = INCONSISTENT;
 
@@ -95,7 +94,6 @@ void thread_ioctl () {
         //want_sem = IOCTL_THREAD;
         
         // F.
-        unlock_s(synthlock_0);
         lock(sem);
 
         // G.
@@ -103,10 +101,10 @@ void thread_ioctl () {
 
         // H.
         unlock(sem);
-        lock_s(synthlock_0);
     };
 
     // I.
+    lock_s(synthlock_0);
     state = old_state;
     unlock_s(synthlock_0);
 

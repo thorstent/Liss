@@ -40,7 +40,7 @@ namespace abstraction {
   };
   
   inline std::ostream& operator<<(std::ostream& out, const location& loc) {
-    out << std::to_string(loc.thread) << "-" << std::to_string(loc.state);
+    out << std::to_string(loc.thread) << "l" << std::to_string(loc.state);
     return out;
   }
 }

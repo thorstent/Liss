@@ -29,9 +29,9 @@ deadlock() {
       echo "Concurrent detection failed"
       dead="dead"
     fi
-    if [ -z "$dead" ]; then
-      echo "$out" | grep '|' | tr -d '\n'
-    fi
+    #if [ -z "$dead" ]; then
+    #  echo "$out" | grep '|' | tr -d '\n'
+    #fi
 }
 
 inclusion() {
@@ -53,7 +53,7 @@ echo Running tests ...
 
 declare -a IGNORE=("tests/cav14/drbd_receiver.c" "tests/r8169.c")
 
-echo "| File | Deadlock check | Threads | Iterations | max.Bound | Bug finding | Synthesis | Verification | Placement | Deadlock check2 |"
+echo "| File | Threads | Iterations | max.Bound | Bug finding | Synthesis | Verification | Placement | Memory |"
 
 # delete complete files
 find tests -name '*.complete.c' -exec rm {} \;
@@ -61,6 +61,7 @@ find tests -name '*.absmin.c' -exec rm {} \;
 find tests -name '*.small.c' -exec rm {} \;
 find tests -name '*.coarse.c' -exec rm {} \;
 find tests -name '*.unopt.c' -exec rm {} \;
+find tests -name '*.maxconc.c' -exec rm {} \;
 find tests -name '*.log' -exec rm {} \;
 
 for f in tests/cav13/*.c tests/cav14/*.c tests/linux_drivers/*.c

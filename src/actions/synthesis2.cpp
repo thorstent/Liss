@@ -119,7 +119,7 @@ void actions::synthesis2::print_summary(const cfg::program& original_program, un
   debug << "Memory: " << max_mem << "MB" << endl;
   debug << "Total number of conflicts found: " << conflicts << endl;
   //cout.precision(1);
-  //debug << original_program.no_threads() << " | " << iteration << " | " << this->max_bound <<  " | " << (double)langinc.count()/1000 << "s | "  << (double)synthesis_time.count()/1000 << "s | " << (double)verification.count()/1000 << "s | " << total << "s | " << max_mem << "MB" << endl;
+  debug << original_program.no_threads() << " | " << iteration << " | " << this->max_bound <<  " | " << (double)langinc.count()/1000 << "s | "  << (double)synthesis_time.count()/1000 << "s | " << (double)verification.count()/1000 << "s | " << total << "s | " << max_mem << "MB" << endl;
 }
 
 bool actions::synthesis2::synth_loop(const cfg::program& program, ::synthesis::lock_symbols& lock_symbols)
