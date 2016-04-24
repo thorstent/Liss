@@ -25,32 +25,31 @@
 #include <z3++.h>
 #include <vector>
 #include <ostream>
-#include "abstraction/concurrent_state.h"
+#include "types.h"
 
 namespace synthesis {
   
 struct constraint_atom {
   location before;
   location after;
-  bool from_wait_notify; // this is an artifical constraint from a wait-notify in the code
+  bool from_wait_notify; // this is an artifical constraint from a wait-notify in the code TODO: remove
   constraint_atom(location before, location after, bool from_wait_notify = false) : before(before), after(after), from_wait_notify(from_wait_notify) {}
   operator z3::expr () const { return static_cast<z3::expr>(before) < after; }
+  bool operator==(const constraint_atom& ca) const;
+  bool operator!=(const constraint_atom& ca) const;
+  constraint_atom operator!() const;
 };
 
-typedef std::vector<constraint_atom> conj;
-typedef std::vector<constraint_atom> disj;
-typedef std::vector<conj> dnf;
-typedef std::vector<conj> cnf;
+std::ostream& operator<<(std::ostream& out, const constraint_atom& ca);
 
-z3::expr make_constraint(z3::context& ctx, conj c);
-z3::expr make_constraint(z3::context& ctx, dnf d);
 
-void print_constraint(const conj& c, const Limi::printer< abstraction::pcsymbol >& symbol_printer, std::ostream& out);
-void print_constraint(const dnf& d, const Limi::printer< abstraction::pcsymbol >& symbol_printer, std::ostream& out);
+using cnf_constr = cnf<constraint_atom>;
+using dnf_constr = dnf<constraint_atom>;
+using disj_constr = disj<constraint_atom>;
+using conj_constr = conj<constraint_atom>;
 
-void print_constraint_cnf(const disj& d, const Limi::printer< abstraction::pcsymbol >& symbol_printer, std::ostream& out);
-
-cnf negate_dnf(const dnf& dnf);
+z3::expr make_constraint(z3::context& ctx, conj_constr c);
+z3::expr make_constraint(z3::context& ctx, dnf_constr d);
 
 }
 

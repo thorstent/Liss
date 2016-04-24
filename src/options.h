@@ -23,13 +23,19 @@
 #include <ostream>
 
 extern int verbosity;
-extern unsigned max_bound;
+extern unsigned lock_limit; // a limit on how many locks to synthesise (performance impact)
+extern unsigned max_bound; // bound for the antichain algorithm
 extern std::ostream& debug;
 extern std::string debug_folder;
-extern std::string output_file_code;
+std::string output_file_code(std::string strategy_name);
 extern std::string start_file_code;
+extern std::string main_file_path;
 extern std::string output_file_log;
 extern std::string main_filename;
-const bool assumes_allow_switch = true;
+constexpr bool assumes_allow_switch = false;
+
+constexpr bool condyield_is_always_yield = true;
+
+void create_debug_folder();
 
 #endif // OPTIONS_H

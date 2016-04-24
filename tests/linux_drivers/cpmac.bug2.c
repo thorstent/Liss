@@ -20,7 +20,71 @@
 
 #include "types.h"
 #include "eth.h"
-#include "platform.h"
+
+#include "langinc.h"
+#include "types.h"
+
+typedef u64 phys_addr_t;
+typedef phys_addr_t resource_size_t;
+
+conditional_t cond_irq_enabled;
+lock_t irq_running_lock;
+
+void request_irq () {
+    notify(cond_irq_enabled);
+}
+
+void free_irq() {
+    reset(cond_irq_enabled);
+    lock(irq_running_lock);
+    unlock(irq_running_lock);
+}
+
+struct resource {
+        resource_size_t start;
+        resource_size_t end;
+        const char *name;
+        unsigned long flags;
+        //struct resource *parent, *sibling, *child;
+};
+
+static inline resource_size_t resource_size(const struct resource *res)
+{
+        return (resource_size_t) nondet;
+}
+
+conditional_t cond_platform_driver_registered;
+
+int platform_driver_register() {
+    if (nondet) {
+        notify (cond_platform_driver_registered);
+        return 0;
+    } else {
+        return -1;
+    }
+}
+
+void platform_driver_unregister() {
+    reset (cond_platform_driver_registered);
+}
+
+int platform_get_irq_byname(const char* name) {
+    ioval = nondet;
+    return (int)ioval;
+}
+
+struct resource * platform_get_resource_byname(unsigned int type, const char * name) {
+    return (struct resource *)(addr_t)nondet;
+}
+
+struct resource * request_mem_region(resource_size_t start, resource_size_t n, const char *name) {
+    return (struct resource *)(addr_t)nondet;
+}
+
+void release_mem_region(resource_size_t start, resource_size_t n)
+{
+    ioval = nondet;
+}
 
 #define pr_err(format, ...) {}
 
@@ -1404,7 +1468,7 @@ void thread_init_exit()
         return;
     } else {
         assume (cond_platform_driver_registered);
-        yield;
+        yield();
         wait (cond_platform_driver_not_in_use);
         cpmac_exit();
     };
@@ -1417,7 +1481,7 @@ void thread_probe_remove () {
         cpmac_probe();
         if (nondet) {
             assume(netdev_registered);
-            yield;
+            yield();
             cpmac_remove();
         } else {
             assume_not(netdev_registered);
@@ -1437,7 +1501,7 @@ void thread_open_close () {
                 netif_start_queue();
                 unlock(rtnl);
 
-                yield;
+                yield();
 
                 lock(rtnl);
                 if (nondet) {
@@ -1464,7 +1528,7 @@ void thread_irq () {
         assume (cond_irq_enabled);
         cpmac_irq(nondet);
         unlock(irq_running_lock);
-        yield;
+        yield();
     }
 }
 
@@ -1475,7 +1539,7 @@ void thread_irq () {
 //        assume(cond_napi_enabled);
 //        cpmac_poll(nondet);
 //        unlock(napi_running_lock);
-//        yield;
+//        yield();
 //    }
 //}
 
@@ -1483,7 +1547,7 @@ void thread_irq () {
 
 void thread_send() {
     while(nondet) {
-        yield;
+        yield();
         notify(send_in_progress);
         if (nondet) {
             assume(send_enabled);

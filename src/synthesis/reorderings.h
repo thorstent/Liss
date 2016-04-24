@@ -21,7 +21,7 @@
 #define SYNTHESIS_REORDERINGS_H
 
 #include <list>
-#include "abstraction/csymbol.h"
+#include "abstraction/symbol.h"
 #include <z3++.h>
 #include <vector>
 #include "location.h"
@@ -29,26 +29,28 @@
 #include "cfg/program.h"
 #include "abstraction/concurrent_state.h" // for the printer
 #include <Limi/results.h>
-#include "trace.h"
+#include "synthesis/trace_helpers.h"
 
 namespace synthesis {
 
 class reorderings
 {
 public:
-  reorderings(z3::context& ctx, const cfg::program& program);
+  reorderings(const cfg::program& program);
   /**
    * @brief Discovers a summary of bad traces
    * 
    * @param trace The trace to analyse
-   * @return std::pair< synthesis::dnf, synthesis::dnf > The first element is traditional bad trace analysis. The second element is a pair where less happens-before relations are removed, namely 
-   * all those that are automatically true due to wait-notifies are not removed
+   * @param synthesised_locks The locks we already found in prior rounds
+   * @return 
    */
-  std::pair< dnf, dnf > process_trace(const synthesis::concurrent_trace& trace);
+  dnf_constr process_trace(const std::vector< abstraction::psymbol >& trace, const synthesis::lock_symbols& synthesised_locks);
 private:
   const cfg::program& program;
+  
   struct seperated_trace {
     std::list<location> trace; // a list of all locations in the program
+    std::vector<std::vector<const location*>> threaded_trace;
     std::vector<std::list<const location*>> reads;  // the vector represents the variables, the list the location where the variable is read
     std::vector<std::list<const location*>> writes; // the vector represents the variables
     std::vector<std::list<const location*>> waits; // the vector represents the variables
@@ -59,8 +61,10 @@ private:
     z3::expr locks;
     z3::expr conditionals;
     z3::expr distinct;
+    z3::expr synth_locks;
     unsigned threads;
     seperated_trace(unsigned variables, unsigned conditionals, unsigned threads, z3::context& ctx) :
+    threaded_trace(threads),
     reads(variables),
     writes(variables),
     waits(conditionals),
@@ -71,15 +75,20 @@ private:
     locks(ctx.bool_val(true)),
     conditionals(ctx.bool_val(true)),
     distinct(ctx.bool_val(true)),
+    synth_locks(ctx.bool_val(true)),
     threads(threads) {}
   };
-  conj find_order(const seperated_trace& strace, const z3::model& model);
+  
+  void split_trace(const std::vector< abstraction::psymbol >& trace, synthesis::reorderings::seperated_trace& strace);
+  conj_constr find_order(const synthesis::reorderings::seperated_trace& strace, const z3::model& model, bool wait_notify);
   void print_trace(const seperated_trace& strace, const z3::model& model, std::ostream& out);
-  z3::context& ctx;
-  const Limi::printer<abstraction::pcsymbol> symbol_printer;
-  std::bitset<max_locks> get_lockset(const abstraction::pcstate& state);
-  void prepare_trace(const synthesis::concurrent_trace& trace, synthesis::reorderings::seperated_trace& strace);
-  conj wait_notify_order(const seperated_trace& strace, const z3::model& model);
+  z3::context ctx;
+  const Limi::printer<abstraction::psymbol> symbol_printer;
+  void prepare_trace(synthesis::reorderings::seperated_trace& strace);
+  std::vector<std::pair<const location*,const location*>> find_lock_locs(reorderings::seperated_trace& strace, const lock_list& locks);
+  std::vector<const location*> find_locs(reorderings::seperated_trace& strace, const abstraction::psymbol& sym);
+  void synth_locks(synthesis::reorderings::seperated_trace& strace, const synthesis::lock_symbols& synthesised_locks);
+    void wait_notify_order(const synthesis::reorderings::seperated_trace& strace, const z3::model& model, synthesis::conj_constr& result);
 };
 }
 

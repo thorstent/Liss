@@ -25,6 +25,7 @@
 #include <list>
 #include <cassert>
 #include "identifier_store.h"
+#include "location.h"
 #include <Limi/generics.h>
 #include <Limi/internal/hash.h>
 
@@ -36,11 +37,10 @@ class FileEntry;
 
 //TODO: remove this
 typedef std::pair<clang::Stmt*, clang::Stmt*> stmt_loc;
-typedef std::list<stmt_loc> call_stack;
 
 namespace abstraction {
 
-enum class op_class { 
+enum class op_class : uint8_t { 
   read,
   write,
   lock,
@@ -69,14 +69,15 @@ struct symbol
 {
   op_class operation;
   variable_type variable = 0;
-  call_stack cstack;
   
   std::string variable_name;
   const clang::FileEntry* fileentry = nullptr;
   unsigned line_no = 0;
   
-  state_id tag_state = no_state;
-  uint8_t tag_branch = 0;
+  // to be able to find this later again in the CFG
+  location loc;
+  int8_t tag_branch = -1;
+  
   
   mutable uint16_t origin;
   /**
@@ -88,33 +89,47 @@ struct symbol
   bool assume = false;
   
   /**
-   * @brief The symbol has been synthesised in one of the previous iterations
+   * @brief This lock is not a preemption point
    * 
    */
   bool synthesised = false;
+  
+  /**
+   * @brief The statement that identifies this symbol
+   * 
+   */
+  clang::Stmt* stmt = nullptr;
   
   inline bool is_epsilon() const { return operation!=op_class::read && operation!=op_class::write && operation!=op_class::tag; }
   inline bool is_real_epsilon() const { return operation==op_class::epsilon; }
   
   symbol() : operation(op_class::epsilon) {}
-  symbol(op_class operation, call_stack cstack, std::string variable_name, variable_type variable, identifier_store& is, const clang::Stmt* stmt);
-  symbol(state_id state, uint8_t branch);
-  inline const clang::Stmt* instr_id() const { return stmt; }
+  symbol(thread_id_type thread_id, state_id_type state_id);
+  symbol(op_class operation, std::string variable_name, variable_type variable, identifier_store& is, clang::Stmt* stmt);
+  symbol(thread_id_type thread_id, state_id_type state_id, uint8_t branch);
+  
+  inline state_id_type state_id() const { return loc.state; }
+  inline thread_id_type thread_id() const { return loc.thread; }
   symbol(const symbol& sym) = default;
   
+  bool is_preemption_point() const;
+  
+  /**
+   * @brief This point may not be locked because it is a wait or a lock statement
+   */
+  bool is_unlockable_point() const;
+  
   bool operator==(const symbol &other) const {
-    if (tag_state == no_state) {
-      if (other.tag_state!=no_state) return false;
-      return (operation == other.operation && variable == other.variable && instr_id() == other.instr_id());
+    if (loc != other.loc) return false;
+    if (tag_branch == -1) {
+      if (other.tag_branch!=-1) return false;
+      return (operation == other.operation && variable == other.variable && loc == other.loc);
     } else {
-      if (other.tag_state==no_state) return false;
-      return (tag_state == other.tag_state) && (tag_branch == other.tag_branch);
+      return (other.tag_branch==tag_branch);
     }
   }
   
   friend std::ostream& operator<< (std::ostream &out, const abstraction::symbol &val);
-private:
-  const clang::Stmt* stmt = nullptr;
 };
 
 typedef const symbol*  psymbol;
@@ -133,13 +148,12 @@ namespace std {
   };
   template<> struct hash<abstraction::symbol> {
     size_t operator()(const abstraction::symbol& val) const {
-      std::size_t seed = 0;
-      if (val.tag_state == no_state) {
+      std::size_t seed = hash<abstraction::location>()(val.loc);
+      if (val.tag_branch == -1) {
         Limi::internal::hash_combine(seed, val.operation);
         Limi::internal::hash_combine(seed, val.variable);
-        Limi::internal::hash_combine(seed, val.instr_id());
+        Limi::internal::hash_combine(seed, val.loc);
       } else {
-        Limi::internal::hash_combine(seed, val.tag_state);
         Limi::internal::hash_combine(seed, val.tag_branch);
       }
       return seed;
@@ -163,6 +177,24 @@ namespace Limi {
   template<> struct printer<abstraction::psymbol> : public printer_base<abstraction::psymbol> {
     inline virtual void print(const abstraction::psymbol& symbol, std::ostream& out) const {
       out << symbol;
+    }
+  };
+  
+  template<> struct independence<abstraction::symbol> {
+    inline bool operator()(const abstraction::symbol& a, const abstraction::symbol& b) const {
+      return a.thread_id()!=b.thread_id() && 
+      (
+        a.variable != b.variable ||
+        (a.operation==abstraction::op_class::read && b.operation==abstraction::op_class::read) ||
+        a.is_epsilon() || b.is_epsilon() ||
+        a.operation==abstraction::op_class::tag || b.operation==abstraction::op_class::tag
+      );
+    }
+  };
+  
+  template<> struct independence<abstraction::psymbol> {
+    inline bool operator()(const abstraction::psymbol& a, const abstraction::psymbol& b) const {
+      return independence< abstraction::symbol >()(*a,*b);
     }
   };
 }

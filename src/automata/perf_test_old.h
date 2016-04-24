@@ -42,6 +42,8 @@ namespace automata {
     typedef std::shared_ptr<counter_chain> pcounter_chain;
     typedef std::unordered_set<State> State_set;
     typedef std::unordered_set<Symbol> Symbol_set;
+    typedef std::vector<State> State_vector;
+    typedef std::vector<Symbol> Symbol_vector;
     typedef Limi::automaton<State, Symbol, Implementation> Automaton;
     
   protected:
@@ -55,7 +57,7 @@ namespace automata {
       pcounter_chain cex_chain;
     };
     
-    std::deque<frontier_item> initial_states_conv(const std::unordered_set<State>& states) {
+    std::deque<frontier_item> initial_states_conv(const std::vector<State>& states) {
       std::deque< frontier_item > result;
       for(State state : states) {
         frontier_item p(state);
@@ -67,7 +69,7 @@ namespace automata {
   protected:
     const Automaton& autom;
     
-    std::unordered_set<State> initial_states = autom.initial_states();
+    std::vector<State> initial_states = autom.initial_states();
     std::unordered_set<State> seen; // a list of reachable states
     std::deque<frontier_item> frontier = initial_states_conv(initial_states);
     
@@ -86,10 +88,10 @@ namespace automata {
         if (verbosity>=2 && loop_counter % 100 == 0) debug << loop_counter << " rounds; seen states: " << seen.size() << std::endl;
         const frontier_item current = frontier.front();
         frontier.pop_front();
-        Symbol_set next_symbols = autom.next_symbols(current.s);
+        Symbol_vector next_symbols = autom.next_symbols(current.s);
         for (Symbol sigma : next_symbols) {
           ++transitions;
-          State_set states = autom.successors(current.s, sigma);
+          State_vector states = autom.successors(current.s, sigma);
           
           for (State state : states) {
             if (seen.insert(state).second) {

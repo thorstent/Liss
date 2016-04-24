@@ -24,9 +24,11 @@ Notes:
 #include<cassert>
 #include<iostream>
 #include<string>
+#include <vector>
 #include<sstream>
 #include<z3.h>
 #include<limits.h>
+#include <exception>
 
 /**
    \defgroup cppapi C++ API
@@ -77,11 +79,14 @@ namespace z3 {
     /**
        \brief Exception used to sign API usage errors.
     */
-    class exception {
+    class exception : public std::exception {
         std::string m_msg;
     public:
         exception(char const * msg):m_msg(msg) {}
         char const * msg() const { return m_msg.c_str(); }
+        virtual const char* what() const noexcept override {
+          return m_msg.c_str();
+        }
         friend std::ostream & operator<<(std::ostream & out, exception const & e) { out << e.msg(); return out; }
     };
 
@@ -140,8 +145,10 @@ namespace z3 {
         */
         void check_error() const {
             Z3_error_code e = Z3_get_error_code(m_ctx);
-            if (e != Z3_OK)
-                throw exception(Z3_get_error_msg_ex(m_ctx, e));
+            if (e != Z3_OK) {
+              Z3_string str = Z3_get_error_msg_ex(m_ctx, e);
+                throw exception(str);
+            }
         }
 
         /**
@@ -203,7 +210,14 @@ namespace z3 {
            and in \c ts the predicates for testing if terms of the enumeration sort correspond to an enumeration.
         */
         sort enumeration_sort(char const * name, unsigned n, char const * const * enum_names, func_decl_vector & cs, func_decl_vector & ts);
+        sort enumeration_sort(char const * name, const std::vector<std::string> enum_names, func_decl_vector & cs, func_decl_vector & ts);
         
+        /**
+           \brief create an uninterpreted sort with the name given by the string or symbol.
+         */
+        sort uninterpreted_sort(char const* name);
+        sort uninterpreted_sort(symbol const& name);
+
         func_decl function(symbol const & name, unsigned arity, sort const * domain, sort const & range);
         func_decl function(char const * name, unsigned arity, sort const * domain, sort const & range);
         func_decl function(symbol const&  name, sort_vector const& domain, sort const& range);
@@ -217,6 +231,7 @@ namespace z3 {
         expr constant(symbol const & name, sort const & s);
         expr constant(char const * name, sort const & s);
         expr fresh_constant(char const * name, sort const & s);
+        expr fresh_constant(const std::string& name, sort const & s);
 
         expr bool_const(char const * name);
         expr int_const(char const * name);
@@ -473,6 +488,12 @@ namespace z3 {
           assert(b!=Z3_L_UNDEF);
           return b==Z3_L_TRUE;
         }
+        
+        bool get_int(int& number) const {
+          Z3_bool r = Z3_get_numeral_int(*m_ctx, m_ast, &number);
+          return r==Z3_TRUE;
+        }
+        
         /**
            \brief Return the sort of this expression.
         */
@@ -674,6 +695,7 @@ namespace z3 {
         friend expr ite(expr const & c, expr const & t, expr const & e);
 
         friend expr distinct(expr_vector const& args);
+        friend expr concat(expr const& a, expr const& b);
 
         friend expr operator==(expr const & a, expr const & b) {
             check_context(a, b);
@@ -885,6 +907,9 @@ namespace z3 {
         friend expr operator|(int a, expr const & b) { return b.ctx().num_val(a, b.get_sort()) | b; }
 
         friend expr operator~(expr const & a) { Z3_ast r = Z3_mk_bvnot(a.ctx(), a); return expr(a.ctx(), r); }
+        expr extract(unsigned hi, unsigned lo) const { Z3_ast r = Z3_mk_extract(ctx(), hi, lo, *this); return expr(ctx(), r); }
+        unsigned lo() const { assert (is_app() && Z3_get_decl_num_parameters(ctx(), decl()) == 2); return static_cast<unsigned>(Z3_get_decl_int_parameter(ctx(), decl(), 1)); } 
+        unsigned hi() const { assert (is_app() && Z3_get_decl_num_parameters(ctx(), decl()) == 2); return static_cast<unsigned>(Z3_get_decl_int_parameter(ctx(), decl(), 0)); } 
 
         /**
            \brief Return a simplified version of this expression.
@@ -1124,6 +1149,13 @@ namespace z3 {
         ctx.check_error();
         return expr(ctx, r);
     }
+
+    inline expr concat(expr const& a, expr const& b) {
+        check_context(a, b);
+        Z3_ast r = Z3_mk_concat(a.ctx(), a, b);
+        a.ctx().check_error();
+        return expr(a.ctx(), r);
+    }
     
     class func_entry : public object {
         Z3_func_entry m_entry;
@@ -1333,6 +1365,26 @@ namespace z3 {
         expr_vector assertions() const { Z3_ast_vector r = Z3_solver_get_assertions(ctx(), m_solver); check_error(); return expr_vector(ctx(), r); }
         expr proof() const { Z3_ast r = Z3_solver_get_proof(ctx(), m_solver); check_error(); return expr(ctx(), r); }
         friend std::ostream & operator<<(std::ostream & out, solver const & s) { out << Z3_solver_to_string(s.ctx(), s); return out; }
+
+        std::string to_smt2(char const* status = "unknown") {
+            array<Z3_ast> es(assertions());
+            Z3_ast const* fmls = es.ptr();
+            Z3_ast fml = 0;
+            unsigned sz = es.size();
+            if (sz > 0) {
+                --sz;
+                fml = fmls[sz];
+            }
+            else {
+                fml = ctx().bool_val(true);
+            }
+            return std::string(Z3_benchmark_to_smtlib_string(
+                                   ctx(),
+                                   "", "", status, "", 
+                                   sz, 
+                                   fmls, 
+                                   fml));
+        }
     };
 
     class goal : public object {
@@ -1541,6 +1593,62 @@ namespace z3 {
         }
     };
 
+    class optimize : public object {
+        Z3_optimize m_opt;
+    public:
+        class handle {
+            unsigned m_h;
+        public:
+            handle(unsigned h): m_h(h) {}
+            unsigned h() const { return m_h; }
+        };
+        optimize(context& c):object(c) { m_opt = Z3_mk_optimize(c); Z3_optimize_inc_ref(c, m_opt); }
+        ~optimize() { Z3_optimize_dec_ref(ctx(), m_opt); }
+        operator Z3_optimize() const { return m_opt; }
+        void add(expr const& e) {
+            assert(e.is_bool());
+            Z3_optimize_assert(ctx(), m_opt, e);
+        }
+        handle add(expr const& e, unsigned weight) {
+            assert(e.is_bool());
+            std::stringstream strm;
+            strm << weight; 
+            return handle(Z3_optimize_assert_soft(ctx(), m_opt, e, strm.str().c_str(), 0)); 
+        }
+        handle add(expr const& e, char const* weight) {
+            assert(e.is_bool());
+            return handle(Z3_optimize_assert_soft(ctx(), m_opt, e, weight, 0)); 
+        }
+        handle maximize(expr const& e) {
+            return handle(Z3_optimize_maximize(ctx(), m_opt, e));
+        }
+        handle minimize(expr const& e) {
+            return handle(Z3_optimize_minimize(ctx(), m_opt, e));
+        }
+        void push() {
+            Z3_optimize_push(ctx(), m_opt);
+        }
+        void pop() {
+            Z3_optimize_pop(ctx(), m_opt);
+        }
+        check_result check() { Z3_lbool r = Z3_optimize_check(ctx(), m_opt); check_error(); return to_check_result(r); }
+        model get_model() const { Z3_model m = Z3_optimize_get_model(ctx(), m_opt); check_error(); return model(ctx(), m); }
+        void set(params const & p) { Z3_optimize_set_params(ctx(), m_opt, p); check_error(); }
+        expr lower(handle const& h) {
+            Z3_ast r = Z3_optimize_get_lower(ctx(), m_opt, h.h());
+            check_error();
+            return expr(ctx(), r);
+        }
+        expr upper(handle const& h) {
+            Z3_ast r = Z3_optimize_get_upper(ctx(), m_opt, h.h());
+            check_error();
+            return expr(ctx(), r);
+        }
+        stats statistics() const { Z3_stats r = Z3_optimize_get_statistics(ctx(), m_opt); check_error(); return stats(ctx(), r); }        
+        friend std::ostream & operator<<(std::ostream & out, optimize const & s) { out << Z3_optimize_to_string(s.ctx(), s.m_opt); return out; }
+        std::string help() const { char const * r = Z3_optimize_get_help(ctx(), m_opt); check_error();  return r; }        
+    };
+
     inline tactic fail_if(probe const & p) {
         Z3_tactic r = Z3_tactic_fail_if(p.ctx(), p);
         p.check_error();
@@ -1577,6 +1685,27 @@ namespace z3 {
         check_error();
         for (unsigned i = 0; i < n; i++) { cs.push_back(func_decl(*this, _cs[i])); ts.push_back(func_decl(*this, _ts[i])); }
         return s;
+    }
+    
+    inline sort context::enumeration_sort(char const * name, const std::vector<std::string> enum_names, func_decl_vector & cs, func_decl_vector & ts) {
+      unsigned n = enum_names.size();
+      array<Z3_symbol> _enum_names(n);
+      for (unsigned i = 0; i < n; i++) { _enum_names[i] = Z3_mk_string_symbol(*this, enum_names[i].c_str()); }
+      array<Z3_func_decl> _cs(n);
+      array<Z3_func_decl> _ts(n);
+      Z3_symbol _name = Z3_mk_string_symbol(*this, name);
+      sort s = to_sort(*this, Z3_mk_enumeration_sort(*this, _name, n, _enum_names.ptr(), _cs.ptr(), _ts.ptr()));
+      check_error();
+      for (unsigned i = 0; i < n; i++) { cs.push_back(func_decl(*this, _cs[i])); ts.push_back(func_decl(*this, _ts[i])); }
+      return s;
+    }
+
+    inline sort context::uninterpreted_sort(char const* name) {
+        Z3_symbol _name = Z3_mk_string_symbol(*this, name);
+        return to_sort(*this, Z3_mk_uninterpreted_sort(*this, _name));
+    }
+    inline sort context::uninterpreted_sort(symbol const& name) {
+        return to_sort(*this, Z3_mk_uninterpreted_sort(*this, name));
     }
 
     inline func_decl context::function(symbol const & name, unsigned arity, sort const * domain, sort const & range) {
@@ -1659,6 +1788,9 @@ namespace z3 {
       Z3_ast r = Z3_mk_fresh_const(m_ctx, name, s);
       check_error();
       return expr(*this, r);
+    }
+    inline expr context::fresh_constant(const std::string& name, sort const & s) {
+      return fresh_constant(name.c_str(), s);
     }
     inline expr context::constant(char const * name, sort const & s) { return constant(str_symbol(name), s); }
     inline expr context::bool_const(char const * name) { return constant(name, bool_sort()); }
@@ -1843,6 +1975,16 @@ namespace z3 {
         return expr(ctx(), r);
     }
 };
+
+namespace std{
+  template<>
+  struct hash<z3::expr> {
+    size_t operator()(z3::expr const& e) const 
+    {
+      return (size_t)((Z3_ast)e);
+    }
+  };
+}
 
 /*@}*/
 /*@}*/

@@ -1,0 +1,214 @@
+Running actions
+Building sequential automaton
+64 rounds; seen states: 52; transitions: 146
+Checking if the trace is actually a counter example
+14 rounds; seen states: 14; transitions: 13
+Not Included
+0-yi[ex5.c:76]
+0-wn(open)[ex5.c:39]
+0-w(power_on)[ex5.c:40]
+0-no(open)[ex5.c:44]
+1-wa(open)[ex5.c:84]
+1-lo(l)[ex5.c:58]
+1-rs(open)[ex5.c:60]
+1-r(power_on)[ex5.c:67]
+1-un(l)[ex5.c:70]
+1-yi[ex5.c:86]
+0-r(power_on)[ex5.c:46]
+0-yi[ex5.c:76]
+0-wn(open)[ex5.c:39]
+0-w(power_on)[ex5.c:40]
+0-no(open)[ex5.c:44]
+1-wa(open)[ex5.c:84]
+1-lo(l)[ex5.c:58]
+1-rs(open)[ex5.c:60]
+1-r(power_on)[ex5.c:67]
+1-un(l)[ex5.c:70]
+0-r(power_on)[ex5.c:46]
+0-yi[ex5.c:76]
+0-wn(open)[ex5.c:39]
+0-w(power_on)[ex5.c:40]
+0-no(open)[ex5.c:44]
+0-r(power_on)[ex5.c:46]
+0-yi[ex5.c:76]
+1-yi[ex5.c:86]
+1-wa(open)[ex5.c:84]
+1-lo(l)[ex5.c:58]
+1-rs(open)[ex5.c:60]
+1-wn(open)[ex5.c:63]
+1-w(power_on)[ex5.c:64]
+0-wn(open)[ex5.c:39]
+0-w(power_on)[ex5.c:40]
+1-r(power_on)[ex5.c:67]
+1-un(l)[ex5.c:70]
+1-yi[ex5.c:86]
+0-no(open)[ex5.c:44]
+1-wa(open)[ex5.c:84]
+1-lo(l)[ex5.c:58]
+1-rs(open)[ex5.c:60]
+1-r(power_on)[ex5.c:67]
+1-un(l)[ex5.c:70]
+1-yi[ex5.c:86]
+0-r(power_on)[ex5.c:46]
+Find all sequential traces
+Find concurrent traces that are not sequential
+All bad traces: 
+1-w(power_on)[ex5.c:64](3) < 0-r(power_on)[ex5.c:46](3) /\ 0-wn(open)[ex5.c:39](3) < 1-rs(open)[ex5.c:60](3) \/
+0-w(power_on)[ex5.c:40](3) < 1-r(power_on)[ex5.c:67](2) /\ 1-rs(open)[ex5.c:60](2) < 0-wn(open)[ex5.c:39](3) \/
+0-w(power_on)[ex5.c:40](2) < 1-r(power_on)[ex5.c:67] /\ 1-rs(open)[ex5.c:60] < 0-wn(open)[ex5.c:39](2) \/
+(*) 1-w(power_on)[ex5.c:64](3) < 0-w(power_on)[ex5.c:40](4) /\ 0-w(power_on)[ex5.c:40](4) < 1-r(power_on)[ex5.c:67](3) \/
+0-w(power_on)[ex5.c:40](4) < 1-w(power_on)[ex5.c:64](3) /\ 1-rs(open)[ex5.c:60](3) < 0-wn(open)[ex5.c:39](4)
+Found constraints to eliminate bad traces
+Locks inferred: 
+l1 (1-rs(open)[ex5.c:60](3)-1-w(power_on)[ex5.c:64](3), 0-wn(open)[ex5.c:39](3)-0-r(power_on)[ex5.c:46](3)) /\ 
+l2 (1-rs(open)[ex5.c:60](2)-1-r(power_on)[ex5.c:67](2), 0-wn(open)[ex5.c:39](3)-0-w(power_on)[ex5.c:40](3)) /\ 
+l3 (1-rs(open)[ex5.c:60]-1-r(power_on)[ex5.c:67], 0-wn(open)[ex5.c:39](2)-0-w(power_on)[ex5.c:40](2)) /\ 
+l4 (1-w(power_on)[ex5.c:64](3)-1-r(power_on)[ex5.c:67](3), 0-w(power_on)[ex5.c:40](4)-0-w(power_on)[ex5.c:40](4)) /\ 
+l5 (1-rs(open)[ex5.c:60](3)-1-w(power_on)[ex5.c:64](3), 0-wn(open)[ex5.c:39](4)-0-w(power_on)[ex5.c:40](4))
+1-rs(open)[ex5.c:60]
+1-wn(open)[ex5.c:63]
+1-w(power_on)[ex5.c:64]
+-------------------
+0-wn(open)[ex5.c:39]
+0-w(power_on)[ex5.c:40]
+0-no(open)[ex5.c:44]
+0-r(power_on)[ex5.c:46]
+-------------------
+ /\ 
+1-rs(open)[ex5.c:60]
+1-r(power_on)[ex5.c:67]
+-------------------
+0-wn(open)[ex5.c:39]
+0-w(power_on)[ex5.c:40]
+-------------------
+ /\ 
+1-w(power_on)[ex5.c:64]
+1-r(power_on)[ex5.c:67]
+-------------------
+0-w(power_on)[ex5.c:40]
+-------------------
+
+
+TIME - Iteration 1: 0.09s
+
+60 rounds; seen states: 48; transitions: 132
+Found candidate ... Checking if truely a counter-example(size=43)
+12 rounds; seen states: 12; transitions: 11
+Not Included; bound
+0-yi[ex5.c:76]
+0-wn(open)[ex5.c:39]
+0-w(power_on)[ex5.c:40]
+0-no(open)[ex5.c:44]
+1-wa(open)[ex5.c:84]
+1-lo(l)[ex5.c:58]
+0-r(power_on)[ex5.c:46]
+1-rs(open)[ex5.c:60]
+1-r(power_on)[ex5.c:67]
+1-un(l)[ex5.c:70]
+1-yi[ex5.c:86]
+0-yi[ex5.c:76]
+0-wn(open)[ex5.c:39]
+0-w(power_on)[ex5.c:40]
+0-no(open)[ex5.c:44]
+1-wa(open)[ex5.c:84]
+1-lo(l)[ex5.c:58]
+0-r(power_on)[ex5.c:46]
+1-rs(open)[ex5.c:60]
+1-r(power_on)[ex5.c:67]
+1-un(l)[ex5.c:70]
+0-yi[ex5.c:76]
+0-wn(open)[ex5.c:39]
+0-w(power_on)[ex5.c:40]
+0-no(open)[ex5.c:44]
+0-r(power_on)[ex5.c:46]
+0-yi[ex5.c:76]
+1-yi[ex5.c:86]
+1-wa(open)[ex5.c:84]
+0-wa(open)[ex5.c:42]
+1-lo(l)[ex5.c:58]
+1-rs(open)[ex5.c:60]
+1-r(power_on)[ex5.c:67]
+1-un(l)[ex5.c:70]
+1-yi[ex5.c:86]
+0-no(open)[ex5.c:44]
+1-wa(open)[ex5.c:84]
+1-lo(l)[ex5.c:58]
+0-r(power_on)[ex5.c:46]
+1-rs(open)[ex5.c:60]
+1-r(power_on)[ex5.c:67]
+1-un(l)[ex5.c:70]
+1-yi[ex5.c:86]
+Find all sequential traces
+Find concurrent traces that are not sequential
+All bad traces: 
+(*) 0-wa(open)[ex5.c:42](4) < 1-rs(open)[ex5.c:60](3) /\ 1-rs(open)[ex5.c:60](3) < 0-no(open)[ex5.c:44](4)
+Found constraints to eliminate bad traces
+Locks inferred: 
+l6 (1-rs(open)[ex5.c:60](3)-1-rs(open)[ex5.c:60](3), 0-wa(open)[ex5.c:42](4)-0-no(open)[ex5.c:44](4))
+1-rs(open)[ex5.c:60]
+-------------------
+0-wa(open)[ex5.c:42]
+0-no(open)[ex5.c:44]
+-------------------
+
+
+TIME - Iteration 2: 0.053s
+
+119 rounds; seen states: 79; transitions: 279
+Included
+Synthesis was successful.
+Threads: 2
+Iterations: 2
+Liss: 0s
+Verification: 0s
+Synthesis: 0.143s
+Memory: 34MB
+Total number of conflicts found: 4
+2 | 2 | 1 | 0s | 0.143s | 0s | 0.143s | 34MB
+Lock statistics:
+---------------
+Starting lock placement for absmin
+Lock placement succeeded!
+Cost function 2: Absolute minimum of instructions inside a lock:
+Number of locks used: 1
+Number of lock operations: 3
+Number of unlock operations: 2
+Number of abstract instructions inside a lock: 9
+Time for this cost function: 0.025s
+
+Starting lock placement for coarse
+Lock placement succeeded!
+Cost function 3: Coarse locks:
+Number of locks used: 1
+Number of lock operations: 2
+Number of unlock operations: 2
+Number of abstract instructions inside a lock: 9
+Time for this cost function: 0.041s
+
+Starting lock placement for unopt
+Lock placement succeeded!
+Cost function 4: No cost function:
+Number of locks used: 2
+Number of lock operations: 6
+Number of unlock operations: 5
+Number of abstract instructions inside a lock: 9
+Time for this cost function: 0.009s
+
+Starting lock placement for small
+Lock placement succeeded!
+Cost function 5: Smallest locks:
+Number of locks used: 2
+Number of lock operations: 6
+Number of unlock operations: 4
+Number of abstract instructions inside a lock: 9
+Time for this cost function: 0.038s
+
+Starting lock placement for maxconc
+Lock placement succeeded!
+Cost function 6: Maximum concurrency:
+Number of locks used: 1
+Number of lock operations: 3
+Number of unlock operations: 2
+Number of abstract instructions inside a lock: 9
+Time for this cost function: 0.025s
+

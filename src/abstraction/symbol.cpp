@@ -20,6 +20,7 @@
 #include "symbol.h"
 #include <clang/AST/Stmt.h>
 #include <clang/Basic/SourceManager.h>
+#include "options.h"
 
 using namespace abstraction;
 using namespace std;
@@ -67,19 +68,27 @@ std::ostream& abstraction::operator<< (std::ostream& out, const abstraction::op_
 }
 
 
-symbol::symbol(op_class operation, call_stack cstack, string variable_name, variable_type variable, identifier_store& is, const clang::Stmt* stmt) :
-operation(operation), cstack(cstack), variable_name(variable_name), variable(variable), stmt(stmt) {
-  assert(cstack.back().second);
-  assert(cstack.back().second==stmt);
-  clang::SourceLocation loc = is.source_manager.getFileLoc(instr_id()->getLocStart());
+symbol::symbol(op_class operation, string variable_name, variable_type variable, identifier_store& is, clang::Stmt* stmt) :
+operation(operation), variable_name(variable_name), variable(variable), stmt(stmt) {
+  clang::SourceLocation loc = is.source_manager.getFileLoc(stmt->getLocStart());
   fileentry = is.source_manager.getFileEntryForID(is.source_manager.getFileID(loc));
-  if (!fileentry) synthesised = true;
+  assert (fileentry);
   line_no = is.source_manager.getPresumedLineNumber(loc);
+}
+
+symbol::symbol(thread_id_type thread_id, state_id_type state_id, uint8_t branch) : operation(op_class::tag), loc(thread_id, state_id), tag_branch(branch)
+{
+  
+}
+
+symbol::symbol(thread_id_type thread_id, state_id_type state_id) : operation(op_class::epsilon), loc(thread_id, state_id) {
+  
 }
 
 std::ostream& abstraction::operator<< (std::ostream &out, const abstraction::symbol &val) {
   val.operation;
-  if (val.tag_state != no_state) {
+  out << to_string(val.thread_id()) << "-";
+  if (val.tag_branch != -1) {
     out << to_string(val.tag_branch);
   } else {
     out << val.operation;
@@ -95,7 +104,49 @@ std::ostream& abstraction::operator<< (std::ostream &out, const abstraction::sym
   return out;
 }
 
-symbol::symbol(state_id state, uint8_t branch) : operation(op_class::tag), tag_state(state), tag_branch(branch)
+
+bool symbol::is_preemption_point() const
 {
-  
+  switch (operation) {
+    case abstraction::op_class::read:
+    case abstraction::op_class::write:
+    case abstraction::op_class::unlock:
+    case abstraction::op_class::notify:
+    case abstraction::op_class::reset:
+    case abstraction::op_class::epsilon:
+    case abstraction::op_class::tag:
+      break;
+    case abstraction::op_class::yield:
+      return true;
+    case abstraction::op_class::lock:
+      return !synthesised;
+    case abstraction::op_class::wait_reset:
+    case abstraction::op_class::wait_not:
+    case abstraction::op_class::wait:
+      return !assume || assumes_allow_switch;
+  }
+  return false;
+}
+
+bool symbol::is_unlockable_point() const
+{
+  switch (operation) {
+    case abstraction::op_class::read:
+    case abstraction::op_class::write:
+    case abstraction::op_class::unlock:
+    case abstraction::op_class::notify:
+    case abstraction::op_class::reset:
+    case abstraction::op_class::epsilon:
+    case abstraction::op_class::tag:
+      break;
+    case abstraction::op_class::yield:
+      break;
+    case abstraction::op_class::lock:
+      return !synthesised;
+    case abstraction::op_class::wait_reset:
+    case abstraction::op_class::wait_not:
+    case abstraction::op_class::wait:
+      return !assume || assumes_allow_switch;
+  }
+  return false;
 }

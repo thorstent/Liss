@@ -5,7 +5,7 @@ BUILD = build
 BUILDDIR = $(PWD)/$(BUILD)
 SRCDIR = $(PWD)/src
 
-all : release
+all : release_asserts
 
 .PHONY : release debug clean
 
@@ -36,6 +36,7 @@ $(BUILD)/buildd/Makefile: libs/z3/build/libz3.a | libs/Limi/README.md
 clean :
 	rm -rf $(BUILDDIR)/buildd
 	rm -rf $(BUILDDIR)/buildr
+	rm -rf $(BUILDDIR)/buildra
 	rm -f liss
 
 libs/z3/build/libz3.a : | libs/z3/README

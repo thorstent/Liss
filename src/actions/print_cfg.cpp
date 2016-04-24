@@ -21,14 +21,22 @@
 #include "cfg/dot_printer.h"
 #include "options.h"
 
+#include "placement/place_locks.h"
+
 using namespace actions;
 
 void print_cfg::run(const cfg::program& program, clang::CompilerInstance& compiler)
 {
+  create_debug_folder();
+  unsigned t = 0;
   for (const cfg::abstract_cfg* thread : program.threads()) {
-    cfg::print_dot(*thread, debug_folder + thread->name + "_cfg.dot");
+    cfg::print_dot(*thread, debug_folder + std::to_string(t) + "-" + thread->name + "_cfg.dot");
+    ++t;
   }
+  t = 0;
   for (const cfg::abstract_cfg* thread : program.minimised_threads()) {
-    cfg::print_dot(*thread, debug_folder + thread->name + "_min_cfg.dot");
+    cfg::print_dot(*thread, debug_folder + std::to_string(t) + "-" + thread->name + "_cfg_min.dot");
+    ++t;
   }
+  
 }

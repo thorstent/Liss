@@ -1,0 +1,460 @@
+Running actions
+Building sequential automaton
+29 rounds; seen states: 45; transitions: 72
+Found candidate ... Checking if truely a counter-example(size=22)
+9 rounds; seen states: 9; transitions: 8
+Not Included; bound
+1-lo(l)[f_acm.c:43]
+1-rs(pending)[f_acm.c:46]
+1-r(bsy)[f_acm.c:49]
+1-no(pending)[f_acm.c:63]
+1-un(l)[f_acm.c:69]
+0-lo(l)[f_acm.c:43]
+0-rs(pending)[f_acm.c:46]
+0-r(bsy)[f_acm.c:49]
+0-w(bsy)[f_acm.c:51]
+0-un(l)[f_acm.c:54]
+0-no(request)[f_acm.c:77]
+2-wa(request)[f_acm.c:101]
+2-lo(l)[f_acm.c:105]
+2-w(bsy)[f_acm.c:108]
+2-rs(request)[f_acm.c:109]
+2-un(l)[f_acm.c:112]
+2-yi[f_acm.c:121]
+2-wn(pending)[f_acm.c:122]
+0-w(bsy)[f_acm.c:58]
+Find all sequential traces
+Find concurrent traces that are not sequential
+All bad traces: 
+(*) 2-w(bsy)[f_acm.c:108] < 0-w(bsy)[f_acm.c:58] /\ 0-no(request)[f_acm.c:77] < 2-wa(request)[f_acm.c:101]
+Found constraints to eliminate bad traces
+Locks inferred: 
+l1 (2-wa(request)[f_acm.c:101]-2-w(bsy)[f_acm.c:108], 0-no(request)[f_acm.c:77]-0-w(bsy)[f_acm.c:58])
+2-wa(request)[f_acm.c:101]
+-------------------
+2-w(bsy)[f_acm.c:108]
+-------------------
+0-no(request)[f_acm.c:77]
+0-w(bsy)[f_acm.c:58]
+-------------------
+
+
+TIME - Iteration 1: 0.028s
+
+67 rounds; seen states: 68; transitions: 146
+Found candidate ... Checking if truely a counter-example(size=14)
+8 rounds; seen states: 8; transitions: 7
+Not Included; bound
+1-lo(l)[f_acm.c:43]
+1-rs(pending)[f_acm.c:46]
+1-r(bsy)[f_acm.c:49]
+1-w(bsy)[f_acm.c:51]
+1-un(l)[f_acm.c:54]
+0-lo(l)[f_acm.c:43]
+0-rs(pending)[f_acm.c:46]
+0-r(bsy)[f_acm.c:49]
+1-w(bsy)[f_acm.c:58]
+0-no(pending)[f_acm.c:63]
+0-un(l)[f_acm.c:69]
+Find all sequential traces
+Find concurrent traces that are not sequential
+All bad traces: 
+(*) 0-r(bsy)[f_acm.c:49] < 1-w(bsy)[f_acm.c:58] /\ 1-rs(pending)[f_acm.c:46] < 0-no(pending)[f_acm.c:63]
+Found constraints to eliminate bad traces
+Locks inferred: 
+l2 (1-rs(pending)[f_acm.c:46]-1-w(bsy)[f_acm.c:58], 0-r(bsy)[f_acm.c:49]-0-no(pending)[f_acm.c:63])
+1-rs(pending)[f_acm.c:46]
+1-r(bsy)[f_acm.c:49]
+1-w(bsy)[f_acm.c:51]
+1-un(l)[f_acm.c:54]
+1-w(bsy)[f_acm.c:58]
+-------------------
+0-r(bsy)[f_acm.c:49]
+0-no(pending)[f_acm.c:63]
+-------------------
+
+
+TIME - Iteration 2: 0.016s
+
+200 rounds; seen states: 202; transitions: 471
+Found candidate ... Checking if truely a counter-example(size=22)
+9 rounds; seen states: 9; transitions: 8
+Not Included; bound
+1-lo(l)[f_acm.c:43]
+1-rs(pending)[f_acm.c:46]
+1-r(bsy)[f_acm.c:49]
+1-w(bsy)[f_acm.c:51]
+1-un(l)[f_acm.c:54]
+1-no(request)[f_acm.c:77]
+2-wa(request)[f_acm.c:101]
+2-lo(l)[f_acm.c:105]
+2-w(bsy)[f_acm.c:108]
+2-rs(request)[f_acm.c:109]
+2-un(l)[f_acm.c:112]
+2-yi[f_acm.c:121]
+2-wn(pending)[f_acm.c:122]
+1-w(bsy)[f_acm.c:58]
+0-lo(l)[f_acm.c:43]
+0-rs(pending)[f_acm.c:46]
+0-r(bsy)[f_acm.c:49]
+0-no(pending)[f_acm.c:63]
+0-un(l)[f_acm.c:69]
+Find all sequential traces
+Find concurrent traces that are not sequential
+All bad traces: 
+(*) 2-w(bsy)[f_acm.c:108] < 1-w(bsy)[f_acm.c:58] /\ 1-no(request)[f_acm.c:77] < 2-wa(request)[f_acm.c:101]
+Found constraints to eliminate bad traces
+Locks inferred: 
+l3 (2-wa(request)[f_acm.c:101]-2-w(bsy)[f_acm.c:108], 1-no(request)[f_acm.c:77]-1-w(bsy)[f_acm.c:58])
+2-wa(request)[f_acm.c:101]
+-------------------
+2-w(bsy)[f_acm.c:108]
+-------------------
+1-no(request)[f_acm.c:77]
+1-w(bsy)[f_acm.c:58]
+-------------------
+
+
+TIME - Iteration 3: 0.025s
+
+557 rounds; seen states: 535; transitions: 1540
+Found candidate ... Checking if truely a counter-example(size=23)
+11 rounds; seen states: 11; transitions: 10
+Not Included; bound
+1-lo(l)[f_acm.c:43]
+1-rs(pending)[f_acm.c:46]
+1-r(bsy)[f_acm.c:49]
+1-w(bsy)[f_acm.c:51]
+1-un(l)[f_acm.c:54]
+1-no(request)[f_acm.c:77]
+2-wa(request)[f_acm.c:101]
+0-lo(l)[f_acm.c:43]
+0-rs(pending)[f_acm.c:46]
+0-r(bsy)[f_acm.c:49]
+0-w(bsy)[f_acm.c:51]
+0-un(l)[f_acm.c:54]
+2-lo(l)[f_acm.c:105]
+2-w(bsy)[f_acm.c:108]
+2-rs(request)[f_acm.c:109]
+2-un(l)[f_acm.c:112]
+2-yi[f_acm.c:121]
+2-wn(pending)[f_acm.c:122]
+0-w(bsy)[f_acm.c:58]
+Find all sequential traces
+Find concurrent traces that are not sequential
+All bad traces: 
+(*) 0-w(bsy)[f_acm.c:51] < 2-w(bsy)[f_acm.c:108] /\ 2-w(bsy)[f_acm.c:108] < 0-w(bsy)[f_acm.c:58] \/
+0-w(bsy)[f_acm.c:51] < 1-r(bsy)[f_acm.c:49] /\ 1-r(bsy)[f_acm.c:49] < 0-w(bsy)[f_acm.c:58]
+Found constraints to eliminate bad traces
+Locks inferred: 
+l4 (2-w(bsy)[f_acm.c:108]-2-w(bsy)[f_acm.c:108], 0-w(bsy)[f_acm.c:51]-0-w(bsy)[f_acm.c:58]) /\ 
+l5 (1-r(bsy)[f_acm.c:49]-1-r(bsy)[f_acm.c:49], 0-w(bsy)[f_acm.c:51]-0-w(bsy)[f_acm.c:58])
+2-w(bsy)[f_acm.c:108]
+-------------------
+0-w(bsy)[f_acm.c:51]
+0-un(l)[f_acm.c:54]
+0-w(bsy)[f_acm.c:58]
+-------------------
+ /\ 
+1-r(bsy)[f_acm.c:49]
+-------------------
+0-w(bsy)[f_acm.c:51]
+0-un(l)[f_acm.c:54]
+0-w(bsy)[f_acm.c:58]
+-------------------
+
+
+TIME - Iteration 4: 0.032s
+
+577 rounds; seen states: 562; transitions: 1584
+Found candidate ... Checking if truely a counter-example(size=30)
+11 rounds; seen states: 11; transitions: 10
+Not Included; bound
+1-lo(l)[f_acm.c:43]
+1-rs(pending)[f_acm.c:46]
+1-r(bsy)[f_acm.c:49]
+1-w(bsy)[f_acm.c:51]
+1-un(l)[f_acm.c:54]
+1-no(request)[f_acm.c:77]
+2-wa(request)[f_acm.c:101]
+0-lo(l)[f_acm.c:43]
+0-rs(pending)[f_acm.c:46]
+0-r(bsy)[f_acm.c:49]
+0-w(bsy)[f_acm.c:51]
+0-un(l)[f_acm.c:54]
+2-lo(l)[f_acm.c:105]
+2-w(bsy)[f_acm.c:108]
+2-rs(request)[f_acm.c:109]
+2-un(l)[f_acm.c:112]
+2-yi[f_acm.c:121]
+2-wn(pending)[f_acm.c:122]
+0-no(request)[f_acm.c:77]
+2-wa(request)[f_acm.c:101]
+2-lo(l)[f_acm.c:105]
+2-w(bsy)[f_acm.c:108]
+2-rs(request)[f_acm.c:109]
+2-un(l)[f_acm.c:112]
+2-yi[f_acm.c:121]
+2-wn(pending)[f_acm.c:122]
+Find all sequential traces
+Find concurrent traces that are not sequential
+All bad traces: 
+1-w(bsy)[f_acm.c:51] < 2-w(bsy)[f_acm.c:108] /\ 2-rs(request)[f_acm.c:109] < 1-no(request)[f_acm.c:77] \/
+(*) 0-w(bsy)[f_acm.c:51] < 2-w(bsy)[f_acm.c:108] /\ 2-rs(request)[f_acm.c:109] < 0-no(request)[f_acm.c:77]
+Found constraints to eliminate bad traces
+Locks inferred: 
+l6 (2-w(bsy)[f_acm.c:108]-2-rs(request)[f_acm.c:109], 1-w(bsy)[f_acm.c:51]-1-no(request)[f_acm.c:77]) /\ 
+l7 (2-w(bsy)[f_acm.c:108]-2-rs(request)[f_acm.c:109], 0-w(bsy)[f_acm.c:51]-0-no(request)[f_acm.c:77])
+2-w(bsy)[f_acm.c:108]
+2-rs(request)[f_acm.c:109]
+-------------------
+1-w(bsy)[f_acm.c:51]
+1-un(l)[f_acm.c:54]
+1-no(request)[f_acm.c:77]
+-------------------
+ /\ 
+2-w(bsy)[f_acm.c:108]
+2-rs(request)[f_acm.c:109]
+-------------------
+0-w(bsy)[f_acm.c:51]
+0-un(l)[f_acm.c:54]
+0-no(request)[f_acm.c:77]
+-------------------
+
+
+TIME - Iteration 5: 0.05s
+
+978 rounds; seen states: 898; transitions: 2636
+Found candidate ... Checking if truely a counter-example(size=23)
+11 rounds; seen states: 11; transitions: 10
+Not Included; bound
+1-lo(l)[f_acm.c:43]
+1-rs(pending)[f_acm.c:46]
+1-r(bsy)[f_acm.c:49]
+1-w(bsy)[f_acm.c:51]
+1-un(l)[f_acm.c:54]
+1-no(request)[f_acm.c:77]
+0-lo(l)[f_acm.c:43]
+0-rs(pending)[f_acm.c:46]
+0-r(bsy)[f_acm.c:49]
+1-w(bsy)[f_acm.c:58]
+2-wa(request)[f_acm.c:101]
+0-w(bsy)[f_acm.c:51]
+0-un(l)[f_acm.c:54]
+2-lo(l)[f_acm.c:105]
+2-w(bsy)[f_acm.c:108]
+2-rs(request)[f_acm.c:109]
+2-un(l)[f_acm.c:112]
+2-yi[f_acm.c:121]
+2-wn(pending)[f_acm.c:122]
+Find all sequential traces
+Find concurrent traces that are not sequential
+All bad traces: 
+(*) 0-r(bsy)[f_acm.c:49] < 1-w(bsy)[f_acm.c:58] /\ 1-w(bsy)[f_acm.c:58] < 0-w(bsy)[f_acm.c:51] \/
+1-r(bsy)[f_acm.c:49] < 0-w(bsy)[f_acm.c:51] /\ 0-w(bsy)[f_acm.c:51] < 1-w(bsy)[f_acm.c:58]
+Found constraints to eliminate bad traces
+Locks inferred: 
+l8 (1-w(bsy)[f_acm.c:58]-1-w(bsy)[f_acm.c:58], 0-r(bsy)[f_acm.c:49]-0-w(bsy)[f_acm.c:51]) /\ 
+l9 (1-r(bsy)[f_acm.c:49]-1-w(bsy)[f_acm.c:58], 0-w(bsy)[f_acm.c:51]-0-w(bsy)[f_acm.c:51])
+1-w(bsy)[f_acm.c:58]
+-------------------
+0-r(bsy)[f_acm.c:49]
+0-w(bsy)[f_acm.c:51]
+-------------------
+ /\ 
+1-r(bsy)[f_acm.c:49]
+1-w(bsy)[f_acm.c:51]
+1-un(l)[f_acm.c:54]
+1-no(request)[f_acm.c:77]
+1-w(bsy)[f_acm.c:58]
+-------------------
+0-w(bsy)[f_acm.c:51]
+-------------------
+
+
+TIME - Iteration 6: 0.032s
+
+1015 rounds; seen states: 924; transitions: 2696
+Found candidate ... Checking if truely a counter-example(size=28)
+11 rounds; seen states: 11; transitions: 10
+Not Included; bound
+1-lo(l)[f_acm.c:43]
+1-rs(pending)[f_acm.c:46]
+1-r(bsy)[f_acm.c:49]
+1-w(bsy)[f_acm.c:51]
+1-un(l)[f_acm.c:54]
+1-no(request)[f_acm.c:77]
+0-lo(l)[f_acm.c:43]
+0-rs(pending)[f_acm.c:46]
+0-r(bsy)[f_acm.c:49]
+0-no(pending)[f_acm.c:63]
+1-w(bsy)[f_acm.c:58]
+2-wa(request)[f_acm.c:101]
+0-un(l)[f_acm.c:69]
+2-lo(l)[f_acm.c:105]
+2-w(bsy)[f_acm.c:108]
+2-rs(request)[f_acm.c:109]
+2-un(l)[f_acm.c:112]
+2-yi[f_acm.c:117]
+2-wa(pending)[f_acm.c:118]
+2-lo(l)[f_acm.c:43]
+2-rs(pending)[f_acm.c:46]
+2-r(bsy)[f_acm.c:49]
+2-no(pending)[f_acm.c:63]
+2-un(l)[f_acm.c:69]
+Find all sequential traces
+Find concurrent traces that are not sequential
+All bad traces: 
+(*) 0-r(bsy)[f_acm.c:49] < 1-w(bsy)[f_acm.c:58] /\ 1-rs(pending)[f_acm.c:46] < 0-no(pending)[f_acm.c:63]
+Found constraints to eliminate bad traces
+Locks inferred: 
+l10 (1-rs(pending)[f_acm.c:46]-1-w(bsy)[f_acm.c:58], 0-r(bsy)[f_acm.c:49]-0-no(pending)[f_acm.c:63])
+1-rs(pending)[f_acm.c:46]
+1-r(bsy)[f_acm.c:49]
+1-w(bsy)[f_acm.c:51]
+1-un(l)[f_acm.c:54]
+1-no(request)[f_acm.c:77]
+1-w(bsy)[f_acm.c:58]
+-------------------
+0-r(bsy)[f_acm.c:49]
+0-no(pending)[f_acm.c:63]
+-------------------
+
+
+TIME - Iteration 7: 0.036s
+
+1255 rounds; seen states: 1158; transitions: 3483
+Found candidate ... Checking if truely a counter-example(size=15)
+8 rounds; seen states: 8; transitions: 7
+Not Included; bound
+0-lo(l)[f_acm.c:43]
+0-rs(pending)[f_acm.c:46]
+0-r(bsy)[f_acm.c:49]
+0-w(bsy)[f_acm.c:51]
+0-un(l)[f_acm.c:54]
+1-lo(l)[f_acm.c:43]
+1-rs(pending)[f_acm.c:46]
+1-r(bsy)[f_acm.c:49]
+1-no(pending)[f_acm.c:63]
+1-un(l)[f_acm.c:69]
+0-no(request)[f_acm.c:77]
+0-w(bsy)[f_acm.c:58]
+Find all sequential traces
+Find concurrent traces that are not sequential
+All bad traces: 
+(*) 1-r(bsy)[f_acm.c:49] < 0-w(bsy)[f_acm.c:58] /\ 0-rs(pending)[f_acm.c:46] < 1-no(pending)[f_acm.c:63]
+Found constraints to eliminate bad traces
+Locks inferred: 
+l11 (1-r(bsy)[f_acm.c:49]-1-no(pending)[f_acm.c:63], 0-rs(pending)[f_acm.c:46]-0-w(bsy)[f_acm.c:58])
+1-r(bsy)[f_acm.c:49]
+1-no(pending)[f_acm.c:63]
+-------------------
+0-rs(pending)[f_acm.c:46]
+0-r(bsy)[f_acm.c:49]
+0-w(bsy)[f_acm.c:51]
+0-un(l)[f_acm.c:54]
+0-no(request)[f_acm.c:77]
+0-w(bsy)[f_acm.c:58]
+-------------------
+
+
+TIME - Iteration 8: 0.021s
+
+1421 rounds; seen states: 1358; transitions: 4019
+Found candidate ... Checking if truely a counter-example(size=23)
+11 rounds; seen states: 11; transitions: 10
+Not Included; bound
+0-lo(l)[f_acm.c:43]
+0-rs(pending)[f_acm.c:46]
+0-r(bsy)[f_acm.c:49]
+0-w(bsy)[f_acm.c:51]
+0-un(l)[f_acm.c:54]
+1-lo(l)[f_acm.c:43]
+1-rs(pending)[f_acm.c:46]
+0-no(request)[f_acm.c:77]
+2-wa(request)[f_acm.c:101]
+1-r(bsy)[f_acm.c:49]
+1-w(bsy)[f_acm.c:51]
+1-un(l)[f_acm.c:54]
+2-lo(l)[f_acm.c:105]
+2-w(bsy)[f_acm.c:108]
+2-rs(request)[f_acm.c:109]
+2-un(l)[f_acm.c:112]
+2-yi[f_acm.c:121]
+2-wn(pending)[f_acm.c:122]
+1-w(bsy)[f_acm.c:58]
+Find all sequential traces
+Find concurrent traces that are not sequential
+All bad traces: 
+(*) 1-w(bsy)[f_acm.c:51] < 2-w(bsy)[f_acm.c:108] /\ 2-w(bsy)[f_acm.c:108] < 1-w(bsy)[f_acm.c:58]
+Found constraints to eliminate bad traces
+Locks inferred: 
+l12 (2-w(bsy)[f_acm.c:108]-2-w(bsy)[f_acm.c:108], 1-w(bsy)[f_acm.c:51]-1-w(bsy)[f_acm.c:58])
+2-w(bsy)[f_acm.c:108]
+-------------------
+1-w(bsy)[f_acm.c:51]
+1-un(l)[f_acm.c:54]
+1-w(bsy)[f_acm.c:58]
+-------------------
+
+
+TIME - Iteration 9: 0.034s
+
+2097 rounds; seen states: 1928; transitions: 6054
+Included
+Synthesis was successful.
+Threads: 3
+Iterations: 9
+Liss: 0.016s
+Verification: 0.007s
+Synthesis: 0.254s
+Memory: 36MB
+Total number of conflicts found: 12
+3 | 9 | 1 | 0.016s | 0.254s | 0.007s | 0.277s | 36MB
+Lock statistics:
+---------------
+Starting lock placement for absmin
+Lock placement succeeded!
+Cost function 2: Absolute minimum of instructions inside a lock:
+Number of locks used: 1
+Number of lock operations: 3
+Number of unlock operations: 3
+Number of abstract instructions inside a lock: 27
+Time for this cost function: 0.179s
+
+Starting lock placement for coarse
+Lock placement succeeded!
+Cost function 3: Coarse locks:
+Number of locks used: 1
+Number of lock operations: 3
+Number of unlock operations: 3
+Number of abstract instructions inside a lock: 27
+Time for this cost function: 0.306s
+
+Starting lock placement for unopt
+Lock placement succeeded!
+Cost function 4: No cost function:
+Number of locks used: 2
+Number of lock operations: 6
+Number of unlock operations: 6
+Number of abstract instructions inside a lock: 29
+Time for this cost function: 0.024s
+
+Starting lock placement for small
+Lock placement succeeded!
+Cost function 5: Smallest locks:
+Number of locks used: 2
+Number of lock operations: 5
+Number of unlock operations: 4
+Number of abstract instructions inside a lock: 27
+Time for this cost function: 0.491s
+
+Starting lock placement for maxconc
+Lock placement succeeded!
+Cost function 6: Maximum concurrency:
+Number of locks used: 1
+Number of lock operations: 3
+Number of unlock operations: 3
+Number of abstract instructions inside a lock: 27
+Time for this cost function: 0.187s
+

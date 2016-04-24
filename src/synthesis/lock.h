@@ -42,8 +42,6 @@ namespace synthesis {
     clang::CompoundStmt* parent;
     clang::Stmt* inserted_start = nullptr;
     clang::Stmt* inserted_end = nullptr;
-    call_stack start_stack; // the remaining call stack (to determine the calling function)
-    call_stack end_stack; 
     lock_location(const location start, const location end) : start(start), end(end) {}
   };
   typedef std::list<lock_location> lock_locations;
@@ -55,7 +53,7 @@ namespace synthesis {
     clang::VarDecl* declaration = nullptr;
   };
   
-  void print_lock(const lock& lock, const Limi::printer< abstraction::pcsymbol >& symbol_printer, std::ostream& out);
+  std::ostream& operator<<(std::ostream& out, const lock& lock);
   
 }
 

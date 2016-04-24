@@ -18,16 +18,18 @@
  */
 
 #include "concurrent_state.h"
+#include "cfg/automaton.h"
 
 using namespace abstraction;
 
 
-concurrent_state::concurrent_state(unsigned no_threads) : threads(new state_id[no_threads] {}), 
-length(no_threads) {
+concurrent_state::concurrent_state(unsigned no_threads, unsigned dnf_size) : threads(new state_id_type[no_threads] {}), 
+length(no_threads), locksviolated(dnf_size) 
+{
 }
 
-concurrent_state::concurrent_state(const concurrent_state& other) : threads(new state_id[other.length]), length(other.length), current(other.current), 
-conditionals(other.conditionals), locks(other.locks), reward(other.reward)
+concurrent_state::concurrent_state(const concurrent_state& other) : threads(new state_id_type[other.length]), length(other.length), current(other.current), 
+conditionals(other.conditionals), locks(other.locks), locksviolated(other.locksviolated), reward(other.reward), conflicts(other.conflicts)
 {
   for (thread_id_type i = 0; i<length; ++i) {
     threads[i] = other.threads[i];
@@ -35,7 +37,7 @@ conditionals(other.conditionals), locks(other.locks), reward(other.reward)
 }
 
 concurrent_state::concurrent_state(concurrent_state&& other) : length(other.length), current(other.current),
-conditionals(std::move(other.conditionals)), locks(std::move(other.locks))
+conditionals(std::move(other.conditionals)), locks(std::move(other.locks)), reward(other.reward), locksviolated(std::move(other.locksviolated)), conflicts(move(other.conflicts))
 {
   threads = other.threads;
   other.threads = nullptr;
@@ -48,18 +50,23 @@ concurrent_state& concurrent_state::operator=(const concurrent_state& other)
     return *this;
   if (length < other.length) {
     delete[] threads;
-    threads = new state_id[other.length];
+    threads = new state_id_type[other.length];
   }
   
   length = other.length;
   current = other.current;
   conditionals = other.conditionals;
   locks = other.locks;
+  reward = other.reward;
   
   for (thread_id_type i = 0; i<length; ++i) {
     threads[i] = other.threads[i];
   }
-  reward = other.reward;
+  
+  locksviolated = other.locksviolated;
+  
+  conflicts = other.conflicts;
+  
   return *this;
 }
 
@@ -72,11 +79,14 @@ concurrent_state& concurrent_state::operator=(concurrent_state&& other)
   current = other.current;
   conditionals = std::move(other.conditionals);
   locks = std::move(other.locks);
+  reward = other.reward;
   
   threads = other.threads;
   other.threads = nullptr;
   
-  reward = other.reward;
+  locksviolated = std::move(other.locksviolated);
+  
+  conflicts = move(other.conflicts);
   
   return *this;
 }
@@ -89,15 +99,34 @@ concurrent_state::~concurrent_state()
 
 bool concurrent_state::operator==(const concurrent_state& other) const
 {
+  if (&other == this) return true;
   if (length!=other.length) return false;
   for (thread_id_type i = 0; i<length; ++i) {
-    if (!std::equal_to<state_id>()(threads[i],other.threads[i])) return false;
+    if (!std::equal_to<state_id_type>()(threads[i],other.threads[i])) return false;
   }
   if (conditionals != other.conditionals) return false;
   if (locks != other.locks) return false;
   if (current != other.current) return false;
+  if (locksviolated != other.locksviolated) return false;
+  if (conflicts != other.conflicts) return false;
   return true;
 }
+
+bool concurrent_state::operator<(const concurrent_state& other) const
+{
+  if (reward != other.reward)
+    return reward < other.reward;
+  /*for (unsigned i = 0; i<length; i++) {
+    if (operator[](i) != other[i])
+      return operator[](i) < other[i];
+  }
+  /*size_t hash = std::hash<concurrent_state>()(*this);
+  size_t hasho = std::hash<concurrent_state>()(other);
+  if (hash!=hasho) return hash < hasho;
+  assert(false);*/
+  return false;
+}
+
 
 std::size_t std::hash< abstraction::concurrent_state >::operator()(const concurrent_state& val) const
 {
@@ -114,7 +143,7 @@ void Limi::printer< abstraction::pcstate >::print(const pcstate& state, std::ost
 {
   out << "(";
   for (thread_id_type i = 0; i<state->length; ++i) {
-    out << threads[i].state_printer()((*state)[i]);
+    out << threads[i].state_printer()(cfg::reward_state((*state)[i]));
     if (i<state->length-1) out << ",";
   }
   out << ")";
@@ -139,7 +168,6 @@ void Limi::printer< abstraction::pcstate >::print(const pcstate& state, std::ost
   }
   if (!first)
     out << "]";
-  out << "(" << state->reward << ")";
 }
 
 std::ostream& abstraction::operator<<(std::ostream &out, const concurrent_state& s) {

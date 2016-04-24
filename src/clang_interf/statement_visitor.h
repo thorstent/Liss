@@ -43,10 +43,10 @@ public:
   statement_visitor(clang::ASTContext& context, cfg::abstract_cfg& thread,
                     abstraction::identifier_store& identifier_store,
                     std::unordered_set<const clang::Stmt*>& seen_stmt,
-                    call_stack cstack, bool writer = false) :
+                    const clang::FunctionDecl* function, bool writer = false) :
                     context(context), thread(thread), identifier_store(identifier_store),
                     access_type(writer ? abstraction::op_class::write : abstraction::op_class::read),
-                    cstack(cstack), seen_stmt(seen_stmt) {}
+                    function(function), seen_stmt(seen_stmt) {}
   
   inline bool shouldUseDataRecursionFor(clang::Stmt* s) { return false; }
   
@@ -57,8 +57,10 @@ public:
   bool TraverseCallExpr(clang::CallExpr* s);
   bool TraverseStmt(clang::Stmt* s);
   
-  state_id last_state();
-  state_id first_state();
+  bool TraverseReturnStmt(clang::ReturnStmt* s);
+  
+  state_id_type last_state();
+  state_id_type first_state();
   inline bool progress() { return start_state != no_state; }
   /**
    * @brief Means that the last instruction referenced non-det
@@ -69,14 +71,22 @@ private:
   clang::ASTContext& context;
   cfg::abstract_cfg& thread;
   abstraction::identifier_store& identifier_store;
-  state_id start_state = no_state;
-  state_id end_state = no_state;
+  state_id_type start_state = no_state;
+  state_id_type end_state = no_state;
   abstraction::op_class access_type;
 
-  void add_successor(state_id successor);
+  void add_successor(state_id_type successor);
   std::string get_type_name(clang::DeclRefExpr* decl);
-  call_stack cstack;
+  const clang::FunctionDecl* function;
   std::unordered_set<const clang::Stmt*>& seen_stmt;
+  void lock_locations(clang::Stmt* stmt, state_id_type state, bool allow_before = true, bool allow_after = true);
+
+  /**
+   * @brief Check if the statement is artificial (inserted into the CFG)
+   * 
+   * @return true if artificial
+   */
+  bool process_artificial(clang::Stmt* s);
 };
 }
 

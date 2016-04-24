@@ -21,13 +21,13 @@
 #define ACTIONS_DEADLOCK_CHECK_H
 
 #include "action_base.h"
-#include <Limi/results.h>
-#include "abstraction/csymbol.h"
+#include "automata/results.h"
+#include "abstraction/symbol.h"
 #include "abstraction/concurrent_automaton.h"
 
 namespace actions {
 
-typedef Limi::deadlock_result< abstraction::pcsymbol, abstraction::pcstate > deadlock_result;
+typedef automata::deadlock_result< abstraction::psymbol, abstraction::pcstate > deadlock_result;
 bool test_deadlock(const cfg::program& program, deadlock_result& result, bool concurrent);
 bool test_deadlock(const abstraction::concurrent_automaton& program, deadlock_result& result);
 

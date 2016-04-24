@@ -24,17 +24,19 @@
 #include <Limi/internal/helpers.h>
 #include <functional>
 #include <bitset>
+#include <set>
 #include <memory>
 #include <ostream>
+#include <boost/dynamic_bitset.hpp>
 #include "identifier_store.h"
 #include "cfg/automaton.h"
 
 namespace abstraction {
   
-  const thread_id_type unassigned = -1;
-
+  using conflict_t = tagged_int16;
+  
   struct concurrent_state {
-    concurrent_state(unsigned no_threads);
+    concurrent_state(unsigned no_threads, unsigned dnf_size);
     ~concurrent_state();
     
     concurrent_state(const concurrent_state& other);
@@ -42,27 +44,25 @@ namespace abstraction {
     concurrent_state(concurrent_state&& other);
     concurrent_state & operator= (concurrent_state && other);
     
-    state_id* threads;
+    state_id_type* threads;
     thread_id_type length;
-    thread_id_type current = unassigned;
-    uint16_t reward = 0;
+    thread_id_type current = no_thread;
+    reward_t reward = 0;
     
-    state_id& operator[] (const int i) {return threads[i];};
-    const state_id& operator[] (const int i) const {return threads[i];};
+    state_id_type& operator[] (const int i) {return threads[i];};
+    const state_id_type& operator[] (const int i) const {return threads[i];};
     
     std::bitset<max_conditionals> conditionals; // bit is set if conditional is notified
     std::bitset<max_locks> locks; // bit is set if lock is taken
     
+    // locks that have been violated (refering to synthesised locks that are inserted on the fly)
+    boost::dynamic_bitset<unsigned> locksviolated;
+    
+    // see concurrent automata class
+    std::set<conflict_t> conflicts;
+    
     bool operator==(const concurrent_state &other) const;
-    inline bool operator<(const concurrent_state &other) const {
-      if (reward != other.reward)
-        return reward < other.reward;
-      for (unsigned i = 0; i<length; i++) {
-        if (operator[](i) != other[i])
-          return operator[](i) < other[i];
-      }
-      return false;
-    }
+    bool operator<(const concurrent_state &other) const;
   };
   
   typedef std::shared_ptr<concurrent_state> pcstate;

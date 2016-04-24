@@ -31,7 +31,7 @@ int vm_consistent;
 void thread_mmap () {
 
     // 1. lock semaphore
-    lock(sem);
+    lock(sem) ;
 
     // 2.
     //assert (vm_consistent == 1);

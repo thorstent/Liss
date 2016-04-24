@@ -26,18 +26,18 @@ using namespace cfg;
 
 void cfg::print_dot(const abstract_cfg& cfg, std::ostream& out)
 {
-  Limi::printer<state_id> printer(cfg);
+  Limi::printer<state_id_type> printer(cfg);
   out << "digraph automaton {" << std::endl;
-  std::unordered_set<state_id> seen;
-  std::deque<state_id> frontier;
-  for (const state_id s : cfg.initial_states()) {
+  std::unordered_set<state_id_type> seen;
+  std::deque<state_id_type> frontier;
+  for (const state_id_type s : cfg.initial_states()) {
     frontier.push_back(s);
     out << "begin" << s << " [shape=none,label=\"\"]" << std::endl;
     out << "begin" << s << " -> " << s << std::endl;
   }
   
   while (!frontier.empty()) {
-    state_id next = frontier.front();
+    state_id_type next = frontier.front();
     frontier.pop_front();
     if (seen.find(next) == seen.end()) {
       seen.insert(next);

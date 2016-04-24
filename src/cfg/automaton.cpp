@@ -21,7 +21,8 @@
 
 using namespace cfg;
 
-bool automaton::int_is_final_state(const state_id& state) const {
+bool automaton::int_is_final_state(const reward_state& state_) const {
+  state_id_type state = state_.state;
   if (state>=0)
     return thread_.get_state(state).final;
   else {
@@ -32,66 +33,66 @@ bool automaton::int_is_final_state(const state_id& state) const {
   return false;
 }
 
-void automaton::int_successors(const state_id& state, const reward_symbol& sigma, State_set& successors) const {
+void automaton::int_successors(const reward_state& state_, const abstraction::psymbol& sigma, State_vector& successors) const {
+  state_id_type state = state_.state;
   if (state<0) {
     // we are after this state, examine the successor edges
     // we are only after the state if there are several successors
     for (const edge& e : thread_.get_successors(state * -1)) {
-      if(std::equal_to<abstraction::psymbol>()(e.tag.get(), sigma.symbol)) {
-        reward_t reward = e.cost*-2;
-        sigma.reward = reward;
-        successors.insert(e.to);
+      if(std::equal_to<abstraction::psymbol>()(e.tag.get(), sigma)) {
+        reward_t reward = e.cost*-1;
+        successors.push_back(reward_state(e.to, reward));
         break;
-      } else if(std::equal_to<abstraction::psymbol>()(thread_.get_state(e.to).action.get(), sigma.symbol)) {
-        reward_t reward = e.cost*-2;
+      } else if(std::equal_to<abstraction::psymbol>()(thread_.get_state(e.to).action.get(), sigma)) {
+        reward_t reward = e.cost*-1;
         if (reward==0) reward = 1;
-        sigma.reward = reward;
         auto su = thread_.get_successors(e.to);
         if (su.size() == 1) 
-          successors.insert(su.front().to);
+          successors.push_back(reward_state(su.front().to, reward));
         else {
-          successors.insert(e.to*-1);
+          successors.push_back(reward_state(e.to*-1, reward));
         }
         break;
       }
     }
   } else {
-    if (std::equal_to<abstraction::psymbol>()(thread_.get_state(state).action.get(), sigma.symbol)) {
+    if (std::equal_to<abstraction::psymbol>()(thread_.get_state(state).action.get(), sigma)) {
+      reward_t reward = 1;
       auto su = thread_.get_successors(state);
       if (su.size() == 1) {
-        successors.insert(su.front().to);
+        successors.push_back(reward_state(su.front().to, reward));
       } else {
-        successors.insert(state*-1);
+        successors.push_back(reward_state(state*-1, reward));
       }
-      sigma.reward = 1;
     }
   }
 }
 
-void automaton::int_next_symbols(const state_id& state, Symbol_set& symbols) const {
+void automaton::int_next_symbols(const reward_state& state_, Symbol_vector& symbols) const {
+  state_id_type state = state_.state;
   if (state<0) {
     // we are after this state, examine the successor edges
     // we are only after the state if there are several successors
     for (const edge& e : thread_.get_successors(state * -1)) {
       //assert(e.tag != nullptr); 
-      auto action = e.tag;
+      abstraction::psymbol action = e.tag.get();
       reward_t reward = e.cost*-2;
       if (action == nullptr) {
-        action = thread_.get_state(e.to).action;
+        action = thread_.get_state(e.to).action.get();
         if (reward==0) reward = 1;
       }
-      if (action != nullptr) 
-        symbols.insert(reward_symbol(reward, action.get()));
+      if (action != nullptr)
+        symbols.push_back(action);
     }
   } else {
     if (thread_.get_state(state).action!=nullptr)
-      symbols.insert(reward_symbol(1,thread_.get_state(state).action.get()));
+      symbols.push_back(thread_.get_state(state).action.get());
   }
 }
 
-void automaton::int_initial_states(Limi::automaton< state_id, abstraction::psymbol, automaton >::State_set& states) const
+void automaton::int_initial_states(State_vector& states) const
 {
   assert (thread_.initial_states().size() == 1);
-  state_id init = *thread_.initial_states().begin();
-  states.insert(-init);
+  state_id_type init = *thread_.initial_states().begin();
+  states.push_back(reward_state(-init));
 }

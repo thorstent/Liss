@@ -1,0 +1,89 @@
+Running actions
+Building sequential automaton
+9 rounds; seen states: 13; transitions: 15
+Checking if the trace is actually a counter example
+7 rounds; seen states: 7; transitions: 6
+Not Included
+0-w(devlist_nonempty)[em28xx.c:29]
+0-w(devlist)[em28xx.c:32]
+0-no(registered)[em28xx.c:35]
+1-wa(registered)[em28xx.c:49]
+1-r(devlist_nonempty)[em28xx.c:52]
+1-r(devlist)[em28xx.c:55]
+1-r(devlist)[em28xx.c:58]
+0-w(devlist)[em28xx.c:38]
+Find all sequential traces
+Find concurrent traces that are not sequential
+All bad traces: 
+(*) 1-r(devlist)[em28xx.c:55] < 0-w(devlist)[em28xx.c:38] /\ 0-no(registered)[em28xx.c:35] < 1-wa(registered)[em28xx.c:49]
+Found constraints to eliminate bad traces
+Locks inferred: 
+l1 (1-wa(registered)[em28xx.c:49]-1-r(devlist)[em28xx.c:55], 0-no(registered)[em28xx.c:35]-0-w(devlist)[em28xx.c:38])
+1-r(devlist_nonempty)[em28xx.c:52]
+1-r(devlist)[em28xx.c:55]
+-------------------
+0-no(registered)[em28xx.c:35]
+0-w(devlist)[em28xx.c:38]
+-------------------
+
+
+TIME - Iteration 1: 0.016s
+
+13 rounds; seen states: 13; transitions: 19
+Included
+Synthesis was successful.
+Threads: 2
+Iterations: 1
+Liss: 0s
+Verification: 0s
+Synthesis: 0.016s
+Memory: 30MB
+Total number of conflicts found: 1
+2 | 1 | 1 | 0s | 0.016s | 0s | 0.016s | 30MB
+Lock statistics:
+---------------
+Starting lock placement for absmin
+Lock placement succeeded!
+Cost function 2: Absolute minimum of instructions inside a lock:
+Number of locks used: 1
+Number of lock operations: 2
+Number of unlock operations: 2
+Number of abstract instructions inside a lock: 4
+Time for this cost function: 0.001s
+
+Starting lock placement for coarse
+Lock placement succeeded!
+Cost function 3: Coarse locks:
+Number of locks used: 1
+Number of lock operations: 2
+Number of unlock operations: 2
+Number of abstract instructions inside a lock: 4
+Time for this cost function: 0.002s
+
+Starting lock placement for unopt
+Lock placement succeeded!
+Cost function 4: No cost function:
+Number of locks used: 1
+Number of lock operations: 2
+Number of unlock operations: 2
+Number of abstract instructions inside a lock: 4
+Time for this cost function: 0.001s
+
+Starting lock placement for small
+Lock placement succeeded!
+Cost function 5: Smallest locks:
+Number of locks used: 1
+Number of lock operations: 2
+Number of unlock operations: 2
+Number of abstract instructions inside a lock: 4
+Time for this cost function: 0.001s
+
+Starting lock placement for maxconc
+Lock placement succeeded!
+Cost function 6: Maximum concurrency:
+Number of locks used: 1
+Number of lock operations: 2
+Number of unlock operations: 2
+Number of abstract instructions inside a lock: 4
+Time for this cost function: 0.001s
+

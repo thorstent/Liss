@@ -35,10 +35,26 @@ namespace clang_interf {
 class cfg_visitor
 {
 public:
-  typedef std::unordered_map<unsigned int,const state_id> block_map_t;
+  typedef std::unordered_map<unsigned int,const state_id_type> block_map_t;
   cfg_visitor(clang::ASTContext& context, cfg::abstract_cfg& thread,
-              abstraction::identifier_store& identifier_store, const clang::CFGBlock& exit) :
-  context(context), thread(thread), identifier_store(identifier_store), exit_block(&exit) {}
+              abstraction::identifier_store& identifier_store, const clang::CFGBlock& exit, const clang::FunctionDecl* function) :
+  context(context), thread(thread), identifier_store(identifier_store), exit_block(&exit), function(function) {}
+  
+  void process(const clang::CFGBlock& block);
+  
+  state_id_type exit_state();
+  state_id_type entry_state();
+  
+  static cfg_visitor process_function(clang::ASTContext& context, cfg::abstract_cfg& thread, abstraction::identifier_store& identifier_store, const clang::FunctionDecl* callee);
+private:
+  clang::ASTContext& context;
+  cfg::abstract_cfg& thread;
+  abstraction::identifier_store& identifier_store;
+  block_map_t block_map;
+  state_id_type exit_state_ = no_state;
+  state_id_type entry_state_ = no_state;
+  const clang::CFGBlock* exit_block;
+  const clang::FunctionDecl* function;
   
   /**
    * @brief ...
@@ -47,18 +63,13 @@ public:
    * @param last_state no_state if no proir state
    * @param parent_blocks The blocks already encountered on the way to this block
    */
-  void process_block(const clang::CFGBlock& block, call_stack cstack, state_id last_state, std::unordered_set<unsigned> parent_blocks = std::unordered_set<unsigned>());
-  
-  state_id exit_state();
-  state_id entry_state();
-private:
-  clang::ASTContext& context;
-  cfg::abstract_cfg& thread;
-  abstraction::identifier_store& identifier_store;
-  block_map_t block_map;
-  state_id exit_state_ = no_state;
-  state_id entry_state_ = no_state;
-  const clang::CFGBlock* exit_block;
+  void process_block(const clang::CFGBlock& block, state_id_type last_state, std::unordered_set<unsigned> parent_blocks = std::unordered_set<unsigned>());
+  /**
+   * @brief Checks if this is an artifical node and if so adds the locking
+   * 
+   * @returns no_state if not artificial
+   */
+  state_id_type add_locking_artificial(clang::Stmt* stmt);
 };
 }
 

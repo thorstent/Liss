@@ -21,7 +21,7 @@
 #define SYNTHESIS_LOCATION_H
 
 #include <z3++.h>
-#include "abstraction/csymbol.h"
+#include "abstraction/symbol.h"
 #include <cassert>
 #include <ostream>
 
@@ -31,14 +31,13 @@ struct location
 {
   z3::expr name;
   std::string name_str;
-  abstraction::pcsymbol symbol;
+  abstraction::psymbol symbol;
   std::string description;
   unsigned iteration = 0; // the loop iteration of this symbol
-  inline uint8_t thread_id() const { assert(symbol_valid); return symbol.thread_id; }
+  inline thread_id_type thread_id() const { assert(symbol_valid); return symbol->thread_id(); }
   int original_position = -1; // position in the original trace (-1 means not in original trace) (needed only for debug purposes)
   inline unsigned instruction_id() const { assert(original_position>=0); return static_cast<unsigned>(original_position); }
-  bool pre_location = false; // this is a pre-location (used for waits and locks)
-  location(z3::expr name, std::string name_str, const abstraction::pcsymbol symbol, int original_position) : name(name), name_str(name_str), symbol(symbol), original_position(original_position), symbol_valid(true)  {}
+  location(z3::expr name, std::string name_str, const abstraction::psymbol symbol, int original_position) : name(name), name_str(name_str), symbol(symbol), original_position(original_position), symbol_valid(true)  {}
   location(z3::expr name, std::string description) : name(name), description(description)  {}
   operator z3::expr () const { return name; }
   
@@ -46,13 +45,13 @@ struct location
   z3::expr operator>(const location &other) const { return static_cast<z3::expr>(*this) > other; };
   
   bool operator==(const location& other) const { return static_cast<Z3_ast>(name)==static_cast<Z3_ast>(other.name); }
-private:
+  // TODO: This is a bit dubious
   bool symbol_valid = false;
 };
 
 typedef std::pair<const location*, const location*> loc_pair;
 
-void print_location(const location& loc, const Limi::printer< abstraction::pcsymbol >& symbol_printer, std::ostream& out);
+std::ostream& operator<<(std::ostream& out, const location& loc);
 }
 
 #endif // SYNTHESIS_LOCATION_H

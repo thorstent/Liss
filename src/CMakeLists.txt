@@ -4,7 +4,7 @@ set (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake")
 project(Liss)
 include(GetGitRevisionDescription)
 
-set(CMAKE_CXX_FLAGS_RELEASEASSERT "-O3")
+set(CMAKE_CXX_FLAGS_RELEASEASSERT "-O3 -g")
 
 include_directories("${PROJECT_SOURCE_DIR}")
 
@@ -52,13 +52,13 @@ add_subdirectory(clang_interf)
 add_subdirectory(actions)
 add_subdirectory(synthesis)
 add_subdirectory(cfg)
+add_subdirectory(placement)
 
-add_executable(liss options.cpp main.cpp "${CMAKE_CURRENT_BINARY_DIR}/GIT.cpp") 
+add_executable(liss options.cpp main.cpp types.cpp "${CMAKE_CURRENT_BINARY_DIR}/GIT.cpp") 
 
 #add_precompiled_header(langinc pch.h
 #       FORCEINCLUDE)
 
-target_link_libraries(liss actions synthesis z3 clang_interf cfg abstraction ${Boost_LIBRARIES} -fopenmp ${CLANG_LIBS} ${LLVM_LIBRARIES} ${LLVM_LDFLAGS})
+target_link_libraries(liss actions synthesis clang_interf placement cfg abstraction -Wl,-Bstatic z3 rt ${Boost_LIBRARIES} -fopenmp ${CLANG_LIBS} ${LLVM_LIBRARIES} ${LLVM_LDFLAGS})
 
-#add_executable(test_antichain tests/antichain.cpp)
 

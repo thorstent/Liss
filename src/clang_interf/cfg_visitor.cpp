@@ -22,17 +22,64 @@
 #include <stdexcept>
 #include <clang/AST/ASTContext.h>
 #include <cassert>
+#include <clang/Lex/Lexer.h>
+#include <iostream>
 
 using namespace clang_interf;
 using namespace std;
 using namespace clang;
 
+void cfg_visitor::process(const CFGBlock& block)
+{
+  process_block(block, no_state);
+}
+
+// inject an artifical element into the CFG
+Stmt* make_artificial(ASTContext& context, string name, SourceLocation loc_start, SourceLocation loc_end) {
+  BuiltinType* ch = new BuiltinType(BuiltinType::UInt);
+  SourceLocation startend[] = { loc_start, loc_end };
+  StringLiteral* str = StringLiteral::Create(context, name, StringLiteral::Ascii, false, QualType(ch, 0), startend , 2);
+  return str;
+}
+
+cfg_visitor cfg_visitor::process_function(ASTContext& context, cfg::abstract_cfg& thread, abstraction::identifier_store& identifier_store, const clang::FunctionDecl* callee)
+{
+  Stmt* body = callee->getBody();
+  string name = callee->getNameInfo().getAsString();
+  assert(isa<CompoundStmt>(body));
+  CompoundStmt* com = cast<CompoundStmt>(body);
+  Stmt** children = new Stmt*[com->size()+2];
+  unsigned i = 0;
+  // function start
+  Stmt* s = make_artificial(context, "start " + name, SourceLocation(), body->getLocStart().getLocWithOffset(1));
+  children[i] = s;++i;
+  for(Stmt* c : com->body()) {
+    children[i] = c;
+    ++i;
+  }
+  // function end
+  s = make_artificial(context, "end " + name, body->getLocEnd(), SourceLocation());
+  children[i] = s;++i;
+  com->setStmts(context, children, i);
+  clang::CFG::BuildOptions bo;
+  std::unique_ptr<clang::CFG> cfg = CFG::buildCFG(callee, callee->getBody(), &context, bo);
+  //cout << name << endl;
+  //cfg->dump(context.getLangOpts(), false);
+  cfg_visitor cvisitor(context, thread, identifier_store, cfg->getExit(), callee);
+  cvisitor.process(cfg->getEntry());
+  // restore original
+  com->setStmts(context, &children[1], i-2);
+  return cvisitor;
+}
+
+
+
 // parent_blocks is used to identify back_edges
-void cfg_visitor::process_block(const CFGBlock& block, call_stack cstack, state_id last_state, unordered_set<unsigned> parent_blocks)
+void cfg_visitor::process_block(const CFGBlock& block, state_id_type last_state, unordered_set<unsigned> parent_blocks)
 {
   unordered_set<const Stmt*> seen_stmt;
   
-  statement_visitor svisitor(context, thread, identifier_store, seen_stmt, cstack);
+  statement_visitor svisitor(context, thread, identifier_store, seen_stmt, function);
   
   auto found = block_map.find(block.getBlockID());
   if (found == block_map.end()) {
@@ -52,7 +99,7 @@ void cfg_visitor::process_block(const CFGBlock& block, call_stack cstack, state_
       // cache the first state for later
       block_map.insert(make_pair(block.getBlockID(), svisitor.first_state()));
     } else {
-      state_id dummy_state = thread.add_dummy_state();
+      state_id_type dummy_state = thread.add_dummy_state();
       // make the connection
       if (last_state!=no_state)
         thread.add_edge(last_state, dummy_state);
@@ -89,7 +136,7 @@ void cfg_visitor::process_block(const CFGBlock& block, call_stack cstack, state_
     for (auto it = block.succ_begin(); it != block.succ_end(); ++it) {
       const CFGBlock* succ_block = it->getReachableBlock();
       if (succ_block) {
-        process_block(*succ_block, cstack, last_state, parent_blocks);
+        process_block(*succ_block, last_state, parent_blocks);
       }
     }
     
@@ -102,12 +149,12 @@ void cfg_visitor::process_block(const CFGBlock& block, call_stack cstack, state_
 
 }
 
-state_id cfg_visitor::entry_state()
+state_id_type cfg_visitor::entry_state()
 {
   return entry_state_;
 }
 
-state_id cfg_visitor::exit_state()
+state_id_type cfg_visitor::exit_state()
 {
   return exit_state_;
 }

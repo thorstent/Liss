@@ -21,8 +21,13 @@
 
 using namespace synthesis;
 
-void synthesis::print_location(const location& loc, const Limi::printer< abstraction::pcsymbol >& symbol_printer, std::ostream& out)
+namespace synthesis {
+
+std::ostream& operator<<(std::ostream& out, const location& loc)
 {
-  out << symbol_printer(loc.symbol);
+  out << loc.symbol;
   if (loc.iteration > 1) out << "(" << loc.iteration << ")";
+  return out;
+}
+
 }

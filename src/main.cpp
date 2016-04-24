@@ -52,11 +52,15 @@ cl::list<actions::action_names> ActionList(cl::desc("Available Actions:"),
                                   clEnumValN(actions::action_names::synthesis, "synthesis"  , "Add synchronisation primitives to the code"),
                                   clEnumValN(actions::action_names::deadlock, "deadlock"  , "Check for deadlocks"),
                                   clEnumValN(actions::action_names::perf_test, "perf"  , "Verious performance tests"),
+                                  clEnumValN(actions::action_names::printlocks, "printlocks"  , "Print all lock positions in the code"),
                                 clEnumValEnd), cl::cat(LissCategory));
 
 cl::opt<int, true> Verbosity ("v", cl::desc("Set verbosity level"), cl::value_desc("verbosity"), cl::cat(LissCategory), cl::location(verbosity));
+string lock_desc = "Set the maximum number of locks to synthesise (default=" + to_string(lock_limit) + ")";
+cl::opt<unsigned, true> Lock_Limit ("locklimit", cl::desc(lock_desc.c_str()), cl::value_desc("max locks"), cl::cat(LissCategory), cl::location(lock_limit));
 
-cl::opt<unsigned, true> Bound ("bound", cl::desc("Set bound of antichain algorithm"), cl::value_desc("bound"), cl::cat(LissCategory), cl::location(max_bound));
+string bound_desc = "Set bound of antichain algorithm (default=" + to_string(max_bound) + ")";
+cl::opt<unsigned, true> Bound ("bound", cl::desc(bound_desc.c_str()), cl::value_desc("bound"), cl::cat(LissCategory), cl::location(max_bound));
 
 std::vector<actions::actionp> acts;
 
@@ -68,6 +72,8 @@ public:
       new clang_interf::abstraction_consumer(Compiler, acts));
     }
 };
+
+
 
 int main(int argc, const char **argv) {
   for (int i = 0; i < argc; ++i) {
@@ -89,10 +95,13 @@ int main(int argc, const char **argv) {
   }
   string file = OptionsParser.getSourcePathList().front();
   boost::filesystem::path file_path(file);
+  main_file_path = file_path.string();
   file_path = boost::filesystem::absolute(file_path);
+  if (!boost::filesystem::exists(file_path)) {
+    cerr << "File " << file_path << " not found!" << endl;
+    return 1;
+  }
   main_filename = file_path.filename().string();
-  output_file_code = file_path.string();
-  output_file_code.replace(output_file_code.length()-2,2, ".complete.c");
   start_file_code = file_path.string();
   start_file_code.replace(start_file_code.length()-2,2, ".start.c");
   output_file_log = file_path.string();
@@ -103,7 +112,7 @@ int main(int argc, const char **argv) {
       boost::filesystem::remove_all(it->path());
     }
   } else {
-    boost::filesystem::create_directory(folder_path);
+    // delay creation of the debug folder
   }
   debug_folder = folder_path.string() + "/";
 

@@ -27,7 +27,15 @@
 namespace synthesis {
 
 template <class value>
-void min_unsat(z3::solver& sol, std::vector< value >& items, std::function< z3::expr(value) > translate) {
+/**
+ * @brief Minimal unsat core
+ * 
+ * @param sol ...
+ * @param items ...
+ * @param translate ...
+ * @return true if successful, false if sat
+ */
+bool min_unsat(z3::solver& sol, std::vector< value >& items, std::function< z3::expr(value) > translate = [](const z3::expr& e){return e;}) {
   std::vector<z3::expr> triggers;
   // translate items to expr
   for (auto i: items) {
@@ -37,13 +45,17 @@ void min_unsat(z3::solver& sol, std::vector< value >& items, std::function< z3::
     sol.add(implies(trigger,translation));
   }
   
+  if (sol.check(triggers.size(), &triggers[0])!=z3::unsat) {
+    return false;
+  }
+  
   //assert(sol.check(triggers.size(), &triggers[0])==z3::unsat);
   // for many items, first do unsat core
   if (items.size() > 10) {
     z3::check_result r = sol.check(triggers.size(), &triggers[0]);
     if (r==z3::sat) {
       //std::cout << sol.get_model() << std::endl;
-      return;
+      return true;
     }
     z3::expr_vector core = sol.unsat_core();
     std::unordered_set<Z3_ast> core_set;
@@ -81,6 +93,7 @@ void min_unsat(z3::solver& sol, std::vector< value >& items, std::function< z3::
       t++;
     }
   }
+  return true;
 }
 
 }

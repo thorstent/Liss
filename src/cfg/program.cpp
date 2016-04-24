@@ -32,9 +32,11 @@ void program::add_thread(abstract_cfg* thread)
 {
   if (threads_.size() == max_threads)
     throw range_error("Too many threads in program");
-  abstract_cfg* new_thread = new abstract_cfg(*thread);
+  thread->minimise(true);
+  thread->compact();
   threads_.push_back(thread);
-  new_thread->minimise();
+  abstract_cfg* new_thread = new abstract_cfg(*thread);
+  new_thread->minimise(false);
   //new_thread->add_tags();
   minimised_threads_.push_back(new_thread);
 }

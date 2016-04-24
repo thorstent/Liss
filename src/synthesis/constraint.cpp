@@ -21,7 +21,7 @@
 
 using namespace synthesis;
 
-z3::expr synthesis::make_constraint(z3::context& ctx, conj c) {
+z3::expr synthesis::make_constraint(z3::context& ctx, conj_constr c) {
   z3::expr result = ctx.bool_val(true);
   for (const constraint_atom& l : c) {
     result = result && l;
@@ -29,58 +29,35 @@ z3::expr synthesis::make_constraint(z3::context& ctx, conj c) {
   return result;
 }
 
-z3::expr synthesis::make_constraint(z3::context& ctx, dnf d) {
+z3::expr synthesis::make_constraint(z3::context& ctx, dnf_constr d) {
   z3::expr result = ctx.bool_val(false);
-  for (const conj& l : d) {
+  for (const conj_constr& l : d) {
     result = result || make_constraint(ctx, l);
   }
   return result;
 }
 
-void print_constraint(const conj& c, const Limi::printer< abstraction::pcsymbol >& symbol_printer, std::ostream& out, std::string seperator)
-{
-  if (c.size()==0)
-    out << "true";
-  for (unsigned i = 0; i < c.size(); ++i) {
-    print_location(c[i].before, symbol_printer, out);
+namespace synthesis {
+  std::ostream& operator<<(std::ostream& out, const constraint_atom& ca) {
+    out << ca.before;
     out << " < ";
-    print_location(c[i].after, symbol_printer, out);
-    if (i < c.size() - 1) 
-      out << " " << seperator << " ";
+    out << ca.after;
+    return out;
   }
 }
 
-void synthesis::print_constraint(const conj& c, const Limi::printer< abstraction::pcsymbol >& symbol_printer, std::ostream& out)
-{
-  ::print_constraint(c, symbol_printer, out, "/\\");
+bool constraint_atom::operator==(const constraint_atom& ca) const {
+  return (before==ca.before && after==ca.after);
 }
 
-void synthesis::print_constraint_cnf(const disj& d, const Limi::printer< abstraction::pcsymbol >& symbol_printer, std::ostream& out)
-{
-  ::print_constraint(d, symbol_printer, out, "\\/");
+bool constraint_atom::operator!=(const constraint_atom& ca) const {
+  return (!(*this==ca));
 }
 
-void synthesis::print_constraint(const dnf& d, const Limi::printer< abstraction::pcsymbol >& symbol_printer, std::ostream& out)
-{
-  if (d.size()==0)
-    out << "false";
-  for (unsigned i = 0; i < d.size(); ++i) {
-    print_constraint(d[i], symbol_printer, out);
-    if (i < d.size() - 1) 
-      out << " \\/" << std::endl;
-  }
-}
-
-
-cnf synthesis::negate_dnf(const dnf& dnf)
-{
-  cnf cnf(dnf);
-  for(conj& c : cnf) {
-    for(constraint_atom& ca : c) {
-      auto temp = ca.after;
-      ca.after = ca.before;
-      ca.before = temp;
-    }
-  }
-  return cnf;
+constraint_atom constraint_atom::operator!() const {
+  constraint_atom ca(*this);
+  auto temp = ca.after;
+  ca.after = ca.before;
+  ca.before = temp;
+  return ca;
 }

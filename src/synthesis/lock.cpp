@@ -24,13 +24,16 @@
 using namespace synthesis;
 using namespace std;
 
-void synthesis::print_lock(const lock& lock, const Limi::printer< abstraction::pcsymbol >& symbol_printer, std::ostream& out) {
-  out << lock.name << " (";
-  for(auto l = lock.locations.begin(); l!=lock.locations.end(); ) {
-    print_location(l->start, symbol_printer, out);
-    out << "-";
-    print_location(l->end, symbol_printer, out);
-    if (++l != lock.locations.end()) out << ", ";
+namespace synthesis {
+  std::ostream& operator<<(std::ostream& out, const lock& lock) {
+    out << lock.name << " (";
+    for(auto l = lock.locations.begin(); l!=lock.locations.end(); ) {
+      out << l->start;
+      out << "-";
+      out << l->end;
+      if (++l != lock.locations.end()) out << ", ";
+    }
+    out << ")";
+    return out;
   }
-  out << ")";
 }

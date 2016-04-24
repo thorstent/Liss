@@ -21,10 +21,11 @@
 
 #include "print.h"
 #include "inclusion_test.h"
-#include "synthesis.h"
+#include "synthesis2.h"
 #include "deadlock_check.h"
 #include "perf_test.h"
 #include "print_cfg.h"
+#include "print_locks.h"
 
 using namespace actions;
 using namespace std;
@@ -44,13 +45,15 @@ actions::actionp actions::create_action(action_names action){
     case action_names::inclusion_test:
       return make_shared<inclusion_test>();
     case action_names::synthesis:
-      return make_shared<synthesis>();
+      return make_shared<synthesis2>();
     case action_names::deadlock:
       return make_shared<deadlock_check>();
     case action_names::perf_test:
       return make_shared<perf_test>();
     case action_names::printcfg:
       return make_shared<print_cfg>();
+    case action_names::printlocks:
+      return make_shared<print_locks>();
   }
   assert(false);
   return nullptr;

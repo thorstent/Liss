@@ -28,7 +28,7 @@
 namespace actions {
   
   enum class action_names {
-    print, inclusion_test, synthesis, deadlock, perf_test, printtim, printcfg, printthreads
+    print, inclusion_test, synthesis, deadlock, perf_test, printtim, printcfg, printthreads, printlocks
   };
   
   class action_base

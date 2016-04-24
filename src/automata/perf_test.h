@@ -42,7 +42,8 @@ namespace automata {
   protected:
     typedef Limi::counterexample_chain<Symbol> counter_chain;
     typedef std::shared_ptr<counter_chain> pcounter_chain;
-    typedef std::unordered_set<State> State_set;
+    typedef std::vector<State> State_vector;
+    typedef std::vector<Symbol> Symbol_vector;
     typedef std::unordered_set<Symbol> Symbol_set;
     typedef Limi::automaton<State, Symbol, Implementation> Automaton;
     
@@ -58,7 +59,7 @@ namespace automata {
       pcounter_chain cex_chain;
     };
     
-    std::deque<frontier_item> initial_states_conv(const std::unordered_set<State>& states) {
+    std::deque<frontier_item> initial_states_conv(const std::vector<State>& states) {
       std::deque< frontier_item > result;
       for(State state : states) {
         frontier_item p(state);
@@ -70,7 +71,7 @@ namespace automata {
   protected:
     const Automaton& autom;
     
-    std::unordered_set<State> initial_states = autom.initial_states();
+    std::vector<State> initial_states = autom.initial_states();
     std::unordered_map<State,Symbol_set> seen; // a list of reachable states
     std::deque<frontier_item> frontier = initial_states_conv(initial_states);
     Independence independence_;
@@ -106,7 +107,7 @@ namespace automata {
         
         for (Symbol sigma : next_symbols) {
           ++transitions;   
-          State_set states = autom.successors(current.s, sigma);
+          State_vector states = autom.successors(current.s, sigma);
           
           Symbol_set next_sleep_set(current.sleep_set);
           // sort out the non-independent ones

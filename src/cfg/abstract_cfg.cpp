@@ -26,27 +26,52 @@
 #include <Limi/internal/helpers.h>
 #include <set>
 
-namespace std{
-  template <> struct hash <std::unordered_multiset<const abstraction::symbol*>> {
-    size_t operator()(const std::unordered_multiset<const abstraction::symbol*>& to_hash) const {
-      // this is a hack and will result in all hashed to collide, but that should be ok as long as there are only few elements in the set
-      return 0;
-    }
-  };
-}
-
 using namespace cfg;
 using namespace std;
+
+state::state(state_id_type id, const abstraction::symbol& action) : action(std::make_shared<abstraction::symbol>(action)) { assert(this->action->loc.state == id); }
+state::state(thread_id_type thread_id, state_id_type id) : non_action_symbol(std::make_shared<abstraction::symbol>(thread_id, id)) {}
+
+void state::name(std::string newn) { 
+  if (non_action_symbol) { 
+    std::shared_ptr<abstraction::symbol> newp = make_shared<abstraction::symbol>(*non_action_symbol);
+    newp->variable_name = newn;
+    non_action_symbol = newp;
+  }
+}
+
+void state::id(state_id_type new_id) {
+  if (action) { 
+    std::shared_ptr<abstraction::symbol> newp = make_shared<abstraction::symbol>(*action);
+    newp->loc.state = new_id;
+    action = newp;
+  }
+  if (non_action_symbol) { 
+    std::shared_ptr<abstraction::symbol> newp = make_shared<abstraction::symbol>(*non_action_symbol);
+    newp->loc.state = new_id;
+    non_action_symbol = newp;
+  }
+}
+
+void edge::id(state_id_type new_id) {
+  if (tag) { 
+    std::shared_ptr<abstraction::symbol> newp = make_shared<abstraction::symbol>(*tag);
+    newp->loc.state = new_id;
+    tag = newp;
+  }
+}
 
 std::ostream& cfg::operator<<(std::ostream& os, const state& s) {
   if (s.action)
     os << s.action;
   else if (s.final) {
+    os << to_string(s.non_action_symbol->thread_id()) << "-";
     os << "Exit";
   } else {
-    os << s.name;
+    assert (s.non_action_symbol);
+    os << to_string(s.non_action_symbol->thread_id()) << "-";
+    os << s.non_action_symbol->variable_name;
   }
-  os << "(" << s.distance << ")";
   return os;
 }
 
@@ -61,51 +86,59 @@ ostream& cfg::operator<<(ostream& os, const edge& e)
   return os;
 }
 
+bool edge::operator==(const edge& other) const {
+  return to==other.to;
+}
 
-abstract_cfg::abstract_cfg(const clang::FunctionDecl* fd)
-: declaration(fd)
+bool edge::operator<(const edge& other) const {
+  return to<other.to;
+}
+
+abstract_cfg::abstract_cfg(const clang::FunctionDecl* fd, thread_id_type thread_id)
+: declaration(fd), thread_id(thread_id)
 {
   add_state("No state");
-  initial_states_.insert(1);
   clang::DeclarationName dn = declaration->getNameInfo().getName();
   name = dn.getAsString();
 }
 
-state_id abstract_cfg::add_state(const abstraction::symbol& symbol, const clang::Stmt* stmt)
+
+state_id_type abstract_cfg::add_state(abstraction::symbol symbol)
 {
   if (states.size()>=max_states) throw range_error("Maximum number of states reached");
-  shared_ptr<abstraction::symbol> sym = make_shared<abstraction::symbol>(symbol);
+  symbol.loc.thread = thread_id;
+  symbol.loc.state = states.size();
   states.emplace_back(states.size(), symbol);
   edges.emplace_back();
   return states.size() - 1;
 }
 
-state_id abstract_cfg::add_state(const string& name)
+state_id_type abstract_cfg::add_state(const string& name)
 {
   if (states.size()>=max_states) throw range_error("Maximum number of states reached");
-  states.emplace_back(states.size());
+  states.emplace_back(thread_id, states.size());
   edges.emplace_back();
-  states[states.size()-1].name = name;
+  states[states.size()-1].name(name);
   return states.size() - 1;
 }
 
 
-void abstract_cfg::mark_final(state_id state)
+void abstract_cfg::mark_final(state_id_type state)
 {
   states[state].final = true;
 }
 
-void abstract_cfg::tag_edge(state_id state, uint8_t edge)
+void abstract_cfg::tag_edge(state_id_type state, uint8_t edge)
 {
-  edges[state][edge].tag = make_shared<abstraction::symbol>(state, edge);
+  edges[state][edge].tag = make_shared<abstraction::symbol>(thread_id, state, edge);
 }
 
 
-void abstract_cfg::add_edge(state_id from, state_id to, bool back_edge, bool auto_tag, reward_t cost)
+void abstract_cfg::add_edge(state_id_type from, state_id_type to, bool back_edge, bool auto_tag, reward_t cost)
 {
   assert(from>=0 && to>=0);
   if (auto_tag && edges[from].size() == 1) {
-    // automatic tagging is to expensive. We now have the add_tag function
+    // automatic tagging is too expensive. We now have the add_tag function
     if (!states[from].non_det)
       tag_edge(from, 0);
   }
@@ -116,91 +149,172 @@ void abstract_cfg::add_edge(state_id from, state_id to, bool back_edge, bool aut
   }
 }
 
-state_id abstract_cfg::add_dummy_state()
+state_id_type abstract_cfg::add_dummy_state()
 {
   if (states.size() == 1)
     return add_state("Init");
   return add_state("Dummy");
 }
 
-struct successors_pair_less {
-  bool operator()(std::pair<state_id,bool> p1, std::pair<state_id,bool> p2) const {
-    return p1.first < p2.first;
-  }
-};
-
-void abstract_cfg::minimise()
+void abstract_cfg::minimise(bool leave_lockables)
 {
-  std::unordered_set<state_id> seen;
+  std::unordered_set<state_id_type> remain; // leave these states alone
+  if (leave_lockables) {
+    for (unsigned i = 0; i <= no_states(); ++i) {
+      if (states[i].lock_before != clang::SourceLocation() || states[i].lock_after != clang::SourceLocation()) {
+        remain.insert(i);
+      }
+    }
+  }
+  std::unordered_set<state_id_type> seen;
   
   // add the current set of initial states to the frontier
-  std::deque<pair<state_id,vector<state_id>>> frontier2;
-  for (const state_id s : initial_states_) {
-    frontier2.push_back(make_pair(s,vector<state_id>()));
-  }
+  std::deque<state_id_type> frontier2;
+  frontier2.push_back(1);
   
   // check if the successor of every state is good, otherwise replace with successor of successor
   while (!frontier2.empty()) {
-    pair<state_id,vector<state_id>> nextp = frontier2.front();
-    state_id next = nextp.first;
-    assert(states[next].action || states[next].final || initial_states_.find(next) != initial_states_.end());
-    vector<state_id> parents = nextp.second;
+    state_id_type next = frontier2.front();
+    assert(states[next].action || states[next].final || next == 1 || remain.find(next)!=remain.end());
+
     frontier2.pop_front();
     if (seen.find(next) == seen.end()) {
-      parents.push_back(next);
       seen.insert(next);
+      set<edge> successors; // set of successors
       
-      set<std::pair<state_id,bool>, successors_pair_less> successors; // set of successors
-      
-      for (unsigned i = 0; i<edges[next].size();++i) {
+      std::unordered_set<state_id_type> seen_inner; // to prevent infinite loops
+      unsigned i;
+      for (i = 0; i<edges[next].size();++i) {
         edge edge_to = edges[next][i];
         state& succ = states[edge_to.to];
-        if (!succ.action && !succ.final) {
+        seen_inner.insert(edge_to.to);        
+        if (!succ.action && !succ.final && remain.find(edge_to.to)==remain.end()) {
           // remove this successor
           for (const edge& edge2 : get_successors(edge_to.to)) {
-            edge new_edge(edge2);
-            if (edge_to.tag)
-              new_edge.tag = edge_to.tag;
-            edges[next].push_back(new_edge);
+            if (seen_inner.find(edge2.to) == seen_inner.end()) {
+              edge new_edge(edge2);
+              if (!new_edge.tag) new_edge.tag = edge_to.tag;
+              new_edge.in_betweeners.insert(new_edge.in_betweeners.begin(), edge_to.to);
+              new_edge.in_betweeners.insert(new_edge.in_betweeners.begin(), edge_to.in_betweeners.begin(), edge_to.in_betweeners.end());
+              edges[next].push_back(new_edge);
+            }
           }
         } else {
-          auto newp = make_pair(edge_to.to, edge_to.tag!=nullptr);
-          successors.insert(make_pair(edge_to.to, edge_to.tag!=nullptr));
+          successors.insert(edge_to);
         }
       }
       edges[next].clear();
-      // re-add the edges
-      for (std::pair<state_id,bool> succ : successors) {
-        frontier2.push_back(make_pair(succ.first,parents));
-        reward_t cost = parents.end() - find(parents.begin(), parents.end(), succ.first);
-        bool back_edge = cost != 0;
-        add_edge(next, succ.first, back_edge, false, cost);
-        if (succ.second) {
-          tag_edge(next, edges[next].size()-1);
-        }
+      // add information to the edges
+      for (edge e : successors) {
+        e.back_edge = false; // will be set to true below
+        frontier2.push_back(e.to);
+        edges[next].push_back(e);
+        if (e.tag) tag_edge(next, edges[next].size()-1); // only tag those tagged before
       }
     }
   }
   
-  calc_distance(*initial_states_.begin());
-}
-
-unsigned int abstract_cfg::calc_distance(state_id state)
-{
-  if (states[state].distance!=0) return states[state].distance;
-  unsigned min = 999;
-  if (states[state].final) min = 0;
-  else {
-    for (edge& e : edges[state]) {
-      unsigned other;
-      if (e.back_edge) {
-        other = states[e.to].distance;
+  // do a better cost calculation
+  // reset distance
+  for (state& s : states) s.distance = 0;
+  std::deque<pair<state_id_type,unordered_set<state_id_type>>> frontier;
+  frontier.push_back(make_pair(1,unordered_set<state_id_type>()));
+  while (!frontier.empty()) {
+    pair<state_id_type,unordered_set<state_id_type>>& nextp = frontier.front();
+    unordered_set<state_id_type> parents = nextp.second;
+    state_id_type next = nextp.first;
+    frontier.pop_front();
+    parents.insert(next);
+    state& s = states[next];
+    for (edge& e : edges[next]) {
+      bool back_edge = parents.find(e.to) != parents.end();
+      if (!back_edge) { 
+        frontier.push_back(make_pair(e.to,parents));
+        state& to = states[e.to];
+        to.distance = max<reward_t>(to.distance, s.distance+1);
       } else {
-        other = calc_distance(e.to);
+        e.back_edge = true;
       }
-      min = std::min(min, other+1);
     }
   }
-  states[state].distance = min+1;
-  return min+1;
+  // calculate cost of back edges correctly now
+  for (unsigned i = 1; i <= no_states(); ++i) {
+    state& s = states[i];
+    for (edge& e : edges[i]) {
+      if (e.back_edge) {
+        state& to = states[e.to];
+        e.cost = s.distance - to.distance + 1;
+      }
+    }
+  }
 }
+
+
+void abstract_cfg::compact()
+{
+  vector<bool> active(states.size(), false);
+  // get a list of active states
+  std::deque<state_id_type> frontier;
+  frontier.push_back(1);
+  
+  while (!frontier.empty()) {
+    state_id_type next = frontier.front();
+    frontier.pop_front();
+    active[next] = true;
+    for (edge& e : edges[next]) {
+      if (!e.back_edge) {
+        frontier.push_back(e.to);
+      }
+    }
+  }
+  
+  vector<state_id_type> mapping(states.size(), no_state);
+ 
+  //filter out the ones not active
+  state_id_type last_active = 0;
+  for (unsigned i = 1; i < states.size(); ++i) {
+    if (!active[i]) {
+      // find next one and move it ahead
+      unsigned j = i;
+      for (; j < states.size(); ++j) {
+        if (active[j]) {
+          // move this
+          states[i] = states[j];
+          edges[i] = std::move(edges[j]);
+          active[j] = false;
+          mapping[j] = i;
+          states[i].id(i);
+          break;
+        }
+      }
+      if (j == states.size()) break;
+    }
+    last_active = i;
+  }
+  
+  // truncate the vectors
+  states.erase(states.begin()+last_active+1, states.end());
+  edges.erase(edges.begin()+last_active+1, edges.end());
+  
+  // now update the mappings
+  for (unsigned i = 1; i < states.size(); ++i) {
+    if (states[i].return_state != no_state && mapping[states[i].return_state]!=no_state) {
+      states[i].return_state = mapping[states[i].return_state];
+    }
+    for (edge& e : edges[i]) {
+      if (mapping[e.to]!=no_state) e.to = mapping[e.to];
+      e.id(i);
+      e.in_betweeners.clear();
+    }
+  }
+}
+
+const unordered_set< state_id_type > abstract_cfg::get_forward_successors(state_id_type from) const
+{
+  unordered_set< state_id_type > res;
+  for (const edge& e : edges[from]) {
+    if (!e.back_edge) res.insert(e.to);
+  }
+  return res;
+}
+

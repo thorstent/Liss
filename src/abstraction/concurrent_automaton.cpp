@@ -28,10 +28,10 @@ using namespace std;
 
 using namespace abstraction;
 
-concurrent_automaton::concurrent_automaton(const cfg::program& program, bool concurrent, bool collapse_epsilon) : 
-Limi::automaton<pcstate,pcsymbol,concurrent_automaton>(collapse_epsilon),
+concurrent_automaton::concurrent_automaton(const cfg::program& program, bool concurrent, bool collapse_epsilon, bool deadlock_automaton) : 
+Limi::automaton<pcstate,psymbol,concurrent_automaton>(collapse_epsilon),
 identifier_store_(program.identifiers()),
-concurrent_(concurrent)
+concurrent_(concurrent), deadlock_(deadlock_automaton)
 {
   for (const cfg::abstract_cfg* thread : program.minimised_threads()) {
     cfgs.push_back(thread);
@@ -43,46 +43,31 @@ concurrent_(concurrent)
 bool concurrent_automaton::int_is_final_state(const pcstate& state) const
 {
   for (thread_id_type i = 0; i<state->length; ++i) {
-    if (!threads[i].is_final_state((*state)[i]))
+    if ((*state)[i]!=no_state && !threads[i].is_final_state(cfg::reward_state((*state)[i])))
       return false;
   }
   return true;
 }
 
-void concurrent_automaton::int_initial_states(concurrent_automaton::State_set& states) const
+void concurrent_automaton::int_initial_states(concurrent_automaton::State_vector& states) const
 {
-  states.insert(make_shared<concurrent_state>(threads.size()));
+  states.push_back(make_shared<concurrent_state>(threads.size(), locks_size));
   thread_id_type length = threads.size();
   for (thread_id_type i = 0; i<length; ++i) {
-    State_set duplicates = states;
+    State_vector duplicates = states;
     states.clear();
-    bool first = true;
-    for (const state_id& init : threads[i].initial_states()) {
+    for (const cfg::reward_state& init : threads[i].initial_states()) {
 
-      if (first) {
         for (const pcstate& s : duplicates) {
           shared_ptr<concurrent_state> dup = make_shared<concurrent_state>(*s);
-          dup->threads[i] = init;
-          states.insert(dup);
+          dup->threads[i] = init.state;
+          states.push_back(dup);
         }
-      } else {
-        for (const pcstate& s : duplicates) {
-          shared_ptr<concurrent_state> dup = make_shared<concurrent_state>(*s);
-          dup->threads[i] = init;
-          states.insert(dup);
-        }
-      }
-      first = false;
     }
-  }
-  State_set duplicates = states;
-  states.clear();
-  for (pcstate s : duplicates) {
-    states.insert(s);
   }
 }
 
-void concurrent_automaton::int_next_symbols(const pcstate& state, concurrent_automaton::Symbol_set& symbols) const
+void concurrent_automaton::int_next_symbols(const pcstate& state, concurrent_automaton::Symbol_vector& symbols) const
 {
   if (state->current == -1) {
     for (thread_id_type i = 0; i<state->length; ++i) {
@@ -93,43 +78,44 @@ void concurrent_automaton::int_next_symbols(const pcstate& state, concurrent_aut
   }
 }
 
-void concurrent_automaton::int_successors(const pcstate& state, const pcsymbol& sigma, concurrent_automaton::State_set& successors) const
+void concurrent_automaton::int_successors(const pcstate& state, const psymbol& sigma, concurrent_automaton::State_vector& successors) const
 {
-  thread_id_type thread = sigma.thread_id;
-  if (state->current != unassigned && state->current != static_cast<int>(thread)) return;
-  cfg::reward_symbol rs(0,sigma.symbol);
-  const cfg::automaton::State_set succs = threads[thread].successors(state->threads[thread], rs); // cost is not relevant here
+  thread_id_type thread = sigma->thread_id();
+  if (state->current != no_thread && state->current != static_cast<int>(thread)) return;
+  const cfg::automaton::State_vector succs = threads[thread].successors(cfg::reward_state(state->threads[thread]), sigma); // cost is not relevant here
   assert(!succs.empty());
   bool progress;
   pcstate next = apply_symbol(state, sigma, progress);
-
+  
   if (next) {
+    assert (progress || !concurrent_);
     if (!progress) {
-      successors.insert(next);
+      successors.push_back(next);
       return;
     }
     //cout << threads[thread]->name(next->threads[thread]) << " -> ";
     bool first = true;
-    for (const state_id& p : succs) {
+    for (const cfg::reward_state& p : succs) {
+      next->reward += p.reward;
       pcstate copy = first ? next : make_shared<concurrent_state>(*next); // copy needed if not first element
-      next->reward += rs.reward;
-      copy->threads[thread] = p;
+      copy->threads[thread] = p.state;
       //cout << threads[thread]->name(p) << " ";
-      if (concurrent_ || threads[thread].is_final_state(p)) copy->current = unassigned;
-      successors.insert(copy);
+      if (concurrent_ || threads[thread].is_final_state(p)) copy->current = no_thread;
+      successors.push_back(copy);
+      deadlock_states(copy, thread, successors);
       first = false;
     }
     //cout << successors.size() << endl;
   }
 }
 
-pcstate concurrent_automaton::apply_symbol(const pcstate& original_state, const pcsymbol& sigma, bool& progress) const
+pcstate concurrent_automaton::apply_symbol(const pcstate& original_state, const psymbol& sigma, bool& progress) const
 {
   progress = true;
-
-  if (!concurrent_ && sigma.symbol->synthesised) {
+  
+  if (original_state->current == no_thread || (sigma->assume&&!assumes_allow_switch) || sigma->synthesised) {
     // test if locking is ok
-    switch (sigma.symbol->operation) {
+    switch (sigma->operation) {
       case abstraction::op_class::read:
       case abstraction::op_class::write:
       case abstraction::op_class::epsilon:
@@ -140,92 +126,255 @@ pcstate concurrent_automaton::apply_symbol(const pcstate& original_state, const 
         break;
       case abstraction::op_class::wait_reset:
       case abstraction::op_class::wait:
-        if (!original_state->conditionals.test(sigma.symbol->variable)) {
-          // no context switching on synthesised symbols
-          if (original_state->current == unassigned || (sigma.symbol->assume&&!assumes_allow_switch)) return nullptr;
+        if (!original_state->conditionals.test(sigma->variable)) {
+          return nullptr;
         }
         break;
       case abstraction::op_class::wait_not:
-        if (original_state->conditionals.test(sigma.symbol->variable)) {
-          if (original_state->current == unassigned || (sigma.symbol->assume&&!assumes_allow_switch)) return nullptr;
+        if (original_state->conditionals.test(sigma->variable)) {
+          return nullptr;
         }
         break;
       case abstraction::op_class::lock:
-        if (original_state->locks.test(sigma.symbol->variable)) {
-          if (original_state->current == unassigned || (sigma.symbol->assume&&!assumes_allow_switch)) return nullptr;
+        if (original_state->locks.test(sigma->variable)) {
+          return nullptr;
         }
         break;
     }
   }
   
   pcstate cloned_state = make_shared<concurrent_state>(*original_state);
-  cloned_state->current = sigma.thread_id;
-  if (!concurrent_ && sigma.symbol->synthesised) {
-    return cloned_state;
+  
+  if (condyield_is_always_yield) {
+    switch (sigma->operation) {
+      case abstraction::op_class::read:
+      case abstraction::op_class::write:
+      case abstraction::op_class::epsilon:
+      case abstraction::op_class::unlock:
+      case abstraction::op_class::notify:
+      case abstraction::op_class::reset:
+      case abstraction::op_class::yield:
+        break;
+      case abstraction::op_class::wait_reset:
+      case abstraction::op_class::wait:
+      case abstraction::op_class::wait_not:
+      case abstraction::op_class::lock:
+        if (!(original_state->current == no_thread || (sigma->assume&&!assumes_allow_switch) || sigma->synthesised)) {
+          cloned_state->current = no_thread;
+          progress = false;
+          return cloned_state;
+        }
+        break;
+    }
   }
+  
+  cloned_state->current = sigma->thread_id();
   // apply changes
-  switch (sigma.symbol->operation) {
+  switch (sigma->operation) {
     case abstraction::op_class::read:
     case abstraction::op_class::write:
     case abstraction::op_class::epsilon:
       break;
     case abstraction::op_class::lock:
-      if (original_state->locks.test(sigma.symbol->variable)) {
-        cloned_state->current = unassigned;
+      if (original_state->locks.test(sigma->variable)) {
+        cloned_state->current = no_thread;
         progress = false;
       } else {
-        cloned_state->locks.set(sigma.symbol->variable);
+        cloned_state->locks.set(sigma->variable);
       }
       break;
     case abstraction::op_class::unlock:
-        cloned_state->locks.reset(sigma.symbol->variable);
+      cloned_state->locks.reset(sigma->variable);
       break;
     case abstraction::op_class::notify:
-      cloned_state->conditionals.set(sigma.symbol->variable);
+      cloned_state->conditionals.set(sigma->variable);
       break;
     case abstraction::op_class::reset:
-      cloned_state->conditionals.reset(sigma.symbol->variable);
+      cloned_state->conditionals.reset(sigma->variable);
       break;
     case abstraction::op_class::wait_reset:
-      if (!cloned_state->conditionals.test(sigma.symbol->variable)) {
-        cloned_state->current = unassigned;
+      if (!cloned_state->conditionals.test(sigma->variable)) {
+        cloned_state->current = no_thread;
         progress = false;
       } else {
-        cloned_state->conditionals.reset(sigma.symbol->variable);
+        cloned_state->conditionals.reset(sigma->variable);
       }
       break;
     case abstraction::op_class::wait:
-      if (!cloned_state->conditionals.test(sigma.symbol->variable)) {
-        cloned_state->current = unassigned;
+      if (!cloned_state->conditionals.test(sigma->variable)) {
+        cloned_state->current = no_thread;
         progress = false;
       }
       break;
     case abstraction::op_class::wait_not:
-      if (cloned_state->conditionals.test(sigma.symbol->variable)) {
-        cloned_state->current = unassigned;
+      if (cloned_state->conditionals.test(sigma->variable)) {
+        cloned_state->current = no_thread;
         progress = false;
       }
       break;
     case abstraction::op_class::yield:
-      cloned_state->current = unassigned;
+      cloned_state->current = no_thread;
       break;
   }
+  if (!apply_bad_trace_dnf(cloned_state, sigma)) return nullptr;
   return cloned_state;
 }
 
-
-inline void concurrent_automaton::next_single(const pcstate& state, concurrent_automaton::Symbol_set& symbols, unsigned int thread) const
+bool concurrent_automaton::tick_lock(pcstate& cloned_state, int lock) const
 {
-  for (const cfg::reward_symbol& s : threads[thread].next_symbols((*state)[thread])) {
-    pcsymbol sym = csymbol(s.symbol, thread);
-    if (successor_filter.empty() || s.symbol->is_epsilon() || successor_filter.find(sym)!=successor_filter.end())
-    symbols.insert(sym);
+  // in this case, the lock is violated immediatelly
+  if (lock==-1) return false;
+  bool old = cloned_state->locksviolated.test(lock);
+  if (!old) {
+    cloned_state->locksviolated.set(lock);
+    // this bit was not set before
+    // check if we want to throw away this execution
+    for (const auto& bad : locks) {
+      // at least one of the conjuncts is fulfilled
+      if ((cloned_state->locksviolated & bad) == bad) {
+        // print
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+
+/** How the conflicts work: sigma is the current symbol, thread is the thread of sigma
+ * 1. Check existing conflicts. They fall into two categories, first check those which have not seen the conflict (clean)
+ *    a) if conflict.conflict == sigma, then replace by tagged conflict (meaning we saw the conflict)
+ *    b) else if thread == next_thread remove from set
+ * 2. Check those who saw the conflict (tagged)
+ *    a) if conflict.next == sigma, mark lock violated and remove from set
+ *    b) else if thread == next_thread remove from set
+ * 3. Check for new conflicts:
+ *    a) if sigma in conflict_map add conflict
+ */
+
+bool concurrent_automaton::apply_bad_trace_dnf(pcstate& cloned_state, const psymbol& sigma) const
+{
+  // we don't deal with tags
+  if (sigma->is_real_epsilon() || sigma->operation == op_class::tag)
+    return true;
+  
+  thread_id_type thread = sigma->thread_id();
+  // check existing conflicts
+  for (auto itc = cloned_state->conflicts.begin(); itc != cloned_state->conflicts.end();) {
+    const conflict_t& c = *itc;
+    assert(c.payload() < conflicts.size());
+    const conflict_info& ci = conflicts[c.payload()];
+    bool del = false; // delete
+    if (!c.test()) {
+      // have not seen the conflict yet
+      if (ci.next_thread() == thread) {
+        // no longer valid
+        del = true;
+      } else if (ci.conflict.find(sigma) != ci.conflict.end()) {
+        // escalate to conflict
+        del = true;
+        conflict_t c_ = c;
+        c_.set();
+        cloned_state->conflicts.insert(c_);
+      }
+    } else {
+      // we are already in a conflict
+      if (ci.next_thread() == thread) {
+        // no longer needed
+        if (equal_to<psymbol>()(sigma, ci.next)) {
+          if (!tick_lock(cloned_state, ci.lock_id)) {
+            return false;
+          } // otherwise continue to tick off other locks
+        }
+        del = true;
+      }
+    }
+    if (del)
+      itc = cloned_state->conflicts.erase(itc);
+    else
+      ++itc;
+  }
+  // maybe this is a new conflict
+  auto range = conflict_map.equal_range(sigma);
+  for_each(range.first, range.second, [&cloned_state](const unordered_multimap<psymbol, unsigned>::value_type& c){cloned_state->conflicts.insert(conflict_t(c.second));});
+  return true;
+}
+
+
+
+inline void concurrent_automaton::next_single(const pcstate& state, concurrent_automaton::Symbol_vector& symbols, thread_id_type thread) const
+{
+  if ((*state)[thread]!=no_state) {
+    for (const abstraction::psymbol& s : threads[thread].next_symbols(cfg::reward_state((*state)[thread]))) {
+      if (successor_filter.empty() || s->is_epsilon() || successor_filter.find(s)!=successor_filter.end())
+        symbols.push_back(s);
+    }
+  }
+}
+
+void concurrent_automaton::deadlock_states(const pcstate& cloned_state, thread_id_type thread, State_vector& successors) const
+{
+  if (deadlock_) {
+    state_id_type state = (*cloned_state)[thread];
+    if (threads[thread].is_final_state(cfg::reward_state(state))) {
+      shared_ptr<concurrent_state> dup = make_shared<concurrent_state>(*cloned_state);
+      (*dup)[thread] = no_state;
+      successors.push_back(dup);
+    }
   }
 }
 
 
-inline pcsymbol concurrent_automaton::make_pair(psymbol symbol, unsigned int thread) const
+void concurrent_automaton::add_forbidden_traces(const synthesis::lock_symbols& new_locks)
 {
-  return csymbol(symbol, thread);
+  for (const disj<synthesis::lock_lists>& lockd : new_locks) {
+    // one of these locks needs to hold
+    bool multiple = lockd.size()>1; // if multiple then we need to create a bitmask
+    if (multiple) locks.emplace_back(locks_size);
+    for (const synthesis::lock_lists& lock : lockd) {
+      // one single lock
+      if (multiple) locks.back().push_back(true);
+      // define conflicts mutually between locations
+      for (auto it = lock.begin(); it!=lock.end(); ++it) {
+        // each conflict in this vector is in conflict with all the other vectors
+        psymbol pred = nullptr;
+        for (const psymbol& current : (*it)) {
+          if (!current->is_real_epsilon()) {
+            if (pred) {
+              for (auto it2 = lock.begin(); it2!=lock.end(); ++it2) {
+                // locks talking about the same thread are ignored
+                if (it->front()->thread_id()!=it2->front()->thread_id()) {
+                  auto last = it2->end();
+                  --last;
+                  // create a list of conflicting symbols
+                  std::unordered_set<psymbol> conflicting;
+                  for (auto pl = it2->begin(); pl != it2->end(); ++pl) {
+                    psymbol conflict = *pl;
+                    if (!conflict->is_real_epsilon()) {
+                      conflicting.insert(conflict);
+                    }
+                  }
+                  if (!conflicting.empty()) {
+                    conflicts.emplace_back(conflicting, current, multiple ? locks_size : -1);
+                    conflict_map.insert(make_pair(pred, conflicts.size()-1));
+                  }
+                }
+              }
+            } // if(pred)
+            pred = current;
+          } // for lock
+        }
+        
+        
+      }
+      if (multiple) ++locks_size;
+    }
+  }
+  
+  // convert locks to correct length
+  for (auto& bad : locks) {
+    bad.resize(locks_size, false);
+  }
+  
 }
 

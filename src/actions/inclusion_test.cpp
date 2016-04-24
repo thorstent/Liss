@@ -24,8 +24,7 @@
 
 #include <Limi/antichain_algo_ind.h>
 #include <Limi/list_automaton.h>
-#include "abstraction/concurrent_automaton.h"
-
+#include <Limi/dot_printer.h>
 
 #include <clang/AST/PrettyPrinter.h>
 #include <clang/AST/Stmt.h>
@@ -36,29 +35,30 @@
 using namespace actions;
 using namespace std;
 
-Limi::inclusion_result< abstraction::pcsymbol > check_trace(std::list<abstraction::pcsymbol> trace,
-                                                                const abstraction::concurrent_automaton& sequential,
-                                                                const Limi::printer_base< abstraction::pcsymbol >& symbol_printer
+Limi::inclusion_result< abstraction::com_symbol > check_trace(const std::vector<abstraction::com_symbol>& trace,
+                                                              abstraction::compressed_automaton<abstraction::psymbol>& sequential,
+                                                              const abstraction::wrapper_automaton<abstraction::concurrent_automaton>& concurrent_wrap
 ) {
-  Limi::list_automaton<abstraction::pcsymbol> check_concurrent(trace.begin(), trace.end(), symbol_printer);
   
-  abstraction::concurrent_automaton seq2(sequential);
-  seq2.use_cache = false;
-  
+  std::vector<abstraction::com_symbol> trace2;
   unsigned bound = 0;
-  for (const abstraction::pcsymbol sy : trace) {
-    if (!sy.symbol->is_epsilon()) {
+  for (const abstraction::com_symbol& sy : trace) {
+    if (!concurrent_wrap.is_epsilon(sy)) {
       ++bound;
-      seq2.successor_filter.insert(sy);
+      sequential.successor_filter.insert(sy);
+      trace2.push_back(sy);
     }
   }
+  
+  Limi::list_automaton<abstraction::com_symbol> check_concurrent(trace2.begin(), trace2.end(), concurrent_wrap.symbol_printer());
   if (bound > 10) bound = (bound / 2) + 1; // only half is needed
-  Limi::antichain_algo_ind<unsigned,abstraction::pcstate,abstraction::pcsymbol,Limi::list_automaton<abstraction::pcsymbol>,abstraction::concurrent_automaton> algo_check(check_concurrent, seq2, trace.size());
-  inclusion_result res = algo_check.run();
+  Limi::antichain_algo_ind<Limi::list_automaton<abstraction::com_symbol>,abstraction::compressed_automaton<abstraction::psymbol>,abstraction::compressed_automaton_independence<abstraction::psymbol>> algo_check(check_concurrent, sequential, trace.size(), sequential.get_independence());
+  Limi::inclusion_result< abstraction::com_symbol > res = algo_check.run();
   /*cout << "---->" << endl;
   res.print_long(cout, symbol_printer);
   cout << "<----" << endl;*/
   assert (!res.bound_hit);
+  sequential.successor_filter.clear();
   return res;
 }
 
@@ -67,19 +67,42 @@ bool actions::test_inclusion(const cfg::program& program, inclusion_result& resu
 }
 
 void actions::filter_result(inclusion_result& result) {
-  result.filter_trace([](const abstraction::pcsymbol& sym){return sym.symbol->tag_state!=no_state;});
+  result.filter_trace([](const abstraction::psymbol& sym){return sym->tag_branch!=-1;});
 }
 
-bool actions::test_inclusion(const abstraction::concurrent_automaton& sequential, const cfg::program& concurrent_program, inclusion_result& result)
+bool actions::test_inclusion(abstraction::compressed_automaton<abstraction::psymbol>& sequential, const abstraction::concurrent_automaton& concurrent, inclusion_result& end_result)
 {
-  abstraction::concurrent_automaton concurrent(concurrent_program, true, false);
+  /*Limi::antichain_algo_ind<abstraction::pcstate,abstraction::pcstate,abstraction::psymbol,abstraction::concurrent_automaton,abstraction::concurrent_automaton> algo3(concurrent, sequential, 4);
+  auto res3 = algo3.run();
+  res3.print_long(debug, concurrent.symbol_printer());
+  exit(4);
+  if (verbosity>=1) {
+    debug << "Compressing concurrent automaton" << endl;
+  }
+  abstraction::compressed_automaton<abstraction::psymbol> compressed_concurrent = abstraction::from_concurrent_automaton(concurrent);
+  Limi::dot_printer<abstraction::com_state, abstraction::com_symbol, abstraction::compressed_automaton<abstraction::psymbol>> pr;
+  //pr.print_dot(compressed_concurrent, debug_folder + "compr.program_con.dot");
+  if (verbosity>=1) {
+    debug << "Compressing sequential automaton" << endl;
+  }
+  abstraction::compressed_automaton<abstraction::psymbol> compressed_sequential = abstraction::from_concurrent_automaton(sequential, compressed_concurrent);
+  //pr.print_dot(compressed_sequential, debug_folder + "compr.program_seq.dot");
+  
+  auto ind = compressed_sequential.get_independence();
+  Limi::antichain_algo_ind<abstraction::com_state,abstraction::com_state,abstraction::com_symbol,abstraction::compressed_automaton<abstraction::psymbol>,abstraction::compressed_automaton<abstraction::psymbol>,abstraction::compressed_automaton_independence<abstraction::psymbol>> algo2(compressed_concurrent, compressed_sequential, 4, ind);
+  auto res = algo2.run();
+  res.print_long(debug, compressed_concurrent.symbol_printer());
+  exit(5);*/
+  abstraction::wrapper_automaton<abstraction::concurrent_automaton> concurrent_wrap = sequential.get_wrapper(concurrent);
+  Limi::inclusion_result< abstraction::com_symbol > result;
   
   unsigned bound = 1;
-  Limi::antichain_algo_ind<abstraction::pcstate,abstraction::pcstate,abstraction::pcsymbol,abstraction::concurrent_automaton,abstraction::concurrent_automaton> algo(concurrent, sequential, bound);
+  Limi::antichain_algo_ind<abstraction::wrapper_automaton<abstraction::concurrent_automaton>, abstraction::compressed_automaton<abstraction::psymbol>, abstraction::compressed_automaton_independence<abstraction::psymbol>> algo(concurrent_wrap, sequential, bound, sequential.get_independence());
   while (bound <= max_bound) {
     result = algo.run();
     if (result.included) {
-      filter_result(result);
+      end_result = concurrent_wrap.translate_result(result);
+      filter_result(end_result);
       return true;
     }
     unsigned i = 0;
@@ -89,27 +112,29 @@ bool actions::test_inclusion(const abstraction::concurrent_automaton& sequential
 #ifdef SANITY
         if (verbosity >= 1)
           debug << "Checking if the trace is actually a counter example" << endl;
-        Limi::inclusion_result< abstraction::pcsymbol > result_check = check_trace(result.counter_example, sequential, concurrent.symbol_printer());
+        Limi::inclusion_result< abstraction::com_symbol > result_check = check_trace(result.counter_example, sequential, concurrent_wrap);
         if (result_check.included) {
           cerr << endl << endl << "SANITY: The trace found is not a counter example" << endl;
         }
 #endif
-        filter_result(result);
+        end_result = concurrent_wrap.translate_result(result);
+        filter_result(end_result);
         return true;
       }
       if (verbosity>=1)
         debug << "Found candidate ... Checking if truely a counter-example(size=" << result.counter_example.size() << ")" << endl;
       // is this result real?
-      Limi::inclusion_result< abstraction::pcsymbol > result_check = check_trace(result.counter_example, sequential, concurrent.symbol_printer());
+      Limi::inclusion_result< abstraction::com_symbol > result_check = check_trace(result.counter_example, sequential, concurrent_wrap);
       if (!result_check.included) {
-        filter_result(result);
+        end_result = concurrent_wrap.translate_result(result);
+        filter_result(end_result);
         return true;
       }
       if (verbosity>=1) {
         debug << "Candidate is not a counter-example" << endl;
       }
-      if (verbosity>=2) {
-        result.print_long(debug, concurrent.symbol_printer());
+      if (verbosity>=3) {
+        result.print_long(debug, sequential.symbol_printer());
       }
       //result = algo.run();
     }
@@ -128,13 +153,15 @@ bool actions::test_inclusion(const cfg::program& sequential_program, const cfg::
 {
   
   abstraction::concurrent_automaton sequential(sequential_program, false, true);
-  return test_inclusion(sequential, concurrent_program, result);
+  abstraction::compressed_automaton<abstraction::psymbol> compressed_sequential = abstraction::from_concurrent_automaton(sequential);
+  abstraction::concurrent_automaton concurrent(concurrent_program, true, false);
+  return test_inclusion(compressed_sequential, concurrent, result);
 }
 
 
 void inclusion_test::run(const cfg::program& program, clang::CompilerInstance& compiler)
 {
-  Limi::printer<abstraction::pcsymbol> symbol_printer;
+  Limi::printer<abstraction::psymbol> symbol_printer;
   inclusion_result result;
   bool success = test_inclusion(program, result);
   

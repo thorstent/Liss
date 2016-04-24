@@ -1,32 +1,34 @@
 Liss (Language Inclusion-based Synchronisation Synthesis)
 =======
 
-Liss is the implementation that accompanies our paper [1]. It is a synthesis tool that is given a concurrent C program and will insert synchronisation primitives until the behaviour of the concurrent version of the program is identical to the sequential version. It is currently a research prototype.
+This is the version of Liss for our FMSD (Formal Methods in System Design, CAV15 special edition) submission [1].
+It is also mentioned in Thorsten Tarrach's PhD thesis [2]
 
-
-[1] Pavol Černý, Edmund C. Clarke, Thomas A. Henzinger, Arjun Radhakrishna, Leonid Ryzhyk, Roopsha Samanta, Thorsten Tarrach. From Non-preemptive to Preemptive Scheduling using Synchronization Synthesis. In CAV 2015
+[1] Pavol Černý, Edmund C. Clarke, Thomas A. Henzinger, Arjun Radhakrishna, Leonid Ryzhyk, Roopsha Samanta, Thorsten Tarrach. From Non-preemptive to Preemptive Scheduling using Synchronization Synthesis. In FMSD (2015), submitted
+[2] [http://thorstent.github.io/theses/](http://thorstent.github.io/theses/)
 
 Compiling Liss
 ==============
 
-Cloning the GIT
+Obtaining the source code
 ---------------
 
-When cloning this GIT repository the submodules need to be initialised as well. Use
+The source is hosted [here](Liss.tar.gz).
 
-	git clone --recursive https://github.com/thorstent/Liss.git
-
-If you already cloned Liss you can initialise the submodules by running
-
-	git submodule update --init --recursive
-
-Dependencies
+Compiling
 ------------
 
 As dependencies LLVM/Clang 3.6 and Boost are required. Under **Ubuntu Vivid Vervet (15.04)** necessary dependencies can be installed with
 
 	sudo apt-get install git g++ cmake libboost-filesystem-dev libboost-system-dev 
 	sudo apt-get install clang-3.6 libclang-3.6-dev libz-dev libedit-dev
+
+Liss can then be compiled as follows:
+
+	tar -xf Liss.tar.gz
+	cd liss
+	make
+
 
 <a name="tests"></a>Test cases in the archive
 -------------------------
@@ -36,13 +38,16 @@ The `tests` folder contains our test cases. `CAV13` and `CAV14` are test cases f
 | File extension | Meaning |
 |----------------|---------|
 | .c             | This is the test file that serves as input to Liss. |
-| .start.c       | This is the input file printed by Liss after it was parsed. This is useful because when Liss prints C code the code may not be formatted exactly like the input. |
-| .complete.c    | This is the file with the synthesised synchronisation primitives. The changes can be easily visualised by diffing this file with the .start.c file. |
-| .log           | The log file contains various debug output produced by Liss, among other things the fixes applied in each iteration. |
+| .absmin.c      | This is the file with the synthesised synchronisation primitives using the absolute minimum cost function. |
+| .small.c       | This is the file with the synthesised synchronisation primitives using the smalled locks cost function. |
+| .coarse.c      | This is the file with the synthesised synchronisation primitives using the coarse cost function. |
+| .unopt.c       | This is the file with the synthesised synchronisation primitives using no cost function. |
+| .maxconc.c     | This is the file with the synthesised synchronisation primitives using the maximum concurrency cost function. |
+| .locksv1.c     | This are the locks that were placed by Lissv1. |
 
-The .output folder generated for each example contains a C file with the code after each iteration. It also contains dot graphs of the automata of each thread. The complete automaton is not printed by default as it too large for any reasonable program. It can be generated with the print option.
+The changes can be easily visualised by diffing these files.
 
-How to generate these files is described [below](#synth). The .complete files are also checked into the repository.
+The .complete.c files can be regenerated as described [below](#synth).
 
 Source code
 -----------
@@ -55,7 +60,7 @@ Running
 <a name="synth"></a>./run_synth.sh
 --------------
 
-The `./run_synth.sh` script will run all the tests. It produces the output files described [above](#tests).
+The `./run_synth.sh` script will run all the tests. It produces the output files described [above](#tests) and in addition a log file with some detailed information.
 
 Command Line
 ------------
@@ -71,9 +76,20 @@ In the place of `-inclusion` any of the following actions may be used:
 | Action       | Description                                                                                              |
 |--------------|----------------------------------------------------------------------------------------------------------|
 | `-inclusion` | Tests if all preemptive traces are also preemption-free traces. Prints a counter-example if one exists. |
-| `-synthesis` | Invoke the synthesis and output a fixed file. Use the deadlock switch to find out if deadlocks were created by the synthesis. |
+| `-synthesis` | Invoke the synthesis and output all possible fixes fixed file. |
 | `-deadlock`  | Test for potential deadlocks and output a trace if one is found.                                         |
-| `-print`     | Output a .dot file with the non-preemptive and preemptive automaton (only useful for small programs).        |
+| `-print`     | Output a number of .dot files with the non-preemptive and preemptive automaton (only useful for small programs). These files appear in a seperate subfolder called output. The _ef files are without the epsilon transitions.       |
+| `-printcfg`  | Print the control flow graphs of the threads. |
+| `-printthreads` | Print only the thread automata (this is for bigger programs where `-print` would just be too large) |
+| `-printtim` | Print the threads in Timbuk format. |
+| `-printlocks` | Debug information to check if lock placements are correctly identified. |
+
+There are two additional command line switches of interest:
+
+| Switch       | Description                                                                                              |
+|--------------|----------------------------------------------------------------------------------------------------------|
+| `-bound`     | The maximum bound for the bounded language inclusion (having a high number has no performance penalty, but it could take long before the algorithm gives up) |
+| `-locklimit` | The maximum number of locks that can be synthesised (heavy performance penalty for increasing this). Lock in this case does not refer to lock statements, but distinct lock variables. |
 
 Common error messages
 ------

@@ -25,89 +25,45 @@
 using namespace synthesis;
 using namespace std;
 
-synchronisation::synchronisation(const cfg::program& program, const concurrent_trace& trace):
- symbol_printer(Limi::printer<abstraction::pcsymbol>()), trace(trace) {
+synchronisation::synchronisation(const cfg::program& program):
+ symbol_printer(Limi::printer<abstraction::psymbol>()) {
   
 }
 
-void synchronisation::generate_sync(const cnf& cnf, list< lock >& locks, list<reordering>& reorderings, bool prefer_reorder)
+void synchronisation::generate_sync(const cnf_constr& cnf_weak, cnf< lock >& locks)
 {
-  for (const disj& d : cnf) {
-    if ((!prefer_reorder && !find_lock(d, locks) && !find_reordering(d, reorderings)) ||
-      (prefer_reorder && !find_reordering(d, reorderings) && !find_lock(d, locks))
-    ) {
+  for (const disj_constr& d : cnf_weak) {
+    locks.emplace_back();
+    if (!find_lock(d, locks.back(), false) && !find_lock(d, locks.back(), true)) {
       cerr << "Inferrence failed for ";
-      print_constraint_cnf(d, symbol_printer, cerr);
+      cerr << d;
       cerr << endl;
     }
   }
   
-  merge_locks(locks);
+  //merge_locks(locks);
   // we do lock merging later
   //merge_locks_multithread(locks);
   
   if (verbosity >= 1) {
     debug << "Locks inferred: " << endl;
-    for (const auto& l : locks) {
-      print_lock(l, symbol_printer, debug);
-      debug << endl;
-    }
-    debug << "Reorderings inferred: " << endl;
-    for (const auto& l : reorderings) {
-      print_reordering(l, symbol_printer, debug);
-      debug << endl;
-    }
+    debug << locks;
+    
   }
   
 }
 
-unsigned reorder_counter = 0;
-bool synchronisation::find_reordering(const disj& disjunct, list< reordering >& reorderings)
-{
-  bool found = false;
-  if ((disjunct.size()==1 && !disjunct[0].from_wait_notify) || (disjunct.size()==2 && !disjunct[0].from_wait_notify && disjunct[1].from_wait_notify )) {
-    const location& before = disjunct[0].before;
-    const location& after = disjunct[0].after;
-    // there must be a wait before after
-    list<const location*> waits;
-    auto it = find(trace.threads[after.thread_id()].rbegin(), trace.threads[after.thread_id()].rend(), after);
-    assert(it!=trace.threads[after.thread_id()].rend());
-    for (; it!=trace.threads[after.thread_id()].rend(); ++it) {
-      if (it->symbol.symbol->operation == abstraction::op_class::wait || it->symbol.symbol->operation == abstraction::op_class::wait_reset)
-        waits.push_back(&*it);
-    }
-    // is there a corresponding notify in the before thread
-    it = find(trace.threads[before.thread_id()].rbegin(), trace.threads[before.thread_id()].rend(), before);
-    assert(it!=trace.threads[before.thread_id()].rend());
-    for (; it!=trace.threads[before.thread_id()].rend(); ++it) {
-      if (it->symbol.symbol->operation == abstraction::op_class::notify) {
-        // is there a corresponding wait
-        lock_type var = it->symbol.symbol->variable;
-        auto itw = find_if(waits.begin(), waits.end(), [var](const location* l) {return l->symbol.symbol->variable==var;});
-        if (itw != waits.end()) {
-          found = true;
-          lock_location rr(*it,before);
-          reordering r("r" + std::to_string(++reorder_counter), rr);
-          reorderings.push_back(r);
-        }
-      }
-    }
-  }
-  return found;
-}
-
-
 unsigned lock_counter = 0;
-bool synchronisation::find_lock(const disj& disjunct, std::list<lock>& locks)
+bool synchronisation::find_lock(const disj_constr& disjunct, std::vector<lock>& locks, bool allow_only_weak)
 {
   bool found = false;
   if (disjunct.size()>=2) {
     // find all combinations
-    for (auto a = disjunct.begin(); a!=disjunct.end() && !found; a++)
+    for (auto a = disjunct.begin(); a!=disjunct.end(); a++)
     {
       auto b = a;
-      for (b++; b!=disjunct.end() && !found; b++) {
-        if (!a->from_wait_notify || !b->from_wait_notify) {
+      for (b++; b!=disjunct.end(); b++) {
+        if (!a->from_wait_notify || !b->from_wait_notify || allow_only_weak) {
           // check if this is a lock
           const location* loc1a = &a->before;
           const location* loc1b = &b->after;
