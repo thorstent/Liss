@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, IST Austria
+ * Copyright 2016, IST Austria
  *
  * This file is part of Liss.
  *
